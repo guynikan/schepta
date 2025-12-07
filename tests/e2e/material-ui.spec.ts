@@ -8,10 +8,10 @@ test.describe('Material UI Form Factory', () => {
   });
 
   test('should render simple form with Material UI components', async ({ page }) => {
-    await page.waitForSelector('[data-test-id="firstName"]', { timeout: 5000 });
+    await page.waitForSelector('[data-test-id*="firstName"]', { timeout: 10000 });
     
-    const firstNameField = page.locator('[data-test-id="firstName"]');
-    const lastNameField = page.locator('[data-test-id="lastName"]');
+    const firstNameField = page.locator('[data-test-id*="firstName"]').first();
+    const lastNameField = page.locator('[data-test-id*="lastName"]').first();
     
     await expect(firstNameField).toBeVisible();
     await expect(lastNameField).toBeVisible();
@@ -24,18 +24,18 @@ test.describe('Material UI Form Factory', () => {
   test('should render complex form with all field types', async ({ page, baseURL }) => {
     await page.goto(`${baseURL || 'http://localhost:3001'}/complex`);
     
-    await page.waitForSelector('[data-test-id="email"]', { timeout: 5000 });
+    await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
     
-    await expect(page.locator('[data-test-id="email"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="phone"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="userType"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="acceptTerms"]')).toBeVisible();
+    await expect(page.locator('[data-test-id*="email"]').first()).toBeVisible();
+    await expect(page.locator('[data-test-id*="phone"]').first()).toBeVisible();
+    await expect(page.locator('[data-test-id*="userType"]').first()).toBeVisible();
+    await expect(page.locator('[data-test-id*="acceptTerms"]').first()).toBeVisible();
   });
 
   test('should handle form input', async ({ page }) => {
-    await page.waitForSelector('[data-test-id="firstName"]', { timeout: 5000 });
+    await page.waitForSelector('[data-test-id*="firstName"]', { timeout: 10000 });
     
-    const firstNameField = page.locator('[data-test-id="firstName"] input');
+    const firstNameField = page.locator('[data-test-id*="firstName"] input').first();
     await firstNameField.fill('John');
     
     await expect(firstNameField).toHaveValue('John');

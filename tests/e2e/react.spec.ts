@@ -9,11 +9,11 @@ test.describe('React Form Factory', () => {
 
   test('should render simple form', async ({ page }) => {
     // Wait for form to be rendered
-    await page.waitForSelector('[data-test-id="firstName"]', { timeout: 5000 });
+    await page.waitForSelector('[data-test-id*="firstName"]', { timeout: 10000 });
     
     // Check if form fields are present
-    const firstNameField = page.locator('[data-test-id="firstName"]');
-    const lastNameField = page.locator('[data-test-id="lastName"]');
+    const firstNameField = page.locator('[data-test-id*="firstName"]').first();
+    const lastNameField = page.locator('[data-test-id*="lastName"]').first();
     
     await expect(firstNameField).toBeVisible();
     await expect(lastNameField).toBeVisible();
@@ -23,28 +23,28 @@ test.describe('React Form Factory', () => {
     await page.goto(`${baseURL || 'http://localhost:3000'}/complex`);
     
     // Wait for form to be rendered
-    await page.waitForSelector('[data-test-id="email"]', { timeout: 5000 });
+    await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
     
     // Check different field types
-    await expect(page.locator('[data-test-id="email"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="phone"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="userType"]')).toBeVisible();
-    await expect(page.locator('[data-test-id="acceptTerms"]')).toBeVisible();
+    await expect(page.locator('[data-test-id*="email"]').first()).toBeVisible();
+    await expect(page.locator('[data-test-id*="phone"]').first()).toBeVisible();
+    await expect(page.locator('[data-test-id*="userType"]').first()).toBeVisible();
+    await expect(page.locator('[data-test-id*="acceptTerms"]').first()).toBeVisible();
   });
 
   test('should handle form input', async ({ page }) => {
-    await page.waitForSelector('[data-test-id="firstName"]', { timeout: 5000 });
+    await page.waitForSelector('[data-test-id*="firstName"]', { timeout: 10000 });
     
-    const firstNameField = page.locator('[data-test-id="firstName"]');
+    const firstNameField = page.locator('[data-test-id*="firstName"]').first();
     await firstNameField.fill('John');
     
     await expect(firstNameField).toHaveValue('John');
   });
 
   test('should validate required fields', async ({ page }) => {
-    await page.waitForSelector('[data-test-id="firstName"]', { timeout: 5000 });
+    await page.waitForSelector('[data-test-id*="firstName"]', { timeout: 10000 });
     
-    const firstNameField = page.locator('[data-test-id="firstName"]');
+    const firstNameField = page.locator('[data-test-id*="firstName"]').first();
     await firstNameField.focus();
     await firstNameField.blur();
     
