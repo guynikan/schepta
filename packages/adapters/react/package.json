@@ -1,7 +1,7 @@
 {
   "name": "@schepta/adapter-react",
   "version": "0.1.0",
-  "description": "React adapter for Spectra",
+  "description": "React adapter for schepta",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

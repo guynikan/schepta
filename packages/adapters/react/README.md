@@ -1,6 +1,6 @@
 # @schepta/adapter-react
 
-React adapter for Spectra. Provides React-specific runtime adapter and form adapter integration with `react-hook-form`.
+React adapter for schepta. Provides React-specific runtime adapter and form adapter integration with `react-hook-form`.
 
 ## Installation
 

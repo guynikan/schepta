@@ -1,6 +1,6 @@
 # @schepta/core
 
-Core framework-agnostic rendering engine for Spectra. This package provides the foundational logic for rendering JSON schemas into UI components.
+Core framework-agnostic rendering engine for schepta. This package provides the foundational logic for rendering JSON schemas into UI components.
 
 ## Installation
 

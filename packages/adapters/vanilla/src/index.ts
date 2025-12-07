@@ -1,7 +1,7 @@
 /**
  * @schepta/adapter-vanilla
  * 
- * Vanilla JavaScript adapter for Spectra rendering engine
+ * Vanilla JavaScript adapter for schepta rendering engine
  */
 
 export * from './runtime-adapter';

@@ -1,7 +1,7 @@
 /**
  * @schepta/factory-react
  * 
- * React factories for Spectra rendering engine
+ * React factories for schepta rendering engine
  */
 
 export * from './form-factory';

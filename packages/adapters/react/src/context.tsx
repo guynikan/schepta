@@ -55,7 +55,7 @@ export function createReactContext<T>(defaultValue: T | null = null): ReactConte
 /**
  * Provider component props
  */
-export interface SpectraProviderProps<T> {
+export interface scheptaProviderProps<T> {
   value: T;
   children: React.ReactNode;
 }
@@ -65,7 +65,7 @@ export interface SpectraProviderProps<T> {
  */
 export function createProviderComponent<T>(
   context: ReactContext<T>
-): React.FC<SpectraProviderProps<T>> {
+): React.FC<scheptaProviderProps<T>> {
   return ({ value, children }) => {
     return React.createElement(context.Provider, { value }, children);
   };
