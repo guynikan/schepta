@@ -12,6 +12,23 @@
       "require": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guynikan/spectra.git",
+    "directory": "packages/adapters/react"
+  },
+  "license": "MIT",
+  "keywords": [
+    "spectra",
+    "react",
+    "adapter",
+    "rendering",
+    "server-driven-ui"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

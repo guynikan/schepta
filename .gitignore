@@ -3,5 +3,22 @@ dist
 *.log
 .DS_Store
 coverage
-. turbo
+.turbo
+.npmrc
+
+# VitePress cache
+docs/.vitepress/cache
+
+# CodeSandbox setup files (not needed in repo)
+docs/CODESANDBOX_SETUP.md
+docs/CODESANDBOX_TEMPLATES.md
+
+# Build artifacts
+*.tsbuildinfo
+.cache
+
+# Environment files
+.env
+.env.local
+.env.*.local
 

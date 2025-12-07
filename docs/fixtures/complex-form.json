@@ -1,0 +1,173 @@
+{
+  "$id": "complex-form",
+  "type": "object",
+  "x-component": "form-container",
+  "properties": {
+    "userInfo": {
+      "type": "object",
+      "x-component": "FormSectionContainer",
+      "properties": {
+        "title": {
+          "type": "object",
+          "x-component": "FormSectionTitle",
+          "x-content": "User Information"
+        },
+        "fields": {
+          "type": "object",
+          "x-component": "FormSectionGroupContainer",
+          "properties": {
+            "basicInfo": {
+              "type": "object",
+              "x-component": "FormSectionGroup",
+              "x-component-props": {
+                "columns": "1fr 1fr"
+              },
+              "properties": {
+                "email": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-ui": {
+                        "label": "Email Address",
+                        "placeholder": "example@email.com",
+                        "order": 1
+                      },
+                      "x-component-props": {
+                        "type": "email"
+                      },
+                      "x-rules": {
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                "phone": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "phone": {
+                      "type": "string",
+                      "x-component": "InputPhone",
+                      "x-ui": {
+                        "label": "Phone Number",
+                        "placeholder": "(123) 456-7890",
+                        "order": 2
+                      }
+                    }
+                  }
+                },
+                "userType": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "userType": {
+                      "type": "string",
+                      "x-component": "InputSelect",
+                      "x-ui": {
+                        "label": "User Type",
+                        "placeholder": "Select user type",
+                        "order": 3
+                      },
+                      "x-component-props": {
+                        "options": [
+                          { "value": "individual", "label": "Individual" },
+                          { "value": "company", "label": "Company" }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "birthDate": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "birthDate": {
+                      "type": "string",
+                      "x-component": "InputDate",
+                      "x-ui": {
+                        "label": "Birth Date",
+                        "order": 4
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "additionalInfo": {
+              "type": "object",
+              "x-component": "FormSectionGroup",
+              "x-component-props": {
+                "columns": "1fr"
+              },
+              "properties": {
+                "bio": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "bio": {
+                      "type": "string",
+                      "x-component": "InputTextarea",
+                      "x-ui": {
+                        "label": "Biography",
+                        "placeholder": "Tell us about yourself...",
+                        "order": 5
+                      },
+                      "x-component-props": {
+                        "rows": 5
+                      }
+                    }
+                  }
+                },
+                "age": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "age": {
+                      "type": "number",
+                      "x-component": "InputNumber",
+                      "x-ui": {
+                        "label": "Age",
+                        "placeholder": "Enter your age",
+                        "order": 6
+                      },
+                      "x-component-props": {
+                        "min": 0,
+                        "max": 120
+                      }
+                    }
+                  }
+                },
+                "acceptTerms": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "acceptTerms": {
+                      "type": "boolean",
+                      "x-component": "InputCheckbox",
+                      "x-ui": {
+                        "label": "Accept Terms and Conditions",
+                        "order": 7
+                      },
+                      "x-rules": {
+                        "required": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "submit": {
+      "type": "object",
+      "x-component": "SubmitButton",
+      "x-content": "Submit Form"
+    }
+  }
+}
+

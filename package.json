@@ -10,9 +10,18 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "dev:all": "concurrently \"pnpm --filter examples-react dev\" \"pnpm --filter examples-react-material-ui dev\" \"pnpm --filter examples-react-chakra-ui dev\" \"pnpm --filter examples-vue dev\" \"pnpm --filter examples-vue-vuetify dev\"",
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs build",
+    "docs:preview": "pnpm --filter docs preview",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
-    "clean": "turbo clean"
+    "clean": "turbo clean",
+    "publish:all": "./scripts/publish.sh",
+    "publish:core": "./scripts/publish.sh && cd packages/core && npm publish --access public && cd ../..",
+    "publish:adapters": "./scripts/publish.sh",
+    "publish:factories": "./scripts/publish.sh",
+    "publish:check": "pnpm build && node -e \"const fs = require('fs'); const pkgs = ['core', 'adapters/react', 'adapters/vue', 'adapters/vanilla', 'factories/react', 'factories/vue', 'factories/vanilla']; const missing = pkgs.filter(p => !fs.existsSync(\`packages/\${p}/dist\`)); if (missing.length) { console.error('❌ Packages sem build:', missing.join(', ')); process.exit(1); } else { console.log('✅ Todos os packages têm build'); }\"",
+    "publish:dry-run": "./scripts/publish.sh --dry-run"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
