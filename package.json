@@ -20,7 +20,7 @@
     "publish:core": "./scripts/publish.sh && cd packages/core && npm publish --access public && cd ../..",
     "publish:adapters": "./scripts/publish.sh",
     "publish:factories": "./scripts/publish.sh",
-    "publish:check": "pnpm build && node -e \"const fs = require('fs'); const pkgs = ['core', 'adapters/react', 'adapters/vue', 'adapters/vanilla', 'factories/react', 'factories/vue', 'factories/vanilla']; const missing = pkgs.filter(p => !fs.existsSync(\`packages/\${p}/dist\`)); if (missing.length) { console.error('❌ Packages sem build:', missing.join(', ')); process.exit(1); } else { console.log('✅ Todos os packages têm build'); }\"",
+    "publish:check": "pnpm build && node -e \"const fs = require('fs'); const pkgs = ['core', 'adapters/react', 'adapters/vue', 'adapters/vanilla', 'factories/react', 'factories/vue', 'factories/vanilla']; const missing = pkgs.filter(p => !fs.existsSync('packages/' + p + '/dist')); if (missing.length) { console.error('❌ Packages sem build:', missing.join(', ')); process.exit(1); } else { console.log('✅ Todos os packages têm build'); }\"",
     "publish:dry-run": "./scripts/publish.sh --dry-run"
   },
   "devDependencies": {
