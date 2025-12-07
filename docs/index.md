@@ -1,8 +1,8 @@
-# Spectra
+# schepta
 
 **Framework-agnostic rendering engine for server-driven UI**
 
-Spectra is a powerful, framework-agnostic rendering engine that transforms JSON schemas into fully functional UI components. It works seamlessly with React, Vue, and vanilla JavaScript, providing a unified approach to server-driven UI.
+schepta is a powerful, framework-agnostic rendering engine that transforms JSON schemas into fully functional UI components. It works seamlessly with React, Vue, and vanilla JavaScript, providing a unified approach to server-driven UI.
 
 ## 🚀 Quick Start
 
@@ -18,7 +18,7 @@ pnpm --filter docs dev
 
 ### Core Concepts
 
-Learn the fundamental concepts that power Spectra:
+Learn the fundamental concepts that power schepta:
 
 - **[01. Factories](./concepts/01-factories.md)** - How schemas become components
 - **[02. Schema Language](./concepts/02-schema-language.md)** - The syntax for defining UI
@@ -30,7 +30,7 @@ Learn the fundamental concepts that power Spectra:
 
 ### Examples
 
-See Spectra in action with interactive examples:
+See schepta in action with interactive examples:
 
 - **[React Examples](./examples/react.md)** - React with react-hook-form
 - **[React Material UI Examples](./examples/material-ui.md)** - React with Material UI
@@ -69,7 +69,5 @@ This simple schema becomes a fully functional form with validation, state manage
 
 ## 🔗 Resources
 
-- [GitHub Repository](https://github.com)
-- [API Reference](./api/)
-- [Migration Guide](./migration/)
+- [GitHub Repository](https://github.com/guynikan/schepta)
 

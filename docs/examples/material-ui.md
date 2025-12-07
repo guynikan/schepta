@@ -1,16 +1,18 @@
 # React Material UI Examples
 
-Interactive examples of Spectra forms using React with Material UI components.
+Interactive examples of schepta forms using React with Material UI components.
 
 ## Simple Form
 
 A basic form with first name and last name fields using Material UI components.
 
-<CodeSandboxEmbed
-  sandbox-id="schepta-react-material-ui-simple"
-  title="React Material UI Simple Form Example"
-  height="600px"
-/>
+<iframe 
+  src="https://codesandbox.io/embed/5tn7vv?view=editor+%2B+preview&module=%2Fsrc%2FApp.tsx"
+  style="width:100%; height: 500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="schepta-react-material-ui"
+  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+></iframe>
 
 ### Schema
 

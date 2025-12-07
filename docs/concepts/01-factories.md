@@ -6,7 +6,7 @@
 
 ---
 
-**Factory Pattern é o coração do Spectra:**
+**Factory Pattern é o coração do schepta:**
 
 ### 🔧 O Que É:
 

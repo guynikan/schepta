@@ -1,12 +1,12 @@
 # Linguagem dos Schemas
 
-**Sintaxe e propriedades que o Spectra entende** — o "vocabulário" para definir interfaces dinâmicas.
+**Sintaxe e propriedades que o schepta entende** — o "vocabulário" para definir interfaces dinâmicas.
 
 ![Schema Language](/images/02-schema-language.png)
 
 ---
 
-**Schema Language define como escrever JSON que o Spectra consegue interpretar:**
+**Schema Language define como escrever JSON que o schepta consegue interpretar:**
 
 ### 🔧 Propriedades Essenciais:
 

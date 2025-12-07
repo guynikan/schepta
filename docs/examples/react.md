@@ -1,16 +1,18 @@
 # React Examples
 
-Interactive examples of Spectra forms using React and `react-hook-form`.
+Interactive examples of schepta forms using React and `react-hook-form`.
 
 ## Simple Form
 
 A basic form with first name and last name fields.
 
-<CodeSandboxEmbed
-  sandbox-id="schepta-react-simple"
-  title="React Simple Form Example"
-  height="600px"
-/>
+<iframe 
+  src="https://codesandbox.io/embed/r9jzdl?view=editor+%2B+preview"
+  style="width:100%; height: 500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="schepta-react-simple"
+  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+></iframe>
 
 ### Schema
 
@@ -152,7 +154,7 @@ See the [complex form schema](/fixtures/complex-form.json) for the full JSON str
 
 ## Integration with UI Libraries
 
-Spectra works seamlessly with popular React UI libraries:
+schepta works seamlessly with popular React UI libraries:
 
 - **Material UI**: See [Material UI example](/examples/material-ui)
 - **Chakra UI**: See [Chakra UI example](/examples/chakra-ui)

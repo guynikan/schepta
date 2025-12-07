@@ -102,7 +102,7 @@ React/Vue Element Final
 | **Prioridade** | **Fonte** | **Quando Usar** | **Exemplo** |
 | -------------- | --------- | --------------- | ----------- |
 | **1º - Local** | Props do Factory | Customização específica | `<FormFactory renderers=\{\{field: CustomField\}\} />` |
-| **2º - Global** | SpectraProvider | Padrão da aplicação | `<SpectraProvider renderers=\{\{field: AppField\}\} />` |
+| **2º - Global** | scheptaProvider | Padrão da aplicação | `<scheptaProvider renderers=\{\{field: AppField\}\} />` |
 | **3º - Registry** | registerRenderer() | Extensões globais | `registerRenderer('field', LibField)` |
 | **4º - Default** | Sistema built-in | Comportamento padrão | FieldRenderer interno |
 
