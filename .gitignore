@@ -22,3 +22,6 @@ docs/CODESANDBOX_TEMPLATES.md
 .env.local
 .env.*.local
 
+test-results/
+tests/test-results/
+tests/playwright-report/
