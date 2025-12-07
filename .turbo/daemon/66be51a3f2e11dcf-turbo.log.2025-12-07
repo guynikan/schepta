@@ -60,3 +60,75 @@
 2025-12-07T00:58:31.359437Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/verify-fixes.ts")}
 2025-12-07T00:58:31.359449Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
 2025-12-07T00:58:31.392259Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T01:00:30.157759Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui"), AnchoredSystemPathBuf("examples/react-material-ui")}
+2025-12-07T01:00:30.157785Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:34.857166Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/package.json")}
+2025-12-07T01:00:34.857175Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:34.957210Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/package.json")}
+2025-12-07T01:00:34.957217Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:35.657321Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/vite.config.ts")}
+2025-12-07T01:00:35.657329Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:35.757029Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/vite.config.ts")}
+2025-12-07T01:00:35.757036Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:36.756221Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/index.html")}
+2025-12-07T01:00:36.756231Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:36.856750Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/index.html")}
+2025-12-07T01:00:36.856757Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:37.657221Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/src/main.tsx"), AnchoredSystemPathBuf("examples/react-material-ui/src")}
+2025-12-07T01:00:37.657229Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:37.757759Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/src/main.tsx")}
+2025-12-07T01:00:37.757767Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:45.557332Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react/src/App.tsx")}
+2025-12-07T01:00:45.557339Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("examples-react"), path: AnchoredSystemPathBuf("examples/react") }}))
+2025-12-07T01:00:45.557678Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T01:00:58.256281Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/src/App.tsx")}
+2025-12-07T01:00:58.256299Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:00:59.556746Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/package.json")}
+2025-12-07T01:00:59.556753Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:00.256602Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/vite.config.ts")}
+2025-12-07T01:01:00.256610Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:00.356694Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/vite.config.ts")}
+2025-12-07T01:01:00.356703Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:01.156186Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/index.html")}
+2025-12-07T01:01:01.156192Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:01.855774Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/src"), AnchoredSystemPathBuf("examples/react-chakra-ui/src/main.tsx")}
+2025-12-07T01:01:01.855781Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:01.956798Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/src/main.tsx")}
+2025-12-07T01:01:01.956805Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:16.256426Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/src/App.tsx")}
+2025-12-07T01:01:16.256440Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:16.356676Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/src/App.tsx")}
+2025-12-07T01:01:16.356685Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:18.556218Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/e2e/material-ui.spec.ts")}
+2025-12-07T01:01:18.556225Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T01:01:20.056761Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/e2e/chakra-ui.spec.ts")}
+2025-12-07T01:01:20.056769Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T01:01:20.156050Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/e2e/chakra-ui.spec.ts")}
+2025-12-07T01:01:20.156058Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T01:01:24.456425Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/playwright.config.ts")}
+2025-12-07T01:01:24.456438Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T01:01:25.556913Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("_tmp_94864_312e810c2016e89ec08cda31875dcf21"), AnchoredSystemPathBuf("")}
+2025-12-07T01:01:25.556921Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:29.062133Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("")}
+2025-12-07T01:01:29.062142Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({}))
+2025-12-07T01:01:29.162744Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("")}
+2025-12-07T01:01:29.162751Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({}))
+2025-12-07T01:01:29.257936Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("")}
+2025-12-07T01:01:29.257943Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({}))
+2025-12-07T01:01:30.155244Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("pnpm-lock.yaml"), AnchoredSystemPathBuf("pnpm-lock.yaml.1885881163")}
+2025-12-07T01:01:30.155254Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:35.255893Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/tsconfig.json")}
+2025-12-07T01:01:35.255902Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:35.956552Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/tsconfig.json")}
+2025-12-07T01:01:35.956559Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:36.056107Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-chakra-ui/tsconfig.json")}
+2025-12-07T01:01:36.056115Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:42.868307Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react-material-ui/src/App.tsx")}
+2025-12-07T01:01:42.868315Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:48.083149Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/factories/react/.turbo"), AnchoredSystemPathBuf("packages/adapters/react/.turbo"), AnchoredSystemPathBuf("examples/react-material-ui/.turbo"), AnchoredSystemPathBuf("packages/core/.turbo"), AnchoredSystemPathBuf("examples/react-chakra-ui/.turbo")}
+2025-12-07T01:01:48.088112Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/factory-react"), path: AnchoredSystemPathBuf("packages/factories/react") }, WorkspacePackage { name: Other("@spectra/core"), path: AnchoredSystemPathBuf("packages/core") }, WorkspacePackage { name: Other("@spectra/adapter-react"), path: AnchoredSystemPathBuf("packages/adapters/react") }, WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T01:01:48.096926Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T01:01:48.099240Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T01:01:48.099250Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T01:01:58.490707Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("README.md")}
+2025-12-07T01:01:58.490755Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
