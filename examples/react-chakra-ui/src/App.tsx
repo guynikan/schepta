@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link as RouterLink } from 'react-router-dom';
 import { useFormContext } from 'react-hook-form';
 import {
@@ -302,20 +302,63 @@ const components = {
 };
 
 function FormPage({ schema }: { schema: any }) {
+  const [submittedValues, setSubmittedValues] = useState<any>(null);
+
   const handleSubmit = (values: any) => {
     console.log('Form submitted:', values);
-    alert('Form submitted! Check console for values.');
+    setSubmittedValues(values);
   };
 
   return (
-    <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="md">
-      <FormFactory
-        schema={schema}
-        components={components}
-        onSubmit={handleSubmit}
-        debug={true}
-      />
-    </Box>
+    <>
+      <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="md">
+        <FormFactory
+          schema={schema}
+          components={components}
+          onSubmit={handleSubmit}
+          debug={true}
+        />
+      </Box>
+
+      {submittedValues && (
+        <Box
+          mt={6}
+          p={4}
+          bg="gray.50"
+          borderWidth="1px"
+          borderRadius="lg"
+          boxShadow="md"
+        >
+          <Heading size="md" mb={3}>
+            Valores Submetidos:
+          </Heading>
+          <Box
+            p={3}
+            bg="white"
+            borderRadius="md"
+            overflow="auto"
+            fontSize="13px"
+            borderWidth="1px"
+          >
+            <pre style={{ margin: 0 }}>
+              {JSON.stringify(submittedValues, null, 2)}
+            </pre>
+          </Box>
+          <Box
+            mt={3}
+            p={3}
+            bg="blue.50"
+            borderLeftWidth="3px"
+            borderLeftColor="blue.500"
+            borderRadius="md"
+            fontSize="13px"
+            color="blue.700"
+          >
+            💡 Os valores também estão disponíveis no console do navegador (F12)
+          </Box>
+        </Box>
+      )}
+    </>
   );
 }
 
@@ -324,7 +367,7 @@ function App() {
     <BrowserRouter>
       <Container maxW="container.md" py={8}>
         <Heading as="h1" size="xl" mb={6}>
-          Spectra - Chakra UI Example
+          schepta - Chakra UI Example
         </Heading>
         
         <HStack spacing={4} mb={6}>
