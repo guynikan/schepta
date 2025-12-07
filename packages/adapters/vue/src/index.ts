@@ -1,7 +1,7 @@
 /**
  * @schepta/adapter-vue
  * 
- * Vue adapter for Spectra rendering engine
+ * Vue adapter for schepta rendering engine
  */
 
 export * from './runtime-adapter';

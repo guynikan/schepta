@@ -1,6 +1,6 @@
 # @schepta/adapter-vanilla
 
-Vanilla JavaScript adapter for Spectra. Provides a framework-agnostic runtime adapter for use without React or Vue.
+Vanilla JavaScript adapter for schepta. Provides a framework-agnostic runtime adapter for use without React or Vue.
 
 ## Installation
 

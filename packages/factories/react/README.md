@@ -1,6 +1,6 @@
 # @schepta/factory-react
 
-React factory for Spectra. Provides `FormFactory` component for rendering forms from JSON schemas in React applications.
+React factory for schepta. Provides `FormFactory` component for rendering forms from JSON schemas in React applications.
 
 ## Installation
 

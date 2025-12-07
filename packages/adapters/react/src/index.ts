@@ -1,7 +1,7 @@
 /**
  * @schepta/adapter-react
  * 
- * React adapter for Spectra rendering engine
+ * React adapter for schepta rendering engine
  */
 
 export * from './runtime-adapter';

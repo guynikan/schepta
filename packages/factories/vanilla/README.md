@@ -1,6 +1,6 @@
 # @schepta/factory-vanilla
 
-Vanilla JavaScript factory for Spectra. Provides `FormFactory` for rendering forms from JSON schemas without any framework dependencies.
+Vanilla JavaScript factory for schepta. Provides `FormFactory` for rendering forms from JSON schemas without any framework dependencies.
 
 ## Installation
 

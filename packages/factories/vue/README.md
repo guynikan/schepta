@@ -1,6 +1,6 @@
 # @schepta/factory-vue
 
-Vue factory for Spectra. Provides `FormFactory` component for rendering forms from JSON schemas in Vue 3 applications.
+Vue factory for schepta. Provides `FormFactory` component for rendering forms from JSON schemas in Vue 3 applications.
 
 ## Installation
 

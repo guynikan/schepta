@@ -1,6 +1,6 @@
 # @schepta/adapter-vue
 
-Vue adapter for Spectra. Provides Vue 3-specific runtime adapter and form adapter.
+Vue adapter for schepta. Provides Vue 3-specific runtime adapter and form adapter.
 
 ## Installation
 

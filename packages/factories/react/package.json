@@ -1,7 +1,7 @@
 {
   "name": "@schepta/factory-react",
   "version": "0.1.0",
-  "description": "React factories for Spectra",
+  "description": "React factories for schepta",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
