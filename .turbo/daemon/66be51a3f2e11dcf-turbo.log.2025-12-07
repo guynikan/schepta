@@ -1,0 +1,62 @@
+2025-12-07T00:52:50.866376Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo/cookies/.turbo-cookie")}
+2025-12-07T00:52:50.866394Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-12-07T00:52:52.568863Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/adapters/react/tsup.config.bundled_h1sfp9t3jqa.mjs"), AnchoredSystemPathBuf("packages/core/tsup.config.bundled_rwjk82tekq8.mjs"), AnchoredSystemPathBuf("packages/factories/react/tsup.config.bundled_o29o7lwdq4.mjs")}
+2025-12-07T00:52:52.569621Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/factory-react"), path: AnchoredSystemPathBuf("packages/factories/react") }, WorkspacePackage { name: Other("@spectra/core"), path: AnchoredSystemPathBuf("packages/core") }, WorkspacePackage { name: Other("@spectra/adapter-react"), path: AnchoredSystemPathBuf("packages/adapters/react") }}))
+2025-12-07T00:52:53.667463Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/adapters/vanilla/tsup.config.bundled_4zfb8t5mf9.mjs"), AnchoredSystemPathBuf("packages/adapters/vue/tsup.config.bundled_7epdbzfmgdu.mjs")}
+2025-12-07T00:52:53.667477Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/adapter-vue"), path: AnchoredSystemPathBuf("packages/adapters/vue") }, WorkspacePackage { name: Other("@spectra/adapter-vanilla"), path: AnchoredSystemPathBuf("packages/adapters/vanilla") }}))
+2025-12-07T00:52:53.768771Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/factories/vanilla/tsup.config.bundled_qiv49zjk2of.mjs"), AnchoredSystemPathBuf("packages/adapters/vue/tsup.config.bundled_7epdbzfmgdu.mjs")}
+2025-12-07T00:52:53.768782Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/adapter-vue"), path: AnchoredSystemPathBuf("packages/adapters/vue") }, WorkspacePackage { name: Other("@spectra/factory-vanilla"), path: AnchoredSystemPathBuf("packages/factories/vanilla") }}))
+2025-12-07T00:52:53.768799Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T00:52:53.868151Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/factories/vue/tsup.config.bundled_45yvn7hrulf.mjs")}
+2025-12-07T00:52:53.868163Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/factory-vue"), path: AnchoredSystemPathBuf("packages/factories/vue") }}))
+2025-12-07T00:55:17.963815Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/test-results/simple-form-final.png")}
+2025-12-07T00:55:17.963834Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T00:56:54.861816Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/factories/react/src/form-factory.tsx")}
+2025-12-07T00:56:54.861830Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/factory-react"), path: AnchoredSystemPathBuf("packages/factories/react") }}))
+2025-12-07T00:56:55.461601Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/factories/react/src/form-factory.tsx")}
+2025-12-07T00:56:55.461609Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/factory-react"), path: AnchoredSystemPathBuf("packages/factories/react") }}))
+2025-12-07T00:57:04.361571Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react/src/App.tsx")}
+2025-12-07T00:57:04.361586Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("examples-react"), path: AnchoredSystemPathBuf("examples/react") }}))
+2025-12-07T00:57:10.161989Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/factories/react/src/form-factory.tsx")}
+2025-12-07T00:57:10.161999Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/factory-react"), path: AnchoredSystemPathBuf("packages/factories/react") }}))
+2025-12-07T00:57:13.362080Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react/src/App.tsx")}
+2025-12-07T00:57:13.362090Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("examples-react"), path: AnchoredSystemPathBuf("examples/react") }}))
+2025-12-07T00:57:18.461575Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/core/src/orchestrator/renderer-orchestrator.ts")}
+2025-12-07T00:57:18.461597Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/core"), path: AnchoredSystemPathBuf("packages/core") }}))
+2025-12-07T00:57:19.960674Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/core/tsup.config.bundled_0h3rcnlrjpud.mjs")}
+2025-12-07T00:57:19.960683Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/core"), path: AnchoredSystemPathBuf("packages/core") }}))
+2025-12-07T00:57:20.040526Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T00:57:21.261567Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/adapters/react/tsup.config.bundled_4non33jww1q.mjs")}
+2025-12-07T00:57:21.261577Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/adapter-react"), path: AnchoredSystemPathBuf("packages/adapters/react") }}))
+2025-12-07T00:57:21.261590Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T00:57:22.461320Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/factories/react/tsup.config.bundled_zqjkktuayln.mjs")}
+2025-12-07T00:57:22.461328Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/factory-react"), path: AnchoredSystemPathBuf("packages/factories/react") }}))
+2025-12-07T00:57:22.461338Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T00:57:30.661546Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/check-labels.ts")}
+2025-12-07T00:57:30.661567Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T00:57:30.762156Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/check-labels.ts")}
+2025-12-07T00:57:30.762166Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T00:57:48.960500Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/core/src/orchestrator/renderer-orchestrator.ts")}
+2025-12-07T00:57:48.960517Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/core"), path: AnchoredSystemPathBuf("packages/core") }}))
+2025-12-07T00:57:59.161468Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react/src/App.tsx")}
+2025-12-07T00:57:59.161491Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("examples-react"), path: AnchoredSystemPathBuf("examples/react") }}))
+2025-12-07T00:58:02.560162Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("examples/react/src/App.tsx")}
+2025-12-07T00:58:02.560192Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("examples-react"), path: AnchoredSystemPathBuf("examples/react") }}))
+2025-12-07T00:58:04.259396Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/core/tsup.config.bundled_cvbekkgg4.mjs")}
+2025-12-07T00:58:04.259406Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/core"), path: AnchoredSystemPathBuf("packages/core") }}))
+2025-12-07T00:58:04.259417Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T00:58:05.460877Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/adapters/react/tsup.config.bundled_mjku2cmvr5.mjs")}
+2025-12-07T00:58:05.460890Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/adapter-react"), path: AnchoredSystemPathBuf("packages/adapters/react") }}))
+2025-12-07T00:58:05.489950Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T00:58:06.660578Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/factories/react/tsup.config.bundled_rj0nbjjljfk.mjs")}
+2025-12-07T00:58:06.660586Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@spectra/factory-react"), path: AnchoredSystemPathBuf("packages/factories/react") }}))
+2025-12-07T00:58:06.676168Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2025-12-07T00:58:19.859736Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/verify-fixes.ts")}
+2025-12-07T00:58:19.859760Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T00:58:19.958983Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/verify-fixes.ts")}
+2025-12-07T00:58:19.958993Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T00:58:24.060302Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/test-results/simple-form-verified.png")}
+2025-12-07T00:58:24.060317Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T00:58:31.359437Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests/verify-fixes.ts")}
+2025-12-07T00:58:31.359449Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("tests"), path: AnchoredSystemPathBuf("tests") }}))
+2025-12-07T00:58:31.392259Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
