@@ -32,6 +32,20 @@ export default defineConfig({
         baseURL: 'http://localhost:3002',
       },
     },
+    {
+      name: 'vue',
+      use: { 
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:3010',
+      },
+    },
+    {
+      name: 'vue-vuetify',
+      use: { 
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:3011',
+      },
+    },
   ],
   webServer: [
     {
@@ -53,6 +67,22 @@ export default defineConfig({
     {
       command: 'pnpm --filter examples-react-chakra-ui dev',
       url: 'http://localhost:3002',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      stdout: 'ignore',
+      stderr: 'pipe',
+    },
+    {
+      command: 'pnpm --filter examples-vue dev',
+      url: 'http://localhost:3010',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      stdout: 'ignore',
+      stderr: 'pipe',
+    },
+    {
+      command: 'pnpm --filter examples-vue-vuetify dev',
+      url: 'http://localhost:3011',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
       stdout: 'ignore',

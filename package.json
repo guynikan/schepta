@@ -9,7 +9,7 @@
     "test": "turbo test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "dev:all": "concurrently \"pnpm --filter examples-react dev\" \"pnpm --filter examples-react-material-ui dev\" \"pnpm --filter examples-react-chakra-ui dev\"",
+    "dev:all": "concurrently \"pnpm --filter examples-react dev\" \"pnpm --filter examples-react-material-ui dev\" \"pnpm --filter examples-react-chakra-ui dev\" \"pnpm --filter examples-vue dev\" \"pnpm --filter examples-vue-vuetify dev\"",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "clean": "turbo clean"
