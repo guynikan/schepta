@@ -65,9 +65,9 @@ publish_package() {
 check_ready() {
   echo "🔍 Verificando se está pronto para publicar..."
   
-  # Fazer build de todos os packages
-  echo "🔨 Fazendo build de todos os packages..."
-  pnpm build
+  # Fazer build apenas dos packages @spectra/* (não docs/examples)
+  echo "🔨 Fazendo build dos packages @spectra/*..."
+  pnpm --filter "@spectra/*" build
   
   # Verificar se todos os packages têm build
   local MISSING_BUILDS=0
@@ -90,7 +90,7 @@ check_ready() {
   echo ""
 }
 
-# Verificar se está pronto
+# Verificar se está pronto (sem fazer build de docs)
 check_ready
 
 # Ordem de publicação (pnpm resolve workspace:* automaticamente)
