@@ -29,19 +29,19 @@ importers:
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
-      '@spectra/adapter-react':
+      '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../packages/adapters/react
-      '@spectra/adapter-vue':
+      '@schepta/adapter-vue':
         specifier: workspace:*
         version: link:../packages/adapters/vue
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../packages/core
-      '@spectra/factory-react':
+      '@schepta/factory-react':
         specifier: workspace:*
         version: link:../packages/factories/react
-      '@spectra/factory-vue':
+      '@schepta/factory-vue':
         specifier: workspace:*
         version: link:../packages/factories/vue
       react:
@@ -90,13 +90,13 @@ importers:
 
   examples/react:
     dependencies:
-      '@spectra/adapter-react':
+      '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../../packages/adapters/react
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@spectra/factory-react':
+      '@schepta/factory-react':
         specifier: workspace:*
         version: link:../../packages/factories/react
       react:
@@ -139,13 +139,13 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.0
         version: 11.14.1(@emotion/react@11.14.0)(@types/react@18.3.27)(react@18.3.1)
-      '@spectra/adapter-react':
+      '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../../packages/adapters/react
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@spectra/factory-react':
+      '@schepta/factory-react':
         specifier: workspace:*
         version: link:../../packages/factories/react
       framer-motion:
@@ -191,13 +191,13 @@ importers:
       '@mui/material':
         specifier: ^5.15.0
         version: 5.18.0(@emotion/react@11.14.0)(@emotion/styled@11.14.1)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)
-      '@spectra/adapter-react':
+      '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../../packages/adapters/react
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@spectra/factory-react':
+      '@schepta/factory-react':
         specifier: workspace:*
         version: link:../../packages/factories/react
       react:
@@ -231,13 +231,13 @@ importers:
 
   examples/vue:
     dependencies:
-      '@spectra/adapter-vue':
+      '@schepta/adapter-vue':
         specifier: workspace:*
         version: link:../../packages/adapters/vue
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@spectra/factory-vue':
+      '@schepta/factory-vue':
         specifier: workspace:*
         version: link:../../packages/factories/vue
       vue:
@@ -262,13 +262,13 @@ importers:
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
-      '@spectra/adapter-vue':
+      '@schepta/adapter-vue':
         specifier: workspace:*
         version: link:../../packages/adapters/vue
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@spectra/factory-vue':
+      '@schepta/factory-vue':
         specifier: workspace:*
         version: link:../../packages/factories/vue
       vue:
@@ -296,7 +296,7 @@ importers:
 
   packages/adapters/react:
     dependencies:
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../core
       react:
@@ -324,7 +324,7 @@ importers:
 
   packages/adapters/vanilla:
     dependencies:
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -340,7 +340,7 @@ importers:
 
   packages/adapters/vue:
     dependencies:
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -375,10 +375,10 @@ importers:
 
   packages/factories/react:
     dependencies:
-      '@spectra/adapter-react':
+      '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../../adapters/react
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../core
       react:
@@ -406,10 +406,10 @@ importers:
 
   packages/factories/vanilla:
     dependencies:
-      '@spectra/adapter-vanilla':
+      '@schepta/adapter-vanilla':
         specifier: workspace:*
         version: link:../../adapters/vanilla
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -422,10 +422,10 @@ importers:
 
   packages/factories/vue:
     dependencies:
-      '@spectra/adapter-vue':
+      '@schepta/adapter-vue':
         specifier: workspace:*
         version: link:../../adapters/vue
-      '@spectra/core':
+      '@schepta/core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
