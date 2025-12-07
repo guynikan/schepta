@@ -22,29 +22,25 @@ export const FormRenderer = defineComponent({
   },
   setup(props: FormRendererProps) {
     return () => {
-      const result = props.renderer(props.componentKey, props.schema);
-      
-      if (!result) {
+      try {
+        // The orchestrator handles recursive rendering of children
+        const result = props.renderer(props.componentKey, props.schema);
+        
+        // If renderer returns null or undefined, return null
+        if (!result) {
+          console.error('[FormRenderer] Renderer returned null/undefined for', props.componentKey, {
+            schema: props.schema,
+            componentKey: props.componentKey,
+          });
+          return null;
+        }
+        
+        // Return the VNode directly
+        return result;
+      } catch (error) {
+        console.error('[FormRenderer] Error rendering:', error);
         return null;
       }
-
-      // Handle children if schema has properties
-      if (props.schema.properties && typeof props.schema.properties === 'object') {
-        const children: any[] = [];
-        
-        for (const [key, childSchema] of Object.entries(props.schema.properties)) {
-          const childResult = props.renderer(key, childSchema as any);
-          if (childResult) {
-            children.push(childResult);
-          }
-        }
-
-        if (children.length > 0 && result.children) {
-          return { ...result, children };
-        }
-      }
-
-      return result;
     };
   },
 });

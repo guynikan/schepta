@@ -13,7 +13,19 @@ import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@spectra/core'
 export class VueRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec, props: Record<string, any>): RenderResult {
     const component = spec.factory(props, this) as any;
-    return h(component, props);
+    
+    // Extract children from props if present (Vue passes children as third argument to h())
+    const { children, ...restProps } = props;
+    
+    // If children are provided, pass them as third argument to h()
+    // Vue prefers function slots for better performance when using defineComponent with slots
+    if (children && Array.isArray(children) && children.length > 0) {
+      // Always pass children as a function for components that use slots
+      // This avoids the Vue warning about non-function default slots
+      return h(component, restProps, () => children);
+    }
+    
+    return h(component, restProps);
   }
 
   fragment(children: RenderResult[]): RenderResult {

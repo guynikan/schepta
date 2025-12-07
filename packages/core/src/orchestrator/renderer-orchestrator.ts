@@ -120,11 +120,14 @@ export function createRendererOrchestrator(
     // Extract successful resolution
     const { renderSpec, componentToRender, rendererFn } = resolution as ResolutionSuccess;
 
+    // Construct full name path for nested fields
+    const currentName = parentProps.name ? `${parentProps.name}.${componentKey}` : componentKey;
+
     // Props Processing
     const baseProps = {
       ...renderSpec.defaultProps,
       ...parentProps,
-      name: componentKey, // Add name prop for field components
+      name: currentName, // Add name prop for field components (with full path for nested fields)
       ...(Object.keys(componentProps).length > 0 ? { 'x-component-props': componentProps } : {}),
       // Extract x-ui props if present
       ...(schema['x-ui'] || {}),
