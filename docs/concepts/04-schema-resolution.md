@@ -102,7 +102,7 @@ React/Vue Element Final
 
 **Component Resolution Order:**
 1. **Local components** (factory props)
-2. **Global components** (SpectraProvider)
+2. **Global components** (scheptaProvider)
 3. **Registry overrides** (registerComponent calls)
 4. **Default components** (built-in registry)
 
@@ -114,7 +114,7 @@ React/Vue Element Final
 
 **Middleware Resolution Order:**
 1. **Built-in middleware** (validation, formatting)
-2. **Global middleware** (SpectraProvider)
+2. **Global middleware** (scheptaProvider)
 3. **Local middleware** (factory props)
 4. **Component middleware** (component-specific)
 

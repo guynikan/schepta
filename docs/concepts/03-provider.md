@@ -1,6 +1,6 @@
 # Contexto Global
 
-**Sistema que gerencia configurações e estado compartilhado** — o "centro de comando" que coordena todo o Spectra.
+**Sistema que gerencia configurações e estado compartilhado** — o "centro de comando" que coordena todo o schepta.
 
 ![Provider](/images/03-provider.png)
 
@@ -21,7 +21,7 @@
 
 **Provider Hierarchy:**
 ```text
-SpectraProvider (App Level)
+scheptaProvider (App Level)
     ├── Component Registry Global
     ├── Middleware Global  
     ├── Theme Provider
@@ -33,13 +33,13 @@ SpectraProvider (App Level)
 
 **Exemplo Rápido:**
 ```jsx
-<SpectraProvider
+<scheptaProvider
   components={{ InputText: MUITextField, Button: MUIButton }}
   middleware={{ withValidation, withAnalytics }}
   theme={{ primary: '#007ACC' }}
 >
   <App />
-</SpectraProvider>
+</scheptaProvider>
 ```
 
 > **💡 Resultado:** Configuração uma vez → Disponível em toda aplicação. 
@@ -50,7 +50,7 @@ SpectraProvider (App Level)
 
 **Cada provider gerencia um aspecto específico do sistema:**
 
-### 🎨 SpectraProvider - Master Provider:
+### 🎨 scheptaProvider - Master Provider:
 
 | **Configuration** | **Purpose** | **Default** | **Override Level** |
 | ----------------- | ----------- | ----------- | ------------------ |
@@ -108,23 +108,23 @@ SpectraProvider (App Level)
 **React Context Usage:**
 ```typescript
 // Provider contexts
-const SpectraContext = createContext<SpectraConfig>();
+const scheptaContext = createContext<scheptaConfig>();
 const ComponentRegistryContext = createContext<ComponentRegistry>();
 const MiddlewareContext = createContext<MiddlewareStack>();
 const ThemeContext = createContext<ThemeConfig>();
 
 // Hook access
-const useSpectra = () => useContext(SpectraContext);
+const useschepta = () => useContext(scheptaContext);
 const useComponentRegistry = () => useContext(ComponentRegistryContext);
 const useMiddleware = () => useContext(MiddlewareContext);
-const useSpectraTheme = () => useContext(ThemeContext);
+const usescheptaTheme = () => useContext(ThemeContext);
 ```
 
 **Configuration Inheritance:**
 ```typescript
 const mergedConfig = {
   // Default configuration
-  ...defaultSpectraConfig,
+  ...defaultscheptaConfig,
   
   // Provider configuration  
   ...providerConfig,
@@ -153,7 +153,7 @@ const mergedConfig = {
 
 **Material-UI Integration:**
 ```typescript
-<SpectraProvider
+<scheptaProvider
   components={{
     InputText: MuiTextField,
     Button: MuiButton,
@@ -168,12 +168,12 @@ const mergedConfig = {
   }}
 >
   <App />
-</SpectraProvider>
+</scheptaProvider>
 ```
 
 **Ant Design Integration:**
 ```typescript
-<SpectraProvider
+<scheptaProvider
   components={{
     InputText: AntInput,
     Button: AntButton,
@@ -188,7 +188,7 @@ const mergedConfig = {
   }}
 >
   <App />
-</SpectraProvider>
+</scheptaProvider>
 ```
 
 ### 🎨 Multi-Tenant Configuration:
@@ -199,13 +199,13 @@ const TenantProvider = ({ tenant, children }) => {
   const tenantConfig = getTenantConfig(tenant);
   
   return (
-    <SpectraProvider
+    <scheptaProvider
       components={tenantConfig.components}
       theme={tenantConfig.theme}
       middleware={tenantConfig.middleware}
     >
       {children}
-    </SpectraProvider>
+    </scheptaProvider>
   );
 };
 ```

@@ -7,7 +7,7 @@ import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
 
 export default defineConfig({
-  title: 'Spectra',
+  title: 'schepta',
   description: 'Framework-agnostic rendering engine for server-driven UI',
   base: '/',
   
@@ -60,7 +60,7 @@ export default defineConfig({
     plugins: [
       vue({
         include: [/\.vue$/],
-        exclude: [/node_modules\/vitepress/, /\.md$/],
+        exclude: [/node_modules\/vitepress/, /\.md$/, /components\/examples\//],
       }),
       react(),
       whyframe({

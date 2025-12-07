@@ -1,6 +1,8 @@
 # Vue Vuetify Examples
 
-Interactive examples of Spectra forms using Vue 3 with Vuetify Material Design components.
+Interactive examples of schepta forms using Vue 3 with Vuetify Material Design components.
+
+> 🚧 **Coming Soon** - Vuetify examples are being prepared and will be available soon!
 
 ## Simple Form
 

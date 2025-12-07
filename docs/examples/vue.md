@@ -1,6 +1,8 @@
 # Vue Examples
 
-Interactive examples of Spectra forms using Vue 3.
+Interactive examples of schepta forms using Vue 3.
+
+> 🚧 **Coming Soon** - Vue examples are being prepared and will be available soon!
 
 ## Simple Form
 
@@ -136,7 +138,7 @@ See the [complex form schema](/fixtures/complex-form.json) for the full JSON str
 
 ## Integration with UI Libraries
 
-Spectra works seamlessly with popular Vue UI libraries:
+schepta works seamlessly with popular Vue UI libraries:
 
 - **Vuetify**: See [Vuetify example](/examples/vuetify)
 

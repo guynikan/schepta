@@ -27,12 +27,12 @@ NODE_ENV=development → Debug Panel ativo automaticamente
 
 **Manual Override:**
 ```text
-REACT_APP_DEBUG_SPECTRA=true → Force debug em production
+REACT_APP_DEBUG_schepta=true → Force debug em production
 ```
 
 **Runtime Toggle:**
 ```javascript
-window.SPECTRA_DEBUG = true; // Ativa debug via console
+window.schepta_DEBUG = true; // Ativa debug via console
 ```
 
 > **💡 Resultado:** Transparência total do sistema. Debug visual sem configuração!

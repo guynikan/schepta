@@ -1,6 +1,6 @@
 # React Chakra UI Examples
 
-Interactive examples of Spectra forms using React with Chakra UI components.
+Interactive examples of schepta forms using React with Chakra UI components.
 
 ## Simple Form
 
