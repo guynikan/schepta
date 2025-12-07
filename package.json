@@ -1,0 +1,28 @@
+{
+  "name": "spectra",
+  "version": "0.1.0",
+  "description": "Framework-agnostic rendering engine for server-driven UI",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "test": "turbo test",
+    "test:e2e": "playwright test",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "clean": "turbo clean"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.11.0",
+    "turbo": "^1.12.4",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {},
+  "packageManager": "pnpm@8.15.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
+

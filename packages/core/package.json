@@ -1,0 +1,30 @@
+{
+  "name": "@spectra/core",
+  "version": "0.1.0",
+  "description": "Core agnostic rendering engine",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "jexl": "2.3.0"
+  },
+  "devDependencies": {
+    "@types/jexl": "2.3.4",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
+
