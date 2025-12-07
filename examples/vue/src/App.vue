@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 24px; max-width: 800px; margin: 0 auto">
-    <h1>Spectra Vue Example</h1>
+    <h1>schepta Vue Example</h1>
     
     <div style="margin-bottom: 24px">
       <router-link 
