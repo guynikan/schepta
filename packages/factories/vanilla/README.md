@@ -1,18 +1,18 @@
-# @spectra/factory-vanilla
+# @schepta/factory-vanilla
 
 Vanilla JavaScript factory for Spectra. Provides `FormFactory` for rendering forms from JSON schemas without any framework dependencies.
 
 ## Installation
 
 ```bash
-npm install @spectra/factory-vanilla @spectra/core @spectra/adapter-vanilla
+npm install @schepta/factory-vanilla @schepta/core @schepta/adapter-vanilla
 ```
 
 ## Usage
 
 ```typescript
-import { FormFactory } from '@spectra/factory-vanilla';
-import { createComponentSpec } from '@spectra/core';
+import { FormFactory } from '@schepta/factory-vanilla';
+import { createComponentSpec } from '@schepta/core';
 
 const components = {
   InputText: createComponentSpec({
@@ -43,7 +43,7 @@ factory.render(container);
 
 ## Documentation
 
-For complete documentation and examples, visit [https://spectra.dev](https://spectra.dev)
+For complete documentation and examples, visit [https://schepta.dev](https://schepta.dev)
 
 ## License
 

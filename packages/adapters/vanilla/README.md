@@ -1,17 +1,17 @@
-# @spectra/adapter-vanilla
+# @schepta/adapter-vanilla
 
 Vanilla JavaScript adapter for Spectra. Provides a framework-agnostic runtime adapter for use without React or Vue.
 
 ## Installation
 
 ```bash
-npm install @spectra/adapter-vanilla
+npm install @schepta/adapter-vanilla
 ```
 
 ## Usage
 
 ```typescript
-import { VanillaRuntimeAdapter } from '@spectra/adapter-vanilla';
+import { VanillaRuntimeAdapter } from '@schepta/adapter-vanilla';
 
 const runtime = new VanillaRuntimeAdapter();
 
@@ -20,7 +20,7 @@ const runtime = new VanillaRuntimeAdapter();
 
 ## Documentation
 
-For complete documentation, visit [https://spectra.dev](https://spectra.dev)
+For complete documentation, visit [https://schepta.dev](https://schepta.dev)
 
 ## License
 

@@ -2,8 +2,8 @@
  * Vanilla JS Form Renderer
  */
 
-import type { FormAdapter } from '@spectra/core';
-import type { DOMElement } from '@spectra/adapter-vanilla';
+import type { FormAdapter } from '@schepta/core';
+import type { DOMElement } from '@schepta/adapter-vanilla';
 
 export interface FormRendererOptions {
   componentKey: string;

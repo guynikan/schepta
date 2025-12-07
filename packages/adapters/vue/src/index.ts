@@ -1,5 +1,5 @@
 /**
- * @spectra/adapter-vue
+ * @schepta/adapter-vue
  * 
  * Vue adapter for Spectra rendering engine
  */

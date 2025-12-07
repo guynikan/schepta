@@ -7,7 +7,7 @@ Interactive examples of Spectra forms using React with Chakra UI components.
 A basic form with first name and last name fields using Chakra UI components.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-react-chakra-ui-simple"
+  sandbox-id="schepta-react-chakra-ui-simple"
   title="React Chakra UI Simple Form Example"
   height="600px"
 />
@@ -20,9 +20,9 @@ The same schema structure as the [React example](/examples/react), but rendered 
 
 ```tsx
 import { FormProvider, useForm } from 'react-hook-form';
-import { FormFactory } from '@spectra/factory-react';
+import { FormFactory } from '@schepta/factory-react';
 import { Input, Button, Grid } from '@chakra-ui/react';
-import { createComponentSpec } from '@spectra/core';
+import { createComponentSpec } from '@schepta/core';
 
 const components = {
   InputText: createComponentSpec({
@@ -57,7 +57,7 @@ function App() {
 A more complex form with multiple field types using Chakra UI components.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-react-chakra-ui-complex"
+  sandbox-id="schepta-react-chakra-ui-complex"
   title="React Chakra UI Complex Form Example"
   height="700px"
 />

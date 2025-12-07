@@ -1,11 +1,11 @@
-# @spectra/adapter-react
+# @schepta/adapter-react
 
 React adapter for Spectra. Provides React-specific runtime adapter and form adapter integration with `react-hook-form`.
 
 ## Installation
 
 ```bash
-npm install @spectra/adapter-react react react-dom react-hook-form
+npm install @schepta/adapter-react react react-dom react-hook-form
 ```
 
 ## Peer Dependencies
@@ -16,7 +16,7 @@ npm install @spectra/adapter-react react react-dom react-hook-form
 ## Usage
 
 ```typescript
-import { ReactRuntimeAdapter } from '@spectra/adapter-react';
+import { ReactRuntimeAdapter } from '@schepta/adapter-react';
 import { useForm } from 'react-hook-form';
 
 const runtime = new ReactRuntimeAdapter();
@@ -27,7 +27,7 @@ const formAdapter = useForm();
 
 ## Documentation
 
-For complete documentation, visit [https://spectra.dev](https://spectra.dev)
+For complete documentation, visit [https://schepta.dev](https://schepta.dev)
 
 ## License
 

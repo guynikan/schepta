@@ -5,7 +5,7 @@
  */
 
 import { ref, watch, type Ref } from 'vue';
-import type { ReactiveState } from '@spectra/core';
+import type { ReactiveState } from '@schepta/core';
 
 /**
  * Vue-based reactive state implementation

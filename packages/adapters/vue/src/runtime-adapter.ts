@@ -5,7 +5,7 @@
  */
 
 import { h, Fragment, VNode } from 'vue';
-import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@spectra/core';
+import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@schepta/core';
 
 /**
  * Vue runtime adapter implementation

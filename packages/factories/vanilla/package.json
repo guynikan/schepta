@@ -1,5 +1,5 @@
 {
-  "name": "@spectra/factory-vanilla",
+  "name": "@schepta/factory-vanilla",
   "version": "0.1.0",
   "description": "Vanilla JS factories for Spectra",
   "main": "./dist/index.js",
@@ -18,12 +18,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/guynikan/spectra.git",
+    "url": "https://github.com/guynikan/schepta.git",
     "directory": "packages/factories/vanilla"
   },
   "license": "MIT",
   "keywords": [
-    "spectra",
+    "schepta",
     "vanilla",
     "javascript",
     "rendering",
@@ -38,8 +38,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*",
-    "@spectra/adapter-vanilla": "workspace:*"
+    "@schepta/core": "workspace:*",
+    "@schepta/adapter-vanilla": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.1",

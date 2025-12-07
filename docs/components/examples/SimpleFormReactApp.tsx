@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { FormFactory } from '@spectra/factory-react';
-import { createComponentSpec } from '@spectra/core';
+import { FormFactory } from '@schepta/factory-react';
+import { createComponentSpec } from '@schepta/core';
 import simpleFormSchema from '../../fixtures/simple-form.json';
 
 // Simple input components

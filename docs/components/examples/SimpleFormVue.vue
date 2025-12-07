@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { createFormFactory } from '@spectra/factory-vue';
+import { createFormFactory } from '@schepta/factory-vue';
 import { components } from './VueInputComponents';
 import simpleFormSchema from '../../fixtures/simple-form.json';
 

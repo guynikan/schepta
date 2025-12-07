@@ -7,7 +7,7 @@ Interactive examples of Spectra forms using Vue 3 with Vuetify Material Design c
 A basic form with first name and last name fields using Vuetify components.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-vue-vuetify-simple"
+  sandbox-id="schepta-vue-vuetify-simple"
   title="Vue Vuetify Simple Form Example"
   height="600px"
 />
@@ -26,7 +26,7 @@ The same schema structure as the [Vue example](/examples/vue), but rendered with
 </template>
 
 <script setup lang="ts">
-import { createFormFactory } from '@spectra/factory-vue';
+import { createFormFactory } from '@schepta/factory-vue';
 import { components } from './components/VuetifyInputComponents';
 import simpleFormSchema from './fixtures/simple-form.json';
 
@@ -47,7 +47,7 @@ const FormFactoryComponent = createFormFactory({
 A more complex form with multiple field types using Vuetify's Material Design components.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-vue-vuetify-complex"
+  sandbox-id="schepta-vue-vuetify-complex"
   title="Vue Vuetify Complex Form Example"
   height="700px"
 />

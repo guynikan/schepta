@@ -1,4 +1,4 @@
-# Spectra
+# Schepta
 
 Framework-agnostic rendering engine for server-driven UI. Build dynamic forms and menus from JSON schemas with support for React, Vue, and Vanilla JavaScript.
 
@@ -47,7 +47,7 @@ pnpm --filter tests exec playwright test chakra-ui
 ## Project Structure
 
 ```
-spectra/
+schepta/
 ├── packages/
 │   ├── core/              # Framework-agnostic core logic
 │   ├── adapters/          # Framework adapters (react, vue, vanilla)

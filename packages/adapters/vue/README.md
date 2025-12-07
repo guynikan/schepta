@@ -1,11 +1,11 @@
-# @spectra/adapter-vue
+# @schepta/adapter-vue
 
 Vue adapter for Spectra. Provides Vue 3-specific runtime adapter and form adapter.
 
 ## Installation
 
 ```bash
-npm install @spectra/adapter-vue vue
+npm install @schepta/adapter-vue vue
 ```
 
 ## Peer Dependencies
@@ -15,7 +15,7 @@ npm install @spectra/adapter-vue vue
 ## Usage
 
 ```typescript
-import { VueRuntimeAdapter } from '@spectra/adapter-vue';
+import { VueRuntimeAdapter } from '@schepta/adapter-vue';
 import { ref } from 'vue';
 
 const runtime = new VueRuntimeAdapter();
@@ -30,7 +30,7 @@ const formAdapter = {
 
 ## Documentation
 
-For complete documentation, visit [https://spectra.dev](https://spectra.dev)
+For complete documentation, visit [https://schepta.dev](https://schepta.dev)
 
 ## License
 

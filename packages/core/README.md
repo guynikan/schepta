@@ -1,11 +1,11 @@
-# @spectra/core
+# @schepta/core
 
 Core framework-agnostic rendering engine for Spectra. This package provides the foundational logic for rendering JSON schemas into UI components.
 
 ## Installation
 
 ```bash
-npm install @spectra/core
+npm install @schepta/core
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ import {
   RendererRegistry, 
   RendererOrchestrator,
   createComponentSpec 
-} from '@spectra/core';
+} from '@schepta/core';
 
 // Create component registry
 const registry = new ComponentRegistry();
@@ -36,7 +36,7 @@ const orchestrator = new RendererOrchestrator(registry);
 
 ## Documentation
 
-For complete documentation, visit [https://spectra.dev](https://spectra.dev)
+For complete documentation, visit [https://schepta.dev](https://schepta.dev)
 
 ## License
 

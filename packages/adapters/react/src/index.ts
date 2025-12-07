@@ -1,5 +1,5 @@
 /**
- * @spectra/adapter-react
+ * @schepta/adapter-react
  * 
  * React adapter for Spectra rendering engine
  */

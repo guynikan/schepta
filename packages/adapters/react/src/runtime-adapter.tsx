@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@spectra/core';
+import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@schepta/core';
 
 /**
  * React runtime adapter implementation

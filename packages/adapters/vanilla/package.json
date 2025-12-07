@@ -1,5 +1,5 @@
 {
-  "name": "@spectra/adapter-vanilla",
+  "name": "@schepta/adapter-vanilla",
   "version": "0.1.0",
   "description": "Vanilla JavaScript adapter for Spectra",
   "main": "./dist/index.js",
@@ -18,12 +18,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/guynikan/spectra.git",
+    "url": "https://github.com/guynikan/schepta.git",
     "directory": "packages/adapters/vanilla"
   },
   "license": "MIT",
   "keywords": [
-    "spectra",
+    "schepta",
     "vanilla",
     "javascript",
     "adapter",
@@ -37,7 +37,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*"
+    "@schepta/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

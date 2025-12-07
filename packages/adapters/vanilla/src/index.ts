@@ -1,5 +1,5 @@
 /**
- * @spectra/adapter-vanilla
+ * @schepta/adapter-vanilla
  * 
  * Vanilla JavaScript adapter for Spectra rendering engine
  */
