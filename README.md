@@ -1,52 +1,62 @@
 # Spectra
 
-Framework-agnostic rendering engine for server-driven UI. Build dynamic forms and menus from JSON schemas that work with React, Vue, or vanilla JavaScript.
+Framework-agnostic rendering engine for server-driven UI. Build dynamic forms and menus from JSON schemas with support for React, Vue, and Vanilla JavaScript.
 
-## Architecture
+## Features
 
-Spectra is built with a core-agnostic architecture:
+- 🎨 **Framework Agnostic**: Works with React, Vue, and Vanilla JS
+- 📝 **Dynamic Forms**: Render forms from JSON schemas
+- 🔌 **Pluggable Form Management**: Use react-hook-form or any other form library
+- 🎯 **Component Registry**: Register and resolve components dynamically
+- 🔄 **Middleware System**: Transform props and add business logic
+- ⚡ **Reactive System**: Handle declarative and imperative reactions
+- 🧩 **Type Safe**: Full TypeScript support
 
-- **Core**: Framework-agnostic rendering logic
-- **Adapters**: Framework-specific implementations (React, Vue, Vanilla)
-- **Factories**: High-level APIs for each framework
+## Examples
 
-## Packages
+### React (Vanilla)
+```bash
+pnpm --filter examples-react dev
+# http://localhost:3000
+```
 
-- `@spectra/core` - Core agnostic engine
-- `@spectra/adapter-react` - React adapter
-- `@spectra/adapter-vue` - Vue adapter
-- `@spectra/adapter-vanilla` - Vanilla JS adapter
-- `@spectra/factory-react` - React factories
-- `@spectra/factory-vue` - Vue factories
-- `@spectra/factory-vanilla` - Vanilla JS factories
+### React with Material UI
+```bash
+pnpm --filter examples-react-material-ui dev
+# http://localhost:3001
+```
 
-## Quick Start
+### React with Chakra UI
+```bash
+pnpm --filter examples-react-chakra-ui dev
+# http://localhost:3002
+```
 
-### React
+## Running Tests
 
-```tsx
-import { FormFactory } from '@spectra/factory-react';
-import { createComponentSpec } from '@spectra/core';
+```bash
+# Run all E2E tests
+pnpm test:e2e
 
-const components = {
-  InputText: createComponentSpec({
-    id: 'InputText',
-    type: 'field',
-    factory: (props, runtime) => <input {...props} />,
-  }),
-};
+# Run specific test suite
+pnpm --filter tests exec playwright test react
+pnpm --filter tests exec playwright test material-ui
+pnpm --filter tests exec playwright test chakra-ui
+```
 
-const schema = {
-  type: 'object',
-  properties: {
-    name: {
-      type: 'string',
-      'x-component': 'InputText',
-    },
-  },
-};
+## Project Structure
 
-<FormFactory schema={schema} components={components} />
+```
+spectra/
+├── packages/
+│   ├── core/              # Framework-agnostic core logic
+│   ├── adapters/          # Framework adapters (react, vue, vanilla)
+│   └── factories/         # Framework factories (react, vue, vanilla)
+├── examples/              # Example applications
+│   ├── react/             # React vanilla example
+│   ├── react-material-ui/ # React with Material UI
+│   └── react-chakra-ui/   # React with Chakra UI
+└── tests/                 # E2E tests with Playwright
 ```
 
 ## Development
@@ -58,14 +68,13 @@ pnpm install
 # Build all packages
 pnpm build
 
+# Run in development mode
+pnpm dev
+
 # Run tests
 pnpm test
-
-# Run E2E tests
-pnpm test:e2e
 ```
 
 ## License
 
-Proprietary
-
+MIT
