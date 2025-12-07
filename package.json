@@ -8,6 +8,8 @@
     "dev": "turbo dev",
     "test": "turbo test",
     "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "dev:all": "concurrently \"pnpm --filter examples-react dev\" \"pnpm --filter examples-react-material-ui dev\" \"pnpm --filter examples-react-chakra-ui dev\"",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "clean": "turbo clean"
@@ -15,14 +17,13 @@
   "devDependencies": {
     "@playwright/test": "^1.40.0",
     "@types/node": "^20.11.0",
+    "concurrently": "^9.2.1",
     "turbo": "^1.12.4",
     "typescript": "^5.3.3"
   },
-  "dependencies": {},
   "packageManager": "pnpm@8.15.0",
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   }
 }
-

@@ -69,7 +69,7 @@ const InputTextarea = React.forwardRef<HTMLTextAreaElement, any>((props, ref) =>
   const { label, name, value, onChange, placeholder, rows = 4, ...rest } = props;
   return (
     <TextField
-      ref={ref}
+      inputRef={ref}
       fullWidth
       multiline
       rows={rows}
@@ -133,7 +133,7 @@ const InputCheckbox = React.forwardRef<HTMLInputElement, any>((props, ref) => {
     <FormControlLabel
       control={
         <Checkbox
-          ref={ref}
+          inputRef={ref}
           name={name}
           checked={checked || false}
           onChange={(e) => onChange?.(e.target.checked)}
