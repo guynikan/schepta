@@ -5,7 +5,7 @@
  */
 
 import { provide, inject, type InjectionKey } from 'vue';
-import type { Context } from '@spectra/core';
+import type { Context } from '@schepta/core';
 
 /**
  * Vue-based context implementation

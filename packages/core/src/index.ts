@@ -1,5 +1,5 @@
 /**
- * @spectra/core
+ * @schepta/core
  * 
  * Core framework-agnostic rendering engine
  */

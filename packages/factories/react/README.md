@@ -1,11 +1,11 @@
-# @spectra/factory-react
+# @schepta/factory-react
 
 React factory for Spectra. Provides `FormFactory` component for rendering forms from JSON schemas in React applications.
 
 ## Installation
 
 ```bash
-npm install @spectra/factory-react @spectra/core @spectra/adapter-react react react-dom react-hook-form
+npm install @schepta/factory-react @schepta/core @schepta/adapter-react react react-dom react-hook-form
 ```
 
 ## Peer Dependencies
@@ -18,8 +18,8 @@ npm install @spectra/factory-react @spectra/core @spectra/adapter-react react re
 
 ```tsx
 import { FormProvider, useForm } from 'react-hook-form';
-import { FormFactory } from '@spectra/factory-react';
-import { createComponentSpec } from '@spectra/core';
+import { FormFactory } from '@schepta/factory-react';
+import { createComponentSpec } from '@schepta/core';
 
 const components = {
   InputText: createComponentSpec({
@@ -46,7 +46,7 @@ function App() {
 
 ## Documentation
 
-For complete documentation and examples, visit [https://spectra.dev](https://spectra.dev)
+For complete documentation and examples, visit [https://schepta.dev](https://schepta.dev)
 
 ## License
 

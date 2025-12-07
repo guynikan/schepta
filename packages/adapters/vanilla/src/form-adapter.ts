@@ -4,7 +4,7 @@
  * Implements FormAdapter using manual state management
  */
 
-import type { FormAdapter, FieldOptions, ReactiveState } from '@spectra/core';
+import type { FormAdapter, FieldOptions, ReactiveState } from '@schepta/core';
 import { VanillaReactiveState } from './reactive-state';
 import { EventEmitter } from './event-emitter';
 

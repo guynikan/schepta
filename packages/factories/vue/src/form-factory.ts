@@ -3,11 +3,11 @@
  */
 
 import { defineComponent, ref, computed, watch, h } from 'vue';
-import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter } from '@spectra/core';
-import { createVueRuntimeAdapter } from '@spectra/adapter-vue';
-import { createVueFormAdapter } from '@spectra/adapter-vue';
-import { createRendererOrchestrator, type FactorySetupResult } from '@spectra/core';
-import { buildInitialValuesFromSchema } from '@spectra/core';
+import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter } from '@schepta/core';
+import { createVueRuntimeAdapter } from '@schepta/adapter-vue';
+import { createVueFormAdapter } from '@schepta/adapter-vue';
+import { createRendererOrchestrator, type FactorySetupResult } from '@schepta/core';
+import { buildInitialValuesFromSchema } from '@schepta/core';
 import { FormRenderer } from './form-renderer';
 
 // Custom field renderer that integrates fields with VueFormAdapter

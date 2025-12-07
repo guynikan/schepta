@@ -7,7 +7,7 @@ Interactive examples of Spectra forms using Vue 3.
 A basic form with first name and last name fields.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-vue-simple"
+  sandbox-id="schepta-vue-simple"
   title="Vue Simple Form Example"
   height="600px"
 />
@@ -97,7 +97,7 @@ A basic form with first name and last name fields.
 </template>
 
 <script setup lang="ts">
-import { createFormFactory } from '@spectra/factory-vue';
+import { createFormFactory } from '@schepta/factory-vue';
 import { components } from './components/InputComponents';
 import simpleFormSchema from './fixtures/simple-form.json';
 
@@ -118,7 +118,7 @@ const FormFactoryComponent = createFormFactory({
 A more complex form with multiple field types including email, phone, select, textarea, number, date, and checkbox.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-vue-complex"
+  sandbox-id="schepta-vue-complex"
   title="Vue Complex Form Example"
   height="700px"
 />

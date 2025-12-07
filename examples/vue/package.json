@@ -8,9 +8,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*",
-    "@spectra/adapter-vue": "workspace:*",
-    "@spectra/factory-vue": "workspace:*",
+    "@schepta/core": "workspace:*",
+    "@schepta/adapter-vue": "workspace:*",
+    "@schepta/factory-vue": "workspace:*",
     "vue": "^3.4.0",
     "vue-router": "^4.2.5"
   },

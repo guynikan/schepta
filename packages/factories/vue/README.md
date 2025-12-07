@@ -1,11 +1,11 @@
-# @spectra/factory-vue
+# @schepta/factory-vue
 
 Vue factory for Spectra. Provides `FormFactory` component for rendering forms from JSON schemas in Vue 3 applications.
 
 ## Installation
 
 ```bash
-npm install @spectra/factory-vue @spectra/core @spectra/adapter-vue vue
+npm install @schepta/factory-vue @schepta/core @schepta/adapter-vue vue
 ```
 
 ## Peer Dependencies
@@ -24,8 +24,8 @@ npm install @spectra/factory-vue @spectra/core @spectra/adapter-vue vue
 </template>
 
 <script setup lang="ts">
-import { createFormFactory } from '@spectra/factory-vue';
-import { createComponentSpec } from '@spectra/core';
+import { createFormFactory } from '@schepta/factory-vue';
+import { createComponentSpec } from '@schepta/core';
 
 const FormFactoryComponent = createFormFactory({
   // configuration
@@ -39,7 +39,7 @@ const handleSubmit = (values: any) => {
 
 ## Documentation
 
-For complete documentation and examples, visit [https://spectra.dev](https://spectra.dev)
+For complete documentation and examples, visit [https://schepta.dev](https://schepta.dev)
 
 ## License
 

@@ -1,5 +1,5 @@
 {
-  "name": "@spectra/factory-react",
+  "name": "@schepta/factory-react",
   "version": "0.1.0",
   "description": "React factories for Spectra",
   "main": "./dist/index.js",
@@ -18,12 +18,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/guynikan/spectra.git",
+    "url": "https://github.com/guynikan/schepta.git",
     "directory": "packages/factories/react"
   },
   "license": "MIT",
   "keywords": [
-    "spectra",
+    "schepta",
     "react",
     "rendering",
     "schema",
@@ -38,8 +38,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*",
-    "@spectra/adapter-react": "workspace:*"
+    "@schepta/core": "workspace:*",
+    "@schepta/adapter-react": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

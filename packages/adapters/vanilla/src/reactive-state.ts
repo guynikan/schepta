@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from './event-emitter';
-import type { ReactiveState } from '@spectra/core';
+import type { ReactiveState } from '@schepta/core';
 
 /**
  * Vanilla JS-based reactive state implementation

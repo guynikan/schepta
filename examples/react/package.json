@@ -8,9 +8,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*",
-    "@spectra/adapter-react": "workspace:*",
-    "@spectra/factory-react": "workspace:*",
+    "@schepta/core": "workspace:*",
+    "@schepta/adapter-react": "workspace:*",
+    "@schepta/factory-react": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.2",

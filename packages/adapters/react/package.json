@@ -1,5 +1,5 @@
 {
-  "name": "@spectra/adapter-react",
+  "name": "@schepta/adapter-react",
   "version": "0.1.0",
   "description": "React adapter for Spectra",
   "main": "./dist/index.js",
@@ -18,12 +18,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/guynikan/spectra.git",
+    "url": "https://github.com/guynikan/schepta.git",
     "directory": "packages/adapters/react"
   },
   "license": "MIT",
   "keywords": [
-    "spectra",
+    "schepta",
     "react",
     "adapter",
     "rendering",
@@ -36,7 +36,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*",
+    "@schepta/core": "workspace:*",
     "react": "^18.2.0",
     "react-hook-form": "^7.52.2"
   },

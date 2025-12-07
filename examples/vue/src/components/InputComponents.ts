@@ -1,5 +1,5 @@
 import { defineComponent, h } from 'vue';
-import { createComponentSpec } from '@spectra/core';
+import { createComponentSpec } from '@schepta/core';
 
 // Input Text Component
 export const InputText = defineComponent({

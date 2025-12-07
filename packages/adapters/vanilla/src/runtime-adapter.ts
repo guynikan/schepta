@@ -4,7 +4,7 @@
  * Implements RuntimeAdapter using DOM APIs
  */
 
-import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@spectra/core';
+import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@schepta/core';
 
 import type { DOMElement } from './types';
 

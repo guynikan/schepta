@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import type { ReactiveState } from '@spectra/core';
+import type { ReactiveState } from '@schepta/core';
 
 /**
  * React-based reactive state implementation

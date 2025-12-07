@@ -5,7 +5,7 @@
  */
 
 import { ref, reactive, watch, type Ref } from 'vue';
-import type { FormAdapter, FieldOptions, ReactiveState } from '@spectra/core';
+import type { FormAdapter, FieldOptions, ReactiveState } from '@schepta/core';
 import { VueReactiveState } from './reactive-state';
 
 /**

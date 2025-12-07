@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script de publicação dos pacotes @spectra/* no npm
+# Script de publicação dos pacotes @schepta/* no npm
 # Usa pnpm publish que automaticamente resolve workspace:* para versões
 # Uso: ./publish.sh [--dry-run]
 
@@ -25,7 +25,7 @@ done
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-echo "📦 Publicando pacotes @spectra/* no npm"
+echo "📦 Publicando pacotes @schepta/* no npm"
 if [ "$DRY_RUN" = true ]; then
   echo "🔍 Modo dry-run (não publicará de fato)"
 fi
@@ -65,9 +65,9 @@ publish_package() {
 check_ready() {
   echo "🔍 Verificando se está pronto para publicar..."
   
-  # Fazer build apenas dos packages @spectra/* (não docs/examples)
-  echo "🔨 Fazendo build dos packages @spectra/*..."
-  pnpm --filter "@spectra/*" build
+  # Fazer build apenas dos packages @schepta/* (não docs/examples)
+  echo "🔨 Fazendo build dos packages @schepta/*..."
+  pnpm --filter "@schepta/*" build
   
   # Verificar se todos os packages têm build
   local MISSING_BUILDS=0
@@ -98,17 +98,17 @@ echo "🚀 Iniciando publicação na ordem correta..."
 echo ""
 
 # 1. Core (deve ser publicado primeiro)
-publish_package "@spectra/core" "@spectra/core"
+publish_package "@schepta/core" "@schepta/core"
 
 # 2. Adapters (podem ser publicados em paralelo, mas vamos fazer sequencialmente)
-publish_package "@spectra/adapter-react" "@spectra/adapter-react"
-publish_package "@spectra/adapter-vue" "@spectra/adapter-vue"
-publish_package "@spectra/adapter-vanilla" "@spectra/adapter-vanilla"
+publish_package "@schepta/adapter-react" "@schepta/adapter-react"
+publish_package "@schepta/adapter-vue" "@schepta/adapter-vue"
+publish_package "@schepta/adapter-vanilla" "@schepta/adapter-vanilla"
 
 # 3. Factories (dependem dos adapters)
-publish_package "@spectra/factory-react" "@spectra/factory-react"
-publish_package "@spectra/factory-vue" "@spectra/factory-vue"
-publish_package "@spectra/factory-vanilla" "@spectra/factory-vanilla"
+publish_package "@schepta/factory-react" "@schepta/factory-react"
+publish_package "@schepta/factory-vue" "@schepta/factory-vue"
+publish_package "@schepta/factory-vanilla" "@schepta/factory-vanilla"
 
 echo ""
 echo "🎉 Publicação concluída!"

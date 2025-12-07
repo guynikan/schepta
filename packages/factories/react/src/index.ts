@@ -1,5 +1,5 @@
 /**
- * @spectra/factory-react
+ * @schepta/factory-react
  * 
  * React factories for Spectra rendering engine
  */

@@ -7,7 +7,7 @@ Interactive examples of Spectra forms using React and `react-hook-form`.
 A basic form with first name and last name fields.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-react-simple"
+  sandbox-id="schepta-react-simple"
   title="React Simple Form Example"
   height="600px"
 />
@@ -93,8 +93,8 @@ A basic form with first name and last name fields.
 
 ```tsx
 import { FormProvider, useForm } from 'react-hook-form';
-import { FormFactory } from '@spectra/factory-react';
-import { createComponentSpec } from '@spectra/core';
+import { FormFactory } from '@schepta/factory-react';
+import { createComponentSpec } from '@schepta/core';
 
 const components = {
   'form-container': createComponentSpec({
@@ -134,7 +134,7 @@ function App() {
 A more complex form with multiple field types including email, phone, select, textarea, number, date, and checkbox.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-react-complex"
+  sandbox-id="schepta-react-complex"
   title="React Complex Form Example"
   height="700px"
 />

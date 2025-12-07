@@ -1,5 +1,5 @@
 {
-  "name": "@spectra/factory-vue",
+  "name": "@schepta/factory-vue",
   "version": "0.1.0",
   "description": "Vue factories for Spectra",
   "main": "./dist/index.js",
@@ -18,12 +18,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/guynikan/spectra.git",
+    "url": "https://github.com/guynikan/schepta.git",
     "directory": "packages/factories/vue"
   },
   "license": "MIT",
   "keywords": [
-    "spectra",
+    "schepta",
     "vue",
     "rendering",
     "schema",
@@ -37,8 +37,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*",
-    "@spectra/adapter-vue": "workspace:*"
+    "@schepta/core": "workspace:*",
+    "@schepta/adapter-vue": "workspace:*"
   },
   "peerDependencies": {
     "vue": ">=3.0.0"

@@ -6,11 +6,11 @@
 
 import React, { useEffect, useMemo } from 'react';
 import { FormProvider, useForm, UseFormReturn } from 'react-hook-form';
-import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter } from '@spectra/core';
-import { createReactRuntimeAdapter } from '@spectra/adapter-react';
-import { createReactHookFormAdapter } from '@spectra/adapter-react';
-import { createRendererOrchestrator, type FactorySetupResult } from '@spectra/core';
-import { buildInitialValuesFromSchema } from '@spectra/core';
+import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter } from '@schepta/core';
+import { createReactRuntimeAdapter } from '@schepta/adapter-react';
+import { createReactHookFormAdapter } from '@schepta/adapter-react';
+import { createRendererOrchestrator, type FactorySetupResult } from '@schepta/core';
+import { buildInitialValuesFromSchema } from '@schepta/core';
 import { FormRenderer } from './form-renderer';
 import { FieldWrapper } from './field-wrapper';
 

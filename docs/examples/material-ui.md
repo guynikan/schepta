@@ -7,7 +7,7 @@ Interactive examples of Spectra forms using React with Material UI components.
 A basic form with first name and last name fields using Material UI components.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-react-material-ui-simple"
+  sandbox-id="schepta-react-material-ui-simple"
   title="React Material UI Simple Form Example"
   height="600px"
 />
@@ -20,9 +20,9 @@ The same schema structure as the [React example](/examples/react), but rendered 
 
 ```tsx
 import { FormProvider, useForm } from 'react-hook-form';
-import { FormFactory } from '@spectra/factory-react';
+import { FormFactory } from '@schepta/factory-react';
 import { TextField, Button, Grid } from '@mui/material';
-import { createComponentSpec } from '@spectra/core';
+import { createComponentSpec } from '@schepta/core';
 
 const components = {
   InputText: createComponentSpec({
@@ -57,7 +57,7 @@ function App() {
 A more complex form with multiple field types using Material UI components.
 
 <CodeSandboxEmbed
-  sandbox-id="spectra-react-material-ui-complex"
+  sandbox-id="schepta-react-material-ui-complex"
   title="React Material UI Complex Form Example"
   height="700px"
 />

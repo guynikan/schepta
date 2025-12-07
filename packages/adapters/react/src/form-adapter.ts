@@ -5,7 +5,7 @@
  */
 
 import type { UseFormReturn } from 'react-hook-form';
-import type { FormAdapter, FieldOptions, ReactiveState } from '@spectra/core';
+import type { FormAdapter, FieldOptions, ReactiveState } from '@schepta/core';
 import { ReactReactiveState } from './reactive-state';
 
 /**

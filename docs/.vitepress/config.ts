@@ -74,11 +74,11 @@ export default defineConfig({
     },
     resolve: {
       alias: {
-        '@spectra/core': resolve(__dirname, '../packages/core/src'),
-        '@spectra/factory-react': resolve(__dirname, '../packages/factories/react/src'),
-        '@spectra/factory-vue': resolve(__dirname, '../packages/factories/vue/src'),
-        '@spectra/adapter-react': resolve(__dirname, '../packages/adapters/react/src'),
-        '@spectra/adapter-vue': resolve(__dirname, '../packages/adapters/vue/src'),
+        '@schepta/core': resolve(__dirname, '../packages/core/src'),
+        '@schepta/factory-react': resolve(__dirname, '../packages/factories/react/src'),
+        '@schepta/factory-vue': resolve(__dirname, '../packages/factories/vue/src'),
+        '@schepta/adapter-react': resolve(__dirname, '../packages/adapters/react/src'),
+        '@schepta/adapter-vue': resolve(__dirname, '../packages/adapters/vue/src'),
       },
     },
     optimizeDeps: {

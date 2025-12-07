@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import type { FormSchema } from '@spectra/core';
+import type { FormSchema } from '@schepta/core';
 
 export interface FormRendererProps {
   componentKey: string;

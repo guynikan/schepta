@@ -2,11 +2,11 @@
  * Vanilla JS Form Factory
  */
 
-import type { FormSchema, ComponentSpec, FactorySetupResult } from '@spectra/core';
-import { createVanillaRuntimeAdapter } from '@spectra/adapter-vanilla';
-import { createVanillaFormAdapter } from '@spectra/adapter-vanilla';
-import { createRendererOrchestrator } from '@spectra/core';
-import { buildInitialValuesFromSchema } from '@spectra/core';
+import type { FormSchema, ComponentSpec, FactorySetupResult } from '@schepta/core';
+import { createVanillaRuntimeAdapter } from '@schepta/adapter-vanilla';
+import { createVanillaFormAdapter } from '@schepta/adapter-vanilla';
+import { createRendererOrchestrator } from '@schepta/core';
+import { buildInitialValuesFromSchema } from '@schepta/core';
 import { renderForm } from './form-renderer';
 
 export interface FormFactoryOptions {

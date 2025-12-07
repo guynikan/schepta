@@ -4,7 +4,7 @@
  * Implements Context using Map/WeakMap
  */
 
-import type { Context } from '@spectra/core';
+import type { Context } from '@schepta/core';
 
 /**
  * Context storage

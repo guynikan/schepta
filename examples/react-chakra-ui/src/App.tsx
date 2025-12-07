@@ -18,8 +18,8 @@ import {
   GridItem,
   Link,
 } from '@chakra-ui/react';
-import { FormFactory } from '@spectra/factory-react';
-import { createComponentSpec } from '@spectra/core';
+import { FormFactory } from '@schepta/factory-react';
+import { createComponentSpec } from '@schepta/core';
 import simpleFormSchema from '../../../tests/fixtures/simple-form.json';
 import complexFormSchema from '../../../tests/fixtures/complex-form.json';
 

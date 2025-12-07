@@ -8,9 +8,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*",
-    "@spectra/adapter-react": "workspace:*",
-    "@spectra/factory-react": "workspace:*",
+    "@schepta/core": "workspace:*",
+    "@schepta/adapter-react": "workspace:*",
+    "@schepta/factory-react": "workspace:*",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",

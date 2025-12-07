@@ -5,7 +5,7 @@
  */
 
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import type { Context } from '@spectra/core';
+import type { Context } from '@schepta/core';
 
 /**
  * React-based context implementation

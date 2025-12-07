@@ -9,11 +9,11 @@
     "preview": "vitepress preview"
   },
   "dependencies": {
-    "@spectra/core": "workspace:*",
-    "@spectra/factory-react": "workspace:*",
-    "@spectra/factory-vue": "workspace:*",
-    "@spectra/adapter-react": "workspace:*",
-    "@spectra/adapter-vue": "workspace:*",
+    "@schepta/core": "workspace:*",
+    "@schepta/factory-react": "workspace:*",
+    "@schepta/factory-vue": "workspace:*",
+    "@schepta/adapter-react": "workspace:*",
+    "@schepta/adapter-vue": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
