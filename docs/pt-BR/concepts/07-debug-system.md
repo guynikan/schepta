@@ -2,7 +2,7 @@
 
 **Sistema integrado de debug visual para desenvolvimento rápido** — o "raio-X" que mostra como tudo funciona internamente.
 
-![Debug System](/images/07-debug-system.png)
+<ThemeImage src="/images/07-debug-system.png" alt="Debug System" />
 
 ---
 

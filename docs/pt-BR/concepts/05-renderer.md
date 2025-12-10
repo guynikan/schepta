@@ -2,7 +2,7 @@
 
 **Sistema que controla como cada tipo de component é renderizado** — a "ponte" entre components React/Vue e a lógica de apresentação.
 
-![Renderer](/images/05-renderer.png)
+<ThemeImage src="/images/05-renderer.png" alt="Renderer" />
 
 ---
 

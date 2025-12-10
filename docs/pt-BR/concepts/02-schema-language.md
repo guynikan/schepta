@@ -2,7 +2,7 @@
 
 **Sintaxe e propriedades que o schepta entende** — o "vocabulário" para definir interfaces dinâmicas.
 
-![Schema Language](/images/02-schema-language.png)
+<ThemeImage src="/images/02-schema-language.png" alt="Schema Language" />
 
 ---
 
