@@ -5,6 +5,7 @@ import { FormFactory } from '@schepta/factory-react';
 import { createComponentSpec } from '@schepta/core';
 import simpleFormSchema from '../../../tests/fixtures/simple-form.json';
 import complexFormSchema from '../../../tests/fixtures/complex-form.json';
+import { ProviderExample } from './ProviderExample';
 
 // Simple input components
 const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) => {
@@ -164,9 +165,12 @@ const FormSectionGroup = ({ children, columns, ...props }: any) => {
   return <div style={{ display: 'grid', gridTemplateColumns: gridColumns, gap: '16px' }} {...props}>{children}</div>;
 };
 
-const SubmitButton = ({ children, 'x-content': content, externalContext, ...props }: any) => {
+const SubmitButton = ({ children, 'x-content': content, onSubmit, externalContext, ...props }: any) => {
   const { handleSubmit } = useFormContext();
-  const onSubmit = externalContext?.onSubmit;
+  
+  // externalContext is available for custom logic (e.g., user, api)
+  // const user = externalContext?.user;
+  // const apiUrl = externalContext?.api;
   
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -198,9 +202,12 @@ const SubmitButton = ({ children, 'x-content': content, externalContext, ...prop
   );
 };
 
-const FormContainer = ({ children, externalContext, ...props }: any) => {
+const FormContainer = ({ children, onSubmit, externalContext, ...props }: any) => {
   const { handleSubmit } = useFormContext();
-  const onSubmit = externalContext?.onSubmit;
+  
+  // externalContext is available for custom logic (e.g., user, api)
+  // const user = externalContext?.user;
+  // const apiUrl = externalContext?.api;
   
   return (
     <form 
@@ -356,15 +363,22 @@ function App() {
           </Link>
           <Link 
             to="/complex"
-            style={{ padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
+            style={{ marginRight: '8px', padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
           >
             Complex Form
+          </Link>
+          <Link 
+            to="/provider"
+            style={{ padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
+          >
+            Provider Example
           </Link>
         </div>
 
         <Routes>
           <Route path="/" element={<FormPage schema={simpleFormSchema} />} />
           <Route path="/complex" element={<FormPage schema={complexFormSchema} />} />
+          <Route path="/provider" element={<ProviderExample />} />
         </Routes>
       </div>
     </BrowserRouter>
