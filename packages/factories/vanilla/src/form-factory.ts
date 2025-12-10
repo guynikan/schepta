@@ -5,6 +5,7 @@
 import type { FormSchema, ComponentSpec, FactorySetupResult } from '@schepta/core';
 import { createVanillaRuntimeAdapter } from '@schepta/adapter-vanilla';
 import { createVanillaFormAdapter } from '@schepta/adapter-vanilla';
+import { getScheptaContext } from '@schepta/adapter-vanilla';
 import { createRendererOrchestrator } from '@schepta/core';
 import { buildInitialValuesFromSchema } from '@schepta/core';
 import { renderForm } from './form-renderer';
@@ -21,6 +22,21 @@ export interface FormFactoryOptions {
 }
 
 export function createFormFactory(options: FormFactoryOptions) {
+  // Get provider config (optional - returns null if no provider)
+  const providerConfig = getScheptaContext(options.container);
+  
+  // Merge: local props > provider config > defaults
+  const mergedComponents = options.components || providerConfig?.components || {};
+  const mergedRenderers = options.renderers || providerConfig?.renderers || {};
+  const mergedMiddlewares = providerConfig?.middlewares || [];
+  const mergedExternalContext = {
+    ...(providerConfig?.externalContext || {}),
+    ...(options.externalContext || {}),
+  };
+  const mergedDebug = options.debug !== undefined 
+    ? options.debug 
+    : (providerConfig?.debug?.enabled || false);
+  
   const formAdapter = createVanillaFormAdapter(
     options.initialValues || buildInitialValuesFromSchema(options.schema)
   );
@@ -28,12 +44,12 @@ export function createFormFactory(options: FormFactoryOptions) {
 
   const getFactorySetup = (): FactorySetupResult => {
     return {
-      components: options.components || {},
-      renderers: options.renderers,
-      externalContext: options.externalContext || {},
+      components: mergedComponents,
+      renderers: mergedRenderers,
+      externalContext: mergedExternalContext,
       state: formAdapter.getValues(),
-      middlewares: [],
-      debug: options.debug ? {
+      middlewares: mergedMiddlewares,
+      debug: mergedDebug ? {
         isEnabled: true,
         log: (category, message, data) => {
           console.log(`[${category}]`, message, data);
