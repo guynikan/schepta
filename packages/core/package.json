@@ -33,7 +33,9 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit --project tsconfig.build.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -42,7 +44,8 @@
   "devDependencies": {
     "@types/jexl": "2.3.4",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.0"
   }
 }
 

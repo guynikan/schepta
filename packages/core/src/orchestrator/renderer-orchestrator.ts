@@ -8,7 +8,7 @@
 import type { RuntimeAdapter, ComponentSpec, DebugContextValue } from '../runtime/types';
 import type { FormAdapter } from '../forms/types';
 import type { MiddlewareFn, MiddlewareContext } from '../middleware/types';
-import { getComponentSpec } from '../registry/component-registry';
+import { getComponentSpec, getComponentRegistry } from '../registry/component-registry';
 import { getRendererForType } from '../registry/renderer-registry';
 import { applyMiddlewares } from '../middleware/types';
 
@@ -35,6 +35,7 @@ export interface FactorySetupResult {
   externalContext: Record<string, any>;
   state: Record<string, any>;
   middlewares: MiddlewareFn[];
+  onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   debug?: DebugContextValue;
   formAdapter?: FormAdapter;
 }
@@ -50,6 +51,8 @@ export function resolveSpec(
   debugEnabled?: boolean
 ): ResolutionResult {
   const componentName = schema['x-component'] || componentKey;
+  // components already has provider components merged in the factory
+  // Pass components as globalComponents (includes provider components) and undefined as localComponents
   const renderSpec = getComponentSpec(componentName, components, undefined, debugEnabled);
   
   if (!renderSpec) {
@@ -95,6 +98,7 @@ export function createRendererOrchestrator(
       externalContext, 
       state, 
       middlewares, 
+      onSubmit,
       debug,
       formAdapter
     } = getFactorySetup();
@@ -103,6 +107,7 @@ export function createRendererOrchestrator(
     const { 'x-component-props': componentProps = {} } = schema;
 
     // Resolve component and renderer
+    // components already has provider components merged in the factory
     const resolution = resolveSpec(
       schema, 
       componentKey, 
@@ -133,8 +138,10 @@ export function createRendererOrchestrator(
       ...(schema['x-ui'] || {}),
       // Extract x-content if present (for content components)
       ...(schema['x-content'] ? { 'x-content': schema['x-content'] } : {}),
-      // Pass externalContext so components can access it
+      // Pass externalContext so components can access it (user, api, etc.)
       externalContext,
+      // Pass onSubmit separately so components can use it
+      onSubmit,
     };
 
     // Middleware Application
