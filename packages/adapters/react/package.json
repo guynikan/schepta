@@ -32,7 +32,9 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit --project tsconfig.build.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -45,10 +47,14 @@
     "react-dom": ">=18.0.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.1.0",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.0",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.0"
   }
 }
 
