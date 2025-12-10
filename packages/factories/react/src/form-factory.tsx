@@ -5,13 +5,14 @@
  */
 
 import React, { useEffect, useMemo } from 'react';
-import { FormProvider, useForm, UseFormReturn } from 'react-hook-form';
-import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter } from '@schepta/core';
+import { FormProvider, useForm, UseFormReturn, useWatch } from 'react-hook-form';
+import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter, MiddlewareFn } from '@schepta/core';
 import { createReactRuntimeAdapter } from '@schepta/adapter-react';
 import { createReactHookFormAdapter } from '@schepta/adapter-react';
 import { useScheptaContext } from '@schepta/adapter-react';
 import { createRendererOrchestrator, type FactorySetupResult } from '@schepta/core';
 import { buildInitialValuesFromSchema } from '@schepta/core';
+import { createTemplateExpressionMiddleware } from '@schepta/core';
 import { FormRenderer } from './form-renderer';
 import { FieldWrapper } from './field-wrapper';
 
@@ -71,6 +72,7 @@ export interface FormFactoryProps {
   components?: Record<string, ComponentSpec>;
   renderers?: Partial<Record<string, any>>;
   externalContext?: Record<string, any>;
+  middlewares?: MiddlewareFn[];
   formContext?: UseFormReturn<any>;
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
@@ -82,6 +84,7 @@ export function FormFactory({
   components,
   renderers,
   externalContext,
+  middlewares,
   formContext: providedFormContext,
   initialValues,
   onSubmit,
@@ -99,12 +102,18 @@ export function FormFactory({
     ...(providerConfig?.renderers || {}),
     ...(renderers || {}),
   };
-  const mergedMiddlewares = providerConfig?.middlewares || [];
   const mergedExternalContext = {
     ...(providerConfig?.externalContext || {}),
     ...(externalContext || {}),
   };
   const mergedDebug = debug !== false ? debug : (providerConfig?.debug?.enabled || false);
+  
+  // Template middleware will be created dynamically in getFactorySetup
+  // with current formState, so we just prepare the base middlewares here
+  const baseMiddlewares = [
+    ...(providerConfig?.middlewares || []),
+    ...(middlewares || []),
+  ];
   
   const defaultFormContext = useForm({
     defaultValues: initialValues || buildInitialValuesFromSchema(schema),
@@ -130,9 +139,17 @@ export function FormFactory({
 
   const rootComponentKey = (schema as any)['x-component'] || 'form-container';
 
+  // Watch form state to trigger re-renders when values change
+  // This ensures template expressions with $formValues are updated
+  // useWatch without arguments watches all fields and triggers re-render on any change
+  const formState = useWatch({
+    control: formContext.control,
+  });
+
   const renderer = useMemo(() => {
     const getFactorySetup = (): FactorySetupResult => {
-      const formState = formContext.watch();
+      // Get current form state (useWatch already provides it, but get fresh copy)
+      const currentFormState = formContext.watch();
       
       // Create custom renderers with field renderer
       const customRenderers = {
@@ -140,13 +157,36 @@ export function FormFactory({
         field: createFieldRenderer(),
       };
       
+      // Create template expression middleware with current form state (always first)
+      const templateMiddleware = createTemplateExpressionMiddleware({
+        externalContext: mergedExternalContext,
+        formState: currentFormState,
+        debug: mergedDebug ? {
+          isEnabled: true,
+          log: (category, message, data) => {
+            console.log(`[${category}]`, message, data);
+          },
+          buffer: {
+            add: (entry) => {},
+            clear: () => {},
+            getAll: () => [],
+          },
+        } : undefined,
+      });
+      
+      // Build middlewares: template middleware first, then provider, then local
+      const updatedMiddlewares = [
+        templateMiddleware,
+        ...baseMiddlewares,
+      ];
+      
       return {
         components: mergedComponents,
         renderers: customRenderers,
         externalContext: mergedExternalContext,
-        state: formState,
-        middlewares: mergedMiddlewares,
-        onSubmit, // Pass onSubmit separately, not through externalContext
+        state: currentFormState,
+        middlewares: updatedMiddlewares,
+        onSubmit,
         debug: mergedDebug ? {
           isEnabled: true,
           log: (category, message, data) => {
@@ -163,7 +203,7 @@ export function FormFactory({
     };
     
     return createRendererOrchestrator(getFactorySetup, runtime);
-  }, [mergedComponents, mergedRenderers, mergedMiddlewares, mergedExternalContext, formContext, mergedDebug, formAdapter, runtime, onSubmit]);
+  }, [mergedComponents, mergedRenderers, mergedExternalContext, formContext, mergedDebug, formAdapter, runtime, onSubmit, baseMiddlewares, formState]);
 
   // Handle submit button click
   const handleSubmitClick = () => {
