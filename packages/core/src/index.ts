@@ -27,6 +27,9 @@ export * from './reactions/reaction-engine';
 // Schema types
 export * from './schema/schema-types';
 
+// Provider system
+export * from './provider';
+
 // Utils
 export * from './utils/build-initial-values';
 export * from './utils/jexl-config';
