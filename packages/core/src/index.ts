@@ -19,6 +19,8 @@ export * from './orchestrator/renderer-orchestrator';
 
 // Middleware system
 export * from './middleware/types';
+export * from './middleware';
+export * from './expressions';
 
 // Reaction system
 export * from './reactions/types';
