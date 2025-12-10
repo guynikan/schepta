@@ -2,7 +2,7 @@
 
 **System that manages shared configuration and state** — the "command center" that coordinates all of schepta.
 
-![Provider](/images/03-provider.png)
+<ThemeImage src="/images/03-provider.png" alt="Provider" />
 
 ---
 

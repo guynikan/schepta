@@ -1,12 +1,61 @@
 import DefaultTheme from 'vitepress/theme';
 import './custom.css';
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, defineComponent, h, ref, onMounted, onUnmounted } from 'vue';
+
+// ThemeImage component - detects dark mode and switches images
+const ThemeImage = defineComponent({
+  props: {
+    src: { type: String, required: true },
+    alt: { type: String, default: '' }
+  },
+  setup(props) {
+    const imageSrc = ref(props.src);
+    let observer: MutationObserver | null = null;
+
+    const updateTheme = () => {
+      if (typeof document !== 'undefined') {
+        const isDark = document.documentElement.classList.contains('dark');
+        const baseSrc = props.src.replace(/-dark\.(png|jpg|jpeg|svg|webp)$/i, '.$1');
+        const extensionMatch = baseSrc.match(/\.(png|jpg|jpeg|svg|webp)$/i);
+        const extension = extensionMatch ? extensionMatch[0] : '.png';
+        const srcWithoutExt = baseSrc.replace(extension, '');
+        imageSrc.value = isDark 
+          ? `${srcWithoutExt}-dark${extension}`
+          : baseSrc;
+      }
+    };
+
+    onMounted(() => {
+      updateTheme();
+      if (typeof document !== 'undefined') {
+        observer = new MutationObserver(updateTheme);
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['class']
+        });
+      }
+    });
+
+    onUnmounted(() => {
+      if (observer) {
+        observer.disconnect();
+      }
+    });
+
+    return () => h('img', {
+      src: imageSrc.value,
+      alt: props.alt || '',
+      style: { transition: 'opacity 0.2s ease-in-out' }
+    });
+  }
+});
 
 export default {
   ...DefaultTheme,
   enhanceApp({ app, router }) {
     app.component('CodeSandboxEmbed', defineAsyncComponent(() => import('../../components/examples/CodeSandboxEmbed.vue')));
     app.component('ExampleWrapper', defineAsyncComponent(() => import('../../components/examples/ExampleWrapper.vue')));
+    app.component('ThemeImage', ThemeImage);
     
     if (typeof window !== 'undefined') {
       const handleLanguageClick = (e: MouseEvent) => {

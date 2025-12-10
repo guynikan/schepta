@@ -2,7 +2,7 @@
 
 **Sistema que transforma JSON em componentes funcionais** — schema entra, interface sai.
 
-![Factories](/images/01-factories.png)
+<ThemeImage src="/images/01-factories.png" alt="Factories" />
 
 ---
 

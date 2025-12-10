@@ -2,7 +2,7 @@
 
 **Sistema que gerencia configurações e estado compartilhado** — o "centro de comando" que coordena todo o schepta.
 
-![Provider](/images/03-provider.png)
+<ThemeImage src="/images/03-provider.png" alt="Provider" />
 
 ---
 

@@ -2,7 +2,7 @@
 
 **System that interprets JSON schemas and transforms them into React/Vue elements** — the "translator" between backend and frontend.
 
-![Schema Resolution](/images/04-schema-resolution.png)
+<ThemeImage src="/images/04-schema-resolution.png" alt="Schema Resolution" />
 
 ---
 

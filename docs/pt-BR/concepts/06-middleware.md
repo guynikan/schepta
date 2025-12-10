@@ -2,7 +2,7 @@
 
 **Sistema que intercepta e modifica props antes da renderização** — o "filtro inteligente" entre schema e component.
 
-![Middleware](/images/06-middleware.png)
+<ThemeImage src="/images/06-middleware.png" alt="Middleware" />
 
 ---
 

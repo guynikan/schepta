@@ -2,7 +2,7 @@
 
 **Integrated visual debug system for rapid development** — the "X-ray" that shows how everything works internally.
 
-![Debug System](/images/07-debug-system.png)
+<ThemeImage src="/images/07-debug-system.png" alt="Debug System" />
 
 ---
 
