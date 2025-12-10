@@ -6,6 +6,7 @@ import { createComponentSpec } from '@schepta/core';
 import simpleFormSchema from '../../../tests/fixtures/simple-form.json';
 import complexFormSchema from '../../../tests/fixtures/complex-form.json';
 import { ProviderExample } from './ProviderExample';
+import { ExpressionExample } from './ExpressionExample';
 
 // Simple input components
 const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) => {
@@ -369,16 +370,23 @@ function App() {
           </Link>
           <Link 
             to="/provider"
-            style={{ padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
+            style={{ marginRight: '8px', padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
           >
             Provider Example
+          </Link>
+          <Link 
+            to="/expressions"
+            style={{ padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
+          >
+            Expressions Example
           </Link>
         </div>
 
         <Routes>
           <Route path="/" element={<FormPage schema={simpleFormSchema} />} />
           <Route path="/complex" element={<FormPage schema={complexFormSchema} />} />
-          <Route path="/provider" element={<ProviderExample />} />
+                <Route path="/provider" element={<ProviderExample />} />
+                <Route path="/expressions" element={<ExpressionExample />} />
         </Routes>
       </div>
     </BrowserRouter>
