@@ -3,9 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "types": ["node", "vitest/globals"],
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "vitest.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
 
