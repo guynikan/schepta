@@ -6,9 +6,9 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "test": "turbo test",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
+    "test": "turbo test --filter='./packages/*'",
+    "test:e2e": "playwright test tests/e2e",
+    "test:e2e:ui": "playwright test --ui tests/e2e",
     "dev:all": "concurrently \"pnpm --filter examples-react dev\" \"pnpm --filter examples-react-material-ui dev\" \"pnpm --filter examples-react-chakra-ui dev\" \"pnpm --filter examples-vue dev\" \"pnpm --filter examples-vue-vuetify dev\"",
     "docs:dev": "pnpm --filter docs dev",
     "docs:build": "pnpm --filter docs build",
