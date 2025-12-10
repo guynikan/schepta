@@ -11,6 +11,8 @@ import type { MiddlewareFn, MiddlewareContext } from '../middleware/types';
 import { getComponentSpec, getComponentRegistry } from '../registry/component-registry';
 import { getRendererForType } from '../registry/renderer-registry';
 import { applyMiddlewares } from '../middleware/types';
+import { processValue } from '../expressions/template-processor';
+import { createDefaultResolver } from '../expressions/variable-resolver';
 
 /**
  * Resolution result - successful component resolution
@@ -90,7 +92,8 @@ export function createRendererOrchestrator(
     componentKey: string,
     schema: any,
     parentProps: Record<string, any> = {},
-    namePath: string[] = []
+    namePath: string[] = [],
+    isDirectRootProperty: boolean = false
   ): any {
     const { 
       components, 
@@ -103,13 +106,27 @@ export function createRendererOrchestrator(
       formAdapter
     } = getFactorySetup();
     
-    // Parse schema
-    const { 'x-component-props': componentProps = {} } = schema;
+    // Process schema with template expressions BEFORE extracting props
+    // This ensures that $formValues.* and $externalContext.* are replaced
+    // in any property of the schema (x-ui, x-content, x-component-props, etc.)
+    const resolver = createDefaultResolver({
+      externalContext,
+      formState: state,
+    });
+    
+    const processedSchema = processValue(schema, resolver, {
+      externalContext,
+      formState: state,
+    }) as any;
+    
+    // Parse schema (now using processed schema)
+    const { 'x-component-props': componentProps = {} } = processedSchema;
 
     // Resolve component and renderer
+    // Use processedSchema for x-component resolution (in case x-component has templates)
     // components already has provider components merged in the factory
     const resolution = resolveSpec(
-      schema, 
+      processedSchema, 
       componentKey, 
       components, 
       localRenderers, 
@@ -125,19 +142,31 @@ export function createRendererOrchestrator(
     // Extract successful resolution
     const { renderSpec, componentToRender, rendererFn } = resolution as ResolutionSuccess;
 
-    // Construct full name path for nested fields
-    const currentName = parentProps.name ? `${parentProps.name}.${componentKey}` : componentKey;
+    // Construct name path for nested fields
+    // ONLY components with type: 'field' are included in the name path
+    // EXCEPTION: componentKeys that are direct properties of root schema (isDirectRootProperty)
+    // All other components (containers, form-container, content, etc.) are ignored
+    const componentType = renderSpec.type || 'field';
+    const isFieldComponent = componentType === 'field';
+    
+    // If field OR direct root property: add componentKey to name path
+    // If not field and not root property: keep parentProps.name (don't add this component's key)
+    const shouldIncludeInPath = isFieldComponent || isDirectRootProperty;
+    const currentName = shouldIncludeInPath
+      ? (parentProps.name ? `${parentProps.name}.${componentKey}` : componentKey)
+      : parentProps.name; // Containers just pass parent's name, don't add their key
 
-    // Props Processing
+    // Props Processing (using processedSchema)
     const baseProps = {
       ...renderSpec.defaultProps,
       ...parentProps,
-      name: currentName, // Add name prop for field components (with full path for nested fields)
+      // Add name prop ONLY for field components
+      ...(isFieldComponent && currentName ? { name: currentName } : {}),
       ...(Object.keys(componentProps).length > 0 ? { 'x-component-props': componentProps } : {}),
-      // Extract x-ui props if present
-      ...(schema['x-ui'] || {}),
-      // Extract x-content if present (for content components)
-      ...(schema['x-content'] ? { 'x-content': schema['x-content'] } : {}),
+      // Extract x-ui props if present (already processed)
+      ...(processedSchema['x-ui'] || {}),
+      // Extract x-content if present (for content components, already processed)
+      ...(processedSchema['x-content'] ? { 'x-content': processedSchema['x-content'] } : {}),
       // Pass externalContext so components can access it (user, api, etc.)
       externalContext,
       // Pass onSubmit separately so components can use it
@@ -152,13 +181,23 @@ export function createRendererOrchestrator(
       formAdapter,
     };
     
-    const mergedProps = applyMiddlewares(baseProps, schema, middlewares, middlewareContext);
+    const mergedProps = applyMiddlewares(baseProps, processedSchema, middlewares, middlewareContext);
 
-    // Render children if schema has properties
+    // Render children if schema has properties (use processedSchema)
+    // Pass name to children: fields add to path, containers just pass it through
     const children: any[] = [];
-    if (schema.properties && typeof schema.properties === 'object') {
-      for (const [key, childSchema] of Object.entries(schema.properties)) {
-        const childResult = render(key, childSchema as any, mergedProps);
+    if (processedSchema.properties && typeof processedSchema.properties === 'object') {
+      const childParentProps = {
+        ...mergedProps,
+        // Pass currentName to children (fields will add their key, containers will just pass it through)
+        ...(currentName !== undefined ? { name: currentName } : {}),
+      };
+      
+      for (const [key, childSchema] of Object.entries(processedSchema.properties)) {
+        // If this component is the root (form-container) and has no name, 
+        // then its direct children are root properties and should be included in name path
+        const isChildRootProperty = !parentProps.name && componentKey === 'form-container';
+        const childResult = render(key, childSchema as any, childParentProps, namePath, isChildRootProperty);
         if (childResult !== null && childResult !== undefined) {
           children.push(childResult);
         }
