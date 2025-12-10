@@ -9,6 +9,7 @@ import { FormProvider, useForm, UseFormReturn } from 'react-hook-form';
 import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter } from '@schepta/core';
 import { createReactRuntimeAdapter } from '@schepta/adapter-react';
 import { createReactHookFormAdapter } from '@schepta/adapter-react';
+import { useScheptaContext } from '@schepta/adapter-react';
 import { createRendererOrchestrator, type FactorySetupResult } from '@schepta/core';
 import { buildInitialValuesFromSchema } from '@schepta/core';
 import { FormRenderer } from './form-renderer';
@@ -78,14 +79,33 @@ export interface FormFactoryProps {
 
 export function FormFactory({
   schema,
-  components = {},
-  renderers = {},
-  externalContext = {},
+  components,
+  renderers,
+  externalContext,
   formContext: providedFormContext,
   initialValues,
   onSubmit,
   debug = false,
 }: FormFactoryProps) {
+  // Get provider config (optional - returns null if no provider)
+  const providerConfig = useScheptaContext();
+  
+  // Merge: provider config as base, local props override
+  const mergedComponents = {
+    ...(providerConfig?.components || {}),
+    ...(components || {}),
+  };
+  const mergedRenderers = {
+    ...(providerConfig?.renderers || {}),
+    ...(renderers || {}),
+  };
+  const mergedMiddlewares = providerConfig?.middlewares || [];
+  const mergedExternalContext = {
+    ...(providerConfig?.externalContext || {}),
+    ...(externalContext || {}),
+  };
+  const mergedDebug = debug !== false ? debug : (providerConfig?.debug?.enabled || false);
+  
   const defaultFormContext = useForm({
     defaultValues: initialValues || buildInitialValuesFromSchema(schema),
   });
@@ -116,23 +136,18 @@ export function FormFactory({
       
       // Create custom renderers with field renderer
       const customRenderers = {
-        ...renderers,
+        ...mergedRenderers,
         field: createFieldRenderer(),
       };
       
-      // Pass onSubmit through externalContext so components can access it
-      const contextWithSubmit = {
-        ...externalContext,
-        onSubmit,
-      };
-      
       return {
-        components,
+        components: mergedComponents,
         renderers: customRenderers,
-        externalContext: contextWithSubmit,
+        externalContext: mergedExternalContext,
         state: formState,
-        middlewares: [], // Middlewares will be added via registry
-        debug: debug ? {
+        middlewares: mergedMiddlewares,
+        onSubmit, // Pass onSubmit separately, not through externalContext
+        debug: mergedDebug ? {
           isEnabled: true,
           log: (category, message, data) => {
             console.log(`[${category}]`, message, data);
@@ -148,7 +163,7 @@ export function FormFactory({
     };
     
     return createRendererOrchestrator(getFactorySetup, runtime);
-  }, [components, renderers, externalContext, formContext, debug, formAdapter, runtime, onSubmit]);
+  }, [mergedComponents, mergedRenderers, mergedMiddlewares, mergedExternalContext, formContext, mergedDebug, formAdapter, runtime, onSubmit]);
 
   // Handle submit button click
   const handleSubmitClick = () => {
