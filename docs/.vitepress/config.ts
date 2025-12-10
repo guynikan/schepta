@@ -9,7 +9,7 @@ import { resolve } from 'path';
 export default defineConfig({
   title: 'schepta',
   description: 'Framework-agnostic rendering engine for server-driven UI',
-  base: '/',
+  base: '/schepta/',
   
   locales: {
     root: {
