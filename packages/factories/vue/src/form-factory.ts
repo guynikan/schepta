@@ -6,6 +6,7 @@ import { defineComponent, ref, computed, watch, h } from 'vue';
 import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter } from '@schepta/core';
 import { createVueRuntimeAdapter } from '@schepta/adapter-vue';
 import { createVueFormAdapter } from '@schepta/adapter-vue';
+import { useScheptaContext } from '@schepta/adapter-vue';
 import { createRendererOrchestrator, type FactorySetupResult } from '@schepta/core';
 import { buildInitialValuesFromSchema } from '@schepta/core';
 import { FormRenderer } from './form-renderer';
@@ -113,14 +114,26 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
       },
     },
     setup(props) {
+      // Get provider config (optional - returns null if no provider)
+      const providerConfig = useScheptaContext();
+      
       // Use props if provided, otherwise fall back to defaultProps
       const schema = props.schema || defaultProps.schema;
-      const components = props.components || defaultProps.components || {};
-      const renderers = props.renderers || defaultProps.renderers || {};
-      const externalContext = props.externalContext || defaultProps.externalContext || {};
+      
+      // Merge: local props > provider config > defaults
+      const mergedComponents = props.components || defaultProps.components || providerConfig?.components || {};
+      const mergedRenderers = props.renderers || defaultProps.renderers || providerConfig?.renderers || {};
+      const mergedMiddlewares = providerConfig?.middlewares || [];
+      const mergedExternalContext = {
+        ...(providerConfig?.externalContext || {}),
+        ...(props.externalContext || defaultProps.externalContext || {}),
+      };
+      const mergedDebug = props.debug !== undefined 
+        ? props.debug 
+        : (defaultProps.debug !== undefined ? defaultProps.debug : (providerConfig?.debug?.enabled || false));
+      
       const initialValues = props.initialValues || defaultProps.initialValues;
       const onSubmit = props.onSubmit || defaultProps.onSubmit;
-      const debug = props.debug !== undefined ? props.debug : (defaultProps.debug || false);
       const formAdapter = ref(createVueFormAdapter(
         props.initialValues || buildInitialValuesFromSchema(props.schema)
       ));
@@ -129,23 +142,23 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
       const getFactorySetup = (): FactorySetupResult => {
         // Pass onSubmit through externalContext so components can access it
         const contextWithSubmit = {
-          ...props.externalContext,
+          ...mergedExternalContext,
           onSubmit: props.onSubmit,
         };
         
         // Create custom renderers with field renderer
         const customRenderers = {
-          ...props.renderers,
+          ...mergedRenderers,
           field: createFieldRenderer(formAdapter.value),
         };
         
         return {
-          components: props.components || {},
+          components: mergedComponents,
           renderers: customRenderers,
           externalContext: contextWithSubmit,
           state: formAdapter.value.getValues(),
-          middlewares: [],
-          debug: props.debug ? {
+          middlewares: mergedMiddlewares,
+          debug: mergedDebug ? {
             isEnabled: true,
             log: (category, message, data) => {
               console.log(`[${category}]`, message, data);
