@@ -43,6 +43,9 @@ jobs:
       - name: Build documentation
         run: pnpm docs:build
       
+      - name: Copy CNAME to dist
+        run: cp CNAME docs/.vitepress/dist/CNAME || echo "CNAME not found in root, skipping"
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
