@@ -6,19 +6,19 @@ layout: home
   <div class="hero-content">
     <div class="hero-text">
       <h1 class="hero-title">
-        <span class="title-main">schepta</span>
-        <span class="title-subtitle">Motor de renderização agnóstico de framework para UI dirigida por servidor</span>
+        <span class="title-main">Schepta</span>
+        <span class="title-subtitle">Motor de renderizado agnóstico de framework para UI dirigida por servidor</span>
       </h1>
       <p class="hero-description">
-        Transforme schemas JSON em componentes de UI totalmente funcionais. Funciona perfeitamente com React, Vue e JavaScript vanilla.
+        Transforma schemas JSON en componentes de UI completamente funcionales. Funciona perfectamente con React, Vue y JavaScript vanilla.
       </p>
       <div class="hero-actions">
-        <a class="action-button primary" href="/pt-BR/concepts/01-factories">Começar</a>
-        <a class="action-button secondary" href="/pt-BR/examples/react">Ver Exemplos</a>
+        <a class="action-button primary" href="/es-ES/concepts/01-factories">Comenzar</a>
+        <a class="action-button secondary" href="/es-ES/examples/react">Ver Ejemplos</a>
       </div>
     </div>
     <div class="hero-image">
-      <img src="/guanche-gecko-head.svg" alt="Gecko Guanche - mascote do schepta" class="gecko-head" />
+      <img src="/guanche-gecko-head.svg" alt="Gecko Guanche - mascota de schepta" class="gecko-head" />
     </div>
   </div>
 </div>
@@ -28,29 +28,29 @@ layout: home
     <div class="feature-card">
       <div class="feature-icon">🚀</div>
       <h3>Agnóstico de Framework</h3>
-      <p>Funciona com React, Vue e JavaScript vanilla</p>
+      <p>Funciona con React, Vue y JavaScript vanilla</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">📋</div>
       <h3>Dirigido por Schema</h3>
-      <p>Defina UI usando schemas JSON</p>
+      <p>Define UI usando schemas JSON</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">🔒</div>
       <h3>Type-Safe</h3>
-      <p>Suporte completo a TypeScript</p>
+      <p>Soporte completo para TypeScript</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">🔧</div>
-      <h3>Extensível</h3>
-      <p>Componentes, renderers e middleware customizados</p>
+      <h3>Extensible</h3>
+      <p>Componentes, renderers y middleware personalizados</p>
     </div>
   </div>
 </div>
 
 <div class="home-example">
-  <h2>💡 Exemplo Rápido</h2>
-  <p>Este schema simples se torna um formulário totalmente funcional:</p>
+  <h2>💡 Ejemplo Rápido</h2>
+  <p>Este schema simple se convierte en un formulario completamente funcional:</p>
   <div class="code-example">
 ```json
 {
@@ -62,7 +62,7 @@ layout: home
       "x-component": "InputText",
       "x-ui": {
         "label": "Email",
-        "placeholder": "Digite seu email"
+        "placeholder": "Ingresa tu email"
       }
     }
   }
@@ -73,28 +73,28 @@ layout: home
 
 <div class="home-sections">
   <div class="section-card">
-    <h2>📚 Conceitos Fundamentais</h2>
-    <p>Aprenda os conceitos fundamentais que impulsionam o schepta:</p>
+    <h2>📚 Conceptos Fundamentales</h2>
+    <p>Aprende los conceptos fundamentales que impulsan schepta:</p>
     <ul>
-      <li><a href="/pt-BR/concepts/01-factories">01. Factories</a> - Como schemas se tornam componentes</li>
-      <li><a href="/pt-BR/concepts/02-schema-language">02. Schema Language</a> - A sintaxe para definir UI</li>
-      <li><a href="/pt-BR/concepts/03-provider">03. Provider</a> - Configuração global e contexto</li>
-      <li><a href="/pt-BR/concepts/04-schema-resolution">04. Schema Resolution</a> - De JSON para React/Vue</li>
-      <li><a href="/pt-BR/concepts/05-renderer">05. Renderer</a> - O motor de renderização</li>
-      <li><a href="/pt-BR/concepts/06-middleware">06. Middleware</a> - Transformando props e comportamento</li>
-      <li><a href="/pt-BR/concepts/07-debug-system">07. Debug System</a> - Ferramentas de desenvolvimento</li>
+      <li><a href="/es-ES/concepts/01-factories">01. Factories</a> - Cómo los schemas se convierten en componentes</li>
+      <li><a href="/es-ES/concepts/02-schema-language">02. Schema Language</a> - La sintaxis para definir UI</li>
+      <li><a href="/es-ES/concepts/03-provider">03. Provider</a> - Configuración global y contexto</li>
+      <li><a href="/es-ES/concepts/04-schema-resolution">04. Schema Resolution</a> - De JSON a React/Vue</li>
+      <li><a href="/es-ES/concepts/05-renderer">05. Renderer</a> - El motor de renderizado</li>
+      <li><a href="/es-ES/concepts/06-middleware">06. Middleware</a> - Transformando props y comportamiento</li>
+      <li><a href="/es-ES/concepts/07-debug-system">07. Debug System</a> - Herramientas de desarrollo</li>
     </ul>
   </div>
 
   <div class="section-card">
-    <h2>🎯 Exemplos</h2>
-    <p>Veja o schepta em ação com exemplos interativos:</p>
+    <h2>🎯 Ejemplos</h2>
+    <p>Ve schepta en acción con ejemplos interactivos:</p>
     <ul>
-      <li><a href="/pt-BR/examples/react">Exemplos React</a> - React com react-hook-form</li>
-      <li><a href="/pt-BR/examples/material-ui">React Material UI</a> - React com Material UI</li>
-      <li><a href="/pt-BR/examples/chakra-ui">React Chakra UI</a> - React com Chakra UI</li>
-      <li><a href="/pt-BR/examples/vue">Exemplos Vue</a> - Vue com adaptador de formulário customizado</li>
-      <li><a href="/pt-BR/examples/vuetify">Vue Vuetify</a> - Vue com Vuetify Material Design</li>
+      <li><a href="/es-ES/examples/react">Ejemplos React</a> - React con react-hook-form</li>
+      <li><a href="/es-ES/examples/material-ui">React Material UI</a> - React con Material UI</li>
+      <li><a href="/es-ES/examples/chakra-ui">React Chakra UI</a> - React con Chakra UI</li>
+      <li><a href="/es-ES/examples/vue">Ejemplos Vue</a> - Vue con adaptador de formulario personalizado</li>
+      <li><a href="/es-ES/examples/vuetify">Vue Vuetify</a> - Vue con Vuetify Material Design</li>
     </ul>
   </div>
 </div>
@@ -228,10 +228,6 @@ layout: home
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/images/guanche-gecko.svg');
-  background-size: 800px;
-  background-position: center right;
-  background-repeat: no-repeat;
   opacity: 0.08;
   pointer-events: none;
   z-index: 0;
@@ -295,11 +291,6 @@ layout: home
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/images/guanche-gecko.svg');
-  background-size: 700px;
-  background-position: center left;
-  background-repeat: no-repeat;
-  opacity: 0.08;
   pointer-events: none;
   z-index: 0;
 }
@@ -346,11 +337,11 @@ layout: home
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/images/guanche-gecko.svg');
-  background-size: 900px;
+  background-image: url('/guanche-gecko.svg');
+  background-size: 1200px;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.06;
+  opacity: .5;
   pointer-events: none;
   z-index: 0;
 }
@@ -426,3 +417,4 @@ layout: home
   }
 }
 </style>
+
