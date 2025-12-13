@@ -2,9 +2,8 @@
 
 **Sistema que gerencia configurações e estado compartilhado** — o "centro de comando" que coordena todo o schepta.
 
-<ThemeImage src="/images/03-provider.png" alt="Provider" />
+<img src="/images/03-provider.svg" alt="Provider" />
 
----
 
 **Provider Pattern centraliza configurações que todos os componentes precisam compartilhar:**
 
@@ -44,7 +43,6 @@ scheptaProvider (App Level)
 
 > **💡 Resultado:** Configuração uma vez → Disponível em toda aplicação. 
 
----
 
 ## 🚀 Tipos de Provider
 
@@ -87,7 +85,6 @@ scheptaProvider (App Level)
 | **Spacing** | Margins, padding, grid | CSS classes | Component styles |
 | **Components** | Default component styles | Theme object | Component overrides |
 
----
 
 ## ⚙️ Provider Architecture
 
@@ -134,7 +131,6 @@ const mergedConfig = {
 };
 ```
 
----
 
 ## 📊 Configuration Patterns
 
@@ -210,7 +206,6 @@ const TenantProvider = ({ tenant, children }) => {
 };
 ```
 
----
 
 ## 💡 Conceitos Relacionados
 

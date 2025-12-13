@@ -2,9 +2,8 @@
 
 **Syntax and properties that schepta understands** — the "vocabulary" for defining dynamic interfaces.
 
-<ThemeImage src="/images/02-schema-language.png" alt="Schema Language" />
+<img src="/images/02-schema-language.svg" alt="Schema Language" />
 
----
 
 **Schema Language defines how to write JSON that schepta can interpret:**
 
@@ -51,7 +50,6 @@
 
 > **💡 Result:** Structured JSON → Working React/Vue component. Simple and powerful syntax!
 
----
 
 ## 🚀 Core Properties
 
@@ -84,7 +82,6 @@
 | `active` | ❌ Menus | boolean/string | Active state | `true` or `"\{\{ $segment.role === 'admin' \}\}"` |
 | `visible` | ❌ No | boolean/string | Visibility control | `"\{\{ $form.plan !== 'basic' \}\}"` |
 
----
 
 ## 📊 Schema Types
 
@@ -125,7 +122,6 @@
 }
 ```
 
----
 
 ## ⚙️ Advanced Properties
 
@@ -158,7 +154,6 @@
 | `x-ui.span` | number | Column span | `2` (spans 2 columns) |
 | `x-ui.offset` | number | Column offset | `1` (offset by 1 column) |
 
----
 
 ## 🔍 Expression Language
 
@@ -183,7 +178,6 @@
 | `contains()` | Array/string contains | `"\{\{ contains($segment.roles, 'admin') \}\}"` | boolean |
 | `startsWith()` | String starts | `"\{\{ startsWith($form.email, 'admin') \}\}"` | boolean |
 
----
 
 ## 💡 Related Concepts
 

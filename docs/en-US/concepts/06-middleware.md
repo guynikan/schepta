@@ -2,9 +2,8 @@
 
 **System that intercepts and modifies props before rendering** — the "intelligent filter" between schema and component.
 
-<ThemeImage src="/images/06-middleware.png" alt="Middleware" />
+<img src="/images/06-middleware.svg" alt="Middleware" />
 
----
 
 **Middleware Pipeline allows modifying component behavior without changing code:**
 
@@ -40,7 +39,6 @@ Raw Props → Middleware 1 → Middleware 2 → Middleware N → Final Props →
 
 > **💡 Result:** Basic props → Enriched props. Functionality without duplicated code!
 
----
 
 ## 🚀 Middleware Types
 
@@ -82,7 +80,6 @@ Raw Props → Middleware 1 → Middleware 2 → Middleware N → Final Props →
 | **Caching** | Expensive operations | Add memoization | Improved performance |
 | **Error Boundary** | Component errors | Add error handling | Increased resilience |
 
----
 
 ## ⚙️ Pipeline Architecture
 
@@ -133,7 +130,6 @@ const middlewareOrder = [
 ];
 ```
 
----
 
 ## 📊 Middleware Patterns
 
@@ -177,7 +173,6 @@ const conditionalMiddleware = (condition, middleware) =>
     condition(props, schema, context) ? middleware(props, schema, context) : props;
 ```
 
----
 
 ## 💡 Related Concepts
 

@@ -2,9 +2,8 @@
 
 **Integrated visual debug system for rapid development** — the "X-ray" that shows how everything works internally.
 
-<ThemeImage src="/images/07-debug-system.png" alt="Debug System" />
+<img src="/images/07-debug-system.svg" alt="Debug System" />
 
----
 
 **Debug System offers complete visibility into what happens during rendering:**
 
@@ -37,7 +36,6 @@ window.schepta_DEBUG = true; // Activate debug via console
 
 > **💡 Result:** Complete system transparency. Visual debug without configuration!
 
----
 
 ## 🚀 Debug System Components
 
@@ -80,7 +78,6 @@ window.schepta_DEBUG = true; // Activate debug via console
 | **Schema Processing** | Time to process schema | > 50ms | Complex schema warning |
 | **Memory Usage** | Component memory | > 10MB | Memory leak warning |
 
----
 
 ## ⚙️ Debug Architecture
 
@@ -131,7 +128,6 @@ const performanceMetrics = {
 };
 ```
 
----
 
 ## 📊 Debug Features
 
@@ -164,7 +160,6 @@ const performanceMetrics = {
 | **Context Viewer** | Debug context | Context values | Modify context |
 | **Render Profiler** | Debug performance | Render metrics | Profile renders |
 
----
 
 ## 💡 Related Concepts
 
