@@ -1,6 +1,23 @@
 /* Custom styles for schepta documentation */
 
-/* Smooth transitions for theme-aware images */
-.theme-image {
-  transition: opacity 0.2s ease-in-out;
+
+/* Divider for h2 headings using divider.svg */
+.vp-doc h2 {
+  position: relative;
+  border-top: none;
+  padding-top: 2rem;
+  margin-top: 2rem;
+}
+
+.vp-doc h2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-image: url('/divider.svg');
+  background-size: 100% 4px;
+  background-repeat: no-repeat;
+  background-position: top center;
 }
