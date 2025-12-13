@@ -20,7 +20,7 @@
 import { ref } from 'vue';
 import { createFormFactory } from '@schepta/factory-vue';
 import { components } from '../components/InputComponents';
-import simpleFormSchema from '../../../../tests/fixtures/simple-form.json';
+import simpleFormSchema from '../../../../instances/form/simple-form.json';
 
 const submittedValues = ref<any>(null);
 

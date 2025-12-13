@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import { useFormContext } from 'react-hook-form';
 import { FormFactory } from '@schepta/factory-react';
 import { createComponentSpec } from '@schepta/core';
-import simpleFormSchema from '../../../tests/fixtures/simple-form.json';
-import complexFormSchema from '../../../tests/fixtures/complex-form.json';
+import simpleFormSchema from '../../../instances/form/simple-form.json';
+import complexFormSchema from '../../../instances/form/complex-form.json';
 import { ProviderExample } from './ProviderExample';
 import { ExpressionExample } from './ExpressionExample';
 
