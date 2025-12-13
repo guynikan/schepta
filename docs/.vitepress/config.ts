@@ -7,23 +7,39 @@ import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
 
 export default defineConfig({
-  title: 'schepta',
+  title: 'Schepta',
   description: 'Framework-agnostic rendering engine for server-driven UI',
   base: '/',
+
+  head: [
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
+    ['link', { rel: 'manifest', href: '/site.webmanifest' }],
+  ],
   
   locales: {
     root: {
       label: 'English',
       lang: 'en-US',
-      title: 'schepta',
+      title: 'Schepta',
       description: 'Framework-agnostic rendering engine for server-driven UI',
       themeConfig: {
         nav: [
           { text: 'Home', link: '/en-US/' },
+          { text: 'Quick Start', link: '/en-US/guide/quick-start' },
           { text: 'Concepts', link: '/en-US/concepts/01-factories' },
           { text: 'Examples', link: '/en-US/examples/react' },
         ],
         sidebar: {
+          '/en-US/guide/': [
+            {
+              text: 'Guide',
+              items: [
+                { text: 'Quick Start', link: '/en-US/guide/quick-start' },
+              ],
+            },
+          ],
           '/en-US/concepts/': [
             {
               text: 'Concepts',
@@ -59,15 +75,24 @@ export default defineConfig({
     'pt-BR': {
       label: 'Português',
       lang: 'pt-BR',
-      title: 'schepta',
+      title: 'Schepta',
       description: 'Motor de renderização agnóstico de framework para UI dirigida por servidor',
       themeConfig: {
         nav: [
           { text: 'Início', link: '/pt-BR/' },
+          { text: 'Início Rápido', link: '/pt-BR/guide/quick-start' },
           { text: 'Conceitos', link: '/pt-BR/concepts/01-factories' },
           { text: 'Exemplos', link: '/pt-BR/examples/react' },
         ],
         sidebar: {
+          '/pt-BR/guide/': [
+            {
+              text: 'Guia',
+              items: [
+                { text: 'Início Rápido', link: '/pt-BR/guide/quick-start' },
+              ],
+            },
+          ],
           '/pt-BR/concepts/': [
             {
               text: 'Conceitos',
