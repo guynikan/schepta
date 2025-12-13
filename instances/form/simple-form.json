@@ -1,4 +1,5 @@
 {
+  "$schema": "../../packages/factories/src/schemas/form-schema.json",
   "$id": "simple-form",
   "type": "object",
   "x-component": "form-container",
@@ -31,7 +32,7 @@
                       "type": "string",
                       "x-component": "InputText",
                       "x-ui": {
-                        "label": "First Name",
+                        "label": "{{ $externalContext.user.name }}",
                         "placeholder": "Enter your first name",
                         "order": 1
                       },

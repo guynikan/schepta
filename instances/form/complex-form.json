@@ -1,4 +1,5 @@
 {
+  "$schema": "../../packages/factories/src/schemas/form-schema.json",
   "$id": "complex-form",
   "type": "object",
   "x-component": "form-container",
