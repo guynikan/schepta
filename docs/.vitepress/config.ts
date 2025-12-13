@@ -125,6 +125,59 @@ export default defineConfig({
         ],
       },
     },
+    'es-ES': {
+      label: 'Español',
+      lang: 'es-ES',
+      title: 'Schepta',
+      description: 'Motor de renderizado agnóstico de framework para UI dirigida por servidor',
+      themeConfig: {
+        nav: [
+          { text: 'Inicio', link: '/es-ES/' },
+          { text: 'Inicio Rápido', link: '/es-ES/guide/quick-start' },
+          { text: 'Conceptos', link: '/es-ES/concepts/01-factories' },
+          { text: 'Ejemplos', link: '/es-ES/examples/react' },
+        ],
+        sidebar: {
+          '/es-ES/guide/': [
+            {
+              text: 'Guía',
+              items: [
+                { text: 'Inicio Rápido', link: '/es-ES/guide/quick-start' },
+              ],
+            },
+          ],
+          '/es-ES/concepts/': [
+            {
+              text: 'Conceptos',
+              items: [
+                { text: '01. Factories', link: '/es-ES/concepts/01-factories' },
+                { text: '02. Schema Language', link: '/es-ES/concepts/02-schema-language' },
+                { text: '03. Provider', link: '/es-ES/concepts/03-provider' },
+                { text: '04. Schema Resolution', link: '/es-ES/concepts/04-schema-resolution' },
+                { text: '05. Renderer', link: '/es-ES/concepts/05-renderer' },
+                { text: '06. Middleware', link: '/es-ES/concepts/06-middleware' },
+                { text: '07. Debug System', link: '/es-ES/concepts/07-debug-system' },
+              ],
+            },
+          ],
+          '/es-ES/examples/': [
+            {
+              text: 'Ejemplos',
+              items: [
+                { text: 'React', link: '/es-ES/examples/react' },
+                { text: 'React Material UI', link: '/es-ES/examples/material-ui' },
+                { text: 'React Chakra UI', link: '/es-ES/examples/chakra-ui' },
+                { text: 'Vue', link: '/es-ES/examples/vue' },
+                { text: 'Vue Vuetify', link: '/es-ES/examples/vuetify' },
+              ],
+            },
+          ],
+        },
+        socialLinks: [
+          { icon: 'github', link: 'https://github.com/guynikan/schepta' },
+        ],
+      },
+    },
   },
   
   themeConfig: {

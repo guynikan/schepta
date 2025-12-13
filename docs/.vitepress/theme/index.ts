@@ -28,6 +28,8 @@ export default {
           let targetLocale = 'en-US';
           if (pathname.includes('/pt-BR')) {
             targetLocale = 'pt-BR';
+          } else if (pathname.includes('/es-ES')) {
+            targetLocale = 'es-ES';
           } else if (pathname.includes('/en-US')) {
             targetLocale = 'en-US';
           }
@@ -37,11 +39,13 @@ export default {
           let cleanPath = currentPath
             .replace(/^\/pt-BR\//, '/')
             .replace(/^\/pt-BR$/, '/')
+            .replace(/^\/es-ES\//, '/')
+            .replace(/^\/es-ES$/, '/')
             .replace(/^\/en-US\//, '/')
             .replace(/^\/en-US$/, '/');
           
           // Remove any duplicate locales that might be in the path
-          cleanPath = cleanPath.replace(/\/pt-BR\//g, '/').replace(/\/en-US\//g, '/');
+          cleanPath = cleanPath.replace(/\/pt-BR\//g, '/').replace(/\/es-ES\//g, '/').replace(/\/en-US\//g, '/');
           
           // Ensure path starts with /
           if (!cleanPath.startsWith('/')) {

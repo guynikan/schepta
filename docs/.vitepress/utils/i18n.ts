@@ -2,9 +2,9 @@
  * i18n utilities for VitePress documentation
  */
 
-export type Locale = 'en-US' | 'pt-BR';
+export type Locale = 'en-US' | 'pt-BR' | 'es-ES';
 
-const SUPPORTED_LOCALES: Locale[] = ['en-US', 'pt-BR'];
+const SUPPORTED_LOCALES: Locale[] = ['en-US', 'pt-BR', 'es-ES'];
 const DEFAULT_LOCALE: Locale = 'en-US';
 
 const LOCALE_STORAGE_KEY = 'schepta-docs-locale';
@@ -17,6 +17,10 @@ function mapBrowserLocale(browserLang: string): Locale {
   
   if (lang.startsWith('pt')) {
     return 'pt-BR';
+  }
+  
+  if (lang.startsWith('es')) {
+    return 'es-ES';
   }
   
   if (lang.startsWith('en')) {
@@ -51,6 +55,9 @@ export function detectBrowserLocale(): Locale {
 export function getLocaleFromPath(path: string): Locale {
   if (path.startsWith('/pt-BR')) {
     return 'pt-BR';
+  }
+  if (path.startsWith('/es-ES')) {
+    return 'es-ES';
   }
   if (path.startsWith('/en-US')) {
     return 'en-US';
