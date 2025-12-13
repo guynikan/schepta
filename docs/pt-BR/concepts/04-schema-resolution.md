@@ -2,9 +2,8 @@
 
 **Sistema que interpreta schemas JSON e os transforma em elementos React/Vue** — o "tradutor" entre backend e frontend.
 
-<ThemeImage src="/images/04-schema-resolution.png" alt="Schema Resolution" />
+<img src="/images/04-schema-resolution.svg" alt="Schema Resolution" />
 
----
 
 **Schema Resolution é o processo que transforma configurações JSON em interfaces funcionais:**
 
@@ -37,7 +36,6 @@
 
 > **💡 Resultado:** Schema declarativo → Componente imperativo.
 
----
 
 ## 🚀 Tipos de Resolução
 
@@ -72,7 +70,6 @@
 | `x-component-props` | Component-specific props | Props object | `{ variant: "primary" }` |
 | `x-reactions` | Event handlers | Event props | `onClick={handleClick}` |
 
----
 
 ## ⚙️ Resolution Engine
 
@@ -118,7 +115,6 @@ React/Vue Element Final
 3. **Local middleware** (factory props)
 4. **Component middleware** (component-specific)
 
----
 
 ## 📊 Resolution Strategies
 
@@ -152,7 +148,6 @@ const resolvedProps = resolveDynamicValues(dynamicProps, context);
 - **Context Injection:** Form context injetado automaticamente para validação
 - **Error Handling:** Fallbacks para rules inválidas ou malformadas
 
----
 
 ## 💡 Conceitos Relacionados
 

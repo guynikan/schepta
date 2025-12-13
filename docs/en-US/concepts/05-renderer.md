@@ -2,9 +2,8 @@
 
 **System that controls how each component type is rendered** — the "bridge" between React/Vue components and presentation logic.
 
-<ThemeImage src="/images/05-renderer.png" alt="Renderer" />
+<img src="/images/05-renderer.svg" alt="Renderer" />
 
----
 
 **Renderer System decides which wrapper to use for each component type:**
 
@@ -33,7 +32,6 @@ InputText Component → FieldRenderer → <input> + validation + props
 
 > **💡 Result:** Components focus on UI, Renderers focus on presentation logic!
 
----
 
 ## 🚀 Renderer Types
 
@@ -71,7 +69,6 @@ InputText Component → FieldRenderer → <input> + validation + props
 | **Static Content** | Text, images, etc. | No form integration |
 | **Minimal Processing** | Direct rendering | Optimized performance |
 
----
 
 ## ⚙️ How the System Works
 
@@ -117,7 +114,6 @@ Final React/Vue Element
 - **Applies** type-specific middleware pipeline
 - **Renders** the final component with its wrapper
 
----
 
 ## 🤝 Why Renderers Exist
 
@@ -147,7 +143,6 @@ Final React/Vue Element
 
 **This enables:** multi-tenant apps, A/B testing, integration with different UI libraries, and custom extensions without modifying base components.
 
----
 
 ## 💡 Related Concepts
 

@@ -2,9 +2,8 @@
 
 **Sistema que controla como cada tipo de component é renderizado** — a "ponte" entre components React/Vue e a lógica de apresentação.
 
-<ThemeImage src="/images/05-renderer.png" alt="Renderer" />
+<img src="/images/05-renderer.svg" alt="Renderer" />
 
----
 
 **Renderer System é o que decide qual wrapper usar para cada tipo de componente:**
 
@@ -33,7 +32,6 @@ InputText Component → FieldRenderer → <input> + validation + props
 
 > **💡 Resultado:** Components focam na UI, Renderers focam na lógica de apresentação!
 
----
 
 ## 🚀 Tipos de Renderer
 
@@ -71,7 +69,6 @@ InputText Component → FieldRenderer → <input> + validation + props
 | **Static Content** | Text, images, etc. | No form integration |
 | **Minimal Processing** | Direct rendering | Performance otimizada |
 
----
 
 ## ⚙️ Como o Sistema Funciona
 
@@ -117,7 +114,6 @@ React/Vue Element Final
 - **Aplica** middleware pipeline específica do tipo
 - **Renderiza** o component final com seu wrapper
 
----
 
 ## 🤝 Por Que Existem Renderers
 
@@ -147,7 +143,6 @@ React/Vue Element Final
 
 **Isso permite:** multi-tenant apps, A/B testing, integração com diferentes UI libraries, e extensões customizadas sem modificar components base.
 
----
 
 ## 💡 Conceitos Relacionados
 

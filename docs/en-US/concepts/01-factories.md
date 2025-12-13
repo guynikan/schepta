@@ -2,9 +2,7 @@
 
 **System that transforms JSON into functional components** — schema in, interface out.
 
-<ThemeImage src="/images/01-factories.png" alt="Factories" />
-
----
+<img src="/images/01-factories.svg" alt="Factories" />
 
 **Factory Pattern is the heart of schepta:**
 
@@ -36,8 +34,6 @@
 
 > **💡 Result:** Structured JSON → Functional React/Vue interface. Zero manual configuration!
 
----
-
 ## 🚀 Factory Types
 
 **Each Factory is specialized in a type of interface:**
@@ -68,8 +64,6 @@
 | `x-component-props` | Specific props | `{ variant: "primary" }` | Styled button |
 | `x-ui` | Layout and positioning | `{ grid: { xs: 12 } }` | Responsive grid |
 
----
-
 ## ⚙️ Factory Architecture
 
 **How the Factory Pattern works internally:**
@@ -99,8 +93,6 @@ React/Vue Elements
 
 **Extension points:** Component Registry (global/local), Middleware Pipeline (custom transformations), Context Providers (domain-specific state).
 
----
-
 ## 📊 Practical Use Cases
 
 **Factory Pattern solves real development problems:**
@@ -114,8 +106,6 @@ React/Vue Elements
 | **Dynamic Menus** | Hardcoded conditionals | `visible` expressions | Flexibility |
 | **Multi-tenant UI** | Branches per client | Schema per tenant | Scalability |
 | **A/B Testing** | Complex feature flags | Different schemas | Agility |
-
----
 
 ## 🔗 Essential Links
 
