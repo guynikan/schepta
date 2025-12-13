@@ -1,0 +1,416 @@
+{
+    "$id": "form-schema-with-mui-refs",
+    "type": "object",
+    "$defs": {
+      "InputCpf": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "string"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component": {
+            "const": "InputCpf"
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiTextFieldProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FormField": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component",
+          "properties"
+        ],
+        "properties": {
+          "type": {
+            "const": "object"
+          },
+          "x-ui": {
+            "type": "object",
+            "properties": {
+              "order": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false
+          },
+          "properties": {
+            "type": "object",
+            "minProperties": 1,
+            "patternProperties": {
+              "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/InputText"
+                  },
+                  {
+                    "$ref": "#/$defs/InputSelect"
+                  },
+                  {
+                    "$ref": "#/$defs/InputCheckbox"
+                  },
+                  {
+                    "$ref": "#/$defs/DatePicker"
+                  },
+                  {
+                    "$ref": "#/$defs/InputCpf"
+                  },
+                  {
+                    "$ref": "#/$defs/InputPhone"
+                  },
+                  {
+                    "$ref": "#/$defs/InputAutocomplete"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "x-component": {
+            "const": "FormField"
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiGridProps"
+          }
+        },
+        "description": "FormField wrapper (Grid) reutilizável para qualquer tipo de input",
+        "additionalProperties": false
+      },
+      "InputText": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "string"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component": {
+            "const": "InputText"
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiTextFieldProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatePicker": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "string"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component": {
+            "const": "DatePicker"
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiDatePickerProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InputPhone": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "string"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component": {
+            "const": "InputPhone"
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiTextFieldProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InputSelect": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "string"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component": {
+            "const": "InputSelect"
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiSelectProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InputCheckbox": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "boolean"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component": {
+            "const": "InputCheckbox"
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiCheckboxProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FormSectionGroup": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component",
+          "properties"
+        ],
+        "properties": {
+          "type": {
+            "const": "object"
+          },
+          "properties": {
+            "type": "object",
+            "patternProperties": {
+              "^.*$": {
+                "$ref": "#/$defs/FormField"
+              }
+            },
+            "additionalProperties": false
+          },
+          "x-component": {
+            "const": "FormSectionGroup"
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiGridProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FormSectionTitle": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component",
+          "x-content"
+        ],
+        "properties": {
+          "type": {
+            "const": "object"
+          },
+          "x-slots": {
+            "type": "object"
+          },
+          "x-content": {
+            "type": "string"
+          },
+          "x-component": {
+            "const": "FormSectionTitle"
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiTypographyProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InputAutocomplete": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "string"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component": {
+            "const": "InputAutocomplete"
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiAutocompleteProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FormSectionContainer": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component",
+          "properties"
+        ],
+        "properties": {
+          "type": {
+            "const": "object"
+          },
+          "x-ui": {
+            "type": "object",
+            "properties": {
+              "order": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false
+          },
+          "properties": {
+            "type": "object",
+            "patternProperties": {
+              "^.*$": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/FormSectionTitle"
+                  },
+                  {
+                    "$ref": "#/$defs/FormSectionGroupContainer"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "x-component": {
+            "const": "FormSectionContainer"
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiGridProps"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FormSectionGroupContainer": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component",
+          "properties"
+        ],
+        "properties": {
+          "type": {
+            "const": "object"
+          },
+          "properties": {
+            "type": "object",
+            "patternProperties": {
+              "^.*$": {
+                "$ref": "#/$defs/FormSectionGroup"
+              }
+            },
+            "additionalProperties": false
+          },
+          "x-component": {
+            "const": "FormSectionGroupContainer"
+          },
+          "x-component-props": {
+            "$ref": "ctx://mui_props/data#/$defs/MuiGridProps"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "title": "Form Schema - Com Referências ao MUI Props Schema",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "required": [
+      "$id",
+      "type",
+      "x-component",
+      "properties"
+    ],
+    "properties": {
+      "$id": {
+        "type": "string"
+      },
+      "type": {
+        "const": "object"
+      },
+      "properties": {
+        "type": "object",
+        "patternProperties": {
+          "^.*$": {
+            "$ref": "#/$defs/FormSectionContainer"
+          }
+        },
+        "additionalProperties": false
+      },
+      "x-component": {
+        "type": "string"
+      }
+    },
+    "description": "Schema de formulário que referencia definições MUI externas",
+    "additionalProperties": false
+  }

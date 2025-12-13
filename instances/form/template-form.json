@@ -1,0 +1,103 @@
+{
+  "$schema": "../../packages/factories/src/schemas/form-schema.json",
+  "$id": "template-form",
+  "type": "object",
+  "x-component": "form-container",
+  "properties": {
+    "personalInfo": {
+      "type": "object",
+      "x-component": "FormSectionContainer",
+      "properties": {
+        "title": {
+          "type": "object",
+          "x-component": "FormSectionTitle",
+          "x-content": "Personal Information"
+        },
+        "fields": {
+          "type": "object",
+          "x-component": "FormSectionGroupContainer",
+          "properties": {
+            "nameGroup": {
+              "type": "object",
+              "x-component": "FormSectionGroup",
+              "x-component-props": {
+                "columns": "1fr 1fr"
+              },
+              "properties": {
+                "firstName": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-ui": {
+                        "label": "{{ $externalContext.user.name }}",
+                        "placeholder": "Enter your first name"
+                      },
+                      "x-rules": {
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                "lastName": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "properties": {
+                    "lastName": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-ui": {
+                        "label": "Last Name",
+                        "placeholder": "Enter {{ $externalContext.fieldName }}"
+                      },
+                      "x-rules": {
+                        "required": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "email": {
+      "type": "object",
+      "x-component": "FormSectionContainer",
+      "properties": {
+        "fields": {
+          "type": "object",
+          "x-component": "FormSectionGroupContainer",
+          "properties": {
+            "email": {
+              "type": "object",
+              "x-component": "FormField",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "x-component": "InputText",
+                  "x-ui": {
+                    "label": "Email",
+                    "placeholder": "Enter email for {{ $formValues.personalInfo.firstName }}"
+                  },
+                  "x-rules": {
+                    "required": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "submit": {
+      "type": "object",
+      "x-component": "SubmitButton",
+      "x-content": "Submit Form"
+    }
+  }
+}
+
