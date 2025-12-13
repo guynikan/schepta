@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import simpleFormSchema from '../fixtures/simple-form.json';
-import complexFormSchema from '../fixtures/complex-form.json';
+import simpleFormSchema from '../../instances/form/simple-form.json';
+import complexFormSchema from '../../instances/form/complex-form.json';
 
 test.describe('React Form Factory', () => {
   test.beforeEach(async ({ page, baseURL }) => {

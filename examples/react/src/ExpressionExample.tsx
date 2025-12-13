@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FormFactory } from '@schepta/factory-react';
 import { globalComponents } from './components/ProviderComponents';
 import { SubmittedValuesDisplay } from './components/SubmittedValuesDisplay';
-import templateFormSchemaJson from '../../../tests/fixtures/template-form.json';
+import templateFormSchemaJson from '../../../instances/form/template-form.json';
 import type { FormSchema } from '@schepta/core';
 
 const templateFormSchema = templateFormSchemaJson as FormSchema;

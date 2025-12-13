@@ -23,7 +23,7 @@
 import { ref } from 'vue';
 import { createFormFactory } from '@schepta/factory-vue';
 import { components } from '../components/InputComponents';
-import complexFormSchema from '../../../../tests/fixtures/complex-form.json';
+import complexFormSchema from '../../../../instances/form/complex-form.json';
 
 const submittedValues = ref<any>(null);
 

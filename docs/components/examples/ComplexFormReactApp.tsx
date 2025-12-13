@@ -2,7 +2,7 @@ import React from 'react';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { FormFactory } from '@schepta/factory-react';
 import { createComponentSpec } from '@schepta/core';
-import complexFormSchema from '../../fixtures/complex-form.json';
+import complexFormSchema from '../../../instances/form/complex-form.json';
 
 // Simple input components
 const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) => {

@@ -5,7 +5,7 @@ import type { FormSchema } from '@schepta/core';
 import { globalComponents } from './components/ProviderComponents';
 import { ProviderFeatures } from './components/ProviderFeatures';
 import { SubmittedValuesDisplay } from './components/SubmittedValuesDisplay';
-import simpleFormSchemaJson from '../../../tests/fixtures/simple-form.json';
+import simpleFormSchemaJson from '../../../instances/form/simple-form.json';
 
 const simpleFormSchema = simpleFormSchemaJson as FormSchema;
 

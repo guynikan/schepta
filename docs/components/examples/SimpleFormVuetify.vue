@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { createFormFactory } from '@schepta/factory-vue';
 import { components } from './VuetifyInputComponents';
-import simpleFormSchema from '../../fixtures/simple-form.json';
+import simpleFormSchema from '../../../instances/form/simple-form.json';
 
 const handleSubmit = (values: any) => {
   console.log('Form submitted:', values);

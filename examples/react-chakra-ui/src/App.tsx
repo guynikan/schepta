@@ -20,8 +20,8 @@ import {
 } from '@chakra-ui/react';
 import { FormFactory } from '@schepta/factory-react';
 import { createComponentSpec } from '@schepta/core';
-import simpleFormSchema from '../../../tests/fixtures/simple-form.json';
-import complexFormSchema from '../../../tests/fixtures/complex-form.json';
+import simpleFormSchema from '../../../instances/form/simple-form.json';
+import complexFormSchema from '../../../instances/form/complex-form.json';
 
 // Chakra UI Input Components
 const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) => {
