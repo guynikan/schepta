@@ -9,28 +9,28 @@
     "preview": "vitepress preview"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@schepta/adapter-react": "workspace:*",
+    "@schepta/adapter-vue": "workspace:*",
     "@schepta/core": "workspace:*",
     "@schepta/factory-react": "workspace:*",
     "@schepta/factory-vue": "workspace:*",
-    "@schepta/adapter-react": "workspace:*",
-    "@schepta/adapter-vue": "workspace:*",
+    "lucide-vue-next": "^0.561.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.0",
     "react-hook-form": "^7.49.0",
+    "react-router-dom": "^6.20.0",
     "vue": "^3.4.0",
     "vue-router": "^4.2.5",
-    "vuetify": "^3.5.0",
-    "@mdi/font": "^7.4.47"
+    "vuetify": "^3.5.0"
   },
   "devDependencies": {
-    "vitepress": "^1.0.0",
-    "@whyframe/core": "^0.1.14",
-    "@whyframe/vue": "^0.1.9",
     "@vitejs/plugin-react": "^4.2.0",
     "@vitejs/plugin-vue": "^5.0.0",
+    "@whyframe/core": "^0.1.14",
+    "@whyframe/vue": "^0.1.9",
+    "typescript": "^5.3.3",
     "vite-plugin-vuetify": "^2.0.1",
-    "typescript": "^5.3.3"
+    "vitepress": "^1.0.0"
   }
 }
-
