@@ -44,6 +44,9 @@ importers:
       '@schepta/factory-vue':
         specifier: workspace:*
         version: link:../packages/factories/vue
+      lucide-vue-next:
+        specifier: ^0.561.0
+        version: 0.561.0(vue@3.5.25)
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -3816,6 +3819,14 @@ packages:
     dependencies:
       yallist: 3.1.1
     dev: true
+
+  /lucide-vue-next@0.561.0(vue@3.5.25):
+    resolution: {integrity: sha512-c5HUckO0qHklVSOf/0vaSR3pEb8fYImRDCRDLde56uqS9js0D/e3RAvq0/YFWjkmyOBKCb0/IdskdoHZQEkT5g==}
+    peerDependencies:
+      vue: '>=3.0.1'
+    dependencies:
+      vue: 3.5.25(typescript@5.9.3)
+    dev: false
 
   /lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
