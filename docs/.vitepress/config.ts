@@ -1,7 +1,4 @@
 import { defineConfig } from 'vitepress';
-import { whyframe } from '@whyframe/core';
-import { whyframeVue } from '@whyframe/vue';
-import vue from '@vitejs/plugin-vue';
 import react from '@vitejs/plugin-react';
 import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
@@ -25,6 +22,7 @@ export default defineConfig({
       title: 'Schepta',
       description: 'Framework-agnostic rendering engine for server-driven UI',
       themeConfig: {
+        logo: '/guanche-gecko-head.svg',
         nav: [
           { text: 'Home', link: '/en-US/' },
           { text: 'Quick Start', link: '/en-US/guide/quick-start' },
@@ -78,6 +76,7 @@ export default defineConfig({
       title: 'Schepta',
       description: 'Motor de renderização agnóstico de framework para UI dirigida por servidor',
       themeConfig: {
+        logo: '/guanche-gecko-head.svg',
         nav: [
           { text: 'Início', link: '/pt-BR/' },
           { text: 'Início Rápido', link: '/pt-BR/guide/quick-start' },
@@ -131,6 +130,7 @@ export default defineConfig({
       title: 'Schepta',
       description: 'Motor de renderizado agnóstico de framework para UI dirigida por servidor',
       themeConfig: {
+        logo: '/guanche-gecko-head.svg',
         nav: [
           { text: 'Inicio', link: '/es-ES/' },
           { text: 'Inicio Rápido', link: '/es-ES/guide/quick-start' },
@@ -188,15 +188,7 @@ export default defineConfig({
   
   vite: {
     plugins: [
-      vue({
-        include: [/\.vue$/],
-        exclude: [/node_modules\/vitepress/, /\.md$/, /docs\/components\/examples/],
-      }),
       react(),
-      whyframe({
-        defaultSrc: '/frames/default',
-      }),
-      whyframeVue(),
       vuetify({ autoImport: true }),
     ],
     ssr: {
