@@ -221,22 +221,6 @@ layout: home
   overflow: hidden;
 }
 
-.home-features::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/images/guanche-gecko.svg');
-  background-size: 800px;
-  background-position: center right;
-  background-repeat: no-repeat;
-  opacity: 0.08;
-  pointer-events: none;
-  z-index: 0;
-}
-
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -288,22 +272,6 @@ layout: home
   overflow: hidden;
 }
 
-.home-example::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/images/guanche-gecko.svg');
-  background-size: 700px;
-  background-position: center left;
-  background-repeat: no-repeat;
-  opacity: 0.08;
-  pointer-events: none;
-  z-index: 0;
-}
-
 .home-example h2 {
   margin-top: 0;
   margin-bottom: 1rem;
@@ -337,22 +305,6 @@ layout: home
   margin-right: auto;
   position: relative;
   overflow: hidden;
-}
-
-.home-sections::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/images/guanche-gecko.svg');
-  background-size: 900px;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.06;
-  pointer-events: none;
-  z-index: 0;
 }
 
 .section-card {
@@ -403,13 +355,6 @@ layout: home
   .hero-content {
     flex-direction: column;
     text-align: center;
-  }
-
-  .home-features::before,
-  .home-example::before,
-  .home-sections::before {
-    background-size: 400px;
-    opacity: 0.05;
   }
 
   .hero-image {
