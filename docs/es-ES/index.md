@@ -16,6 +16,23 @@ layout: home
         <a class="action-button primary" href="/es-ES/concepts/01-factories">Comenzar</a>
         <a class="action-button secondary" href="/es-ES/examples/react">Ver Ejemplos</a>
       </div>
+      <div class="hero-install">
+        <label class="install-label">
+          <div class="install-input-wrapper">
+            <input type="text" value="pnpm add @schepta/core" readonly class="install-input" id="install-command-es" />
+            <div class="install-copy-overlay" data-install-id="install-command-es"></div>
+            <span class="install-icon-leading">
+              <TerminalIcon :size="24" class="install-icon" />
+            </span>
+            <span class="install-icon-trailing">
+              <button type="button" class="install-copy-button" data-install-id="install-command-es" aria-label="Copiar comando">
+                <CopyIcon :size="20" class="install-icon install-icon-copy" />
+                <CheckIcon :size="20" class="install-icon install-icon-check" style="display: none;" />
+              </button>
+            </span>
+          </div>
+        </label>
+      </div>
     </div>
     <div class="hero-image">
       <img src="/guanche-gecko-head.svg" alt="Gecko Guanche - mascota de schepta" class="gecko-head" />
@@ -158,37 +175,64 @@ layout: home
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .action-button {
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  text-decoration: none;
+  text-decoration: none !important;
   font-weight: 500;
   transition: all 0.2s ease;
   display: inline-block;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.action-button:hover {
+  text-decoration: none !important;
+}
+
+.action-button:visited {
+  color: inherit;
 }
 
 .action-button.primary {
   background: var(--vp-c-brand-1);
-  color: white;
+  color: white !important;
 }
 
 .action-button.primary:hover {
   background: var(--vp-c-brand-2);
+  color: white !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-decoration: none !important;
+}
+
+.action-button.primary:visited {
+  color: white !important;
 }
 
 .action-button.secondary {
   background: var(--vp-c-bg-soft);
-  color: var(--vp-c-text-1);
+  color: var(--vp-c-text-1) !important;
   border: 1px solid var(--vp-c-divider);
 }
 
 .action-button.secondary:hover {
   background: var(--vp-c-bg);
   border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-text-1) !important;
+  text-decoration: none !important;
+}
+
+.action-button.secondary:visited {
+  color: var(--vp-c-text-1) !important;
 }
 
 .hero-image {
@@ -368,6 +412,133 @@ layout: home
 
   .home-sections {
     grid-template-columns: 1fr;
+  }
+}
+
+.hero-install {
+  margin-top: 2rem;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.hero-install .install-input-wrapper {
+  width: 100%;
+  min-width: 0;
+}
+
+.install-label {
+  display: block;
+  width: 100%;
+}
+
+.install-input-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+}
+
+.install-input {
+  width: 100%;
+  border-radius: 8px;
+  border: 0;
+  appearance: none;
+  padding: 0.75rem 3rem 0.75rem 2.75rem;
+  font-size: 0.9375rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  border: 1px solid var(--vp-c-divider);
+  transition: all 0.2s ease;
+  cursor: text;
+  user-select: all;
+}
+
+.install-input:focus {
+  outline: none;
+  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 0 0 2px rgba(var(--vp-c-brand-1-rgb), 0.1);
+}
+
+.install-copy-overlay {
+  position: absolute;
+  inset: 0;
+  cursor: copy;
+  z-index: 1;
+}
+
+.install-icon-leading {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: var(--vp-c-text-2);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.install-icon-trailing {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.install-copy-button {
+  padding: 0.375rem;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--vp-c-text-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.install-copy-button:hover {
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+}
+
+.install-copy-button:active {
+  transform: scale(0.95);
+}
+
+.install-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.install-icon-check {
+  display: none !important;
+}
+
+.install-copy-button.copied .install-icon-copy {
+  display: none !important;
+}
+
+.install-copy-button.copied .install-icon-check {
+  display: block !important;
+  color: var(--vp-c-brand-1) !important;
+}
+
+@media (max-width: 768px) {
+  .hero-install {
+    max-width: 100%;
+  }
+  
+  .install-input {
+    font-size: 0.875rem;
+    padding: 0.625rem 2.75rem 0.625rem 2.5rem;
   }
 }
 </style>
