@@ -10,7 +10,7 @@
           {{ hero.description }}
         </p>
         <div class="hero-actions">
-          <a class="action-button primary" :href="`/${locale}/concepts/01-factories`">{{ hero.getStarted }}</a>
+          <a class="action-button primary" :href="`/${locale}/guide/quick-start`">{{ hero.getStarted }}</a>
           <a class="action-button secondary" :href="`/${locale}/examples/react`">{{ hero.viewExamples }}</a>
         </div>
         <div class="hero-install">
@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="hero-image">
-        <img src="/guanche-gecko-head.svg" :alt="hero.geckoAlt" class="gecko-head" />
+        <GeckoHead :alt="hero.geckoAlt" />
       </div>
     </div>
   </div>
@@ -41,6 +41,7 @@
 <script setup lang="ts">
 import { useData } from 'vitepress';
 import { computed } from 'vue';
+import GeckoHead from './GeckoHead.vue';
 
 const { frontmatter } = useData();
 
@@ -171,23 +172,6 @@ const locale = computed(() => frontmatter.value.locale);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.gecko-head {
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
 }
 
 .hero-install {
