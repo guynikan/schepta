@@ -8,11 +8,10 @@
 
 ### 🔧 What It Is:
 
-| **Input**      | **Factory**        | **Output**       | **Result**          |
-| -------------- | ------------------ | ---------------- | ---------------------- |
-| Form JSON      | `FormFactory`      | React/Vue Form   | Working interface  |
-| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Complete navigation     |
-| Component JSON | `ComponentFactory` | React/Vue Component  | Rendered component |
+| **Input**      | **Factory**        | **Output**       | **Result**          | **Status** |
+| -------------- | ------------------ | ---------------- | ---------------------- | ------------ |
+| Form JSON      | `FormFactory`      | React/Vue Form   | Working interface  | ✅ Ready
+| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Complete navigation     | 🚧 In development
 
 ### 📊 How It Works:
 
@@ -56,14 +55,6 @@
 | `active` | Visibility control | `"\{\{ $segment.role === 'admin' \}\}"` | Permission-based menu |
 | `properties.submenu` | Hierarchical submenu | Nested properties | Dropdown menu |
 
-### 🎛️ ComponentFactory - Generic Components:
-
-| **Schema Property** | **Function** | **Example** | **Result** |
-| ------------------- | ---------- | ----------- | ------------- |
-| `x-component` | Component type | `"Button"` | React/Vue button |
-| `x-component-props` | Specific props | `{ variant: "primary" }` | Styled button |
-| `x-ui` | Layout and positioning | `{ grid: { xs: 12 } }` | Responsive grid |
-
 ## ⚙️ Factory Architecture
 
 **How the Factory Pattern works internally:**
@@ -89,7 +80,6 @@ React/Vue Elements
 **Each Factory has specific logic for its domain:**
 - **FormFactory:** Injects FormContext, applies validations, manages state
 - **MenuFactory:** Manages navigation, active states, menu hierarchy
-- **ComponentFactory:** Generic rendering, simple props, no specific context
 
 **Extension points:** Component Registry (global/local), Middleware Pipeline (custom transformations), Context Providers (domain-specific state).
 

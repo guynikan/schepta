@@ -9,11 +9,10 @@
 
 ### 🔧 O Que É:
 
-| **Input**      | **Factory**        | **Output**       | **Resultado**          |
-| -------------- | ------------------ | ---------------- | ---------------------- |
-| Form JSON      | `FormFactory`      | React/Vue Form   | Interface funcionando  |
-| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Navegação completa     |
-| Component JSON | `ComponentFactory` | React/Vue Component  | Componente renderizado |
+| **Input**      | **Factory**        | **Output**       | **Resultado**          | **Status** |
+| -------------- | ------------------ | ---------------- | ---------------------- | ------------ |
+| Form JSON      | `FormFactory`      | React/Vue Form   | Interface funcionando  | ✅ Pronto
+| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Navegação completa     | 🚧 Em desenvolvimento
 
 ### 📊 Como Funciona:
 
@@ -58,15 +57,6 @@
 | `active` | Controle de visibilidade | `"\{\{ $segment.role === 'admin' \}\}"` | Menu por permissão |
 | `properties.submenu` | Submenu hierárquico | Nested properties | Dropdown menu |
 
-### 🎛️ ComponentFactory - Componentes Genéricos:
-
-| **Schema Property** | **Função** | **Exemplo** | **Resultado** |
-| ------------------- | ---------- | ----------- | ------------- |
-| `x-component` | Tipo do component | `"Button"` | Botão React/Vue |
-| `x-component-props` | Props específicas | `{ variant: "primary" }` | Botão estilizado |
-| `x-ui` | Layout e positioning | `{ grid: { xs: 12 } }` | Grid responsivo |
-
-
 ## ⚙️ Arquitetura do Factory
 
 **Como o Factory Pattern funciona internamente:**
@@ -92,7 +82,6 @@ React/Vue Elements
 **Cada Factory tem lógica específica para seu domínio:**
 - **FormFactory:** Injeta FormContext, aplica validações, gerencia state
 - **MenuFactory:** Gerencia navegação, active states, hierarquia de menus
-- **ComponentFactory:** Renderização genérica, props simples, sem context específico
 
 **Pontos de extensibilidade:** Component Registry (global/local), Middleware Pipeline (custom transformations), Context Providers (domain-specific state).
 

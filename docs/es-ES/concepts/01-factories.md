@@ -8,11 +8,10 @@
 
 ### 🔧 Qué Es:
 
-| **Entrada**      | **Factory**        | **Salida**       | **Resultado**          |
-| -------------- | ------------------ | ---------------- | ---------------------- |
-| Form JSON      | `FormFactory`      | React/Vue Form   | Interfaz funcional  |
-| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Navegación completa     |
-| Component JSON | `ComponentFactory` | React/Vue Component  | Componente renderizado |
+| **Entrada**      | **Factory**        | **Salida**       | **Resultado**          | **Status** |
+| -------------- | ------------------ | ---------------- | ---------------------- | ------------ |
+| Form JSON      | `FormFactory`      | React/Vue Form   | Interfaz funcional  | ✅ Listo
+| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Navegación completa     | 🚧 Em desenvolvimento
 
 ### 📊 Cómo Funciona:
 
@@ -56,14 +55,6 @@
 | `active` | Control de visibilidad | `"\{\{ $segment.role === 'admin' \}\}"` | Menú basado en permisos |
 | `properties.submenu` | Submenú jerárquico | Propiedades anidadas | Menú desplegable |
 
-### 🎛️ ComponentFactory - Componentes Genéricos:
-
-| **Propiedad del Schema** | **Función** | **Ejemplo** | **Resultado** |
-| ------------------- | ---------- | ----------- | ------------- |
-| `x-component` | Tipo de componente | `"Button"` | Botón React/Vue |
-| `x-component-props` | Props específicas | `{ variant: "primary" }` | Botón estilizado |
-| `x-ui` | Layout y posicionamiento | `{ grid: { xs: 12 } }` | Grid responsivo |
-
 ## ⚙️ Arquitectura de Factory
 
 **Cómo funciona el patrón Factory internamente:**
@@ -89,7 +80,6 @@ Elementos React/Vue
 **Cada Factory tiene lógica específica para su dominio:**
 - **FormFactory:** Inyecta FormContext, aplica validaciones, gestiona estado
 - **MenuFactory:** Gestiona navegación, estados activos, jerarquía de menú
-- **ComponentFactory:** Renderizado genérico, props simples, sin contexto específico
 
 **Puntos de extensión:** Component Registry (global/local), Middleware Pipeline (transformaciones personalizadas), Context Providers (estado específico del dominio).
 
