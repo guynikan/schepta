@@ -25,7 +25,7 @@ export default defineConfig({
         logo: '/guanche-gecko-head.svg',
         nav: [
           { text: 'Home', link: '/en-US/' },
-          { text: 'Quick Start', link: '/en-US/guide/quick-start' },
+          { text: 'Guide', link: '/en-US/guide/quick-start' },
           { text: 'Concepts', link: '/en-US/concepts/01-factories' },
           { text: 'Examples', link: '/en-US/examples/react' },
         ],
@@ -79,7 +79,7 @@ export default defineConfig({
         logo: '/guanche-gecko-head.svg',
         nav: [
           { text: 'Início', link: '/pt-BR/' },
-          { text: 'Início Rápido', link: '/pt-BR/guide/quick-start' },
+          { text: 'Guia', link: '/pt-BR/guide/quick-start' },
           { text: 'Conceitos', link: '/pt-BR/concepts/01-factories' },
           { text: 'Exemplos', link: '/pt-BR/examples/react' },
         ],
@@ -133,7 +133,7 @@ export default defineConfig({
         logo: '/guanche-gecko-head.svg',
         nav: [
           { text: 'Inicio', link: '/es-ES/' },
-          { text: 'Inicio Rápido', link: '/es-ES/guide/quick-start' },
+          { text: 'Guía', link: '/es-ES/guide/quick-start' },
           { text: 'Conceptos', link: '/es-ES/concepts/01-factories' },
           { text: 'Ejemplos', link: '/es-ES/examples/react' },
         ],
