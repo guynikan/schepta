@@ -38,7 +38,7 @@ describe('Template Expression Middleware', () => {
       
       const props = {
         label: '{{ $externalContext.user.name }}',
-        placeholder: 'Enter {{ $formValues.firstName }}',
+        placeholder: 'Enter {{ $formState.firstName }}',
       };
 
       const result = middleware(props, schema, context);
@@ -54,7 +54,7 @@ describe('Template Expression Middleware', () => {
         ui: {
           label: '{{ $externalContext.user.name }}',
           nested: {
-            placeholder: '{{ $formValues.firstName }}',
+            placeholder: '{{ $formState.firstName }}',
           },
         },
       };
@@ -71,7 +71,7 @@ describe('Template Expression Middleware', () => {
       const props = {
         items: [
           '{{ $externalContext.user.name }}',
-          '{{ $formValues.firstName }}',
+          '{{ $formState.firstName }}',
         ],
       };
 

@@ -19,9 +19,9 @@ describe('Template Detector', () => {
     });
 
     it('should detect multiple template expressions', () => {
-      const str = '{{ $externalContext.user.name }} and {{ $formValues.email }}';
+      const str = '{{ $externalContext.user.name }} and {{ $formState.email }}';
       const result = detectTemplateExpressions(str);
-      expect(result).toEqual(['$externalContext.user.name', '$formValues.email']);
+      expect(result).toEqual(['$externalContext.user.name', '$formState.email']);
     });
 
     it('should handle whitespace in templates', () => {
@@ -50,8 +50,8 @@ describe('Template Detector', () => {
     });
 
     it('should handle whitespace', () => {
-      const result = extractExpression('{{  $formValues.email  }}');
-      expect(result).toBe('$formValues.email');
+      const result = extractExpression('{{  $formState.email  }}');
+      expect(result).toBe('$formState.email');
     });
 
     it('should return original string if no template found', () => {
@@ -110,7 +110,7 @@ describe('Template Detector', () => {
         label: '{{ $externalContext.user.name }}',
         placeholder: 'Enter {{ $externalContext.fieldName }}',
         nested: {
-          text: '{{ $formValues.email }}',
+          text: '{{ $formState.email }}',
         },
       };
 
@@ -118,7 +118,7 @@ describe('Template Detector', () => {
       expect(result).toHaveLength(3);
       expect(result).toContain('$externalContext.user.name');
       expect(result).toContain('$externalContext.fieldName');
-      expect(result).toContain('$formValues.email');
+      expect(result).toContain('$formState.email');
     });
 
     it('should return unique expressions only', () => {

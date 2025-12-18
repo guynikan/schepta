@@ -7,7 +7,7 @@
 
 /**
  * Regular expression to match template expressions {{ ... }}
- * Matches: {{ $externalContext.user.name }}, {{ $formValues.field }}, etc.
+ * Matches: {{ $externalContext.user.name }}, {{ $formState.field }}, etc.
  */
 const TEMPLATE_REGEX = /\{\{\s*([^}]+)\s*\}\}/g;
 
@@ -66,7 +66,7 @@ export function extractExpression(template: string): string {
  * 
  * @example
  * hasTemplateExpressions("{{ $externalContext.user.name }}") // true
- * hasTemplateExpressions({ label: "{{ $formValues.field }}" }) // true
+ * hasTemplateExpressions({ label: "{{ $formState.field }}" }) // true
  * hasTemplateExpressions(["{{ $externalContext.api }}", "static"]) // true
  * hasTemplateExpressions("static text") // false
  */
