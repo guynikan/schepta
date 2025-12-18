@@ -44,9 +44,9 @@ function resolveNestedPath(path: string, obj: any): any {
   let current = obj;
 
   for (const part of parts) {
-    if (current === null || current === undefined) {
-      return undefined;
-    }
+    // if (current === null || current === undefined) {
+    //   return undefined;
+    // }
     current = current[part];
   }
 
@@ -57,7 +57,7 @@ function resolveNestedPath(path: string, obj: any): any {
  * Create default variable resolver
  * Supports:
  * - $externalContext.* - values from externalContext
- * - $formValues.* - values from formState
+ * - $formState.* - values from formState
  * 
  * @param context Resolver context
  * @returns Variable resolver function
@@ -68,7 +68,7 @@ function resolveNestedPath(path: string, obj: any): any {
  *   formState: { email: "john@example.com" }
  * });
  * resolver("$externalContext.user.name") // "John"
- * resolver("$formValues.email") // "john@example.com"
+ * resolver("$formState.email") // "john@example.com"
  */
 export function createDefaultResolver(context: ResolverContext): VariableResolver {
   return (expression: string): any => {
@@ -84,10 +84,10 @@ export function createDefaultResolver(context: ResolverContext): VariableResolve
       return resolveNestedPath(path, context.externalContext);
     }
 
-    // Handle $formValues.*
-    if (trimmed.startsWith('$formValues.')) {
-      const path = trimmed.substring('$formValues.'.length);
-      return resolveNestedPath(path, context.formState) || undefined;
+    // Handle $formState.*
+    if (trimmed.startsWith('$formState.')) {
+      const path = trimmed.substring('$formState.'.length);
+      return resolveNestedPath(path, context.formState);
     }
 
     // Handle $externalContext (without path - returns entire object)
@@ -95,8 +95,8 @@ export function createDefaultResolver(context: ResolverContext): VariableResolve
       return context.externalContext;
     }
 
-    // Handle $formValues (without path - returns entire object)
-    if (trimmed === '$formValues') {
+    // Handle $formState (without path - returns entire object)
+    if (trimmed === '$formState') {
       return context.formState;
     }
 

@@ -90,7 +90,7 @@ export function processTemplateExpression(
  * processValue({
  *   label: "{{ $externalContext.user.name }}",
  *   nested: {
- *     placeholder: "Enter {{ $formValues.email }}"
+ *     placeholder: "Enter {{ $formState.email }}"
  *   }
  * }, resolver, context)
  * // Returns: {

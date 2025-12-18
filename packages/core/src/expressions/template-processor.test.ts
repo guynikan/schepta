@@ -33,16 +33,14 @@ describe('Template Processor', () => {
       const result = processTemplateString(
         'Hello {{ $externalContext.user.name }}',
         resolver,
-        context
       );
       expect(result).toBe('Hello John Doe');
     });
 
     it('should replace multiple template expressions', () => {
       const result = processTemplateString(
-        '{{ $externalContext.user.name }} - {{ $formValues.firstName }}',
+        '{{ $externalContext.user.name }} - {{ $formState.firstName }}',
         resolver,
-        context
       );
       expect(result).toBe('John Doe - John');
     });
@@ -51,7 +49,6 @@ describe('Template Processor', () => {
       const result = processTemplateString(
         'Hello world',
         resolver,
-        context
       );
       expect(result).toBe('Hello world');
     });
@@ -60,7 +57,6 @@ describe('Template Processor', () => {
       const result = processTemplateString(
         'Hello {{ $externalContext.nonexistent }}',
         resolver,
-        context
       );
       expect(result).toBe('Hello ');
     });
@@ -75,7 +71,6 @@ describe('Template Processor', () => {
       const result = processTemplateString(
         'Count: {{ $externalContext.count }}',
         customResolver,
-        customContext
       );
       expect(result).toBe('Count: 42');
     });
@@ -86,7 +81,6 @@ describe('Template Processor', () => {
       const result = processTemplateExpression(
         '$externalContext.user.name',
         resolver,
-        context
       );
       expect(result).toBe('John Doe');
     });
@@ -95,7 +89,6 @@ describe('Template Processor', () => {
       const result = processTemplateExpression(
         '$externalContext.nonexistent',
         resolver,
-        context
       );
       expect(result).toBeUndefined();
     });
@@ -114,7 +107,7 @@ describe('Template Processor', () => {
     it('should process objects recursively', () => {
       const value = {
         label: '{{ $externalContext.user.name }}',
-        placeholder: 'Enter {{ $formValues.firstName }}',
+        placeholder: 'Enter {{ $formState.firstName }}',
         static: 'unchanged',
       };
 
@@ -130,7 +123,7 @@ describe('Template Processor', () => {
     it('should process arrays recursively', () => {
       const value = [
         '{{ $externalContext.user.name }}',
-        '{{ $formValues.firstName }}',
+        '{{ $formState.firstName }}',
         'static',
       ];
 
@@ -144,7 +137,7 @@ describe('Template Processor', () => {
         ui: {
           label: '{{ $externalContext.user.name }}',
           nested: {
-            placeholder: '{{ $formValues.firstName }}',
+            placeholder: '{{ $formState.firstName }}',
           },
         },
       };
@@ -177,7 +170,7 @@ describe('Template Processor', () => {
         label: '{{ $externalContext.user.name }}',
         count: 42,
         items: [
-          '{{ $formValues.firstName }}',
+          '{{ $formState.firstName }}',
           'static',
         ],
         nested: {
@@ -202,7 +195,7 @@ describe('Template Processor', () => {
     it('should return true for values with templates', () => {
       expect(needsProcessing('{{ $externalContext.user.name }}')).toBe(true);
       expect(needsProcessing({
-        label: '{{ $formValues.firstName }}',
+        label: '{{ $formState.firstName }}',
       })).toBe(true);
     });
 
