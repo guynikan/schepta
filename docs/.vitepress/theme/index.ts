@@ -1,6 +1,7 @@
 import DefaultTheme from 'vitepress/theme';
 import './custom.css';
 import { defineAsyncComponent } from 'vue';
+import { MotionPlugin } from '@vueuse/motion'
 
 
 export default {
@@ -10,6 +11,8 @@ export default {
     app.component('TerminalIcon', defineAsyncComponent(() => import('lucide-vue-next').then(m => m.Terminal)));
     app.component('CopyIcon', defineAsyncComponent(() => import('lucide-vue-next').then(m => m.Copy)));
     app.component('CheckIcon', defineAsyncComponent(() => import('lucide-vue-next').then(m => m.Check)));
+
+    app.use(MotionPlugin);
     
     if (typeof window !== 'undefined') {
       const handleLanguageClick = (e: MouseEvent) => {
