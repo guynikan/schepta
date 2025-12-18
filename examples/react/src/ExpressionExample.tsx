@@ -31,20 +31,20 @@ export function ExpressionExample() {
         <h3 style={{ marginTop: 0 }}>Template Expressions Features:</h3>
         <ul>
           <li>✅ Use {'{{ $externalContext.* }}'} in schema values</li>
-          <li>✅ Use {'{{ $formValues.* }}'} for dynamic form values</li>
+          <li>✅ Use {'{{ $formState.* }}'} for dynamic form values</li>
           <li>✅ Automatic processing of all template expressions</li>
           <li>✅ Recursive processing in nested objects</li>
         </ul>
       </div>
 
       <div style={{ border: '1px solid #ddd', padding: '24px', borderRadius: '8px' }}>
-        <h3 style={{ marginTop: 0 }}>Template Form (with {'{{ $externalContext.* }}'} and {'{{ $formValues.* }}'})</h3>
+        <h3 style={{ marginTop: 0 }}>Template Form (with {'{{ $externalContext.* }}'} and {'{{ $formState.* }}'})</h3>
         <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
           This example demonstrates two key template expression features you can observe:
           <br />
           <strong>1. $externalContext expressions:</strong> The First Name label uses {'{{ $externalContext.user.name }}'} which resolves to <strong>"Test User"</strong> from the factory's externalContext prop.
           <br />
-          <strong>2. $formValues expressions:</strong> The Email field's placeholder uses {'{{ $formValues.personalInfo.firstName }}'} which dynamically updates to show the current value of the First Name field as you type.
+          <strong>2. $formState expressions:</strong> The Email field's placeholder uses {'{{ $formState.personalInfo.firstName }}'} which dynamically updates to show the current value of the First Name field as you type.
         </p>
         <FormFactory
           schema={templateFormSchema}

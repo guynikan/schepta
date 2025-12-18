@@ -81,7 +81,7 @@
                   "x-component": "InputText",
                   "x-ui": {
                     "label": "Email",
-                    "placeholder": "Enter email for {{ $formValues.personalInfo.firstName }}"
+                    "placeholder": "Enter email for {{ $formState.personalInfo.firstName }}"
                   },
                   "x-rules": {
                     "required": false
