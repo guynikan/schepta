@@ -21,38 +21,99 @@
       :aria-label="alt"
       role="img"
     >
-        <g
-          v-for="(path, index) in paths"
-          :key="index"
-          class="gecko-piece"
-          v-motion-slide-top
-          :enter="{
-            y: 0,
-            opacity: 1,
-            transition: { delay: delayFor(index, paths.length) },
-          }"
-          :hovered="{
-            y: -3.5,
-            transition: {
-              type: 'spring',
-              stiffness: 320,
-              damping: 24,
-              mass: 0.6,
-            },
-          }"
+      <defs>
+        <filter
+          id="glow"
+          x="-50%"
+          y="-50%"
+          width="200%"
+          height="200%"
         >
-          <path
-            :d="path.d"
-            :fill="path.originalColor"
-            class="gecko-path base"
-          />
+          <feGaussianBlur stdDeviation="18" />
+        </filter>
 
-          <path
-            :d="path.d"
-            :fill="path.alternativeColor"
-            class="gecko-path paint"
+        <mask
+          id="shapeMask"
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width="592"
+          height="610"
+        >
+          <rect
+            x="0"
+            y="0"
+            width="592"
+            height="610"
+            fill="black"
           />
+          <g fill="white">
+            <path
+              v-for="(p, i) in paths"
+              :key="`mask-${i}`"
+              :d="p.d"
+            />
+          </g>
+        </mask>
+      </defs>
+
+      <g
+        v-for="(path, index) in paths"
+        :key="index"
+        class="gecko-piece"
+        v-motion-slide-top
+        :enter="{
+          y: 0,
+          opacity: 1,
+          transition: { delay: delayFor(index, paths.length) },
+        }"
+        :hovered="{
+          y: -3.5,
+          transition: {
+            type: 'spring',
+            stiffness: 320,
+            damping: 24,
+            mass: 0.6,
+          },
+        }"
+      >
+        <path
+          :d="path.d"
+          :fill="path.originalColor"
+          class="gecko-path base"
+        />
+
+        <path
+          :d="path.d"
+          :fill="path.alternativeColor"
+          class="gecko-path paint"
+        />
+      </g>
+
+      <g
+        :mask="`url(#shapeMask)`"
+        opacity="0.12"
+        style="mix-blend-mode: screen"
+      >
+        <g transform="rotate(10 0 0)">
+          <rect
+            x="-250"
+            y="-200"
+            width="70"
+            height="1100"
+            fill="white"
+            :filter="`url(#glow)`"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              from="-200 0"
+              to="900 0"
+              dur="3s"
+            />
+          </rect>
         </g>
+      </g>
     </svg>
   </div>
 </template>
@@ -77,14 +138,15 @@
   const hoveredIndex = ref<number | null>(null);
 
   const colorPalette = [
-    "rgb(36,77,159)",
-    "rgb(10,156,213)",
+    "rgb(36,77,156)",
+    "rgb(11,156,214)",
     "rgb(69,168,87)",
-    "rgb(101,80,114)",
-    "rgb(221,50,45)",
-    "rgb(248,193,29)",
+    "rgb(102,84,119)",
+    "rgb(214,46,45)",
+    "rgb(249,194,32)",
     "rgb(2,129,115)",
     "rgb(30,28,28)",
+    "rgb(123, 28, 201)"
   ];
 
   const getRandomAlternativeColor = (originalColor: string): string => {
