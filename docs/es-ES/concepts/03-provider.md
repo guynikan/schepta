@@ -13,7 +13,6 @@
 | ---------------- | ---------- | ------------- | ----------- |
 | **Component Registry** | Global | Componentes estandarizados | MUI como predeterminado |
 | **Middleware Stack** | Global | Comportamiento consistente | Validación uniforme |
-| **Theme Configuration** | Global | Identidad visual | Colores y fuentes |
 | **Context Providers** | Global | Estado compartido | Usuario, permisos, locale |
 
 ### 📊 Jerarquía de Configuración:
@@ -23,7 +22,6 @@
 scheptaProvider (Nivel de App)
     ├── Global Component Registry
     ├── Global Middleware  
-    ├── Theme Provider
     └── Context Providers
         └── FormFactory/MenuFactory (Local)
             ├── Local Component Overrides
@@ -35,7 +33,6 @@ scheptaProvider (Nivel de App)
 <scheptaProvider
   components={{ InputText: MUITextField, Button: MUIButton }}
   middleware={{ withValidation, withAnalytics }}
-  theme={{ primary: '#007ACC' }}
 >
   <App />
 </scheptaProvider>
@@ -54,9 +51,7 @@ scheptaProvider (Nivel de App)
 | ----------------- | ----------- | ----------- | ------------------ |
 | `components` | Registro global de componentes | Componentes integrados | Props de factory local |
 | `middleware` | Pila global de middleware | Middleware básico | Props de factory local |
-| `theme` | Configuración de tema visual | Tema predeterminado | CSS/styled-components |
 | `debug` | Configuración del panel de debug | Auto (modo dev) | Variables de entorno |
-| `cache` | Estrategia de caché | Predeterminados de React Query | Props del Provider |
 
 ### 🎛️ Component Registry Provider:
 
@@ -76,16 +71,6 @@ scheptaProvider (Nivel de App)
 | **Local Middleware** | Factory | Override/extend | Funcionalidad específica |
 | **Conditional Middleware** | Basado en contexto | Condicional | Específico de rol/tenant |
 
-### 🎨 Theme Provider:
-
-| **Aspecto del Tema** | **Configuración** | **Herencia** | **Override** |
-| ---------------- | ----------------- | --------------- | ------------ |
-| **Colores** | Primario, secundario, etc. | Variables CSS | Props de componente |
-| **Tipografía** | Fuentes, tamaños, pesos | Cascada CSS | Estilos inline |
-| **Espaciado** | Márgenes, padding, grid | Clases CSS | Estilos de componente |
-| **Componentes** | Estilos de componente predeterminados | Objeto de tema | Overrides de componente |
-
-
 ## ⚙️ Arquitectura del Provider
 
 **Cómo funciona el sistema de providers:**
@@ -97,8 +82,7 @@ scheptaProvider (Nivel de App)
 | **1. Provider Setup** | Inicializar contexto del provider | Contexto disponible | Ninguna |
 | **2. Registry Registration** | Registrar componentes globales | Registro global poblado | Definiciones de componentes |
 | **3. Middleware Registration** | Registrar middleware global | Pila de middleware lista | Funciones de middleware |
-| **4. Theme Initialization** | Configurar contexto de tema | Tema disponible | Configuración de tema |
-| **5. Context Propagation** | Propagar a componentes hijos | Providers activos | Contexto React/Vue |
+| **4. Context Propagation** | Propagar a componentes hijos | Providers activos | Contexto React/Vue |
 
 ### 🎯 Propagación de Contexto:
 
@@ -108,7 +92,6 @@ scheptaProvider (Nivel de App)
 const scheptaContext = createContext<scheptaConfig>();
 const ComponentRegistryContext = createContext<ComponentRegistry>();
 const MiddlewareContext = createContext<MiddlewareStack>();
-const ThemeContext = createContext<ThemeConfig>();
 
 // Acceso mediante hooks
 const useschepta = () => useContext(scheptaContext);
@@ -140,8 +123,6 @@ const mergedConfig = {
 
 | **Patrón** | **Caso de Uso** | **Configuración** | **Beneficios** |
 | ----------- | ------------ | ----------------- | ----------- |
-| **Single Theme** | App consistente | Una configuración de tema | Consistencia visual |
-| **Multi-Theme** | App white-label | Tema por tenant | Flexibilidad de marca |
 | **Component Library** | Sistema de diseño | Componentes consistentes | Velocidad de desarrollo |
 | **Micro-frontends** | App distribuida | Configuraciones con alcance | Independencia de equipos |
 
@@ -156,12 +137,6 @@ const mergedConfig = {
     Select: MuiSelect,
     Checkbox: MuiCheckbox
   }}
-  theme={{
-    palette: {
-      primary: { main: '#1976d2' },
-      secondary: { main: '#dc004e' }
-    }
-  }}
 >
   <App />
 </scheptaProvider>
@@ -175,12 +150,6 @@ const mergedConfig = {
     Button: AntButton,
     Select: AntSelect,
     Checkbox: AntCheckbox
-  }}
-  theme={{
-    token: {
-      colorPrimary: '#1890ff',
-      colorSuccess: '#52c41a'
-    }
   }}
 >
   <App />
@@ -197,7 +166,6 @@ const TenantProvider = ({ tenant, children }) => {
   return (
     <scheptaProvider
       components={tenantConfig.components}
-      theme={tenantConfig.theme}
       middleware={tenantConfig.middleware}
     >
       {children}
