@@ -39,6 +39,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-errors": "^3.0.0",
     "jexl": "2.3.0"
   },
   "devDependencies": {
@@ -48,4 +50,3 @@
     "vitest": "^1.0.0"
   }
 }
-
