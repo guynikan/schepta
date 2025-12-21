@@ -7,6 +7,9 @@
     "personalInfo": {
       "type": "object",
       "x-component": "FormSectionContainer",
+      "x-ui": {
+        "order": 1
+      },
       "properties": {
         "title": {
           "type": "object",
@@ -21,23 +24,25 @@
               "type": "object",
               "x-component": "FormSectionGroup",
               "x-component-props": {
-                "columns": "1fr 1fr"
+
               },
               "properties": {
                 "firstName": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 1
+                  },
                   "properties": {
                     "firstName": {
                       "type": "string",
                       "x-component": "InputText",
-                      "x-ui": {
-                        "label": "{{ $externalContext.user.name }}",
+                      "x-component-props": {
+                        "label": "First Name",
                         "placeholder": "Enter your first name",
-                        "order": 1
+                        "required": true
                       },
                       "x-rules": {
-                        "required": true
                       }
                     }
                   }
@@ -45,17 +50,19 @@
                 "lastName": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 2
+                  },
                   "properties": {
                     "lastName": {
                       "type": "string",
                       "x-component": "InputText",
-                      "x-ui": {
+                      "x-component-props": {
                         "label": "Last Name",
                         "placeholder": "Enter your last name",
-                        "order": 2
+                        "required": true
                       },
                       "x-rules": {
-                        "required": true
                       }
                     }
                   }
@@ -65,11 +72,6 @@
           }
         }
       }
-    },
-    "submit": {
-      "type": "object",
-      "x-component": "SubmitButton",
-      "x-content": "Submit Form"
     }
   }
 }

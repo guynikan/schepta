@@ -3,25 +3,233 @@ import { useFormContext } from 'react-hook-form';
 
 // Simple input component
 export const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) => {
-  const { label, name, value, onChange, placeholder, externalContext, ...rest } = props;
-  
+  const { label, name, value, onChange, placeholder, ...rest } = props;
   return (
-    <div style={{ marginBottom: '16px' }}>
-      {label && <label htmlFor={name} style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>{label}</label>}
+    <div style={{ marginBottom: "16px" }}>
+      {label && (
+        <label
+          htmlFor={name}
+          style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
+        >
+          {label}
+        </label>
+      )}
       <input
         ref={ref}
         id={name}
         name={name}
         data-test-id={name}
-        value={value || ''}
+        value={value || ""}
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
-        style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+        style={{
+          width: "100%",
+          padding: "8px",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+        }}
         {...rest}
       />
     </div>
   );
 });
+
+InputText.displayName = "InputText";
+
+export const InputSelect = React.forwardRef<HTMLSelectElement, any>((props, ref) => {
+  const {
+    label,
+    name,
+    value,
+    onChange,
+    options = [],
+    placeholder = "Select...",
+    children,
+    ...rest
+  } = props;
+  return (
+    <div style={{ marginBottom: "16px" }}>
+      {label && (
+        <label
+          htmlFor={name}
+          style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
+        >
+          {label}
+        </label>
+      )}
+      <select
+        ref={ref}
+        id={name}
+        name={name}
+        data-test-id={name}
+        value={value || ""}
+        onChange={(e) => onChange?.(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "8px",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+        }}
+        {...rest}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((opt: any) => (
+          <option
+            key={opt.value}
+            value={opt.value}
+          >
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      {children}
+    </div>
+  );
+});
+
+InputSelect.displayName = "InputSelect";
+
+export const InputTextarea = React.forwardRef<HTMLTextAreaElement, any>(
+  (props, ref) => {
+    const {
+      label,
+      name,
+      value,
+      onChange,
+      placeholder,
+      rows = 4,
+      ...rest
+    } = props;
+    return (
+      <div style={{ marginBottom: "16px" }}>
+        {label && (
+          <label
+            htmlFor={name}
+            style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
+          >
+            {label}
+          </label>
+        )}
+        <textarea
+          ref={ref}
+          id={name}
+          name={name}
+          data-test-id={name}
+          value={value || ""}
+          placeholder={placeholder}
+          rows={rows}
+          onChange={(e) => onChange?.(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "8px",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            fontFamily: "inherit",
+          }}
+          {...rest}
+        />
+      </div>
+    );
+  }
+);
+InputTextarea.displayName = "InputTextarea";
+
+export const InputNumber = React.forwardRef<HTMLInputElement, any>((props, ref) => {
+  const { label, name, value, onChange, placeholder, min, max, step, ...rest } =
+    props;
+  return (
+    <div style={{ marginBottom: "16px" }}>
+      {label && (
+        <label
+          htmlFor={name}
+          style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
+        >
+          {label}
+        </label>
+      )}
+      <input
+        ref={ref}
+        type="number"
+        id={name}
+        name={name}
+        data-test-id={name}
+        value={value || ""}
+        placeholder={placeholder}
+        min={min}
+        max={max}
+        step={step}
+        onChange={(e) =>
+          onChange?.(e.target.value ? Number(e.target.value) : "")
+        }
+        style={{
+          width: "100%",
+          padding: "8px",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+        }}
+        {...rest}
+      />
+    </div>
+  );
+});
+InputNumber.displayName = "InputNumber";
+
+export const InputDate = React.forwardRef<HTMLInputElement, any>((props, ref) => {
+  const { label, name, value, onChange, ...rest } = props;
+  return (
+    <div style={{ marginBottom: "16px" }}>
+      {label && (
+        <label
+          htmlFor={name}
+          style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
+        >
+          {label}
+        </label>
+      )}
+      <input
+        ref={ref}
+        type="date"
+        id={name}
+        name={name}
+        data-test-id={name}
+        value={value || ""}
+        onChange={(e) => onChange?.(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "8px",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+        }}
+        {...rest}
+      />
+    </div>
+  );
+});
+InputDate.displayName = "InputDate";
+
+export const InputCheckbox = React.forwardRef<HTMLInputElement, any>((props, ref) => {
+  const { label, name, checked, onChange, children, ...rest } = props;
+  return (
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <input
+          ref={ref}
+          type="checkbox"
+          name={name}
+          data-test-id={name}
+          checked={checked || false}
+          onChange={(e) => onChange?.(e.target.checked)}
+          {...rest}
+        />
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+});
+
+InputCheckbox.displayName = "InputCheckbox";
+
 
 export const FormField = ({ children, ...props }: any) => {
   return <div {...props}>{children}</div>;
