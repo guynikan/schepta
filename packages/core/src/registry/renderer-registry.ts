@@ -6,6 +6,7 @@
  */
 
 import type { ComponentType, ComponentSpec, RuntimeAdapter } from '../runtime/types';
+import { sanitizePropsForDOM } from '../utils/sanitize-props';
 
 /**
  * Renderer function - wraps component rendering with additional logic
@@ -18,51 +19,60 @@ export type RendererFn = (
 ) => any;
 
 /**
- * Default renderers - simple pass-through by default
+ * Default renderers - sanitize props before passing to components
  */
 export const defaultTypeRenderers: Record<ComponentType, RendererFn> = {
   field: (spec, props, runtime, children) => {
-    // Merge children into props if provided
+    const sanitized = sanitizePropsForDOM(props);
     const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
+      ? { ...sanitized, children }
+      : sanitized;
     return runtime.create(spec, propsWithChildren);
   },
   'field-wrapper': (spec, props, runtime, children) => {
+    const sanitized = sanitizePropsForDOM(props);
     const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
+      ? { ...sanitized, children }
+      : sanitized;
     return runtime.create(spec, propsWithChildren);
   },
   'container': (spec, props, runtime, children) => {
+    const sanitized = sanitizePropsForDOM(props);
     const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
+      ? { ...sanitized, children }
+      : sanitized;
     return runtime.create(spec, propsWithChildren);
   },
   'form-container': (spec, props, runtime, children) => {
+    const sanitized = sanitizePropsForDOM(props);
     const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
+      ? { ...sanitized, children }
+      : sanitized;
     return runtime.create(spec, propsWithChildren);
   },
   content: (spec, props, runtime, children) => {
+    const sanitized = sanitizePropsForDOM(props);
     const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
+      ? { ...sanitized, children }
+      : sanitized;
     return runtime.create(spec, propsWithChildren);
   },
-  addon: (spec, props, runtime) => runtime.create(spec, props),
+  addon: (spec, props, runtime) => {
+    const sanitized = sanitizePropsForDOM(props);
+    return runtime.create(spec, sanitized);
+  },
   'menu-item': (spec, props, runtime, children) => {
+    const sanitized = sanitizePropsForDOM(props);
     const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
+      ? { ...sanitized, children }
+      : sanitized;
     return runtime.create(spec, propsWithChildren);
   },
   'menu-container': (spec, props, runtime, children) => {
+    const sanitized = sanitizePropsForDOM(props);
     const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
+      ? { ...sanitized, children }
+      : sanitized;
     return runtime.create(spec, propsWithChildren);
   },
 };
