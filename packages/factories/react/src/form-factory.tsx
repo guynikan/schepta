@@ -4,68 +4,19 @@
  * Factory component for rendering forms from JSON schemas
  */
 
-import React, { useEffect, useMemo } from 'react';
-import { FormProvider, useForm, UseFormReturn, useWatch } from 'react-hook-form';
-import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter, MiddlewareFn } from '@schepta/core';
+import React, { useMemo } from 'react';
+import { FormProvider, UseFormReturn } from 'react-hook-form';
+import type { FormSchema, ComponentSpec, MiddlewareFn } from '@schepta/core';
 import { createReactRuntimeAdapter } from '@schepta/adapter-react';
-import { createReactHookFormAdapter } from '@schepta/adapter-react';
-import { useScheptaContext } from '@schepta/adapter-react';
 import { createRendererOrchestrator, type FactorySetupResult } from '@schepta/core';
-import { buildInitialValuesFromSchema } from '@schepta/core';
 import { createTemplateExpressionMiddleware } from '@schepta/core';
 import { FormRenderer } from './form-renderer';
-import { FieldWrapper } from './field-wrapper';
-
-// Custom field renderer that wraps fields with FieldWrapper
-const createFieldRenderer = (): RendererFn => {
-  return (spec: ComponentSpec, props: Record<string, any>, runtime: RuntimeAdapter, children?: any[]) => {
-    // Extract name from props
-    const name = props.name || '';
-    
-    // If this is a field component and we have a name, wrap it with FieldWrapper
-    if (name && spec.type === 'field') {
-      const Component = spec.factory(props, runtime);
-      
-      // Extract component props - x-ui is already spread in props by orchestrator
-      // Also get x-component-props if present
-      const xUI = props['x-ui'] || {}; // Fallback if not spread
-      const xComponentProps = props['x-component-props'] || {};
-      
-      // Build componentProps: x-ui props (label, placeholder, etc.) are already in props
-      // but we need to extract them explicitly and merge with x-component-props
-      const componentProps = {
-        ...xComponentProps,
-        // Extract x-ui props that are already spread in props
-        label: props.label,
-        placeholder: props.placeholder,
-        order: props.order,
-        // Also include any other props that might be from x-ui
-        ...xUI, // Fallback if x-ui wasn't spread
-        name, // Ensure name is passed
-      };
-      
-      // Create FieldWrapper using React.createElement directly since we're in React context
-      return React.createElement(FieldWrapper, {
-        name,
-        component: Component as any,
-        componentProps,
-        children,
-      });
-    }
-    
-    // For non-field components or fields without name, use default rendering
-    const xComponentProps = props['x-component-props'] || {};
-    const propsWithChildren = children && children.length > 0 
-      ? { ...props, ...xComponentProps, children }
-      : { ...props, ...xComponentProps };
-    
-    // Clean up metadata props
-    delete propsWithChildren['x-component-props'];
-    delete propsWithChildren['x-ui'];
-    
-    return runtime.create(spec, propsWithChildren);
-  };
-};
+import { useMergedScheptaConfig } from './hooks/use-merged-config';
+import { useScheptaForm } from './hooks/use-schepta-form';
+import { useSchemaValidation } from './hooks/use-schema-validation';
+import { createDebugContext } from './utils/debug';
+import { createFieldRenderer } from './renderers/field-renderer';
+import formSchemaDefinition from '../../src/schemas/form-schema.json';
 
 export interface FormFactoryProps {
   schema: FormSchema;
@@ -90,140 +41,118 @@ export function FormFactory({
   onSubmit,
   debug = false,
 }: FormFactoryProps) {
-  // Get provider config (optional - returns null if no provider)
-  const providerConfig = useScheptaContext();
-  
-  // Merge: provider config as base, local props override
-  const mergedComponents = {
-    ...(providerConfig?.components || {}),
-    ...(components || {}),
-  };
-  const mergedRenderers = {
-    ...(providerConfig?.renderers || {}),
-    ...(renderers || {}),
-  };
-  const mergedExternalContext = {
-    ...(providerConfig?.externalContext || {}),
-    ...(externalContext || {}),
-  };
-  const mergedDebug = debug !== false ? debug : (providerConfig?.debug?.enabled || false);
-  
-  // Template middleware will be created dynamically in getFactorySetup
-  // with current formState, so we just prepare the base middlewares here
-  const baseMiddlewares = [
-    ...(providerConfig?.middlewares || []),
-    ...(middlewares || []),
-  ];
-  
-  const defaultFormContext = useForm({
-    defaultValues: initialValues || buildInitialValuesFromSchema(schema),
+  // Validate schema instance before rendering
+  const validation = useSchemaValidation(schema, {
+    formSchema: formSchemaDefinition,
   });
-  
-  const formContext = providedFormContext || defaultFormContext;
-  const formAdapter = useMemo(
-    () => createReactHookFormAdapter(formContext),
-    [formContext]
-  );
-  
+
+  // Merge provider config with local props
+  const mergedConfig = useMergedScheptaConfig({
+    components,
+    renderers,
+    externalContext,
+    middlewares,
+    debug,
+  });
+
+  // Setup react-hook-form
+  const { formContext, formAdapter, formState } = useScheptaForm(schema, {
+    formContext: providedFormContext,
+    initialValues,
+  });
+
+  // Create runtime adapter
   const runtime = useMemo(() => createReactRuntimeAdapter(), []);
 
-  useEffect(() => {
-    if (initialValues !== undefined) {
-      const defaultValues = {
-        ...buildInitialValuesFromSchema(schema),
-        ...initialValues,
-      };
-      formContext.reset(defaultValues);
-    }
-  }, [formContext, initialValues, schema]);
+  // If schema validation failed, render error UI
+  if (!validation.valid) {
+    return (
+      <div style={{ 
+        padding: '16px', 
+        backgroundColor: '#fff0f0', 
+        border: '1px solid #ffcccc',
+        borderRadius: '4px',
+        fontFamily: 'monospace',
+      }}>
+        <h3 style={{ color: '#cc0000', margin: '0 0 12px 0' }}>
+          Schema Validation Error
+        </h3>
+        <pre style={{ 
+          whiteSpace: 'pre-wrap', 
+          fontSize: '12px',
+          margin: 0,
+          color: '#660000',
+        }}>
+          {validation.formattedErrors}
+        </pre>
+      </div>
+    );
+  }
 
+  // Get root component key from schema
   const rootComponentKey = (schema as any)['x-component'] || 'form-container';
 
-  // Watch form state to trigger re-renders when values change
-  // This ensures template expressions with $formValues are updated
-  // useWatch without arguments watches all fields and triggers re-render on any change
-  const formState = useWatch({
-    control: formContext.control,
-  });
-
+  // Create renderer orchestrator
   const renderer = useMemo(() => {
     const getFactorySetup = (): FactorySetupResult => {
-      // Get current form state (useWatch already provides it, but get fresh copy)
+      // Get current form state
       const currentFormState = formContext.watch();
-      
+
+      // Create debug context
+      const debugContext = createDebugContext(mergedConfig.debug);
+
       // Create custom renderers with field renderer
       const customRenderers = {
-        ...mergedRenderers,
+        ...mergedConfig.renderers,
         field: createFieldRenderer(),
       };
-      
+
       // Create template expression middleware with current form state (always first)
       const templateMiddleware = createTemplateExpressionMiddleware({
-        externalContext: mergedExternalContext,
+        externalContext: mergedConfig.externalContext,
         formState: currentFormState,
-        debug: mergedDebug ? {
-          isEnabled: true,
-          log: (category, message, data) => {
-            console.log(`[${category}]`, message, data);
-          },
-          buffer: {
-            add: (entry) => {},
-            clear: () => {},
-            getAll: () => [],
-          },
-        } : undefined,
+        debug: debugContext,
       });
-      
+
       // Build middlewares: template middleware first, then provider, then local
       const updatedMiddlewares = [
         templateMiddleware,
-        ...baseMiddlewares,
+        ...mergedConfig.baseMiddlewares,
       ];
-      
+
       return {
-        components: mergedComponents,
+        components: mergedConfig.components,
         renderers: customRenderers,
-        externalContext: mergedExternalContext,
+        externalContext: mergedConfig.externalContext,
         state: currentFormState,
         middlewares: updatedMiddlewares,
         onSubmit,
-        debug: mergedDebug ? {
-          isEnabled: true,
-          log: (category, message, data) => {
-            console.log(`[${category}]`, message, data);
-          },
-          buffer: {
-            add: (entry) => {},
-            clear: () => {},
-            getAll: () => [],
-          },
-        } : undefined,
+        debug: debugContext,
         formAdapter,
       };
     };
-    
+
     return createRendererOrchestrator(getFactorySetup, runtime);
-  }, [mergedComponents, mergedRenderers, mergedExternalContext, formContext, mergedDebug, formAdapter, runtime, onSubmit, baseMiddlewares, formState]);
-
-  // Handle submit button click
-  const handleSubmitClick = () => {
-    if (onSubmit) {
-      formContext.handleSubmit(onSubmit)();
-    }
-  };
-
-  const content = (
-    <FormRenderer
-      componentKey={rootComponentKey}
-      schema={schema}
-      renderer={renderer}
-    />
-  );
+  }, [
+    mergedConfig.components,
+    mergedConfig.renderers,
+    mergedConfig.externalContext,
+    mergedConfig.baseMiddlewares,
+    mergedConfig.debug,
+    formContext,
+    formAdapter,
+    runtime,
+    onSubmit,
+    formState, // Include formState to trigger re-renders on form changes
+  ]);
 
   return (
     <FormProvider {...formContext}>
-      {content}
+      <FormRenderer
+        componentKey={rootComponentKey}
+        schema={schema}
+        renderer={renderer}
+      />
     </FormProvider>
   );
 }
-
