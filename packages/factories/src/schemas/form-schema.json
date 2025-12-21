@@ -1,50 +1,29 @@
 {
-    "$id": "form-schema-with-mui-refs",
+    "$id": "form-schema",
     "type": "object",
     "$defs": {
-      "InputCpf": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "string"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component": {
-            "const": "InputCpf"
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiTextFieldProps"
-          }
-        },
-        "additionalProperties": false
-      },
       "FormField": {
         "type": "object",
         "required": [
           "type",
           "x-component",
-          "properties"
+          "properties",
+          "x-ui"
         ],
         "properties": {
           "type": {
             "const": "object"
           },
+          "x-component": {
+            "const": "FormField"
+          },
           "x-ui": {
             "type": "object",
+            "required": ["order"],
             "properties": {
               "order": {
-                "type": "integer"
+                "type": "integer",
+                "description": "Order of the field in the form (lower values appear first)"
               }
             },
             "additionalProperties": false
@@ -68,9 +47,6 @@
                     "$ref": "#/$defs/DatePicker"
                   },
                   {
-                    "$ref": "#/$defs/InputCpf"
-                  },
-                  {
                     "$ref": "#/$defs/InputPhone"
                   },
                   {
@@ -81,11 +57,9 @@
             },
             "additionalProperties": false
           },
-          "x-component": {
-            "const": "FormField"
-          },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiGridProps"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "description": "FormField wrapper (Grid) reutilizável para qualquer tipo de input",
@@ -113,7 +87,12 @@
             "additionalProperties": true
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiTextFieldProps"
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "placeholder": { "type": "string" }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -140,7 +119,12 @@
             "additionalProperties": true
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiDatePickerProps"
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "placeholder": { "type": "string" }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -167,7 +151,12 @@
             "additionalProperties": true
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiTextFieldProps"
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "placeholder": { "type": "string" }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -194,7 +183,12 @@
             "additionalProperties": true
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiSelectProps"
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "placeholder": { "type": "string" }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -221,7 +215,12 @@
             "additionalProperties": true
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiCheckboxProps"
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "placeholder": { "type": "string" }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -250,7 +249,8 @@
             "const": "FormSectionGroup"
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiGridProps"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -276,7 +276,8 @@
             "const": "FormSectionTitle"
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiTypographyProps"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -303,7 +304,12 @@
             "additionalProperties": true
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiAutocompleteProps"
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "placeholder": { "type": "string" }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -313,7 +319,8 @@
         "required": [
           "type",
           "x-component",
-          "properties"
+          "properties",
+          "x-ui"
         ],
         "properties": {
           "type": {
@@ -321,9 +328,11 @@
           },
           "x-ui": {
             "type": "object",
+            "required": ["order"],
             "properties": {
               "order": {
-                "type": "integer"
+                "type": "integer",
+                "description": "Order of the section in the form (lower values appear first)"
               }
             },
             "additionalProperties": false
@@ -348,7 +357,8 @@
             "const": "FormSectionContainer"
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiGridProps"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -377,13 +387,14 @@
             "const": "FormSectionGroupContainer"
           },
           "x-component-props": {
-            "$ref": "ctx://mui_props/data#/$defs/MuiGridProps"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
       }
     },
-    "title": "Form Schema - Com Referências ao MUI Props Schema",
+    "title": "Form Schema",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "required": [
       "$id",
@@ -394,6 +405,9 @@
     "properties": {
       "$id": {
         "type": "string"
+      },
+      "$schema": {
+      "type": "string"
       },
       "type": {
         "const": "object"
@@ -408,9 +422,9 @@
         "additionalProperties": false
       },
       "x-component": {
-        "type": "string"
+        "const": "form-container"
       }
     },
-    "description": "Schema de formulário que referencia definições MUI externas",
+    "description": "Schema de formulário",
     "additionalProperties": false
   }
