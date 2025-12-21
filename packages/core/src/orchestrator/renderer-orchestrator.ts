@@ -164,7 +164,8 @@ export function createRendererOrchestrator(
       ...(isFieldComponent && currentName ? { name: currentName } : {}),
       ...(Object.keys(componentProps).length > 0 ? { 'x-component-props': componentProps } : {}),
       // Extract x-ui props if present (already processed)
-      ...(processedSchema['x-ui'] || {}),
+      // ...(processedSchema['x-ui'] || {}),
+      'x-ui': processedSchema['x-ui'],
       // Extract x-content if present (for content components, already processed)
       ...(processedSchema['x-content'] ? { 'x-content': processedSchema['x-content'] } : {}),
       // Pass externalContext so components can access it (user, api, etc.)
@@ -192,8 +193,17 @@ export function createRendererOrchestrator(
         // Pass currentName to children (fields will add their key, containers will just pass it through)
         ...(currentName !== undefined ? { name: currentName } : {}),
       };
+
+      // Sort children by x-ui.order (lower values first, undefined goes last)
+      const sortedEntries = Object.entries(processedSchema.properties).sort(
+        ([, a], [, b]) => {
+          const orderA = (a as any)?.['x-ui']?.order ?? Infinity;
+          const orderB = (b as any)?.['x-ui']?.order ?? Infinity;
+          return orderA - orderB;
+        }
+      );
       
-      for (const [key, childSchema] of Object.entries(processedSchema.properties)) {
+      for (const [key, childSchema] of sortedEntries) {
         // If this component is the root (form-container) and has no name, 
         // then its direct children are root properties and should be included in name path
         const isChildRootProperty = !parentProps.name && componentKey === 'form-container';
