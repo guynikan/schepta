@@ -5,6 +5,7 @@ dist
 coverage
 .turbo
 .npmrc
+package-lock.json
 
 # VitePress cache
 docs/.vitepress/cache
