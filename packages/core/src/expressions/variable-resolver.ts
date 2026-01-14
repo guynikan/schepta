@@ -44,9 +44,9 @@ function resolveNestedPath(path: string, obj: any): any {
   let current = obj;
 
   for (const part of parts) {
-    // if (current === null || current === undefined) {
-    //   return undefined;
-    // }
+    if (current === null || current === undefined) {
+      return undefined;
+    }
     current = current[part];
   }
 
