@@ -1,12 +1,10 @@
 import { FormFactory } from "@schepta/factory-react";
-import { components } from "../../ComponentRegistry";
+import { components } from "./ComponentRegistry";
 import { useState } from "react";
 import React from "react";
 import { FormSchema } from "@schepta/core";
-import simpleFormSchema from "../../../../../../instances/form/simple-form.json";
 
-export const SimpleForm = () => {
-  const schema = simpleFormSchema as FormSchema;
+export const Form = ({ schema }: { schema: FormSchema }) => {
   const [submittedValues, setSubmittedValues] = useState<any>(null);
 
   const handleSubmit = (values: any) => {

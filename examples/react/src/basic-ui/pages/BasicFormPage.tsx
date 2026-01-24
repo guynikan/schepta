@@ -1,6 +1,9 @@
 import React, { useState } from "react";
-import { SimpleForm } from "../components/Forms/SimpleForm";
 import { Tab, Tabs, Box, Paper } from "@mui/material";
+import simpleFormSchema from "../../../../../instances/form/simple-form.json";
+import complexFormSchema from "../../../../../instances/form/complex-form.json";
+import { FormSchema } from "@schepta/core";
+import { Form } from "../components/Form";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -26,6 +29,8 @@ function TabPanel(props: TabPanelProps) {
 
 export function BasicFormPage() {
   const [tabValue, setTabValue] = useState(0);
+  const simpleSchema = simpleFormSchema as FormSchema;
+  const complexSchema = complexFormSchema as FormSchema;
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -42,10 +47,10 @@ export function BasicFormPage() {
         </Tabs>
         
         <TabPanel value={tabValue} index={0}>
-          <SimpleForm />
+          <Form schema={simpleSchema} />
         </TabPanel>
         <TabPanel value={tabValue} index={1}>
-          <p>Complex Form</p>
+          <Form schema={complexSchema} />
         </TabPanel>
         <TabPanel value={tabValue} index={2}>
           <p>Provider Example</p>
