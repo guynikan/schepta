@@ -1,10 +1,16 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 import { BasicFormPage } from "./basic-ui/pages/BasicFormPage";
 import { ChakraFormPage } from "./chakra-ui/pages/ChakraFormPage";
 import { MaterialFormPage } from "./material-ui/pages/MaterialFormPage";
-import { FaReact } from 'react-icons/fa';
-import { SiChakraui, SiMui } from 'react-icons/si';
+import { FaReact } from "react-icons/fa";
+import { SiChakraui, SiMui } from "react-icons/si";
 import {
   AppBar,
   Toolbar,
@@ -13,12 +19,14 @@ import {
   Container,
   Tabs,
   Tab,
-} from '@mui/material';
+} from "@mui/material";
+import { ScheptaProvider } from "@schepta/adapter-react";
+import { components } from "./basic-ui/components/ComponentRegistry";
 
 const navigationItems = [
-  { path: '/basic', label: 'Basic Examples', icon: <FaReact /> },
-  { path: '/chakra-ui', label: 'Chakra UI Examples', icon: <SiChakraui /> },
-  { path: '/material-ui', label: 'Material UI Examples', icon: <SiMui /> },
+  { path: "/basic", label: "Basic Examples", icon: <FaReact /> },
+  { path: "/chakra-ui", label: "Chakra UI Examples", icon: <SiChakraui /> },
+  { path: "/material-ui", label: "Material UI Examples", icon: <SiMui /> },
 ];
 
 function Header() {
@@ -26,7 +34,10 @@ function Header() {
   const currentPath = location.pathname;
 
   return (
-    <AppBar position="static" color="primary">
+    <AppBar
+      position="static"
+      color="primary"
+    >
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <Typography
@@ -40,17 +51,17 @@ function Header() {
           >
             Schepta React Examples
           </Typography>
-          
+
           <Box sx={{ flexGrow: 1 }}>
             <Tabs
               value={currentPath}
               textColor="inherit"
               indicatorColor="secondary"
               sx={{
-                '& .MuiTab-root': {
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  '&.Mui-selected': {
-                    color: 'white',
+                "& .MuiTab-root": {
+                  color: "rgba(255, 255, 255, 0.7)",
+                  "&.Mui-selected": {
+                    color: "white",
                   },
                 },
               }}
@@ -59,7 +70,7 @@ function Header() {
                 <Tab
                   key={item.path}
                   label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       {item.label}
                       {item.icon}
                     </Box>
@@ -78,21 +89,51 @@ function Header() {
 }
 
 function App() {
+  const labelMiddleware = (props: any) => {
+    if (props.label) {
+      return { ...props, label: `[Provider] ${props.label}` };
+    }
+    return props;
+  };
+
   return (
-    <BrowserRouter>
-      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-        <Header />
-        
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          <Routes>
-            <Route path="/basic" element={<BasicFormPage />} />
-            <Route path="/chakra-ui" element={<ChakraFormPage />} />
-            <Route path="/material-ui" element={<MaterialFormPage />} />
-            <Route path="/" element={<BasicFormPage />} />
-          </Routes>
-        </Container>
-      </Box>
-    </BrowserRouter>
+    <ScheptaProvider components={components}
+        middlewares={[labelMiddleware]}
+        externalContext={{
+          user: { id: 1, name: 'Provider User' },
+          api: 'https://api.example.com',
+        }}
+    >
+      <BrowserRouter>
+        <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+          <Header />
+
+          <Container
+            maxWidth="lg"
+            sx={{ py: 4 }}
+          >
+            <Routes>
+              <Route
+                path="/basic"
+                element={<BasicFormPage />}
+              />
+              <Route
+                path="/chakra-ui"
+                element={<ChakraFormPage />}
+              />
+              <Route
+                path="/material-ui"
+                element={<MaterialFormPage />}
+              />
+              <Route
+                path="/"
+                element={<BasicFormPage />}
+              />
+            </Routes>
+          </Container>
+        </Box>
+      </BrowserRouter>
+    </ScheptaProvider>
   );
 }
 
