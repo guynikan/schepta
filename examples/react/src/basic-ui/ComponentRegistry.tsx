@@ -1,12 +1,17 @@
 import { createComponentSpec } from "@schepta/core";
-import { FormContainer, FormField, FormSectionContainer, FormSectionTitle, FormSectionGroup, FormSectionGroupContainer } from "./components/FormComponents";
-import { InputText } from "./components/FormComponents";
-import { InputSelect } from "./components/FormComponents";
-import { InputCheckbox } from "./components/FormComponents";
-import { InputTextarea } from "./components/FormComponents";
-import { InputNumber } from "./components/FormComponents";
-import { InputDate } from "./components/FormComponents";
-import { SubmitButton } from "./components/FormComponents";
+import { InputText } from "./components/Inputs/InputText";
+import { InputSelect } from "./components/Inputs/InputSelect";
+import { InputCheckbox } from "./components/Inputs/InputCheckbox";
+import { InputTextarea } from "./components/Inputs/InputTextarea";
+import { InputNumber } from "./components/Inputs/InputNumber";
+import { InputDate } from "./components/Inputs/InputDate";
+import { SubmitButton } from "./components/SubmitButton";
+import { FormContainer } from "./components/Containers/FormContainer";
+import { FormField } from "./components/Containers/FormField";
+import { FormSectionContainer } from "./components/Containers/FormSectionContainer";
+import { FormSectionTitle } from "./components/Containers/FormSectionTitle";
+import { FormSectionGroupContainer } from "./components/Containers/FormSectionGroupContainer";
+import { FormSectionGroup } from "./components/Containers/FormSectionGroup";
 
 export const components = {
   'form-container': createComponentSpec({
