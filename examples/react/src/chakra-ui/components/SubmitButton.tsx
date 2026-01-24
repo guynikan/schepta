@@ -1,10 +1,18 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { Box, Button } from "@chakra-ui/react";
+import type { SubmitButtonProps } from "@schepta/factory-react";
 
-export const SubmitButton = ({ children, 'x-content': content, externalContext, ...props }: any) => {
-    const { handleSubmit } = useFormContext();
-    const onSubmit = externalContext?.onSubmit;
+export const SubmitButton: React.FC<SubmitButtonProps> = ({
+  children,
+  "x-content": content,
+  onSubmit: onSubmitProp,
+  externalContext,
+  ...props
+}) => {
+  const { handleSubmit } = useFormContext();
+  // FormFactory passes onSubmit directly; fallback to externalContext for schema-driven usage
+  const onSubmit = onSubmitProp ?? externalContext?.onSubmit;
     
     const handleClick = (e: React.MouseEvent) => {
       e.preventDefault();
