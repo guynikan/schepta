@@ -5,7 +5,13 @@
  */
 
 // Main factory
-export * from './form-factory';
+export {
+  FormFactory,
+  type FormFactoryProps,
+  type FormFactoryRef,
+  type SubmitButtonProps,
+  type SubmitButtonComponentType,
+} from './form-factory';
 
 // Hooks (for advanced usage)
 export * from './hooks';
