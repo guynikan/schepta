@@ -4,28 +4,7 @@ import simpleFormSchema from "../../../../../instances/form/simple-form.json";
 import complexFormSchema from "../../../../../instances/form/complex-form.json";
 import { FormSchema } from "@schepta/core";
 import { Form } from "../components/Form";
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`tabpanel-${index}`}
-      aria-labelledby={`tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
-    </div>
-  );
-}
+import { TabPanel } from "../../material-ui/pages/MaterialFormPage";
 
 export function BasicFormPage() {
   const [tabValue, setTabValue] = useState(0);
