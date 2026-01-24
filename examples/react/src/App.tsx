@@ -1,109 +1,140 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import simpleFormSchema from '../../../instances/form/simple-form.json';
-import complexFormSchema from '../../../instances/form/complex-form.json';
-import { ProviderExample } from './ProviderExample';
-import { ExpressionExample } from './ExpressionExample';
-import { components } from './componentRegistry';
-import { FormFactory } from '../../../packages/factories/react/src/form-factory';
+import React from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
+import { BasicFormPage } from "./basic-ui/pages/BasicFormPage";
+import { ChakraFormPage } from "./chakra-ui/pages/ChakraFormPage";
+import { MaterialFormPage } from "./material-ui/pages/MaterialFormPage";
+import { FaReact } from "react-icons/fa";
+import { SiChakraui, SiMui } from "react-icons/si";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Container,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import { ScheptaProvider } from "@schepta/adapter-react";
+import { components } from "./basic-ui/components/ComponentRegistry";
 
-function FormPage({ schema }: { schema: any }) {
-  const [submittedValues, setSubmittedValues] = useState<any>(null);
+const navigationItems = [
+  { path: "/basic", label: "Basic Examples", icon: <FaReact /> },
+  { path: "/chakra-ui", label: "Chakra UI Examples", icon: <SiChakraui /> },
+  { path: "/material-ui", label: "Material UI Examples", icon: <SiMui /> },
+];
 
-  const handleSubmit = (values: any) => {
-    console.log('Form submitted:', values);
-    setSubmittedValues(values);
-  };
+function Header() {
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   return (
-    <>
-      <div style={{ border: '1px solid #ddd', padding: '24px', borderRadius: '8px' }}>
-        <FormFactory
-          schema={schema}
-          components={components}
-          onSubmit={handleSubmit}
-          debug={true}
-        />
-      </div>
+    <AppBar
+      position="static"
+      color="primary"
+    >
+      <Container maxWidth="lg">
+        <Toolbar disableGutters>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{
+              flexGrow: 0,
+              mr: 4,
+              fontWeight: 700,
+            }}
+          >
+            Schepta React Examples
+          </Typography>
 
-      {submittedValues && (
-        <div style={{
-          marginTop: '24px',
-          padding: '16px',
-          background: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px'
-        }}>
-          <h3 style={{ marginTop: 0 }}>Valores Submetidos:</h3>
-          <pre style={{
-            background: 'white',
-            padding: '12px',
-            borderRadius: '4px',
-            overflow: 'auto',
-            fontSize: '13px'
-          }}>
-            {JSON.stringify(submittedValues, null, 2)}
-          </pre>
-          <p style={{
-            marginTop: '12px',
-            padding: '8px 12px',
-            background: '#eff6ff',
-            borderLeft: '3px solid #3b82f6',
-            borderRadius: '4px',
-            fontSize: '13px',
-            color: '#1e40af'
-          }}>
-            💡 Os valores também estão disponíveis no console do navegador (F12)
-          </p>
-        </div>
-      )}
-    </>
+          <Box sx={{ flexGrow: 1 }}>
+            <Tabs
+              value={currentPath}
+              textColor="inherit"
+              indicatorColor="secondary"
+              sx={{
+                "& .MuiTab-root": {
+                  color: "rgba(255, 255, 255, 0.7)",
+                  "&.Mui-selected": {
+                    color: "white",
+                  },
+                },
+              }}
+            >
+              {navigationItems.map((item) => (
+                <Tab
+                  key={item.path}
+                  label={
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      {item.label}
+                      {item.icon}
+                    </Box>
+                  }
+                  value={item.path}
+                  component={Link}
+                  to={item.path}
+                />
+              ))}
+            </Tabs>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
 
 function App() {
-  return (
-    <BrowserRouter>
-      <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
-        <h1>schepta React Example</h1>
-        
-        <div style={{ marginBottom: '24px' }}>
-          <Link 
-            to="/"
-            style={{ marginRight: '8px', padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
-          >
-            Simple Form
-          </Link>
-          <Link 
-            to="/complex"
-            style={{ marginRight: '8px', padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
-          >
-            Complex Form
-          </Link>
-          <Link 
-            to="/provider"
-            style={{ marginRight: '8px', padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
-          >
-            Provider Example
-          </Link>
-          <Link 
-            to="/expressions"
-            style={{ padding: '8px 16px', textDecoration: 'none', border: '1px solid #ccc', borderRadius: '4px', display: 'inline-block' }}
-          >
-            Expressions Example
-          </Link>
-        </div>
+  const labelMiddleware = (props: any) => {
+    if (props.label) {
+      return { ...props, label: `[Provider] ${props.label}` };
+    }
+    return props;
+  };
 
-        <Routes>
-          <Route path="/" element={<FormPage schema={simpleFormSchema} />} />
-          <Route path="/complex" element={<FormPage schema={complexFormSchema} />} />
-                <Route path="/provider" element={<ProviderExample />} />
-                <Route path="/expressions" element={<ExpressionExample />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+  return (
+    <ScheptaProvider components={components}
+        middlewares={[labelMiddleware]}
+        externalContext={{
+          user: { id: 1, name: 'Provider User' },
+          api: 'https://api.example.com',
+        }}
+    >
+      <BrowserRouter>
+        <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+          <Header />
+
+          <Container
+            maxWidth="lg"
+            sx={{ py: 4 }}
+          >
+            <Routes>
+              <Route
+                path="/basic"
+                element={<BasicFormPage />}
+              />
+              <Route
+                path="/chakra-ui"
+                element={<ChakraFormPage />}
+              />
+              <Route
+                path="/material-ui"
+                element={<MaterialFormPage />}
+              />
+              <Route
+                path="/"
+                element={<BasicFormPage />}
+              />
+            </Routes>
+          </Container>
+        </Box>
+      </BrowserRouter>
+    </ScheptaProvider>
   );
 }
 
 export default App;
-
