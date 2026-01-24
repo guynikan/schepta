@@ -51,7 +51,7 @@ export function createFormFactory(options: FormFactoryOptions) {
       middlewares: mergedMiddlewares,
       debug: mergedDebug ? {
         isEnabled: true,
-        log: (category, message, data) => {
+        log: (category: string, message: string, data?: any) => {
           console.log(`[${category}]`, message, data);
         },
         buffer: {
