@@ -96,6 +96,18 @@ importers:
 
   examples/react:
     dependencies:
+      '@chakra-ui/react':
+        specifier: ^2.8.2
+        version: 2.10.9(@emotion/react@11.14.0)(@emotion/styled@11.14.1)(@types/react@18.3.27)(framer-motion@10.18.0)(react-dom@18.3.1)(react@18.3.1)
+      '@emotion/react':
+        specifier: ^11.11.1
+        version: 11.14.0(@types/react@18.3.27)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.11.0
+        version: 11.14.1(@emotion/react@11.14.0)(@types/react@18.3.27)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.0
+        version: 5.18.0(@emotion/react@11.14.0)(@emotion/styled@11.14.1)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)
       '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../../packages/adapters/react
@@ -105,6 +117,9 @@ importers:
       '@schepta/factory-react':
         specifier: workspace:*
         version: link:../../packages/factories/react
+      framer-motion:
+        specifier: ^10.16.16
+        version: 10.18.0(react-dom@18.3.1)(react@18.3.1)
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -114,6 +129,9 @@ importers:
       react-hook-form:
         specifier: ^7.52.2
         version: 7.68.0(react@18.3.1)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@18.3.1)
       react-router-dom:
         specifier: ^6.21.0
         version: 6.30.2(react-dom@18.3.1)(react@18.3.1)
@@ -4568,6 +4586,14 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
+    dependencies:
+      react: 18.3.1
+    dev: false
+
+  /react-icons@5.5.0(react@18.3.1):
+    resolution: {integrity: sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==}
+    peerDependencies:
+      react: '*'
     dependencies:
       react: 18.3.1
     dev: false
