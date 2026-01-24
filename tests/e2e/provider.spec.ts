@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Only run provider tests for React (provider example is only in React until we have a provider example for other frameworks)
+// TODO: atualizar test pois nao temos mais um exemplo direto de provider, agora ele circunda tudo
 test.describe('Provider E2E Tests', () => {
   test.use({ 
     // @ts-ignore - project is a valid option in Playwright config
