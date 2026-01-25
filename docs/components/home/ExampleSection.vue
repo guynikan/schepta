@@ -22,7 +22,7 @@ const example = computed(() => frontmatter.value.example || {});
 
 const codeExample = `{
   "type": "object",
-  "x-component": "form-container",
+  "x-component": "FormContainer",
   "properties": {
     "email": {
       "type": "string",

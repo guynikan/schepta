@@ -85,9 +85,11 @@ export type FieldComponent =
   | InputText
   | InputSelect
   | InputCheckbox
-  | DatePicker
+  | InputDate
   | InputCpf
   | InputPhone
+  | InputTextarea
+  | InputNumber
   | InputAutocomplete;
 
 /**
@@ -117,9 +119,9 @@ export interface InputCheckbox extends BaseSchemaProperty {
 /**
  * Date picker
  */
-export interface DatePicker extends BaseSchemaProperty {
+export interface InputDate extends BaseSchemaProperty {
   type: 'string';
-  'x-component': 'DatePicker';
+  'x-component': 'InputDate';
 }
 
 /**
@@ -144,6 +146,22 @@ export interface InputPhone extends BaseSchemaProperty {
 export interface InputAutocomplete extends BaseSchemaProperty {
   type: 'string';
   'x-component': 'InputAutocomplete';
+}
+
+/**
+ * Input textarea
+ */
+export interface InputTextarea extends BaseSchemaProperty {
+  type: 'string';
+  'x-component': 'InputTextarea';
+}
+
+/**
+ * Input number
+ */
+export interface InputNumber extends BaseSchemaProperty {
+  type: 'number';
+  'x-component': 'InputNumber';
 }
 
 /**

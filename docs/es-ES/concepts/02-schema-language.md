@@ -114,7 +114,7 @@
 ```json
 {
   "type": "object",
-  "x-component": "form-container",
+  "x-component": "FormContainer",
   "properties": {
     "fieldKey1": { /* field schema */ },
     "fieldKey2": { /* field schema */ }

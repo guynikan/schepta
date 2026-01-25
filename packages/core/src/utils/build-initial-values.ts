@@ -52,8 +52,10 @@ function getDefaultValueForComponent(component: string): any {
     case 'InputText':
     case 'InputCpf':
     case 'InputPhone':
-    case 'DatePicker':
+    case 'InputDate':
     case 'InputAutocomplete':
+    case 'InputTextarea':
+    case 'InputNumber':
       return '';
     case 'SelectMultiple':
       return [];

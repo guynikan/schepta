@@ -8,7 +8,7 @@ export const FormContainer = ({ children, onSubmit, externalContext, ...props }:
     return (
       <form 
         onSubmit={onSubmit ? handleSubmit(onSubmit) : undefined}
-        data-test-id="form-container"
+        data-test-id="FormContainer"
         {...props}
       >
         {children}

@@ -12,7 +12,7 @@ import {
 
 // Global components from provider
 export const globalComponents = {
-  'form-container': createComponentSpec({ id: 'form-container', type: 'form-container', factory: (props, runtime) => FormContainer }),
+  'FormContainer': createComponentSpec({ id: 'FormContainer', type: 'FormContainer', factory: (props, runtime) => FormContainer }),
   InputText: createComponentSpec({ id: 'InputText', type: 'field', factory: (props, runtime) => InputText }),
   FormField: createComponentSpec({ id: 'FormField', type: 'container', factory: (props, runtime) => FormField }),
   FormSectionContainer: createComponentSpec({ id: 'FormSectionContainer', type: 'container', factory: (props, runtime) => FormSectionContainer }),

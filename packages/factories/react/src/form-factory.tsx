@@ -185,7 +185,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
   }
 
   // Get root component key from schema
-  const rootComponentKey = (schema as any)['x-component'] || 'form-container';
+  const rootComponentKey = (schema as any)['x-component'] || 'FormContainer';
 
   // Resolve SubmitButton component from registry (provider or local) or use default
   const SubmitButtonComponent = useMemo((): SubmitButtonComponentType => {

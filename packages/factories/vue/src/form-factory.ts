@@ -237,7 +237,7 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
         createRendererOrchestrator(getFactorySetup, runtime.value)
       );
 
-      const rootComponentKey = computed(() => (props.schema as any)['x-component'] || 'form-container');
+      const rootComponentKey = computed(() => (props.schema as any)['x-component'] || 'FormContainer');
 
       // Resolve SubmitButton component from registry (provider or local) or use default
       const SubmitButtonComponent = computed(() => {
