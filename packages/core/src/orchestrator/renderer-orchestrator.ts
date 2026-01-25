@@ -145,7 +145,7 @@ export function createRendererOrchestrator(
     // Construct name path for nested fields
     // ONLY components with type: 'field' are included in the name path
     // EXCEPTION: componentKeys that are direct properties of root schema (isDirectRootProperty)
-    // All other components (containers, form-container, content, etc.) are ignored
+    // All other components (containers, FormContainer, content, etc.) are ignored
     const componentType = renderSpec.type || 'field';
     const isFieldComponent = componentType === 'field';
     
@@ -204,9 +204,9 @@ export function createRendererOrchestrator(
       );
       
       for (const [key, childSchema] of sortedEntries) {
-        // If this component is the root (form-container) and has no name, 
+        // If this component is the root (FormContainer) and has no name, 
         // then its direct children are root properties and should be included in name path
-        const isChildRootProperty = !parentProps.name && componentKey === 'form-container';
+        const isChildRootProperty = !parentProps.name && componentKey === 'FormContainer';
         const childResult = render(key, childSchema as any, childParentProps, namePath, isChildRootProperty);
         if (childResult !== null && childResult !== undefined) {
           children.push(childResult);

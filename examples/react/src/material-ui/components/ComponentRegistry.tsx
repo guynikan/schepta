@@ -14,9 +14,9 @@ import { FormSectionGroupContainer } from "./Containers/FormSectionGroupContaine
 import { FormSectionGroup } from "./Containers/FormSectionGroup";
 
 export const components = {
-  'form-container': createComponentSpec({
-    id: "form-container",
-    type: "form-container",
+  'FormContainer': createComponentSpec({
+    id: "FormContainer",
+    type: "FormContainer",
     factory: (props, runtime) => FormContainer,
   }),
   InputText: createComponentSpec({

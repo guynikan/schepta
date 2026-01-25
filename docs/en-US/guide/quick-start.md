@@ -72,7 +72,7 @@ schepta supports several component types:
 - **`field`** - Input fields (text, select, checkbox, etc.)
 - **`container`** - Container components (FormField, FormSection, etc.)
 - **`content`** - Content components (titles, buttons, etc.)
-- **`form-container`** - Root form container
+- **`FormContainer`** - Root form container
 
 ### Creating Component Specs
 
@@ -163,9 +163,9 @@ const FormContainer = ({ children, ...props }: any) => {
 
 // Register all components using createComponentSpec
 export const globalComponents = {
-  'form-container': createComponentSpec({
-    id: 'form-container',
-    type: 'form-container',
+  'FormContainer': createComponentSpec({
+    id: 'FormContainer',
+    type: 'FormContainer',
     factory: (props, runtime) => FormContainer,
   }),
   InputText: createComponentSpec({
@@ -207,7 +207,7 @@ Now let's create a complete example combining everything:
   "$schema": "../../packages/factories/src/schemas/form-schema.json",
   "$id": "my-first-form",
   "type": "object",
-  "x-component": "form-container",
+  "x-component": "FormContainer",
   "properties": {
     "personalInfo": {
       "type": "object",

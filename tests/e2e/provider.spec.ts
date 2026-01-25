@@ -17,7 +17,7 @@ test.describe('Provider E2E Tests', () => {
     await page.waitForSelector('[data-test-id*="firstName"]', { timeout: 10000 });
     
     // Verify form container exists (from provider)
-    const formContainer = page.locator('[data-test-id="form-container"]');
+    const formContainer = page.locator('[data-test-id="FormContainer"]');
     await expect(formContainer).toBeVisible();
     
     // Verify form fields are present (components from provider)

@@ -95,13 +95,13 @@ describe('Provider Utilities', () => {
 
     it('should use local schema if provided, otherwise global', () => {
       const global: ProviderConfig = {
-        schema: { type: 'object', 'x-component': 'form-container', properties: {} } as FormSchema,
+        schema: { type: 'object', 'x-component': 'FormContainer', properties: {} } as FormSchema,
       };
 
       const local: ProviderConfig = {
         schema: { 
           type: 'object', 
-          'x-component': 'form-container', 
+          'x-component': 'FormContainer', 
           properties: { 
             test: { 
               type: 'object', 

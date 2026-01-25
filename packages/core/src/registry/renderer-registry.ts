@@ -43,7 +43,7 @@ export const defaultTypeRenderers: Record<ComponentType, RendererFn> = {
       : sanitized;
     return runtime.create(spec, propsWithChildren);
   },
-  'form-container': (spec, props, runtime, children) => {
+  'FormContainer': (spec, props, runtime, children) => {
     const sanitized = sanitizePropsForDOM(props);
     const propsWithChildren = children && children.length > 0 
       ? { ...sanitized, children }
