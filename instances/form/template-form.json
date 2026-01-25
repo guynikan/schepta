@@ -2,10 +2,13 @@
   "$schema": "../../packages/factories/src/schemas/form-schema.json",
   "$id": "template-form",
   "type": "object",
-  "x-component": "form-container",
+  "x-component": "FormContainer",
   "properties": {
     "personalInfo": {
       "type": "object",
+      "x-ui": {
+        "order": 1
+      },
       "x-component": "FormSectionContainer",
       "properties": {
         "title": {
@@ -27,11 +30,14 @@
                 "firstName": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 1
+                  },
                   "properties": {
                     "firstName": {
                       "type": "string",
                       "x-component": "InputText",
-                      "x-ui": {
+                      "x-component-props": {
                         "label": "{{ $externalContext.user.name }}",
                         "placeholder": "Enter your first name"
                       },
@@ -44,11 +50,14 @@
                 "lastName": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 2
+                  },
                   "properties": {
                     "lastName": {
                       "type": "string",
                       "x-component": "InputText",
-                      "x-ui": {
+                      "x-component-props": {
                         "label": "Last Name",
                         "placeholder": "Enter {{ $externalContext.fieldName }}"
                       },
@@ -66,25 +75,40 @@
     },
     "email": {
       "type": "object",
+      "x-ui": {
+        "order": 2
+      },
       "x-component": "FormSectionContainer",
       "properties": {
         "fields": {
           "type": "object",
           "x-component": "FormSectionGroupContainer",
           "properties": {
-            "email": {
+            "emailGroup": {
               "type": "object",
-              "x-component": "FormField",
+              "x-component": "FormSectionGroup",
+              "x-component-props": {
+                "columns": "1fr"
+              },
               "properties": {
                 "email": {
-                  "type": "string",
-                  "x-component": "InputText",
+                  "type": "object",
+                  "x-component": "FormField",
                   "x-ui": {
-                    "label": "Email",
-                    "placeholder": "Enter email for {{ $formState.personalInfo.firstName }}"
+                    "order": 1
                   },
-                  "x-rules": {
-                    "required": false
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-component-props": {
+                        "label": "Email",
+                        "placeholder": "Enter email for {{ $formState.personalInfo.firstName }}"
+                      },
+                      "x-rules": {
+                        "required": false
+                      }
+                    }
                   }
                 }
               }
@@ -92,12 +116,6 @@
           }
         }
       }
-    },
-    "submit": {
-      "type": "object",
-      "x-component": "SubmitButton",
-      "x-content": "Submit Form"
     }
   }
 }
-
