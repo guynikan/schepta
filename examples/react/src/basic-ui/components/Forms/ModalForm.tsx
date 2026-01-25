@@ -13,7 +13,7 @@ interface FormModalProps {
  * The form is rendered in a modal-like structure where the submit button
  * is outside the FormFactory component (in the footer).
  */
-export const FormModal = ({ schema, onSubmit }: FormModalProps) => {
+export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
   const formRef = useRef<FormFactoryRef>(null);
   const [submittedValues, setSubmittedValues] = useState<Record<string, any> | null>(null);
   const [isOpen, setIsOpen] = useState(false);

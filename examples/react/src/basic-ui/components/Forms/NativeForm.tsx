@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { FormFactory } from "@schepta/factory-react";
+import { FormFactory } from '@schepta/factory-react';
 import { FormSchema } from "@schepta/core";
 
 interface FormProps {
   schema: FormSchema;
 }
 
-export const Form = ({ schema }: FormProps) => {
+export const NativeForm = ({ schema }: FormProps) => {
   const [submittedValues, setSubmittedValues] = useState<Record<string, any> | null>(null);
 
   const handleSubmit = (values: Record<string, any>) => {

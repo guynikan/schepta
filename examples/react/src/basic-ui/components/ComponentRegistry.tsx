@@ -5,8 +5,6 @@ import { InputCheckbox } from "./Inputs/InputCheckbox";
 import { InputTextarea } from "./Inputs/InputTextarea";
 import { InputNumber } from "./Inputs/InputNumber";
 import { InputDate } from "./Inputs/InputDate";
-import { SubmitButton } from "./SubmitButton";
-import { FormContainer } from "./Containers/FormContainer";
 import { FormField } from "./Containers/FormField";
 import { FormSectionContainer } from "./Containers/FormSectionContainer";
 import { FormSectionTitle } from "./Containers/FormSectionTitle";
@@ -14,11 +12,6 @@ import { FormSectionGroupContainer } from "./Containers/FormSectionGroupContaine
 import { FormSectionGroup } from "./Containers/FormSectionGroup";
 
 export const components = {
-  'FormContainer': createComponentSpec({
-    id: "FormContainer",
-    type: "FormContainer",
-    factory: (props, runtime) => FormContainer,
-  }),
   InputText: createComponentSpec({
     id: "InputText",
     type: "field",
@@ -54,11 +47,6 @@ export const components = {
     id: "InputDate",
     type: "field",
     factory: (props, runtime) => InputDate,
-  }),
-  SubmitButton: createComponentSpec({
-    id: "SubmitButton",
-    type: 'content',
-    factory: (props, runtime) => SubmitButton,
   }),
   FormField: createComponentSpec({
     id: "FormField",
