@@ -6,9 +6,31 @@ import type { FormSchema, ComponentSpec, FactorySetupResult, FormAdapter } from 
 import { createVanillaRuntimeAdapter } from '@schepta/adapter-vanilla';
 import { createVanillaFormAdapter } from '@schepta/adapter-vanilla';
 import { getScheptaContext } from '@schepta/adapter-vanilla';
-import { createRendererOrchestrator } from '@schepta/core';
+import { 
+  createRendererOrchestrator,
+  setFactoryDefaultComponents,
+  createComponentSpec,
+} from '@schepta/core';
 import { buildInitialValuesFromSchema } from '@schepta/core';
 import { renderForm } from './form-renderer';
+import { 
+  createDefaultFormContainer, 
+  createDefaultSubmitButton
+} from './components';
+
+// Register factory default components (called once on module load)
+setFactoryDefaultComponents({
+  FormContainer: createComponentSpec({
+    id: 'FormContainer',
+    type: 'FormContainer',
+    factory: () => createDefaultFormContainer,
+  }),
+  SubmitButton: createComponentSpec({
+    id: 'SubmitButton',
+    type: 'content',
+    factory: () => createDefaultSubmitButton,
+  }),
+});
 
 export interface FormFactoryOptions {
   schema: FormSchema;
@@ -37,32 +59,6 @@ export interface FormFactoryResult {
   destroy: () => void;
 }
 
-/**
- * Creates a default submit button element
- */
-function createDefaultSubmitButton(onClick: () => void): HTMLElement {
-  const container = document.createElement('div');
-  container.style.marginTop = '24px';
-  container.style.textAlign = 'right';
-
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = 'Submit';
-  button.dataset.testId = 'submit-button';
-  button.style.padding = '12px 24px';
-  button.style.backgroundColor = '#007bff';
-  button.style.color = 'white';
-  button.style.border = 'none';
-  button.style.borderRadius = '4px';
-  button.style.cursor = 'pointer';
-  button.style.fontSize = '16px';
-  button.style.fontWeight = '500';
-  button.addEventListener('click', onClick);
-
-  container.appendChild(button);
-  return container;
-}
-
 export function createFormFactory(options: FormFactoryOptions): FormFactoryResult {
   // Get provider config (optional - returns null if no provider)
   const providerConfig = getScheptaContext(options.container);
@@ -88,9 +84,12 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
     return {
       components: mergedComponents,
       renderers: mergedRenderers,
-      externalContext: mergedExternalContext,
+      externalContext: {
+        ...mergedExternalContext,
+      },
       state: formAdapter.getValues(),
       middlewares: mergedMiddlewares,
+      onSubmit: options.onSubmit ? () => formAdapter.handleSubmit(options.onSubmit!)() : undefined,
       debug: mergedDebug ? {
         isEnabled: true,
         log: (category: string, message: string, data?: any) => {
@@ -123,28 +122,6 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
     options.container.appendChild(formElement);
   } else if (formElement && 'element' in formElement) {
     options.container.appendChild(formElement.element);
-  }
-
-  // If onSubmit is provided, render SubmitButton
-  if (options.onSubmit) {
-    // Check if custom SubmitButton component is registered
-    const customSubmitButton = mergedComponents.SubmitButton?.factory?.({}, runtime);
-    
-    if (customSubmitButton && typeof customSubmitButton === 'function') {
-      // Use custom component - assume it returns an HTMLElement
-      const customElement = customSubmitButton({ 
-        onSubmit: () => formAdapter.handleSubmit(options.onSubmit!)() 
-      });
-      if (customElement instanceof HTMLElement) {
-        options.container.appendChild(customElement);
-      }
-    } else {
-      // Use default submit button
-      const submitButton = createDefaultSubmitButton(() => {
-        formAdapter.handleSubmit(options.onSubmit!)();
-      });
-      options.container.appendChild(submitButton);
-    }
   }
 
   return {

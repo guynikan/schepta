@@ -1,18 +1,20 @@
 import React from "react";
 import { Box } from "@mui/material";
-import { useFormContext } from "react-hook-form";
+import type { FormContainerProps } from "@schepta/factory-react";
+import { SubmitButton } from "../SubmitButton";
 
-export const FormContainer = ({ children, externalContext, ...props }: any) => {
-    const { handleSubmit } = useFormContext();
-    const onSubmit = externalContext?.onSubmit;
-    
-    return (
-      <Box
-        component="form"
-        onSubmit={onSubmit ? handleSubmit(onSubmit) : undefined}
-        {...props}
-      >
-        {children}
-      </Box>
-    );
-  };
+export const FormContainer: React.FC<FormContainerProps> = ({ 
+  children, 
+  onSubmit, 
+}) => {
+
+  return (
+    <Box
+      component="form"
+      data-test-id="FormContainer"
+    >
+      {children}
+      {onSubmit && <SubmitButton onSubmit={onSubmit} />}
+    </Box>
+  );
+};

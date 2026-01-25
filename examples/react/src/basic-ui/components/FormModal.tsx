@@ -1,4 +1,5 @@
-import { FormFactory, FormFactoryRef } from "@schepta/factory-react";
+import { FormFactory } from "@schepta/factory-react";
+import type { FormFactoryRef } from "@schepta/factory-react";
 import React, { useState, useRef } from "react";
 import { FormSchema } from "@schepta/core";
 
@@ -45,7 +46,7 @@ export const FormModal = ({ schema, onSubmit }: FormModalProps) => {
           fontWeight: '500',
         }}
       >
-        Open Form Modal
+        Open Modal Form
       </button>
 
       {/* Modal overlay */}
