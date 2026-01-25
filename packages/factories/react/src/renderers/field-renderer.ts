@@ -1,26 +1,48 @@
 /**
  * Field Renderer
  * 
- * Custom renderer that wraps field components with FieldWrapper
- * for react-hook-form integration.
+ * Custom renderer that wraps field components with FieldWrapper.
+ * Supports custom FieldWrapper components via registry (local > global > default).
  */
 
 import React from 'react';
 import type { ComponentSpec, RendererFn, RuntimeAdapter } from '@schepta/core';
 import { sanitizePropsForDOM } from '@schepta/core';
-import { FieldWrapper } from '../field-wrapper';
+import { DefaultFieldWrapper, type FieldWrapperType } from '../components/DefaultFieldWrapper';
+
+/**
+ * Options for creating the field renderer
+ */
+export interface FieldRendererOptions {
+  /**
+   * Custom FieldWrapper component.
+   * If not provided, uses DefaultFieldWrapper (native adapter).
+   * 
+   * Users can provide their own FieldWrapper for RHF, Formik, etc.
+   */
+  FieldWrapper?: FieldWrapperType;
+}
 
 /**
  * Create a field renderer that wraps fields with FieldWrapper
  * 
  * The field renderer handles:
- * - Wrapping field components with react-hook-form Controller
+ * - Wrapping field components with the configured FieldWrapper
  * - Passing x-component-props to the underlying component
  * - Sanitizing props before passing to DOM components
  * 
+ * @param options - Optional configuration including custom FieldWrapper
  * @returns A renderer function for field components
+ * 
+ * @example Using default FieldWrapper (native)
+ * ```tsx
+ * const fieldRenderer = createFieldRenderer();
+ * ```
+ * 
  */
-export function createFieldRenderer(): RendererFn {
+export function createFieldRenderer(options: FieldRendererOptions = {}): RendererFn {
+  const { FieldWrapper = DefaultFieldWrapper } = options;
+
   return (
     spec: ComponentSpec,
     props: Record<string, any>,

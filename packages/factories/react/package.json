@@ -28,7 +28,6 @@
     "rendering",
     "schema",
     "forms",
-    "react-hook-form",
     "server-driven-ui"
   ],
   "scripts": {
@@ -45,8 +44,7 @@
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0",
-    "react-hook-form": "^7.52.2"
+    "react-dom": ">=18.0.0"
   },
   "devDependencies": {
     "@testing-library/react": "^14.0.0",

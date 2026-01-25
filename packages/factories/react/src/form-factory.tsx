@@ -1,12 +1,11 @@
 /**
  * React Form Factory
  * 
- * Factory component for rendering forms from JSON schemas
+ * Factory component for rendering forms from JSON schemas.
  */
 
 import React, { useMemo, forwardRef, useImperativeHandle } from 'react';
-import { FormProvider, UseFormReturn } from 'react-hook-form';
-import type { FormSchema, ComponentSpec, MiddlewareFn } from '@schepta/core';
+import type { FormSchema, ComponentSpec, MiddlewareFn, FormAdapter } from '@schepta/core';
 import { createReactRuntimeAdapter } from '@schepta/adapter-react';
 import { 
   createRendererOrchestrator, 
@@ -22,10 +21,13 @@ import { useSchemaValidation } from './hooks/use-schema-validation';
 import { createDebugContext } from './utils/debug';
 import { createFieldRenderer } from './renderers/field-renderer';
 import formSchemaDefinition from '../../src/schemas/form-schema.json';
+import { ScheptaFormProvider } from './context/schepta-form-context';
 import { 
   DefaultFormContainer, 
   DefaultSubmitButton, 
-  type SubmitButtonComponentType 
+  DefaultFieldWrapper,
+  type SubmitButtonComponentType,
+  type FieldWrapperType,
 } from './components';
 
 // Register factory default components (called once on module load)
@@ -39,6 +41,11 @@ setFactoryDefaultComponents({
     id: 'SubmitButton',
     type: 'content',
     factory: () => DefaultSubmitButton,
+  }),
+  FieldWrapper: createComponentSpec({
+    id: 'FieldWrapper',
+    type: 'field-wrapper',
+    factory: () => DefaultFieldWrapper,
   }),
 });
 
@@ -60,7 +67,7 @@ export interface FormFactoryProps {
   renderers?: Partial<Record<string, any>>;
   externalContext?: Record<string, any>;
   middlewares?: MiddlewareFn[];
-  formContext?: UseFormReturn<any>;
+  adapter?: FormAdapter;
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   debug?: boolean;
@@ -72,7 +79,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
   renderers,
   externalContext,
   middlewares,
-  formContext: providedFormContext,
+  adapter: providedAdapter,
   initialValues,
   onSubmit,
   debug = false,
@@ -91,18 +98,17 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
     debug,
   });
 
-  // Setup react-hook-form
-  const { formContext, formAdapter, formState } = useScheptaForm(schema, {
-    formContext: providedFormContext,
+  const { formAdapter, formState, reset } = useScheptaForm(schema, {
     initialValues,
+    adapter: providedAdapter,
   });
 
   // Expose form control methods via ref for external submit scenarios
   useImperativeHandle(ref, () => ({
-    submit: (submitFn) => formContext.handleSubmit(submitFn)(),
-    reset: (values) => formContext.reset(values),
-    getValues: () => formContext.getValues(),
-  }), [formContext]);
+    submit: (submitFn) => formAdapter.handleSubmit(submitFn)(),
+    reset: (values) => reset(values),
+    getValues: () => formAdapter.getValues(),
+  }), [formAdapter, reset]);
 
   // Create runtime adapter
   const runtime = useMemo(() => createReactRuntimeAdapter(), []);
@@ -141,25 +147,28 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
     return (customComponent as SubmitButtonComponentType) || DefaultSubmitButton;
   }, [mergedConfig.components.SubmitButton, runtime]);
 
+  // Resolve FieldWrapper component from registry (provider or local) or use default
+  const FieldWrapperComponent = useMemo((): FieldWrapperType => {
+    const customComponent = mergedConfig.components.FieldWrapper?.factory?.({}, runtime);
+    return (customComponent as FieldWrapperType) || DefaultFieldWrapper;
+  }, [mergedConfig.components.FieldWrapper, runtime]);
+
   // Create renderer orchestrator
   const renderer = useMemo(() => {
     const getFactorySetup = (): FactorySetupResult => {
-      // Get current form state
-      const currentFormState = formContext.watch();
-
       // Create debug context
       const debugContext = createDebugContext(mergedConfig.debug);
 
-      // Create custom renderers with field renderer
+      // Create custom renderers with field renderer (passing resolved FieldWrapper)
       const customRenderers = {
         ...mergedConfig.renderers,
-        field: createFieldRenderer(),
+        field: createFieldRenderer({ FieldWrapper: FieldWrapperComponent }),
       };
 
       // Create template expression middleware with current form state (always first)
       const templateMiddleware = createTemplateExpressionMiddleware({
         externalContext: mergedConfig.externalContext,
-        formState: currentFormState,
+        formState,
         debug: debugContext,
       });
 
@@ -175,7 +184,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
         externalContext: {
           ...mergedConfig.externalContext,
         },
-        state: currentFormState,
+        state: formState,
         middlewares: updatedMiddlewares,
         onSubmit,
         debug: debugContext,
@@ -190,21 +199,21 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
     mergedConfig.externalContext,
     mergedConfig.baseMiddlewares,
     mergedConfig.debug,
-    formContext,
     formAdapter,
     runtime,
     onSubmit,
-    formState, // Include formState to trigger re-renders on form changes
-    SubmitButtonComponent, // Include resolved SubmitButton for FormContainer
+    formState,
+    SubmitButtonComponent,
+    FieldWrapperComponent,
   ]);
 
   return (
-    <FormProvider {...formContext}>
+    <ScheptaFormProvider initialValues={initialValues} adapter={formAdapter} values={formState}>
       <FormRenderer
         componentKey={rootComponentKey}
         schema={schema}
         renderer={renderer}
       />
-    </FormProvider>
+    </ScheptaFormProvider>
   );
 });
