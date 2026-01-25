@@ -4,16 +4,14 @@ import { FormSchema } from "@schepta/core";
 
 interface FormProps {
   schema: FormSchema;
-  onSubmit?: (values: Record<string, any>) => void;
 }
 
-export const Form = ({ schema, onSubmit }: FormProps) => {
+export const Form = ({ schema }: FormProps) => {
   const [submittedValues, setSubmittedValues] = useState<Record<string, any> | null>(null);
 
   const handleSubmit = (values: Record<string, any>) => {
     console.log('Form submitted:', values);
     setSubmittedValues(values);
-    onSubmit?.(values);
   };
 
   return (
