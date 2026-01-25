@@ -2,10 +2,13 @@
   "$schema": "../../packages/factories/src/schemas/form-schema.json",
   "$id": "complex-form",
   "type": "object",
-  "x-component": "form-container",
+  "x-component": "FormContainer",
   "properties": {
     "userInfo": {
       "type": "object",
+      "x-ui": {
+        "order": 1
+      },
       "x-component": "FormSectionContainer",
       "properties": {
         "title": {
@@ -27,17 +30,17 @@
                 "email": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 1
+                  },
                   "properties": {
                     "email": {
                       "type": "string",
                       "x-component": "InputText",
-                      "x-ui": {
-                        "label": "Email Address",
-                        "placeholder": "example@email.com",
-                        "order": 1
-                      },
                       "x-component-props": {
-                        "type": "email"
+                        "type": "email",
+                        "label": "Email Address",
+                        "placeholder": "example@email.com"
                       },
                       "x-rules": {
                         "required": true
@@ -48,14 +51,16 @@
                 "phone": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 2
+                  },
                   "properties": {
                     "phone": {
                       "type": "string",
                       "x-component": "InputPhone",
-                      "x-ui": {
+                      "x-component-props": {
                         "label": "Phone Number",
-                        "placeholder": "(123) 456-7890",
-                        "order": 2
+                        "placeholder": "(123) 456-7890"
                       }
                     }
                   }
@@ -63,16 +68,16 @@
                 "userType": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 3
+                  },
                   "properties": {
                     "userType": {
                       "type": "string",
                       "x-component": "InputSelect",
-                      "x-ui": {
+                      "x-component-props": {
                         "label": "User Type",
                         "placeholder": "Select user type",
-                        "order": 3
-                      },
-                      "x-component-props": {
                         "options": [
                           { "value": "individual", "label": "Individual" },
                           { "value": "company", "label": "Company" }
@@ -84,13 +89,15 @@
                 "birthDate": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 4
+                  },
                   "properties": {
                     "birthDate": {
                       "type": "string",
                       "x-component": "InputDate",
-                      "x-ui": {
-                        "label": "Birth Date",
-                        "order": 4
+                      "x-component-props": {
+                        "label": "Birth Date"
                       }
                     }
                   }
@@ -107,17 +114,16 @@
                 "bio": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 5
+                  },
                   "properties": {
                     "bio": {
                       "type": "string",
                       "x-component": "InputTextarea",
-                      "x-ui": {
-                        "label": "Biography",
-                        "placeholder": "Tell us about yourself...",
-                        "order": 5
-                      },
                       "x-component-props": {
-                        "rows": 5
+                        "label": "Biography",
+                        "placeholder": "Tell us about yourself..."
                       }
                     }
                   }
@@ -125,16 +131,16 @@
                 "age": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 6
+                  },
                   "properties": {
                     "age": {
                       "type": "number",
                       "x-component": "InputNumber",
-                      "x-ui": {
+                      "x-component-props": {
                         "label": "Age",
                         "placeholder": "Enter your age",
-                        "order": 6
-                      },
-                      "x-component-props": {
                         "min": 0,
                         "max": 120
                       }
@@ -144,15 +150,15 @@
                 "acceptTerms": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-ui": {
+                    "order": 7
+                  },
                   "properties": {
                     "acceptTerms": {
                       "type": "boolean",
                       "x-component": "InputCheckbox",
-                      "x-ui": {
+                      "x-component-props": {
                         "label": "Accept Terms and Conditions",
-                        "order": 7
-                      },
-                      "x-rules": {
                         "required": true
                       }
                     }
@@ -163,11 +169,6 @@
           }
         }
       }
-    },
-    "submit": {
-      "type": "object",
-      "x-component": "SubmitButton",
-      "x-content": "Submit Form"
     }
   }
 }

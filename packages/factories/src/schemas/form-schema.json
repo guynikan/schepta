@@ -44,13 +44,19 @@
                     "$ref": "#/$defs/InputCheckbox"
                   },
                   {
-                    "$ref": "#/$defs/DatePicker"
+                    "$ref": "#/$defs/InputDate"
                   },
                   {
                     "$ref": "#/$defs/InputPhone"
                   },
                   {
                     "$ref": "#/$defs/InputAutocomplete"
+                  },
+                  {
+                    "$ref": "#/$defs/InputTextarea"
+                  },
+                  {
+                    "$ref": "#/$defs/InputNumber"
                   }
                 ]
               }
@@ -97,7 +103,7 @@
         },
         "additionalProperties": false
       },
-      "DatePicker": {
+      "InputDate": {
         "type": "object",
         "required": [
           "type",
@@ -112,7 +118,7 @@
             "additionalProperties": true
           },
           "x-component": {
-            "const": "DatePicker"
+            "const": "InputDate"
           },
           "x-reactions": {
             "type": "object",
@@ -220,6 +226,62 @@
               "label": { "type": "string" },
               "placeholder": { "type": "string" }
             },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InputTextarea": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "string"
+          },
+          "x-component": {
+            "const": "InputTextarea"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InputNumber": {
+        "type": "object",
+        "required": [
+          "type",
+          "x-component"
+        ],
+        "properties": {
+          "type": {
+            "const": "number"
+          },
+          "x-component": {
+            "const": "InputNumber"
+          },
+          "x-rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-reactions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "x-component-props": {
+            "type": "object",
             "additionalProperties": true
           }
         },
@@ -422,7 +484,7 @@
         "additionalProperties": false
       },
       "x-component": {
-        "const": "form-container"
+        "const": "FormContainer"
       }
     },
     "description": "Schema de formulário",

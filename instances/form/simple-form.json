@@ -2,14 +2,14 @@
   "$schema": "../../packages/factories/src/schemas/form-schema.json",
   "$id": "simple-form",
   "type": "object",
-  "x-component": "form-container",
+  "x-component": "FormContainer",
   "properties": {
     "personalInfo": {
       "type": "object",
-      "x-component": "FormSectionContainer",
       "x-ui": {
         "order": 1
       },
+      "x-component": "FormSectionContainer",
       "properties": {
         "title": {
           "type": "object",
@@ -24,7 +24,7 @@
               "type": "object",
               "x-component": "FormSectionGroup",
               "x-component-props": {
-
+                "columns": "1fr 1fr"
               },
               "properties": {
                 "firstName": {
@@ -39,10 +39,10 @@
                       "x-component": "InputText",
                       "x-component-props": {
                         "label": "First Name",
-                        "placeholder": "Enter your first name",
-                        "required": true
+                        "placeholder": "Enter your first name"
                       },
                       "x-rules": {
+                        "required": true
                       }
                     }
                   }
@@ -61,8 +61,6 @@
                         "label": "Last Name",
                         "placeholder": "Enter your last name",
                         "required": true
-                      },
-                      "x-rules": {
                       }
                     }
                   }
@@ -75,4 +73,3 @@
     }
   }
 }
-
