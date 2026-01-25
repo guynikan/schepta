@@ -6,3 +6,4 @@
 
 export * from './DefaultFormContainer';
 export * from './DefaultSubmitButton';
+export * from './DefaultFieldWrapper';

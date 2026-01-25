@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Tab, Tabs, Box, Paper } from "@mui/material";
+import { Tab, Tabs, Paper } from "@mui/material";
 import simpleFormSchema from "../../../../../instances/form/simple-form.json";
 import complexFormSchema from "../../../../../instances/form/complex-form.json";
-import { FormSchema } from "@schepta/core";
-import { Form } from "../components/Form";
+import { NativeForm } from "../components/Forms/NativeForm";
 import { TabPanel } from "../../material-ui/pages/MaterialFormPage";
-import { FormModal } from "../components/FormModal";
+import { ModalForm } from "../components/Forms/ModalForm";
+import { FormWithRHF } from "../components/Forms/FormWithRHF";
+import { FormWithFormik } from "../components/Forms/FormWithFormik";
+import { FormSchema } from "@schepta/core";
 
 export function BasicFormPage() {
   const [tabValue, setTabValue] = useState(0);
@@ -20,22 +22,30 @@ export function BasicFormPage() {
     <>
       <Paper elevation={2} sx={{ p: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs">
-          <Tab label="Simple Form" />
-          <Tab label="Complex Form" />
-          <Tab label="Form Modal" />
+          <Tab label="Simple Form (Native)" />
+          <Tab label="Complex Form (Native)" />
+          <Tab label="Modal Form" />
+          <Tab label="with React Hook Form" />
+          <Tab label="with Formik" />
           <Tab label="Expressions Example" />
         </Tabs>
         
         <TabPanel value={tabValue} index={0}>
-          <Form schema={simpleSchema} />
+          <NativeForm schema={simpleSchema} />
         </TabPanel>
         <TabPanel value={tabValue} index={1}>
-          <Form schema={complexSchema} />
+          <NativeForm schema={complexSchema} />
         </TabPanel>
         <TabPanel value={tabValue} index={2}>
-          <FormModal schema={simpleSchema} />
+          <ModalForm schema={simpleSchema} />
         </TabPanel>
         <TabPanel value={tabValue} index={3}>
+          <FormWithRHF schema={simpleSchema} />
+        </TabPanel>
+        <TabPanel value={tabValue} index={4}>
+          <FormWithFormik schema={simpleSchema} />
+        </TabPanel>
+        <TabPanel value={tabValue} index={5}>
           <p>Expressions Example</p>
         </TabPanel>
       </Paper>

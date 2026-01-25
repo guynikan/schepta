@@ -1,79 +1,132 @@
 /**
  * useScheptaForm Hook
  * 
- * Encapsulates react-hook-form setup and state management for Schepta forms.
+ * Encapsulates native form state management for Schepta forms.
  */
 
-import { useEffect, useMemo } from 'react';
-import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormSchema, FormAdapter } from '@schepta/core';
-import { createReactHookFormAdapter } from '@schepta/adapter-react';
+import { createNativeReactFormAdapter, NativeReactFormAdapter } from '@schepta/adapter-react';
 import { buildInitialValuesFromSchema } from '@schepta/core';
 
 export interface ScheptaFormOptions {
-  /** External form context (if managing form state externally) */
-  formContext?: UseFormReturn<any>;
   /** Initial values for the form */
   initialValues?: Record<string, any>;
+  /** External adapter (optional - for custom implementations) */
+  adapter?: FormAdapter;
 }
 
 export interface ScheptaFormResult {
-  /** The react-hook-form context */
-  formContext: UseFormReturn<any>;
   /** The Schepta form adapter */
   formAdapter: FormAdapter;
-  /** Current form state (watched for reactivity) */
+  /** Current form state (for reactivity) */
   formState: Record<string, any>;
+  /** Form errors */
+  formErrors: Record<string, any>;
+  /** Set form state directly */
+  setFormState: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  /** Set form errors directly */
+  setFormErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  /** Reset form to initial values */
+  reset: (values?: Record<string, any>) => void;
 }
 
 /**
- * Hook to setup and manage form state for Schepta forms
+ * Hook to setup and manage form state for Schepta forms.
+ * Uses native React state.
  * 
  * @param schema - The form schema
- * @param options - Form options including external context and initial values
- * @returns Form context, adapter, and reactive state
+ * @param options - Form options including initial values and optional external adapter
+ * @returns Form adapter, reactive state, and control functions
+ * 
+ * @example Basic usage
+ * ```tsx
+ * const { formAdapter, formState } = useScheptaForm(schema, {
+ *   initialValues: { name: 'John' },
+ * });
+ * ```
+ * 
+ * @example With custom adapter
+ * ```tsx
+ * const myAdapter = createCustomAdapter();
+ * const { formAdapter, formState } = useScheptaForm(schema, {
+ *   adapter: myAdapter,
+ * });
+ * ```
  */
 export function useScheptaForm(
   schema: FormSchema,
   options: ScheptaFormOptions = {}
 ): ScheptaFormResult {
-  const { formContext: providedFormContext, initialValues } = options;
+  const { initialValues, adapter: externalAdapter } = options;
 
-  // Create default form context if not provided
-  const defaultFormContext = useForm({
-    defaultValues: initialValues || buildInitialValuesFromSchema(schema),
-  });
+  // Build default values from schema if no initial values provided
+  const defaultValues = useMemo(() => {
+    const schemaDefaults = buildInitialValuesFromSchema(schema);
+    return { ...schemaDefaults, ...initialValues };
+  }, [schema, initialValues]);
 
-  // Use provided context or default
-  const formContext = providedFormContext || defaultFormContext;
+  const [formState, setFormState] = useState<Record<string, any>>(defaultValues);
+  const [formErrors, setFormErrors] = useState<Record<string, any>>({});
 
-  // Create form adapter (memoized)
-  const formAdapter = useMemo(
-    () => createReactHookFormAdapter(formContext),
-    [formContext]
-  );
+  // Create adapter (ref to maintain identity)
+  const adapterRef = useRef<FormAdapter | null>(null);
+
+  if (!adapterRef.current) {
+    if (externalAdapter) {
+      adapterRef.current = externalAdapter;
+    } else {
+      adapterRef.current = createNativeReactFormAdapter(
+        formState,
+        setFormState,
+        formErrors,
+        setFormErrors
+      );
+    }
+  }
+
+  // Update native adapter's internal state reference when state changes
+  useEffect(() => {
+    if (adapterRef.current instanceof NativeReactFormAdapter) {
+      adapterRef.current.updateState(formState);
+    }
+  }, [formState]);
+
+  // Update native adapter's internal errors reference when errors change
+  useEffect(() => {
+    if (adapterRef.current instanceof NativeReactFormAdapter) {
+      adapterRef.current.updateErrors(formErrors);
+    }
+  }, [formErrors]);
 
   // Reset form when initialValues change
   useEffect(() => {
     if (initialValues !== undefined) {
-      const defaultValues = {
+      const newDefaults = {
         ...buildInitialValuesFromSchema(schema),
         ...initialValues,
       };
-      formContext.reset(defaultValues);
+      setFormState(newDefaults);
+      setFormErrors({});
     }
-  }, [formContext, initialValues, schema]);
+  }, [initialValues, schema]);
 
-  // Watch form state to trigger re-renders when values change
-  // This ensures template expressions with $formValues are updated
-  const formState = useWatch({
-    control: formContext.control,
-  });
+  // Reset function
+  const reset = useMemo(() => {
+    return (values?: Record<string, any>) => {
+      const resetValues = values || defaultValues;
+      setFormState(resetValues);
+      setFormErrors({});
+    };
+  }, [defaultValues]);
 
   return {
-    formContext,
-    formAdapter,
-    formState: formState as Record<string, any>,
+    formAdapter: adapterRef.current!,
+    formState,
+    formErrors,
+    setFormState,
+    setFormErrors,
+    reset,
   };
 }
 
