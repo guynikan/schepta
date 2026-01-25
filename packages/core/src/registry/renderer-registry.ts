@@ -44,10 +44,14 @@ export const defaultTypeRenderers: Record<ComponentType, RendererFn> = {
     return runtime.create(spec, propsWithChildren);
   },
   'FormContainer': (spec, props, runtime, children) => {
+    const { onSubmit, externalContext } = props;
     const sanitized = sanitizePropsForDOM(props);
-    const propsWithChildren = children && children.length > 0 
-      ? { ...sanitized, children }
-      : sanitized;
+    const propsWithChildren = {
+      ...sanitized,
+      onSubmit,
+      externalContext,
+      ...(children && children.length > 0 ? { children } : {}),
+    };
     return runtime.create(spec, propsWithChildren);
   },
   content: (spec, props, runtime, children) => {

@@ -1,19 +1,20 @@
 import React from "react";
 import { Box } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
+import type { FormContainerProps } from "@schepta/factory-react";
+import { SubmitButton } from "../SubmitButton";
 
-export const FormContainer = ({ children, onSubmit: onSubmitProp, externalContext, ...props }: any) => {
-    const { handleSubmit } = useFormContext();
-    // FormFactory/orchestrator passes onSubmit in props; fallback to externalContext for schema-driven usage
-    const onSubmit = onSubmitProp ?? externalContext?.onSubmit;
-    
-    return (
-      <Box
-        as="form"
-        onSubmit={onSubmit ? handleSubmit(onSubmit) : undefined}
-        {...props}
-      >
-        {children}
-      </Box>
-    );
-  };
+export const FormContainer: React.FC<FormContainerProps> = ({ 
+  children, 
+  onSubmit, 
+}) => {
+
+  return (
+    <Box
+      as="form"
+      data-test-id="FormContainer"
+    >
+      {children}
+      {onSubmit && <SubmitButton onSubmit={onSubmit} />}
+    </Box>
+  );
+};
