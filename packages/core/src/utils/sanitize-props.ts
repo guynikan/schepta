@@ -12,7 +12,6 @@ const INTERNAL_PROPS = [
   'name',
   'x-ui',
   'x-component-props',
-  'x-content',
   'x-rules',
   'x-reactions',
   'x-slots',

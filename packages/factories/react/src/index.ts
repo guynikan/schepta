@@ -9,9 +9,16 @@ export {
   FormFactory,
   type FormFactoryProps,
   type FormFactoryRef,
+} from './form-factory';
+
+// Components (types and defaults)
+export {
+  DefaultFormContainer,
+  DefaultSubmitButton,
+  type FormContainerProps,
   type SubmitButtonProps,
   type SubmitButtonComponentType,
-} from './form-factory';
+} from './components';
 
 // Hooks (for advanced usage)
 export * from './hooks';
