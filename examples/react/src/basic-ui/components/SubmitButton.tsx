@@ -1,15 +1,21 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import type { SubmitButtonProps } from '@schepta/factory-react';
 
-export const SubmitButton = ({ children, 'x-content': content, onSubmit, externalContext, ...props }: any) => {
+export const SubmitButton: React.FC<SubmitButtonProps> = ({
+  children,
+  'x-content': content,
+  onSubmit: onSubmitProp,
+  externalContext,
+  ...props
+}) => {
   const formContext = useFormContext();
   const handleSubmit = formContext?.handleSubmit;
-  
+  const onSubmit = onSubmitProp ?? externalContext?.onSubmit;
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (onSubmit) {
-      handleSubmit(onSubmit)();
-    }
+    if (onSubmit) handleSubmit(onSubmit)();
   };
 
   return (

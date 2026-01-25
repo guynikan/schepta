@@ -28,7 +28,6 @@ export function ChakraFormPage() {
           <TabList>
             <Tab>SIMPLE FORM</Tab>
             <Tab>COMPLEX FORM</Tab>
-            <Tab>PROVIDER EXAMPLE</Tab>
             <Tab>EXPRESSIONS EXAMPLE</Tab>
           </TabList>
           <TabPanels>
@@ -38,7 +37,6 @@ export function ChakraFormPage() {
             <TabPanel>
               <Form schema={complexSchema} />
             </TabPanel>
-            <TabPanel>PROVIDER EXAMPLE</TabPanel>
             <TabPanel>EXPRESSIONS EXAMPLE</TabPanel>
           </TabPanels>
         </Tabs>
