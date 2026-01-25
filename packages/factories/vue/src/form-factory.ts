@@ -2,7 +2,7 @@
  * Vue Form Factory
  */
 
-import { defineComponent, ref, computed, watch, h } from 'vue';
+import { defineComponent, ref, computed, watch, h, Fragment, type PropType } from 'vue';
 import type { FormSchema, ComponentSpec, RendererFn, RuntimeAdapter } from '@schepta/core';
 import { createVueRuntimeAdapter } from '@schepta/adapter-vue';
 import { createVueFormAdapter } from '@schepta/adapter-vue';
@@ -10,6 +10,58 @@ import { useScheptaContext } from '@schepta/adapter-vue';
 import { createRendererOrchestrator, type FactorySetupResult } from '@schepta/core';
 import { buildInitialValuesFromSchema } from '@schepta/core';
 import { FormRenderer } from './form-renderer';
+
+/**
+ * Ref interface for external form control
+ */
+export interface FormFactoryRef {
+  /** Submit the form with the provided handler */
+  submit: (onSubmit: (values: Record<string, any>) => void | Promise<void>) => void;
+  /** Reset form to initial or provided values */
+  reset: (values?: Record<string, any>) => void;
+  /** Get current form values */
+  getValues: () => Record<string, any>;
+}
+
+/**
+ * Default submit button component for Vue
+ */
+const DefaultSubmitButton = defineComponent({
+  name: 'DefaultSubmitButton',
+  props: {
+    onSubmit: {
+      type: Function as PropType<() => void>,
+      required: true,
+    },
+  },
+  setup(props) {
+    const handleClick = () => {
+      if (props.onSubmit) {
+        props.onSubmit();
+      }
+    };
+
+    return () => h('div', { 
+      style: { marginTop: '24px', textAlign: 'right' }
+    }, [
+      h('button', {
+        type: 'button',
+        onClick: handleClick,
+        'data-test-id': 'submit-button',
+        style: {
+          padding: '12px 24px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: '16px',
+          fontWeight: '500',
+        }
+      }, 'Submit')
+    ]);
+  }
+});
 
 // Custom field renderer that integrates fields with VueFormAdapter
 const createFieldRenderer = (formAdapter: any): RendererFn => {
@@ -113,7 +165,7 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
         default: () => defaultProps.debug || false,
       },
     },
-    setup(props) {
+    setup(props, { expose }) {
       // Get provider config (optional - returns null if no provider)
       const providerConfig = useScheptaContext();
       
@@ -138,6 +190,14 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
         props.initialValues || buildInitialValuesFromSchema(props.schema)
       ));
       const runtime = ref(createVueRuntimeAdapter());
+
+      // Expose form control methods via ref for external submit scenarios
+      expose({
+        submit: (submitFn: (values: Record<string, any>) => void | Promise<void>) => 
+          formAdapter.value.handleSubmit(submitFn)(),
+        reset: (values?: Record<string, any>) => formAdapter.value.reset(values),
+        getValues: () => formAdapter.value.getValues(),
+      } as FormFactoryRef);
 
       const getFactorySetup = (): FactorySetupResult => {
         // Pass onSubmit through externalContext so components can access it
@@ -179,6 +239,12 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
 
       const rootComponentKey = computed(() => (props.schema as any)['x-component'] || 'form-container');
 
+      // Resolve SubmitButton component from registry (provider or local) or use default
+      const SubmitButtonComponent = computed(() => {
+        const customComponent = mergedComponents.SubmitButton?.factory?.({}, runtime.value);
+        return customComponent || DefaultSubmitButton;
+      });
+
       // Watch form state to trigger reactivity
       watch(() => formAdapter.value.getValues(), () => {
         // Force re-render when form values change
@@ -194,12 +260,22 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
       }, { deep: true });
 
       return () => {
-        return h(FormRenderer, {
+        const formRendererVNode = h(FormRenderer, {
           componentKey: rootComponentKey.value,
           schema: props.schema,
           renderer: renderer.value,
           onSubmit: props.onSubmit ? () => formAdapter.value.handleSubmit(props.onSubmit!)() : undefined,
         });
+
+        // If onSubmit is provided, render SubmitButton
+        if (props.onSubmit) {
+          const submitButtonVNode = h(SubmitButtonComponent.value, {
+            onSubmit: () => formAdapter.value.handleSubmit(props.onSubmit!)(),
+          });
+          return h(Fragment, [formRendererVNode, submitButtonVNode]);
+        }
+
+        return formRendererVNode;
       };
     },
   });
