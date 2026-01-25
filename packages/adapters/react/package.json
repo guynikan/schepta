@@ -38,9 +38,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@schepta/core": "workspace:*",
-    "react": "^18.2.0",
-    "react-hook-form": "^7.52.2"
+    "@schepta/core": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
