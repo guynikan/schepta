@@ -6,8 +6,6 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   'x-content': content,
   ...props
 }) => {
-
-
   return (
     <div style={{ marginTop: '24px', textAlign: 'right' }}>
       <button
