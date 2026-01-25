@@ -4,7 +4,7 @@
   "type": "object",
   "x-component": "FormContainer",
   "properties": {
-    "userInfo": {
+    "contactInfo": {
       "type": "object",
       "x-ui": {
         "order": 1
@@ -14,7 +14,7 @@
         "title": {
           "type": "object",
           "x-component": "FormSectionTitle",
-          "x-content": "User Information"
+          "x-content": "Contact Information"
         },
         "fields": {
           "type": "object",
@@ -64,7 +64,36 @@
                       }
                     }
                   }
-                },
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "userInfo": {
+      "type": "object",
+      "x-ui": {
+        "order": 1
+      },
+      "x-component": "FormSectionContainer",
+      "properties": {
+        "title": {
+          "type": "object",
+          "x-component": "FormSectionTitle",
+          "x-content": "User Information"
+        },
+        "fields": {
+          "type": "object",
+          "x-component": "FormSectionGroupContainer",
+          "properties": {
+            "basicInfo": {
+              "type": "object",
+              "x-component": "FormSectionGroup",
+              "x-component-props": {
+                "columns": "1fr 1fr"
+              },
+              "properties": {
                 "userType": {
                   "type": "object",
                   "x-component": "FormField",
