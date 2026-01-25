@@ -12,7 +12,7 @@ import { createComponentSpec } from '@schepta/core';
 // Simple form schema for testing
 const simpleFormSchema = {
   type: 'object',
-  'x-component': 'form-container',
+  'x-component': 'FormContainer',
   properties: {
     firstName: {
       type: 'object',

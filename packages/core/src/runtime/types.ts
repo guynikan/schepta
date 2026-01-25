@@ -104,7 +104,7 @@ export type ComponentType =
   | 'field' 
   | 'field-wrapper' 
   | 'container' 
-  | 'form-container' 
+  | 'FormContainer' 
   | 'content' 
   | 'addon' 
   | 'menu-item' 

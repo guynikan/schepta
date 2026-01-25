@@ -319,9 +319,9 @@ export const SubmitButton = defineComponent({
 
 // Create component specs
 export const components = {
-  'form-container': createComponentSpec({
-    id: 'form-container',
-    type: 'form-container',
+  'FormContainer': createComponentSpec({
+    id: 'FormContainer',
+    type: 'FormContainer',
     factory: () => FormContainer,
   }),
   InputText: createComponentSpec({

@@ -107,7 +107,7 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
   };
 
   const renderer = createRendererOrchestrator(getFactorySetup, runtime);
-  const rootComponentKey = (options.schema as any)['x-component'] || 'form-container';
+  const rootComponentKey = (options.schema as any)['x-component'] || 'FormContainer';
 
   // Render form
   const formElement = renderForm({
