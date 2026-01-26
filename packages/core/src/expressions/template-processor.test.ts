@@ -20,7 +20,7 @@ describe('Template Processor', () => {
       },
       api: 'https://api.example.com',
     },
-    formState: {
+    formValues: {
       firstName: 'John',
       lastName: 'Doe',
     },
@@ -33,14 +33,16 @@ describe('Template Processor', () => {
       const result = processTemplateString(
         'Hello {{ $externalContext.user.name }}',
         resolver,
+        context,
       );
       expect(result).toBe('Hello John Doe');
     });
 
     it('should replace multiple template expressions', () => {
       const result = processTemplateString(
-        '{{ $externalContext.user.name }} - {{ $formState.firstName }}',
+        '{{ $externalContext.user.name }} - {{ $formValues.firstName }}',
         resolver,
+        context,
       );
       expect(result).toBe('John Doe - John');
     });
@@ -49,6 +51,7 @@ describe('Template Processor', () => {
       const result = processTemplateString(
         'Hello world',
         resolver,
+        context,
       );
       expect(result).toBe('Hello world');
     });
@@ -57,22 +60,50 @@ describe('Template Processor', () => {
       const result = processTemplateString(
         'Hello {{ $externalContext.nonexistent }}',
         resolver,
+        context,
       );
       expect(result).toBe('Hello ');
     });
 
-    it('should convert non-string values to string', () => {
+    it('should convert non-string values to string when interpolated', () => {
       const customContext: ResolverContext = {
         externalContext: { count: 42 },
-        formState: {},
+        formValues: {},
       };
       const customResolver = createDefaultResolver(customContext);
       
       const result = processTemplateString(
         'Count: {{ $externalContext.count }}',
         customResolver,
+        customContext,
       );
       expect(result).toBe('Count: 42');
+    });
+
+    it('should preserve type for single template expressions', () => {
+      const customContext: ResolverContext = {
+        externalContext: { count: 42, active: true },
+        formValues: {},
+      };
+      const customResolver = createDefaultResolver(customContext);
+      
+      // Single template should preserve number type
+      const numberResult = processTemplateString(
+        '{{ $externalContext.count }}',
+        customResolver,
+        customContext,
+      );
+      expect(numberResult).toBe(42);
+      expect(typeof numberResult).toBe('number');
+
+      // Single template should preserve boolean type
+      const boolResult = processTemplateString(
+        '{{ $externalContext.active }}',
+        customResolver,
+        customContext,
+      );
+      expect(boolResult).toBe(true);
+      expect(typeof boolResult).toBe('boolean');
     });
   });
 
@@ -107,7 +138,7 @@ describe('Template Processor', () => {
     it('should process objects recursively', () => {
       const value = {
         label: '{{ $externalContext.user.name }}',
-        placeholder: 'Enter {{ $formState.firstName }}',
+        placeholder: 'Enter {{ $formValues.firstName }}',
         static: 'unchanged',
       };
 
@@ -123,7 +154,7 @@ describe('Template Processor', () => {
     it('should process arrays recursively', () => {
       const value = [
         '{{ $externalContext.user.name }}',
-        '{{ $formState.firstName }}',
+        '{{ $formValues.firstName }}',
         'static',
       ];
 
@@ -137,7 +168,7 @@ describe('Template Processor', () => {
         ui: {
           label: '{{ $externalContext.user.name }}',
           nested: {
-            placeholder: '{{ $formState.firstName }}',
+            placeholder: '{{ $formValues.firstName }}',
           },
         },
       };
@@ -170,7 +201,7 @@ describe('Template Processor', () => {
         label: '{{ $externalContext.user.name }}',
         count: 42,
         items: [
-          '{{ $formState.firstName }}',
+          '{{ $formValues.firstName }}',
           'static',
         ],
         nested: {
@@ -195,7 +226,7 @@ describe('Template Processor', () => {
     it('should return true for values with templates', () => {
       expect(needsProcessing('{{ $externalContext.user.name }}')).toBe(true);
       expect(needsProcessing({
-        label: '{{ $formState.firstName }}',
+        label: '{{ $formValues.firstName }}',
       })).toBe(true);
     });
 
@@ -203,6 +234,187 @@ describe('Template Processor', () => {
       expect(needsProcessing('Hello world')).toBe(false);
       expect(needsProcessing({ label: 'static' })).toBe(false);
       expect(needsProcessing(123)).toBe(false);
+    });
+  });
+
+  describe('JEXL expressions', () => {
+    it('should evaluate equality expressions and return boolean', () => {
+      const testContext: ResolverContext = {
+        externalContext: {},
+        formValues: {
+          status: 'active',
+          userInfo: {
+            maritalStatus: 'married',
+          },
+        },
+      };
+      const testResolver = createDefaultResolver(testContext);
+
+      // Simple equality
+      const result1 = processTemplateString(
+        "{{ $formValues.status === 'active' }}",
+        testResolver,
+        testContext,
+      );
+      expect(result1).toBe(true);
+      expect(typeof result1).toBe('boolean');
+
+      // Nested path equality
+      const result2 = processTemplateString(
+        "{{ $formValues.userInfo.maritalStatus === 'married' }}",
+        testResolver,
+        testContext,
+      );
+      expect(result2).toBe(true);
+      expect(typeof result2).toBe('boolean');
+
+      // False case
+      const result3 = processTemplateString(
+        "{{ $formValues.status === 'inactive' }}",
+        testResolver,
+        testContext,
+      );
+      expect(result3).toBe(false);
+      expect(typeof result3).toBe('boolean');
+    });
+
+    it('should evaluate inequality expressions', () => {
+      const testContext: ResolverContext = {
+        externalContext: {},
+        formValues: { status: 'active' },
+      };
+      const testResolver = createDefaultResolver(testContext);
+
+      const result = processTemplateString(
+        "{{ $formValues.status !== 'inactive' }}",
+        testResolver,
+        testContext,
+      );
+      expect(result).toBe(true);
+    });
+
+    it('should evaluate logical AND expressions', () => {
+      const testContext: ResolverContext = {
+        externalContext: {},
+        formValues: { a: true, b: true, c: false },
+      };
+      const testResolver = createDefaultResolver(testContext);
+
+      const result1 = processTemplateString(
+        '{{ $formValues.a && $formValues.b }}',
+        testResolver,
+        testContext,
+      );
+      expect(result1).toBe(true);
+
+      const result2 = processTemplateString(
+        '{{ $formValues.a && $formValues.c }}',
+        testResolver,
+        testContext,
+      );
+      expect(result2).toBe(false);
+    });
+
+    it('should evaluate logical OR expressions', () => {
+      const testContext: ResolverContext = {
+        externalContext: {},
+        formValues: { a: true, b: false },
+      };
+      const testResolver = createDefaultResolver(testContext);
+
+      const result = processTemplateString(
+        '{{ $formValues.a || $formValues.b }}',
+        testResolver,
+        testContext,
+      );
+      expect(result).toBe(true);
+    });
+
+    it('should evaluate comparison expressions', () => {
+      const testContext: ResolverContext = {
+        externalContext: {},
+        formValues: { age: 25, minAge: 18 },
+      };
+      const testResolver = createDefaultResolver(testContext);
+
+      const result1 = processTemplateString(
+        '{{ $formValues.age >= 18 }}',
+        testResolver,
+        testContext,
+      );
+      expect(result1).toBe(true);
+
+      const result2 = processTemplateString(
+        '{{ $formValues.age > $formValues.minAge }}',
+        testResolver,
+        testContext,
+      );
+      expect(result2).toBe(true);
+
+      const result3 = processTemplateString(
+        '{{ $formValues.age < 18 }}',
+        testResolver,
+        testContext,
+      );
+      expect(result3).toBe(false);
+    });
+
+    it('should evaluate complex expressions in processValue', () => {
+      const testContext: ResolverContext = {
+        externalContext: {},
+        formValues: {
+          userInfo: {
+            maritalStatus: 'married',
+          },
+        },
+      };
+      const testResolver = createDefaultResolver(testContext);
+
+      const value = {
+        label: 'Spouse Name',
+        disabled: "{{ $formValues.userInfo.maritalStatus === 'married' }}",
+      };
+
+      const result = processValue(value, testResolver, testContext);
+      
+      expect(result).toEqual({
+        label: 'Spouse Name',
+        disabled: true,
+      });
+      expect(typeof result.disabled).toBe('boolean');
+    });
+
+    it('should handle complex expressions with externalContext', () => {
+      const testContext: ResolverContext = {
+        externalContext: {
+          user: { role: 'admin' },
+        },
+        formValues: {},
+      };
+      const testResolver = createDefaultResolver(testContext);
+
+      const result = processTemplateString(
+        "{{ $externalContext.user.role === 'admin' }}",
+        testResolver,
+        testContext,
+      );
+      expect(result).toBe(true);
+    });
+
+    it('should handle undefined values in expressions gracefully', () => {
+      const testContext: ResolverContext = {
+        externalContext: {},
+        formValues: {},
+      };
+      const testResolver = createDefaultResolver(testContext);
+
+      // Should not throw, return undefined or false
+      const result = processTemplateString(
+        "{{ $formValues.nonexistent === 'value' }}",
+        testResolver,
+        testContext,
+      );
+      expect(result).toBe(false);
     });
   });
 });
