@@ -18,7 +18,7 @@ describe('Variable Resolver', () => {
       },
       api: 'https://api.example.com',
     },
-    formState: {
+    formValues: {
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -34,18 +34,47 @@ describe('Variable Resolver', () => {
       expect(resolver('$externalContext.api')).toBe('https://api.example.com');
     });
 
-    it('should resolve $formState.* expressions', () => {
+    it('should resolve $formValues.* expressions', () => {
       const resolver = createDefaultResolver(context);
       
-      expect(resolver('$formState.firstName')).toBe('John');
-      expect(resolver('$formState.lastName')).toBe('Doe');
-      expect(resolver('$formState.email')).toBe('john@example.com');
+      expect(resolver('$formValues.firstName')).toBe('John');
+      expect(resolver('$formValues.lastName')).toBe('Doe');
+      expect(resolver('$formValues.email')).toBe('john@example.com');
     });
 
-    it('should resolve $formState with nested objects', () => {
+    it('should resolve $formValues with nested objects', () => {
       const nestedContext: ResolverContext = {
         externalContext: {},
-        formState: {
+        formValues: {
+          user: {
+            profile: {
+              firstName: 'John',
+              lastName: 'Doe',
+            },
+            settings: {
+              theme: 'dark',
+            },
+          },
+        },
+      };
+      const resolver = createDefaultResolver(nestedContext);
+      
+      expect(resolver('$formValues.user.profile.firstName')).toBe('John');
+      expect(resolver('$formValues.user.profile.lastName')).toBe('Doe');
+      expect(resolver('$formValues.user.settings.theme')).toBe('dark');
+    });
+
+    it('should resolve $formValues without path', () => {
+      const resolver = createDefaultResolver(context);
+      const result = resolver('$formValues');
+      
+      expect(result).toEqual(context.formValues);
+    });
+
+    it('should resolve $formValues with nested objects', () => {
+      const nestedContext: ResolverContext = {
+        externalContext: {},
+        formValues: {
           user: {
             profile: {
               firstName: 'John',
@@ -60,15 +89,15 @@ describe('Variable Resolver', () => {
       const resolver = createDefaultResolver(nestedContext);
       
       const nestedResolver = createDefaultResolver(nestedContext);
-      expect(nestedResolver('$formState.user.profile.firstName')).toBe('John');
-      expect(nestedResolver('$formState.user.profile.lastName')).toBe('Doe');
-      expect(nestedResolver('$formState.user.settings.theme')).toBe('dark');
+      expect(nestedResolver('$formValues.user.profile.firstName')).toBe('John');
+      expect(nestedResolver('$formValues.user.profile.lastName')).toBe('Doe');
+      expect(nestedResolver('$formValues.user.settings.theme')).toBe('dark');
     });
 
-    it('should resolve $formState with arrays', () => {
+    it('should resolve $formValues with arrays', () => {
       const arrayContext: ResolverContext = {
         externalContext: {},
-        formState: {
+        formValues: {
           tags: ['react', 'typescript', 'vue'],
           items: [
             { id: 1, name: 'Item 1' },
@@ -79,17 +108,17 @@ describe('Variable Resolver', () => {
       const resolver = createDefaultResolver(arrayContext);
       
       const arrayResolver = createDefaultResolver(arrayContext);
-      expect(arrayResolver('$formState.tags')).toEqual(['react', 'typescript', 'vue']);
-      expect(arrayResolver('$formState.items')).toEqual([
+      expect(arrayResolver('$formValues.tags')).toEqual(['react', 'typescript', 'vue']);
+      expect(arrayResolver('$formValues.items')).toEqual([
         { id: 1, name: 'Item 1' },
         { id: 2, name: 'Item 2' },
       ]);
     });
 
-    it('should resolve $formState with primitive values', () => {
+    it('should resolve $formValues with primitive values', () => {
       const primitiveContext: ResolverContext = {
         externalContext: {},
-        formState: {
+        formValues: {
           count: 42,
           isActive: true,
           price: 99.99,
@@ -99,16 +128,16 @@ describe('Variable Resolver', () => {
       const resolver = createDefaultResolver(primitiveContext);
       
       const primitiveResolver = createDefaultResolver(primitiveContext);
-      expect(primitiveResolver('$formState.count')).toBe(42);
-      expect(primitiveResolver('$formState.isActive')).toBe(true);
-      expect(primitiveResolver('$formState.price')).toBe(99.99);
-      expect(primitiveResolver('$formState.description')).toBe('Test description');
+      expect(primitiveResolver('$formValues.count')).toBe(42);
+      expect(primitiveResolver('$formValues.isActive')).toBe(true);
+      expect(primitiveResolver('$formValues.price')).toBe(99.99);
+      expect(primitiveResolver('$formValues.description')).toBe('Test description');
     });
 
-    it('should resolve $formState with null and undefined values', () => {
+    it('should resolve $formValues with null and undefined values', () => {
       const nullContext: ResolverContext = {
         externalContext: {},
-        formState: {
+        formValues: {
           nullable: null,
           undefinedValue: undefined,
           emptyString: '',
@@ -116,15 +145,15 @@ describe('Variable Resolver', () => {
       };
       
       const nullResolver = createDefaultResolver(nullContext);
-      expect(nullResolver('$formState.nullable')).toBeNull();
-      expect(nullResolver('$formState.undefinedValue')).toBeUndefined();
-      expect(nullResolver('$formState.emptyString')).toBe('');
+      expect(nullResolver('$formValues.nullable')).toBeNull();
+      expect(nullResolver('$formValues.undefinedValue')).toBeUndefined();
+      expect(nullResolver('$formValues.emptyString')).toBe('');
     });
 
-    it('should handle $formState with complex nested structures', () => {
+    it('should handle $formValues with complex nested structures', () => {
       const complexContext: ResolverContext = {
         externalContext: {},
-        formState: {
+        formValues: {
           address: {
             street: '123 Main St',
             city: 'New York',
@@ -139,10 +168,10 @@ describe('Variable Resolver', () => {
       const resolver = createDefaultResolver(complexContext);
       
       const complexResolver = createDefaultResolver(complexContext);
-      expect(complexResolver('$formState.address.street')).toBe('123 Main St');
-      expect(complexResolver('$formState.address.city')).toBe('New York');
-      expect(complexResolver('$formState.address.coordinates.lat')).toBe(40.7128);
-      expect(complexResolver('$formState.address.coordinates.lng')).toBe(-74.0060);
+      expect(complexResolver('$formValues.address.street')).toBe('123 Main St');
+      expect(complexResolver('$formValues.address.city')).toBe('New York');
+      expect(complexResolver('$formValues.address.coordinates.lat')).toBe(40.7128);
+      expect(complexResolver('$formValues.address.coordinates.lng')).toBe(-74.0060);
     });
 
     it('should resolve $externalContext without path', () => {
@@ -150,13 +179,6 @@ describe('Variable Resolver', () => {
       const result = resolver('$externalContext');
       
       expect(result).toEqual(context.externalContext);
-    });
-
-    it('should resolve $formState without path', () => {
-      const resolver = createDefaultResolver(context);
-      const result = resolver('$formState');
-      
-      expect(result).toEqual(context.formState);
     });
 
     it('should return undefined for unknown variables', () => {
@@ -176,18 +198,18 @@ describe('Variable Resolver', () => {
       const resolver = createDefaultResolver(context);
       
       expect(resolver('$externalContext.user.nonexistent')).toBeUndefined();
-      expect(resolver('$formState.nonexistent')).toBeUndefined();
+      expect(resolver('$formValues.nonexistent')).toBeUndefined();
     });
 
     it('should handle null/undefined context values', () => {
       const emptyContext: ResolverContext = {
         externalContext: {},
-        formState: {},
+        formValues: {},
       };
       const emptyResolver = createDefaultResolver(emptyContext);
       
       expect(emptyResolver('$externalContext.user.name')).toBeUndefined();
-      expect(emptyResolver('$formState.firstName')).toBeUndefined();
+      expect(emptyResolver('$formValues.firstName')).toBeUndefined();
     });
   });
 
@@ -219,7 +241,7 @@ describe('Variable Resolver', () => {
       
       // Default variables still work
       expect(resolver('$externalContext.user.name')).toBe('John Doe');
-      expect(resolver('$formState.firstName')).toBe('John');
+      expect(resolver('$formValues.firstName')).toBe('John');
     });
 
     it('should handle paths with leading dots', () => {

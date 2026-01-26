@@ -19,12 +19,12 @@ export interface ScheptaFormOptions {
 export interface ScheptaFormResult {
   /** The Schepta form adapter */
   formAdapter: FormAdapter;
-  /** Current form state (for reactivity) */
-  formState: Record<string, any>;
+  /** Current form values (for reactivity) */
+  formValues: Record<string, any>;
   /** Form errors */
   formErrors: Record<string, any>;
-  /** Set form state directly */
-  setFormState: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  /** Set form values directly */
+  setFormValues: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   /** Set form errors directly */
   setFormErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   /** Reset form to initial values */
@@ -41,7 +41,7 @@ export interface ScheptaFormResult {
  * 
  * @example Basic usage
  * ```tsx
- * const { formAdapter, formState } = useScheptaForm(schema, {
+ * const { formAdapter, formValues } = useScheptaForm(schema, {
  *   initialValues: { name: 'John' },
  * });
  * ```
@@ -49,7 +49,7 @@ export interface ScheptaFormResult {
  * @example With custom adapter
  * ```tsx
  * const myAdapter = createCustomAdapter();
- * const { formAdapter, formState } = useScheptaForm(schema, {
+ * const { formAdapter, formValues } = useScheptaForm(schema, {
  *   adapter: myAdapter,
  * });
  * ```
@@ -66,7 +66,7 @@ export function useScheptaForm(
     return { ...schemaDefaults, ...initialValues };
   }, [schema, initialValues]);
 
-  const [formState, setFormState] = useState<Record<string, any>>(defaultValues);
+  const [formValues, setFormValues] = useState<Record<string, any>>(defaultValues);
   const [formErrors, setFormErrors] = useState<Record<string, any>>({});
 
   // Create adapter (ref to maintain identity)
@@ -77,20 +77,20 @@ export function useScheptaForm(
       adapterRef.current = externalAdapter;
     } else {
       adapterRef.current = createNativeReactFormAdapter(
-        formState,
-        setFormState,
+        formValues,
+        setFormValues,
         formErrors,
         setFormErrors
       );
     }
   }
 
-  // Update native adapter's internal state reference when state changes
+  // Update native adapter's internal state reference when values change
   useEffect(() => {
     if (adapterRef.current instanceof NativeReactFormAdapter) {
-      adapterRef.current.updateState(formState);
+      adapterRef.current.updateState(formValues);
     }
-  }, [formState]);
+  }, [formValues]);
 
   // Update native adapter's internal errors reference when errors change
   useEffect(() => {
@@ -106,7 +106,7 @@ export function useScheptaForm(
         ...buildInitialValues(schema),
         ...initialValues,
       };
-      setFormState(newDefaults);
+      setFormValues(newDefaults);
       setFormErrors({});
     }
   }, [initialValues, schema]);
@@ -115,16 +115,16 @@ export function useScheptaForm(
   const reset = useMemo(() => {
     return (values?: Record<string, any>) => {
       const resetValues = values || defaultValues;
-      setFormState(resetValues);
+      setFormValues(resetValues);
       setFormErrors({});
     };
   }, [defaultValues]);
 
   return {
     formAdapter: adapterRef.current!,
-    formState,
+    formValues,
     formErrors,
-    setFormState,
+    setFormValues,
     setFormErrors,
     reset,
   };

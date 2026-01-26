@@ -11,8 +11,8 @@
 export interface ResolverContext {
   /** External context (user data, API services, etc.) */
   externalContext: Record<string, any>;
-  /** Form state (current form values) */
-  formState: Record<string, any>;
+  /** Form values (current form values) */
+  formValues: Record<string, any>;
   /** Additional context variables (extensible) */
   [key: string]: any;
 }
@@ -57,7 +57,7 @@ function resolveNestedPath(path: string, obj: any): any {
  * Create default variable resolver
  * Supports:
  * - $externalContext.* - values from externalContext
- * - $formState.* - values from formState
+ * - $formValues.* - values from formValues
  * 
  * @param context Resolver context
  * @returns Variable resolver function
@@ -65,10 +65,10 @@ function resolveNestedPath(path: string, obj: any): any {
  * @example
  * const resolver = createDefaultResolver({
  *   externalContext: { user: { name: "John" } },
- *   formState: { email: "john@example.com" }
+ *   formValues: { email: "john@example.com" }
  * });
  * resolver("$externalContext.user.name") // "John"
- * resolver("$formState.email") // "john@example.com"
+ * resolver("$formValues.email") // "john@example.com"
  */
 export function createDefaultResolver(context: ResolverContext): VariableResolver {
   return (expression: string): any => {
@@ -84,10 +84,10 @@ export function createDefaultResolver(context: ResolverContext): VariableResolve
       return resolveNestedPath(path, context.externalContext);
     }
 
-    // Handle $formState.*
-    if (trimmed.startsWith('$formState.')) {
-      const path = trimmed.substring('$formState.'.length);
-      return resolveNestedPath(path, context.formState);
+    // Handle $formValues.*
+    if (trimmed.startsWith('$formValues.')) {
+      const path = trimmed.substring('$formValues.'.length);
+      return resolveNestedPath(path, context.formValues);
     }
 
     // Handle $externalContext (without path - returns entire object)
@@ -95,9 +95,9 @@ export function createDefaultResolver(context: ResolverContext): VariableResolve
       return context.externalContext;
     }
 
-    // Handle $formState (without path - returns entire object)
-    if (trimmed === '$formState') {
-      return context.formState;
+    // Handle $formValues (without path - returns entire object)
+    if (trimmed === '$formValues') {
+      return context.formValues;
     }
 
     // Future: support other variables like $i18n, $now, etc.

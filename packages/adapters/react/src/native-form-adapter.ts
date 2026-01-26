@@ -228,9 +228,9 @@ export class NativeReactFormAdapter implements FormAdapter {
  * 
  * @example
  * ```tsx
- * const [formState, setFormState] = useState({});
+ * const [formValues, setFormValues] = useState({});
  * const [errors, setErrors] = useState({});
- * const adapter = createNativeReactFormAdapter(formState, setFormState, errors, setErrors);
+ * const adapter = createNativeReactFormAdapter(formValues, setFormValues, errors, setErrors);
  * ```
  */
 export function createNativeReactFormAdapter(

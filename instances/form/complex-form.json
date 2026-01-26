@@ -178,6 +178,47 @@
                       }
                     }
                   }
+                },
+                "maritalStatus": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "x-ui": {
+                    "order": 5
+                  },
+                  "properties": {
+                    "maritalStatus": {
+                      "type": "string",
+                      "x-component": "InputSelect",
+                      "x-component-props": {
+                        "label": "Marital Status",
+                        "placeholder": "Select marital status",
+                        "options": [
+                          { "value": "single", "label": "Single" },
+                          { "value": "married", "label": "Married" },
+                          { "value": "divorced", "label": "Divorced" },
+                          { "value": "widowed", "label": "Widowed" }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "spouseName": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "x-ui": {
+                    "order": 6,
+                    "visible": "{{ $formValues.userInfo.maritalStatus === 'married' }}"
+                  },
+                  "properties": {
+                    "spouseName": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-component-props": {
+                        "label": "Spouse Name",
+                        "placeholder": "Enter your spouse name"
+                      }
+                    }
+                  }
                 }
               }
             },
