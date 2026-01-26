@@ -21,6 +21,8 @@ export interface FieldNode {
   component: string;
   /** Label from x-component-props */
   label?: string;
+  /** Visibility from x-ui.visible (default: true) */
+  visible: boolean | string;
   /** All props from x-component-props */
   props: Record<string, any>;
 }
@@ -150,11 +152,16 @@ export function traverseFormSchema(schema: FormSchema, visitor: FieldVisitor): v
 
     // Check if this is a FormField component containing an input
     if (component === 'FormField' && obj.properties) {
+      // Get x-ui from FormField wrapper (where visible is typically defined)
+      const formFieldXUi = obj['x-ui'] || {};
+      
       // Look for the actual input field inside the FormField
       for (const [key, value] of Object.entries(obj.properties)) {
         if (value && typeof value === 'object' && 'x-component' in value) {
           const inputComponent = (value as any)['x-component'];
           const props = (value as any)['x-component-props'] || {};
+          // Get x-ui from input (can override FormField's x-ui)
+          const inputXUi = (value as any)['x-ui'] || {};
           
           // Check if it's an input component
           if (inputComponent && isInputComponent(inputComponent)) {
@@ -162,12 +169,18 @@ export function traverseFormSchema(schema: FormSchema, visitor: FieldVisitor): v
             // This matches how the orchestrator builds name paths
             const fieldPath = [...currentPath, key].join('.');
             
+            // Resolve visible: input's x-ui.visible takes precedence, then FormField's, default is true
+            const visible = inputXUi.visible !== undefined 
+              ? inputXUi.visible 
+              : (formFieldXUi.visible !== undefined ? formFieldXUi.visible : true);
+            
             const field: FieldNode = {
               name: key,
               path: fieldPath,
               type: getTypeForComponent(inputComponent),
               component: inputComponent,
               label: props.label,
+              visible,
               props,
             };
             visitor(field);

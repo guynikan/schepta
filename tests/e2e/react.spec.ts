@@ -24,7 +24,7 @@ test.describe('React Form Factory', () => {
   test('should render complex form with all field types', async ({ page, baseURL }) => {
     await page.click('[data-test-id*="complex-form-tab"]');
 
-    const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).map(field => field.name);
+    const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).filter(field => field.visible === true).map(field => field.name);
 
     // Wait for form to be rendered
     await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
@@ -36,7 +36,9 @@ test.describe('React Form Factory', () => {
   });
 
   test('should fill form fields', async ({ page }) => {
-    const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).filter(field => field.props.disabled !== true);
+    const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).filter(field => field.props.disabled !== true
+      && field.visible === true
+    );
 
     const inputValues = {
       'email': 'john.doe@example.com',
@@ -45,6 +47,7 @@ test.describe('React Form Factory', () => {
       'lastName': 'Doe',
       'userType': 'individual',
       'birthDate': '1990-01-01',
+      'maritalStatus': 'single',
       'bio': 'I am a software engineer',
       'acceptTerms': true,
     }
@@ -96,6 +99,14 @@ test.describe('React Form Factory', () => {
       const fieldLocator = page.locator(`[data-test-id*="${field}"]`).first();
       await expect(fieldLocator).toHaveAttribute('required', '');
     }
+  });
+
+  test('should show spouse name field when marital status is married', async ({ page }) => {
+    await page.click('[data-test-id*="complex-form-tab"]');
+    await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
+
+    await page.locator('[data-test-id*="maritalStatus"]').selectOption('married');
+    await expect(page.locator('[data-test-id*="spouseName"]')).toBeVisible();
   });
 });
 

@@ -11,8 +11,8 @@ import type { DebugContextValue } from '../runtime/types';
  * Middleware context - provides access to form state and external context
  */
 export interface MiddlewareContext {
-  /** Current form state */
-  formState: Record<string, any>;
+  /** Current form values */
+  formValues: Record<string, any>;
   /** External context (user data, API services, etc.) */
   externalContext: Record<string, any>;
   /** Debug utilities */

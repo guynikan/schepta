@@ -13,7 +13,7 @@ import { createDefaultResolver } from '../expressions/variable-resolver';
  * Create template expression middleware
  * Processes all template expressions in props recursively
  * 
- * @param context Middleware context (contains externalContext and formState)
+ * @param context Middleware context (contains externalContext and formValues)
  * @returns Middleware function
  * 
  * @example
@@ -25,7 +25,7 @@ export function createTemplateExpressionMiddleware(
 ): MiddlewareFn {
   const resolver = createDefaultResolver({
     externalContext: context.externalContext || {},
-    formState: context.formState || {},
+    formValues: context.formValues || {},
   });
 
   return (props: Record<string, any>, schema: any, middlewareContext: MiddlewareContext): Record<string, any> => {
@@ -37,7 +37,7 @@ export function createTemplateExpressionMiddleware(
     // Process all props recursively
     return processValue(props, resolver, {
       externalContext: middlewareContext.externalContext || {},
-      formState: middlewareContext.formState || {},
+      formValues: middlewareContext.formValues || {},
     }) as Record<string, any>;
   };
 }

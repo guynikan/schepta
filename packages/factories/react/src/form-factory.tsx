@@ -98,7 +98,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
     debug,
   });
 
-  const { formAdapter, formState, reset } = useScheptaForm(schema, {
+  const { formAdapter, formValues, reset } = useScheptaForm(schema, {
     initialValues,
     adapter: providedAdapter,
   });
@@ -165,10 +165,10 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
         field: createFieldRenderer({ FieldWrapper: FieldWrapperComponent }),
       };
 
-      // Create template expression middleware with current form state (always first)
+      // Create template expression middleware with current form values (always first)
       const templateMiddleware = createTemplateExpressionMiddleware({
         externalContext: mergedConfig.externalContext,
-        formState,
+        formValues,
         debug: debugContext,
       });
 
@@ -184,7 +184,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
         externalContext: {
           ...mergedConfig.externalContext,
         },
-        state: formState,
+        state: formValues,
         middlewares: updatedMiddlewares,
         onSubmit,
         debug: debugContext,
@@ -202,13 +202,13 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
     formAdapter,
     runtime,
     onSubmit,
-    formState,
+    formValues,
     SubmitButtonComponent,
     FieldWrapperComponent,
   ]);
 
   return (
-    <ScheptaFormProvider initialValues={initialValues} adapter={formAdapter} values={formState}>
+    <ScheptaFormProvider initialValues={initialValues} adapter={formAdapter} values={formValues}>
       <FormRenderer
         componentKey={rootComponentKey}
         schema={schema}
