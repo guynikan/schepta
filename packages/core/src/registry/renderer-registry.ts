@@ -37,7 +37,9 @@ export const defaultTypeRenderers: Record<ComponentType, RendererFn> = {
     return runtime.create(spec, propsWithChildren);
   },
   'container': (spec, props, runtime, children) => {
-    const sanitized = sanitizePropsForDOM(props);
+    const xComponentProps = props['x-component-props'] || {};
+    const mergedProps = { ...props, ...xComponentProps };
+    const sanitized = sanitizePropsForDOM(mergedProps);
     const propsWithChildren = children && children.length > 0 
       ? { ...sanitized, children }
       : sanitized;
