@@ -1,0 +1,19 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+      "outDir": "./dist",
+      "jsx": "preserve",
+      "baseUrl": "..",
+      "paths": {
+        "@schepta/core": ["./packages/core/src"],
+        "@schepta/adapter-vanilla": ["./packages/adapters/vanilla/src"],
+        "@schepta/adapter-react": ["./packages/adapters/react/src"],
+        "@schepta/adapter-vue": ["./packages/adapters/vue/src"],
+        "@schepta/factory-vanilla": ["./packages/factories/vanilla/src"],
+        "@schepta/factory-react": ["./packages/factories/react/src"],
+        "@schepta/factory-vue": ["./packages/factories/vue/src"]
+      }
+    },
+    "include": ["**/*"],
+    "exclude": ["node_modules", "dist"]
+  }
