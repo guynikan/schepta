@@ -111,13 +111,21 @@ export function createRendererOrchestrator(
     // in any property of the schema (x-ui, x-content, x-component-props, etc.)
     const resolver = createDefaultResolver({
       externalContext,
-      formState: state,
+      formValues: state,
     });
     
     const processedSchema = processValue(schema, resolver, {
       externalContext,
-      formState: state,
+      formValues: state,
     }) as any;
+    
+    // Check visibility via x-ui.visible
+    // If visible === false, don't render this component (and its children)
+    // By default, visible is true
+    const xUi = processedSchema['x-ui'] || {};
+    if (xUi.visible === false) {
+      return null;
+    }
     
     // Parse schema (now using processed schema)
     const { 'x-component-props': componentProps = {} } = processedSchema;
@@ -176,7 +184,7 @@ export function createRendererOrchestrator(
 
     // Middleware Application
     const middlewareContext: MiddlewareContext = {
-      formState: state,
+      formValues: state,
       externalContext,
       debug,
       formAdapter,
