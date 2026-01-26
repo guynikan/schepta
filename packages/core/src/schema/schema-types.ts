@@ -1,201 +1,221 @@
 /**
- * Schema Types
- * 
- * Type definitions for form and menu schemas.
- * Compatible with JSON Schema format.
+ * Schema de formulário
  */
-
-/**
- * Base schema property
- */
-export interface BaseSchemaProperty {
-  type: string;
-  'x-component'?: string;
-  'x-component-props'?: Record<string, any>;
-  'x-rules'?: Record<string, any>;
-  'x-reactions'?: Record<string, any>;
-  'x-ui'?: {
-    order?: number;
-    [key: string]: any;
-  };
-  'x-content'?: any;
-  'x-slots'?: Record<string, any>;
+export interface FormSchema {
+  $id: string
+  $schema?: string
+  type: "object"
+  properties: {
+    [k: string]: FormSectionContainer
+  }
+  "x-component": "FormContainer"
 }
-
 /**
- * Form schema structure
+ * This interface was referenced by `undefined`'s JSON-Schema definition
+ * via the `patternProperty` "^.*$".
  */
-export interface FormSchema extends BaseSchemaProperty {
-  type: 'object';
-  $id?: string;
-  $schema?: string;
-  properties?: Record<string, FormSectionContainer>;
-  required?: string[];
+export interface FormSectionContainer {
+  type: "object"
+  "x-ui": {
+    /**
+     * Order of the section in the form (lower values appear first)
+     */
+    order: number
+  }
+  properties: {
+    /**
+     * This interface was referenced by `undefined`'s JSON-Schema definition
+     * via the `patternProperty` "^.*$".
+     */
+    [k: string]: FormSectionTitle | FormSectionGroupContainer
+  }
+  "x-component": "FormSectionContainer"
+  "x-component-props"?: {
+    [k: string]: unknown
+  }
 }
-
-/**
- * Form section container
- */
-export interface FormSectionContainer extends BaseSchemaProperty {
-  type: 'object';
-  'x-component': 'FormSectionContainer';
-  properties?: Record<string, FormSectionTitle | FormSectionGroupContainer>;
+export interface FormSectionTitle {
+  type: "object"
+  "x-slots"?: {
+    [k: string]: unknown
+  }
+  "x-content": string
+  "x-component": "FormSectionTitle"
+  "x-component-props"?: {
+    [k: string]: unknown
+  }
 }
-
-/**
- * Form section title
- */
-export interface FormSectionTitle extends BaseSchemaProperty {
-  type: 'object';
-  'x-component': 'FormSectionTitle';
-  'x-content': string;
+export interface FormSectionGroupContainer {
+  type: "object"
+  properties: {
+    [k: string]: FormSectionGroup
+  }
+  "x-component": "FormSectionGroupContainer"
+  "x-component-props"?: {
+    [k: string]: unknown
+  }
 }
-
 /**
- * Form section group container
+ * This interface was referenced by `undefined`'s JSON-Schema definition
+ * via the `patternProperty` "^.*$".
  */
-export interface FormSectionGroupContainer extends BaseSchemaProperty {
-  type: 'object';
-  'x-component': 'FormSectionGroupContainer';
-  properties?: Record<string, FormSectionGroup>;
+export interface FormSectionGroup {
+  type: "object"
+  properties: {
+    [k: string]: FormField
+  }
+  "x-component": "FormSectionGroup"
+  "x-component-props"?: {
+    [k: string]: unknown
+  }
 }
-
 /**
- * Form section group
+ * FormField wrapper (Grid) reutilizável para qualquer tipo de input
+ *
+ * This interface was referenced by `undefined`'s JSON-Schema definition
+ * via the `patternProperty` "^.*$".
  */
-export interface FormSectionGroup extends BaseSchemaProperty {
-  type: 'object';
-  'x-component': 'FormSectionGroup';
-  properties?: Record<string, FormField>;
+export interface FormField {
+  type: "object"
+  "x-component": "FormField"
+  "x-ui": {
+    /**
+     * Order of the field in the form (lower values appear first)
+     */
+    order: number
+  }
+  properties: {
+    /**
+     * This interface was referenced by `undefined`'s JSON-Schema definition
+     * via the `patternProperty` "^[a-zA-Z_][a-zA-Z0-9_]*$".
+     */
+    [k: string]:
+      | InputText
+      | InputSelect
+      | InputCheckbox
+      | InputDate
+      | InputPhone
+      | InputAutocomplete
+      | InputTextarea
+      | InputNumber
+  }
+  "x-component-props"?: {
+    [k: string]: unknown
+  }
 }
-
-/**
- * Form field
- */
-export interface FormField extends BaseSchemaProperty {
-  type: 'object';
-  'x-component': 'FormField';
-  properties?: Record<string, FieldComponent>;
+export interface InputText {
+  type: "string"
+  "x-rules"?: {
+    [k: string]: unknown
+  }
+  "x-component": "InputText"
+  "x-reactions"?: {
+    [k: string]: unknown
+  }
+  "x-component-props"?: {
+    label?: string
+    placeholder?: string
+    [k: string]: unknown
+  }
 }
-
-/**
- * Field component types
- */
-export type FieldComponent = 
-  | InputText
-  | InputSelect
-  | InputCheckbox
-  | InputDate
-  | InputCpf
-  | InputPhone
-  | InputTextarea
-  | InputNumber
-  | InputAutocomplete;
-
-/**
- * Input text
- */
-export interface InputText extends BaseSchemaProperty {
-  type: 'string';
-  'x-component': 'InputText';
+export interface InputSelect {
+  type: "string"
+  "x-rules"?: {
+    [k: string]: unknown
+  }
+  "x-component": "InputSelect"
+  "x-reactions"?: {
+    [k: string]: unknown
+  }
+  "x-component-props"?: {
+    label?: string
+    placeholder?: string
+    [k: string]: unknown
+  }
 }
-
-/**
- * Input select
- */
-export interface InputSelect extends BaseSchemaProperty {
-  type: 'string';
-  'x-component': 'InputSelect';
+export interface InputCheckbox {
+  type: "boolean"
+  "x-rules"?: {
+    [k: string]: unknown
+  }
+  "x-component": "InputCheckbox"
+  "x-reactions"?: {
+    [k: string]: unknown
+  }
+  "x-component-props"?: {
+    label?: string
+    placeholder?: string
+    [k: string]: unknown
+  }
 }
-
-/**
- * Input checkbox
- */
-export interface InputCheckbox extends BaseSchemaProperty {
-  type: 'boolean';
-  'x-component': 'InputCheckbox';
+export interface InputDate {
+  type: "string"
+  "x-rules"?: {
+    [k: string]: unknown
+  }
+  "x-component": "InputDate"
+  "x-reactions"?: {
+    [k: string]: unknown
+  }
+  "x-component-props"?: {
+    label?: string
+    placeholder?: string
+    [k: string]: unknown
+  }
 }
-
-/**
- * Date picker
- */
-export interface InputDate extends BaseSchemaProperty {
-  type: 'string';
-  'x-component': 'InputDate';
+export interface InputPhone {
+  type: "string"
+  "x-rules"?: {
+    [k: string]: unknown
+  }
+  "x-component": "InputPhone"
+  "x-reactions"?: {
+    [k: string]: unknown
+  }
+  "x-component-props"?: {
+    label?: string
+    placeholder?: string
+    [k: string]: unknown
+  }
 }
-
-/**
- * Input CPF
- */
-export interface InputCpf extends BaseSchemaProperty {
-  type: 'string';
-  'x-component': 'InputCpf';
+export interface InputAutocomplete {
+  type: "string"
+  "x-rules"?: {
+    [k: string]: unknown
+  }
+  "x-component": "InputAutocomplete"
+  "x-reactions"?: {
+    [k: string]: unknown
+  }
+  "x-component-props"?: {
+    label?: string
+    placeholder?: string
+    [k: string]: unknown
+  }
 }
-
-/**
- * Input phone
- */
-export interface InputPhone extends BaseSchemaProperty {
-  type: 'string';
-  'x-component': 'InputPhone';
+export interface InputTextarea {
+  type: "string"
+  "x-component": "InputTextarea"
+  "x-rules"?: {
+    [k: string]: unknown
+  }
+  "x-reactions"?: {
+    [k: string]: unknown
+  }
+  "x-component-props"?: {
+    [k: string]: unknown
+  }
 }
-
-/**
- * Input autocomplete
- */
-export interface InputAutocomplete extends BaseSchemaProperty {
-  type: 'string';
-  'x-component': 'InputAutocomplete';
+export interface InputNumber {
+  type: "number"
+  "x-component": "InputNumber"
+  "x-rules"?: {
+    [k: string]: unknown
+  }
+  "x-reactions"?: {
+    [k: string]: unknown
+  }
+  "x-component-props"?: {
+    [k: string]: unknown
+  }
 }
-
-/**
- * Input textarea
- */
-export interface InputTextarea extends BaseSchemaProperty {
-  type: 'string';
-  'x-component': 'InputTextarea';
-}
-
-/**
- * Input number
- */
-export interface InputNumber extends BaseSchemaProperty {
-  type: 'number';
-  'x-component': 'InputNumber';
-}
-
-/**
- * Menu schema structure
- */
-export interface MenuSchema extends BaseSchemaProperty {
-  type: 'object';
-  properties?: Record<string, MenuContainer>;
-}
-
-/**
- * Menu container
- */
-export interface MenuContainer extends BaseSchemaProperty {
-  type: 'object';
-  'x-component': 'MenuContainer';
-  'x-content'?: {
-    items?: MenuItem[];
-  };
-}
-
-/**
- * Menu item
- */
-export interface MenuItem extends BaseSchemaProperty {
-  type: 'object';
-  'x-component': 'MenuLink' | 'MenuButton';
-  'x-component-props'?: {
-    href?: string;
-    onClick?: string;
-    [key: string]: any;
-  };
-  'x-content'?: {
-    text?: string;
-  };
-}
-

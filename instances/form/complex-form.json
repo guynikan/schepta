@@ -23,15 +23,12 @@
             "basicInfo": {
               "type": "object",
               "x-component": "FormSectionGroup",
-              "x-component-props": {
-                "columns": "1fr 1fr"
-              },
               "properties": {
                 "email": {
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 1
+                    "order": 3
                   },
                   "properties": {
                     "email": {
@@ -40,11 +37,10 @@
                       "x-component-props": {
                         "type": "email",
                         "label": "Email Address",
-                        "placeholder": "example@email.com"
-                      },
-                      "x-rules": {
+                        "placeholder": "example@email.com",
                         "required": true
                       }
+                      
                     }
                   }
                 },
@@ -52,7 +48,7 @@
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 2
+                    "order": 4
                   },
                   "properties": {
                     "phone": {
@@ -60,7 +56,8 @@
                       "x-component": "InputPhone",
                       "x-component-props": {
                         "label": "Phone Number",
-                        "placeholder": "(123) 456-7890"
+                        "placeholder": "(123) 456-7890",
+                        "required": true
                       }
                     }
                   }
@@ -90,10 +87,43 @@
             "basicInfo": {
               "type": "object",
               "x-component": "FormSectionGroup",
-              "x-component-props": {
-                "columns": "1fr 1fr"
-              },
               "properties": {
+                "firstName": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "x-ui": {
+                    "order": 1
+                  },
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-component-props": {
+                        "label": "First Name",
+                        "placeholder": "Enter your first name",
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                "lastName": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "x-ui": {
+                    "order": 2
+                  },
+                  "properties": {
+                    "lastName": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-component-props": {
+                        "label": "Last Name",
+                        "placeholder": "Enter your last name",
+                        "required": true
+                      }
+                    }
+                  }
+                },
                 "userType": {
                   "type": "object",
                   "x-component": "FormField",
@@ -136,9 +166,6 @@
             "additionalInfo": {
               "type": "object",
               "x-component": "FormSectionGroup",
-              "x-component-props": {
-                "columns": "1fr"
-              },
               "properties": {
                 "bio": {
                   "type": "object",
@@ -157,28 +184,15 @@
                     }
                   }
                 },
-                "age": {
-                  "type": "object",
-                  "x-component": "FormField",
-                  "x-ui": {
-                    "order": 6
-                  },
-                  "properties": {
-                    "age": {
-                      "type": "number",
-                      "x-component": "InputNumber",
-                      "x-component-props": {
-                        "label": "Age",
-                        "placeholder": "Enter your age",
-                        "min": 0,
-                        "max": 120
-                      }
-                    }
-                  }
-                },
                 "acceptTerms": {
                   "type": "object",
                   "x-component": "FormField",
+                  "x-component-props": {
+                   "style": {
+                    "display": "flex",
+                    "alignItems": "center"
+                   } 
+                  },
                   "x-ui": {
                     "order": 7
                   },
