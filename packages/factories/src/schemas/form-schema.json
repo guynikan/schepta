@@ -30,6 +30,10 @@
             "order": {
               "type": "integer",
               "description": "Order of the field in the form (lower values appear first)"
+            },
+            "visible": {
+              "type": "string",
+              "description": "Expression to determine if the field should be visible"
             }
           },
           "additionalProperties": false
@@ -362,6 +366,10 @@
             "order": {
               "type": "integer",
               "description": "Order of the section in the form (lower values appear first)"
+            },
+            "visible": {
+              "type": "string",
+              "description": "Expression to determine if the section should be visible"
             }
           },
           "additionalProperties": false
