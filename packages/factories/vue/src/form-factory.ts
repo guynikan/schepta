@@ -13,7 +13,7 @@ import {
   setFactoryDefaultComponents,
   createComponentSpec,
 } from '@schepta/core';
-import { buildInitialValuesFromSchema } from '@schepta/core';
+import { buildInitialValues } from '@schepta/core';
 import { FormRenderer } from './form-renderer';
 import { DefaultFormContainer, DefaultSubmitButton } from './components';
 
@@ -164,10 +164,9 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
         ? props.debug 
         : (defaultProps.debug !== undefined ? defaultProps.debug : (providerConfig?.debug?.enabled || false));
       
-      const initialValues = props.initialValues || defaultProps.initialValues;
-      const onSubmit = props.onSubmit || defaultProps.onSubmit;
+      
       const formAdapter = ref(createVueFormAdapter(
-        props.initialValues || buildInitialValuesFromSchema(props.schema)
+        props.initialValues || buildInitialValues(props.schema)
       ));
       const runtime = ref(createVueRuntimeAdapter());
 
@@ -217,12 +216,6 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
 
       const rootComponentKey = computed(() => (props.schema as any)['x-component'] || 'FormContainer');
 
-      // Resolve SubmitButton component from registry (provider or local) or use default
-      const SubmitButtonComponent = computed(() => {
-        const customComponent = mergedComponents.SubmitButton?.factory?.({}, runtime.value);
-        return customComponent || DefaultSubmitButton;
-      });
-
       // Watch form state to trigger reactivity
       watch(() => formAdapter.value.getValues(), () => {
         // Force re-render when form values change
@@ -233,7 +226,7 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
         if (props.initialValues) {
           formAdapter.value.reset(props.initialValues);
         } else if (newSchema) {
-          formAdapter.value.reset(buildInitialValuesFromSchema(newSchema as FormSchema));
+          formAdapter.value.reset(buildInitialValues(newSchema as FormSchema));
         }
       }, { deep: true });
 

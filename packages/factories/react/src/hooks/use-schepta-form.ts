@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormSchema, FormAdapter } from '@schepta/core';
 import { createNativeReactFormAdapter, NativeReactFormAdapter } from '@schepta/adapter-react';
-import { buildInitialValuesFromSchema } from '@schepta/core';
+import { buildInitialValues } from '@schepta/core';
 
 export interface ScheptaFormOptions {
   /** Initial values for the form */
@@ -62,7 +62,7 @@ export function useScheptaForm(
 
   // Build default values from schema if no initial values provided
   const defaultValues = useMemo(() => {
-    const schemaDefaults = buildInitialValuesFromSchema(schema);
+    const schemaDefaults = buildInitialValues(schema);
     return { ...schemaDefaults, ...initialValues };
   }, [schema, initialValues]);
 
@@ -103,7 +103,7 @@ export function useScheptaForm(
   useEffect(() => {
     if (initialValues !== undefined) {
       const newDefaults = {
-        ...buildInitialValuesFromSchema(schema),
+        ...buildInitialValues(schema),
         ...initialValues,
       };
       setFormState(newDefaults);

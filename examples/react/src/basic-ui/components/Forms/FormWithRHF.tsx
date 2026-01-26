@@ -2,79 +2,17 @@
  * Form with React Hook Form
  * 
  * Example component demonstrating how to use Schepta with react-hook-form.
- * This shows how to inject custom RHF components via the component registry.
+ * This shows how to inject custom RHF components via the component registry
+ * with AJV validation using @hookform/resolvers/ajv.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { FormFactory } from '@schepta/factory-react';
 import { createComponentSpec, FormSchema } from '@schepta/core';
-import { RHFFieldWrapper } from '../rhf/RHFFieldWrapper';
 import { RHFFormContainer } from '../rhf/RHFFormContainer';
+import { RHFFieldWrapper } from '../rhf/RHFFieldWrapper';
 
-// Import the same input components from basic-ui
-import { InputText } from '../Inputs/InputText';
-import { InputSelect } from '../Inputs/InputSelect';
-import { InputCheckbox } from '../Inputs/InputCheckbox';
-import { InputTextarea } from '../Inputs/InputTextarea';
-import { InputNumber } from '../Inputs/InputNumber';
-import { InputDate } from '../Inputs/InputDate';
-
-/**
- * RHF-specific component registry.
- * Registers the RHF FieldWrapper and FormContainer to use
- * react-hook-form for form state management.
- */
-const rhfComponents = {
-  // Register RHF FieldWrapper - this makes all fields use RHF's Controller
-  FieldWrapper: createComponentSpec({
-    id: 'FieldWrapper',
-    type: 'field-wrapper',
-    factory: () => RHFFieldWrapper,
-  }),
-  // Register RHF FormContainer - this provides the FormProvider context
-  FormContainer: createComponentSpec({
-    id: 'FormContainer',
-    type: 'FormContainer',
-    factory: () => RHFFormContainer,
-  }),
-  // Standard input components (same as basic-ui)
-  InputText: createComponentSpec({
-    id: 'InputText',
-    type: 'field',
-    factory: () => InputText,
-  }),
-  InputSelect: createComponentSpec({
-    id: 'InputSelect',
-    type: 'field',
-    factory: () => InputSelect,
-  }),
-  InputCheckbox: createComponentSpec({
-    id: 'InputCheckbox',
-    type: 'field',
-    factory: () => InputCheckbox,
-  }),
-  InputTextarea: createComponentSpec({
-    id: 'InputTextarea',
-    type: 'field',
-    factory: () => InputTextarea,
-  }),
-  InputNumber: createComponentSpec({
-    id: 'InputNumber',
-    type: 'field',
-    factory: () => InputNumber,
-  }),
-  InputDate: createComponentSpec({
-    id: 'InputDate',
-    type: 'field',
-    factory: () => InputDate,
-  }),
-  InputPhone: createComponentSpec({
-    id: 'InputPhone',
-    type: 'field',
-    factory: () => InputText,
-    defaultProps: { type: 'tel' },
-  }),
-};
+import { components } from '../ComponentRegistry';
 
 interface FormWithRHFProps {
   schema: FormSchema;
@@ -83,11 +21,27 @@ interface FormWithRHFProps {
 /**
  * FormWithRHF Component
  * 
- * Renders a form using react-hook-form for state management.
+ * Renders a form using react-hook-form for state management with AJV validation.
  * Demonstrates how to integrate external form libraries with Schepta.
  */
 export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
   const [submittedValues, setSubmittedValues] = useState<Record<string, any> | null>(null);
+
+  // Create RHF components with validation config
+  const rhfComponents = useMemo(() => ({
+    // Register RHF FieldWrapper - this makes all fields use RHF's Controller
+    FieldWrapper: createComponentSpec({
+      id: 'FieldWrapper',
+      type: 'field-wrapper',
+      factory: () => RHFFieldWrapper,
+    }),
+    // Register RHF FormContainer with validation - this provides the FormProvider context
+    FormContainer: createComponentSpec({
+      id: 'FormContainer',
+      type: 'FormContainer',
+      factory: () => RHFFormContainer,
+    }),
+  }), []);
 
   const handleSubmit = (values: Record<string, any>) => {
     console.log('Form submitted (RHF):', values);
@@ -110,12 +64,12 @@ export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
           borderRadius: '4px',
           fontSize: '14px',
         }}>
-          This form uses <strong>react-hook-form</strong> for state management.
+          This form uses <strong>react-hook-form</strong> with <strong>AJV validation</strong>.
           The FieldWrapper and FormContainer are custom RHF implementations.
         </div>
         <FormFactory
           schema={schema}
-          components={rhfComponents}
+          components={{...components, ...rhfComponents}}
           onSubmit={handleSubmit}
           debug={true}
         />

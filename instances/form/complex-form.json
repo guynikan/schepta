@@ -88,11 +88,29 @@
               "type": "object",
               "x-component": "FormSectionGroup",
               "properties": {
-                "firstName": {
+                "enrollment": {
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
                     "order": 1
+                  },
+                  "properties": {
+                    "enrollment": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-component-props": {
+                        "label": "Enrollment",
+                        "placeholder": "Enter your enrollment",
+                        "disabled": true
+                      }
+                    }
+                  }
+                },
+                "firstName": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "x-ui": {
+                    "order": 2
                   },
                   "properties": {
                     "firstName": {
@@ -110,7 +128,7 @@
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 2
+                    "order": 3
                   },
                   "properties": {
                     "lastName": {

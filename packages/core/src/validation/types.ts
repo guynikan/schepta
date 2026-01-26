@@ -2,10 +2,19 @@
  * Validation Types
  * 
  * Type definitions for schema validation system.
+ * 
+ * This module contains types for:
+ * - Schema structure validation (development-time validation of FormSchema JSON)
+ * - Form data validation (runtime validation of user input)
  */
 
+// ============================================================================
+// Schema Structure Validation Types (development-time)
+// Used by schema-validator.ts for validating FormSchema JSON is well-formed
+// ============================================================================
+
 /**
- * Represents a single validation error
+ * Represents a single validation error from schema structure validation
  */
 export interface ValidationError {
   /** JSON pointer path to the error location (e.g., "/properties/personalInfo/properties/firstName") */
@@ -23,7 +32,7 @@ export interface ValidationError {
 }
 
 /**
- * Result of schema validation
+ * Result of schema structure validation
  */
 export interface ValidationResult {
   /** Whether the instance is valid against the schema */
@@ -33,7 +42,7 @@ export interface ValidationResult {
 }
 
 /**
- * Options for schema validation
+ * Options for schema structure validation
  */
 export interface ValidationOptions {
   /** Whether to collect all errors or stop at the first one */
@@ -44,3 +53,23 @@ export interface ValidationOptions {
   throwOnError?: boolean;
 }
 
+// ============================================================================
+// Form Data Validation Types (runtime)
+// Re-exported from schema-traversal.ts, schema-parser.ts, and form-validator.ts
+// ============================================================================
+
+// Re-export types from schema-traversal
+export type { FieldNode, FieldVisitor } from './schema-traversal';
+
+// Re-export types from schema-parser
+export type { 
+  ValidationMessages, 
+  ParsedSchema, 
+  SchemaParserOptions 
+} from './schema-parser';
+
+// Re-export types from form-validator
+export type { 
+  FormikValidationErrors, 
+  FormValidationResult 
+} from './form-validator';

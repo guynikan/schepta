@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { FormFactory } from '@schepta/factory-react';
-import { FormSchema } from "@schepta/core";
+import { FormSchema, generateValidationSchema } from "@schepta/core";
 
 interface FormProps {
   schema: FormSchema;
+  initialValues?: Record<string, any>;
 }
 
-export const NativeForm = ({ schema }: FormProps) => {
+export const NativeForm = ({ schema, initialValues: externalInitialValues }: FormProps) => {
   const [submittedValues, setSubmittedValues] = useState<Record<string, any> | null>(null);
+
+  const initialValues = useMemo(() => {
+    const { initialValues: schemaInitialValues } = generateValidationSchema(schema);
+    return { ...schemaInitialValues, ...externalInitialValues };
+  }, [schema, externalInitialValues]);
 
   const handleSubmit = (values: Record<string, any>) => {
     console.log('Form submitted:', values);
@@ -25,6 +31,7 @@ export const NativeForm = ({ schema }: FormProps) => {
       >
         <FormFactory
           schema={schema}
+          initialValues={initialValues}
           onSubmit={handleSubmit}
           debug={true}
         />

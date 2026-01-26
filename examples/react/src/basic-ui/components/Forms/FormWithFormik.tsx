@@ -2,79 +2,20 @@
  * Form with Formik
  * 
  * Example component demonstrating how to use Schepta with Formik.
- * This shows how to inject custom Formik components via the component registry.
+ * This shows how to inject custom Formik components via the component registry
+ * with AJV validation using createFormikValidator.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { FormFactory } from '@schepta/factory-react';
-import { createComponentSpec, FormSchema } from '@schepta/core';
+import { 
+  createComponentSpec, 
+  FormSchema, 
+} from '@schepta/core';
 import { FormikFieldWrapper } from '../formik/FormikFieldWrapper';
 import { FormikFormContainer } from '../formik/FormikFormContainer';
 
-// Import the same input components from basic-ui
-import { InputText } from '../Inputs/InputText';
-import { InputSelect } from '../Inputs/InputSelect';
-import { InputCheckbox } from '../Inputs/InputCheckbox';
-import { InputTextarea } from '../Inputs/InputTextarea';
-import { InputNumber } from '../Inputs/InputNumber';
-import { InputDate } from '../Inputs/InputDate';
-
-/**
- * Formik-specific component registry.
- * Registers the Formik FieldWrapper and FormContainer to use
- * Formik for form state management.
- */
-const formikComponents = {
-  // Register Formik FieldWrapper - this makes all fields use Formik's context
-  FieldWrapper: createComponentSpec({
-    id: 'FieldWrapper',
-    type: 'field-wrapper',
-    factory: () => FormikFieldWrapper,
-  }),
-  // Register Formik FormContainer - this provides the Formik context
-  FormContainer: createComponentSpec({
-    id: 'FormContainer',
-    type: 'FormContainer',
-    factory: () => FormikFormContainer,
-  }),
-  // Standard input components (same as basic-ui)
-  InputText: createComponentSpec({
-    id: 'InputText',
-    type: 'field',
-    factory: () => InputText,
-  }),
-  InputSelect: createComponentSpec({
-    id: 'InputSelect',
-    type: 'field',
-    factory: () => InputSelect,
-  }),
-  InputCheckbox: createComponentSpec({
-    id: 'InputCheckbox',
-    type: 'field',
-    factory: () => InputCheckbox,
-  }),
-  InputTextarea: createComponentSpec({
-    id: 'InputTextarea',
-    type: 'field',
-    factory: () => InputTextarea,
-  }),
-  InputNumber: createComponentSpec({
-    id: 'InputNumber',
-    type: 'field',
-    factory: () => InputNumber,
-  }),
-  InputDate: createComponentSpec({
-    id: 'InputDate',
-    type: 'field',
-    factory: () => InputDate,
-  }),
-  InputPhone: createComponentSpec({
-    id: 'InputPhone',
-    type: 'field',
-    factory: () => InputText,
-    defaultProps: { type: 'tel' },
-  }),
-};
+import { components } from '../ComponentRegistry';
 
 interface FormWithFormikProps {
   schema: FormSchema;
@@ -83,11 +24,27 @@ interface FormWithFormikProps {
 /**
  * FormWithFormik Component
  * 
- * Renders a form using Formik for state management.
+ * Renders a form using Formik for state management with AJV validation.
  * Demonstrates how to integrate external form libraries with Schepta.
  */
 export const FormWithFormik: React.FC<FormWithFormikProps> = ({ schema }) => {
   const [submittedValues, setSubmittedValues] = useState<Record<string, any> | null>(null);
+
+  const formikComponents = useMemo(() => ({
+    // Register Formik FieldWrapper - this makes all fields use Formik's context
+    FieldWrapper: createComponentSpec({
+      id: 'FieldWrapper',
+      type: 'field-wrapper',
+      factory: () => FormikFieldWrapper,
+    }),
+    // Register Formik FormContainer with validation - this provides the Formik context
+    FormContainer: createComponentSpec({
+      id: 'FormContainer',
+      type: 'FormContainer',
+      factory: () => FormikFormContainer,
+    }),
+    ...components,
+  }), []);
 
   const handleSubmit = (values: Record<string, any>) => {
     console.log('Form submitted (Formik):', values);
@@ -110,7 +67,7 @@ export const FormWithFormik: React.FC<FormWithFormikProps> = ({ schema }) => {
           borderRadius: '4px',
           fontSize: '14px',
         }}>
-          This form uses <strong>Formik</strong> for state management.
+          This form uses <strong>Formik</strong> with <strong>AJV validation</strong>.
           The FieldWrapper and FormContainer are custom Formik implementations.
         </div>
         <FormFactory

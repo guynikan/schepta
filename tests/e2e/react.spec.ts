@@ -1,8 +1,7 @@
 import { test, expect } from '@playwright/test';
 import simpleFormSchema from '../../instances/form/simple-form.json';
 import complexFormSchema from '../../instances/form/complex-form.json';
-import { extractFormFields, extractRequiredFields } from 'tests/utils/extractJsonFields';
-
+import { extractFieldsFromSchema, FormSchema } from '@schepta/core';
 
 
 test.describe('React Form Factory', () => {
@@ -11,26 +10,25 @@ test.describe('React Form Factory', () => {
   });
 
   test('should render simple form', async ({ page }) => {
-    const fields = extractFormFields(simpleFormSchema);
-    
+    const fields = extractFieldsFromSchema(simpleFormSchema as FormSchema);
+
     // Wait for form to be rendered
     await page.waitForSelector('[data-test-id*="firstName"]', { timeout: 10000 });
-    
+
     // Check if all form fields from schema are present
     for (const field of fields) {
-      await expect(page.locator(`[data-test-id*="${field}"]`)).toBeVisible();
+      await expect(page.locator(`[data-test-id*="${field.name}"]`)).toBeVisible();
     }
   });
 
   test('should render complex form with all field types', async ({ page, baseURL }) => {
     await page.click('[data-test-id*="complex-form-tab"]');
-    
-    const fields = extractFormFields(complexFormSchema);
-    console.log('Extracted fields from complex schema:', fields);
-    
+
+    const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).map(field => field.name);
+
     // Wait for form to be rendered
     await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
-    
+
     // Check if all form fields from schema are present
     for (const field of fields) {
       await expect(page.locator(`[data-test-id*="${field}"]`).first()).toBeVisible();
@@ -38,41 +36,45 @@ test.describe('React Form Factory', () => {
   });
 
   test('should fill form fields', async ({ page }) => {
-    const fields = extractFormFields(complexFormSchema);
-    const firstNameField = fields.find(f => f === 'firstName');
-    const lastNameField = fields.find(f => f === 'lastName');
-    const emailField = fields.find(f => f === 'email');
-    const phoneField = fields.find(f => f === 'phone');
-    const birthDateField = fields.find(f => f === 'birthDate');
-    const userTypeField = fields.find(f => f === 'userType');
-    const bioField = fields.find(f => f === 'bio');
-    const acceptTermsField = fields.find(f => f === 'acceptTerms');
+    const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).filter(field => field.props.disabled !== true);
+
+    const inputValues = {
+      'email': 'john.doe@example.com',
+      'phone': '(123) 456-7890',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'userType': 'individual',
+      'birthDate': '1990-01-01',
+      'bio': 'I am a software engineer',
+      'acceptTerms': true,
+    }
 
     await page.click('[data-test-id*="complex-form-tab"]');
     await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
 
-    await page.locator(`[data-test-id*="${emailField}"]`).first().fill('john.doe@example.com');
-    await page.locator(`[data-test-id*="${phoneField}"]`).first().fill('(123) 456-7890');
-    await page.locator(`[data-test-id*="${firstNameField}"]`).first().fill('John');
-    await page.locator(`[data-test-id*="${lastNameField}"]`).first().fill('Doe');
-    await page.locator(`[data-test-id*="${userTypeField}"]`).first().selectOption('individual');
-    await page.locator(`[data-test-id*="${birthDateField}"]`).first().fill('1990-01-01');
-    await page.locator(`[data-test-id*="${bioField}"]`).first().fill('I am a software engineer');    
-    await page.locator(`[data-test-id*="${acceptTermsField}"]`).first().check();
+    for (const field of fields) {
+      if (field.component === 'InputText' || field.component === 'InputPhone' || field.component === 'InputDate' || field.component === 'InputTextarea') {
+        await page.locator(`[data-test-id*="${field.name}"]`).first().fill(inputValues[field.name as keyof typeof inputValues] as string);
+      } else if (field.component === 'InputSelect') {
+        await page.locator(`[data-test-id*="${field.name}"]`).first().selectOption(inputValues[field.name as keyof typeof inputValues] as string);
+      } else if (field.component === 'InputCheckbox') {
+        await page.locator(`[data-test-id*="${field.name}"]`).first().check();
+      }
+    }
 
-    await expect(page.locator(`[data-test-id*="${emailField}"]`).first()).toHaveValue('john.doe@example.com');
-    await expect(page.locator(`[data-test-id*="${phoneField}"]`).first()).toHaveValue('(123) 456-7890');
-    await expect(page.locator(`[data-test-id*="${firstNameField}"]`).first()).toHaveValue('John');
-    await expect(page.locator(`[data-test-id*="${lastNameField}"]`).first()).toHaveValue('Doe');
-    await expect(page.locator(`[data-test-id*="${userTypeField}"]`).first()).toHaveValue('individual');
-    await expect(page.locator(`[data-test-id*="${birthDateField}"]`).first()).toHaveValue('1990-01-01');
-    await expect(page.locator(`[data-test-id*="${bioField}"]`).first()).toHaveValue('I am a software engineer');
-    await expect(page.locator(`[data-test-id*="${acceptTermsField}"]`).first()).toBeChecked();
-
+    for (const field of fields) {
+      if (field.component === 'InputCheckbox') {
+        await expect(page.locator(`[data-test-id*="${field.name}"]`).first()).toBeChecked();
+      } else {
+        await expect(page.locator(`[data-test-id*="${field.name}"]`).first()).toHaveValue(inputValues[field.name as keyof typeof inputValues] as string);
+      }
+    }
   });
 
   test('should validate required fields', async ({ page }) => {
-    const requiredFields = extractRequiredFields(complexFormSchema);
+    const requiredFields = extractFieldsFromSchema(complexFormSchema as FormSchema)
+      .filter(field => field.props.required === true)
+      .map(field => field.name);
 
     await page.click('[data-test-id*="complex-form-tab"]');
     await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
@@ -82,6 +84,76 @@ test.describe('React Form Factory', () => {
       await expect(fieldLocator).toHaveAttribute('required', '');
     }
 
+  });
+});
+
+test.describe('React Hook Form Integration', () => {
+  test.beforeEach(async ({ page, baseURL }) => {
+    await page.goto(`${baseURL || 'http://localhost:3000'}/basic`);
+    // Navigate to RHF form tab
+    await page.click('[data-test-id*="rhf-form-tab"]');
+    await page.waitForSelector('[data-test-id="FormContainer"]', { timeout: 10000 });
+  });
+
+  test('should render RHF form with initial values', async ({ page }) => {
+    // Verify the form container is rendered
+    await expect(page.locator('[data-test-id="FormContainer"]')).toBeVisible();
+
+    // Verify fields are present
+    await expect(page.locator('[data-test-id*="firstName"]')).toBeVisible();
+    await expect(page.locator('[data-test-id*="lastName"]')).toBeVisible();
+  });
+
+  test('should submit RHF form with valid data', async ({ page }) => {
+    // Fill form fields
+    await page.locator('[data-test-id*="firstName"]').fill('John');
+    await page.locator('[data-test-id*="lastName"]').fill('Doe');
+
+    // Submit the form
+    await page.click('[data-test-id="submit-button"]');
+
+    // Wait for submitted values to appear
+    await page.waitForSelector('text=Submitted Values', { timeout: 5000 });
+
+    // Verify submission occurred
+    const submittedText = await page.textContent('pre');
+    expect(submittedText).toContain('John');
+    expect(submittedText).toContain('Doe');
+  });
+});
+
+test.describe('Formik Integration', () => {
+  test.beforeEach(async ({ page, baseURL }) => {
+    await page.goto(`${baseURL || 'http://localhost:3000'}/basic`);
+    // Navigate to Formik form tab
+    await page.click('[data-test-id*="formik-form-tab"]');
+    await page.waitForSelector('[data-test-id="FormContainer"]', { timeout: 10000 });
+  });
+
+  test('should render Formik form with initial values', async ({ page }) => {
+    // Verify the form container is rendered
+    await expect(page.locator('[data-test-id="FormContainer"]')).toBeVisible();
+
+    // Verify fields are present
+    await expect(page.locator('[data-test-id*="firstName"]')).toBeVisible();
+    await expect(page.locator('[data-test-id*="lastName"]')).toBeVisible();
+  });
+
+  test('should submit Formik form with valid data', async ({ page }) => {
+    // Fill form fields
+    await page.locator('[data-test-id*="firstName"]').fill('Jane');
+    await page.locator('[data-test-id*="lastName"]').fill('Smith');
+
+    // Submit the form
+    await page.click('[data-test-id="submit-button"]');
+
+    // Wait for submitted values to appear
+    await page.waitForSelector('text=Submitted Values', { timeout: 5000 });
+
+    // Verify submission occurred
+    const submittedText = await page.textContent('pre');
+    expect(submittedText).toContain('Jane');
+    expect(submittedText).toContain('Smith');
   });
 });
 
