@@ -4,14 +4,14 @@ import { Checkbox } from "@mui/material";
 
 export const InputCheckbox = React.forwardRef<HTMLInputElement, any>(
   (props, ref) => {
-    const { label, name, checked, onChange, ...rest } = props;
+    const { label, name, value, onChange, ...rest } = props;
     return (
       <FormControlLabel
         control={
           <Checkbox
             inputRef={ref}
             name={name}
-            checked={checked || false}
+            checked={value || false}
             onChange={(e) => onChange?.(e.target.checked)}
             data-test-id={name}
             {...rest}

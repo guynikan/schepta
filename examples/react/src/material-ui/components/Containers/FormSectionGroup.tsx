@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 
 export const FormSectionGroup = ({
   children,
@@ -7,23 +7,17 @@ export const FormSectionGroup = ({
   ...props
 }: any) => {
   const columns = xComponentProps?.columns || "1fr 1fr";
-  const gridColumns = columns === "1fr" ? 12 : 6;
+  const gridColumns = columns === "1fr" ? 1 : 2;
 
   return (
-    <Grid
-      container
-      spacing={2}
+    <Box
+      data-test-id="FormSectionGroup"
+      display="grid"
+      gridTemplateColumns={`repeat(${gridColumns}, 1fr)`}
+      gap={4}
       {...props}
     >
-      {React.Children.map(children, (child) => (
-        <Grid
-          item
-          xs={12}
-          sm={gridColumns}
-        >
-          {child}
-        </Grid>
-      ))}
-    </Grid>
+      {children}
+    </Box>
   );
 };

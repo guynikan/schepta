@@ -22,12 +22,12 @@ export function BasicFormPage() {
     <>
       <Paper elevation={2} sx={{ p: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs">
-          <Tab label="Simple Form (Native)" />
-          <Tab label="Complex Form (Native)" />
-          <Tab label="Modal Form" />
-          <Tab label="with React Hook Form" />
-          <Tab label="with Formik" />
-          <Tab label="Expressions Example" />
+          <Tab data-test-id="simple-form-tab" label="Simple Form (Native)" />
+          <Tab data-test-id="complex-form-tab" label="Complex Form (Native)" />
+          <Tab data-test-id="modal-form-tab" label="Modal Form" />
+          <Tab data-test-id="rhf-form-tab" label="with React Hook Form" />
+          <Tab data-test-id="formik-form-tab" label="with Formik" />
+          <Tab data-test-id="expressions-example-tab" label="Expressions Example" />
         </Tabs>
         
         <TabPanel value={tabValue} index={0}>
