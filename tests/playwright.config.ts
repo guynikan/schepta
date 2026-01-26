@@ -26,7 +26,7 @@ export default defineConfig({
     {
       command: 'pnpm --filter examples-react dev',
       url: 'http://localhost:3000',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       timeout: 120 * 1000,
       stdout: 'ignore',
       stderr: 'pipe',

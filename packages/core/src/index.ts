@@ -33,7 +33,6 @@ export * from './schema/schema-types';
 export * from './provider';
 
 // Utils
-export * from './utils/build-initial-values';
 export * from './utils/jexl-config';
 export * from './utils/sanitize-props';
 

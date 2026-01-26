@@ -13,6 +13,11 @@ export function BasicFormPage() {
   const [tabValue, setTabValue] = useState(0);
   const simpleSchema = simpleFormSchema as FormSchema;
   const complexSchema = complexFormSchema as FormSchema;
+  const initialValues = {
+    userInfo: {
+      enrollment: '8743',
+    }
+  }
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -34,7 +39,7 @@ export function BasicFormPage() {
           <NativeForm schema={simpleSchema} />
         </TabPanel>
         <TabPanel value={tabValue} index={1}>
-          <NativeForm schema={complexSchema} />
+          <NativeForm schema={complexSchema} initialValues={initialValues} />
         </TabPanel>
         <TabPanel value={tabValue} index={2}>
           <ModalForm schema={simpleSchema} />

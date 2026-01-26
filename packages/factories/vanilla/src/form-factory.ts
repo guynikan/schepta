@@ -11,7 +11,7 @@ import {
   setFactoryDefaultComponents,
   createComponentSpec,
 } from '@schepta/core';
-import { buildInitialValuesFromSchema } from '@schepta/core';
+import { buildInitialValues } from '@schepta/core';
 import { renderForm } from './form-renderer';
 import { 
   createDefaultFormContainer, 
@@ -76,7 +76,7 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
     : (providerConfig?.debug?.enabled || false);
   
   const formAdapter = createVanillaFormAdapter(
-    options.initialValues || buildInitialValuesFromSchema(options.schema)
+    options.initialValues || buildInitialValues(options.schema)
   );
   const runtime = createVanillaRuntimeAdapter();
 

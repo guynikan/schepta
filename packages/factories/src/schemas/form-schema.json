@@ -1,492 +1,462 @@
 {
-    "$id": "form-schema",
-    "type": "object",
-    "$defs": {
-      "FormField": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component",
-          "properties",
-          "x-ui"
-        ],
-        "properties": {
-          "type": {
-            "const": "object"
-          },
-          "x-component": {
-            "const": "FormField"
-          },
-          "x-ui": {
-            "type": "object",
-            "required": ["order"],
-            "properties": {
-              "order": {
-                "type": "integer",
-                "description": "Order of the field in the form (lower values appear first)"
-              }
-            },
-            "additionalProperties": false
-          },
-          "properties": {
-            "type": "object",
-            "minProperties": 1,
-            "patternProperties": {
-              "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                "oneOf": [
-                  {
-                    "$ref": "#/$defs/InputText"
-                  },
-                  {
-                    "$ref": "#/$defs/InputSelect"
-                  },
-                  {
-                    "$ref": "#/$defs/InputCheckbox"
-                  },
-                  {
-                    "$ref": "#/$defs/InputDate"
-                  },
-                  {
-                    "$ref": "#/$defs/InputPhone"
-                  },
-                  {
-                    "$ref": "#/$defs/InputAutocomplete"
-                  },
-                  {
-                    "$ref": "#/$defs/InputTextarea"
-                  },
-                  {
-                    "$ref": "#/$defs/InputNumber"
-                  }
-                ]
-              }
-            },
-            "additionalProperties": false
-          },
-          "x-component-props": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        },
-        "description": "FormField wrapper (Grid) reutilizável para qualquer tipo de input",
-        "additionalProperties": false
-      },
-      "InputText": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "string"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component": {
-            "const": "InputText"
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "placeholder": { "type": "string" }
-            },
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InputDate": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "string"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component": {
-            "const": "InputDate"
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "placeholder": { "type": "string" }
-            },
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InputPhone": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "string"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component": {
-            "const": "InputPhone"
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "placeholder": { "type": "string" }
-            },
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InputSelect": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "string"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component": {
-            "const": "InputSelect"
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "placeholder": { "type": "string" }
-            },
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InputCheckbox": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "boolean"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component": {
-            "const": "InputCheckbox"
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "placeholder": { "type": "string" }
-            },
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InputTextarea": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "string"
-          },
-          "x-component": {
-            "const": "InputTextarea"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InputNumber": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "number"
-          },
-          "x-component": {
-            "const": "InputNumber"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "FormSectionGroup": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component",
-          "properties"
-        ],
-        "properties": {
-          "type": {
-            "const": "object"
-          },
-          "properties": {
-            "type": "object",
-            "patternProperties": {
-              "^.*$": {
-                "$ref": "#/$defs/FormField"
-              }
-            },
-            "additionalProperties": false
-          },
-          "x-component": {
-            "const": "FormSectionGroup"
-          },
-          "x-component-props": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "FormSectionTitle": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component",
-          "x-content"
-        ],
-        "properties": {
-          "type": {
-            "const": "object"
-          },
-          "x-slots": {
-            "type": "object"
-          },
-          "x-content": {
-            "type": "string"
-          },
-          "x-component": {
-            "const": "FormSectionTitle"
-          },
-          "x-component-props": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InputAutocomplete": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component"
-        ],
-        "properties": {
-          "type": {
-            "const": "string"
-          },
-          "x-rules": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component": {
-            "const": "InputAutocomplete"
-          },
-          "x-reactions": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "x-component-props": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "placeholder": { "type": "string" }
-            },
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "FormSectionContainer": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component",
-          "properties",
-          "x-ui"
-        ],
-        "properties": {
-          "type": {
-            "const": "object"
-          },
-          "x-ui": {
-            "type": "object",
-            "required": ["order"],
-            "properties": {
-              "order": {
-                "type": "integer",
-                "description": "Order of the section in the form (lower values appear first)"
-              }
-            },
-            "additionalProperties": false
-          },
-          "properties": {
-            "type": "object",
-            "patternProperties": {
-              "^.*$": {
-                "oneOf": [
-                  {
-                    "$ref": "#/$defs/FormSectionTitle"
-                  },
-                  {
-                    "$ref": "#/$defs/FormSectionGroupContainer"
-                  }
-                ]
-              }
-            },
-            "additionalProperties": false
-          },
-          "x-component": {
-            "const": "FormSectionContainer"
-          },
-          "x-component-props": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "FormSectionGroupContainer": {
-        "type": "object",
-        "required": [
-          "type",
-          "x-component",
-          "properties"
-        ],
-        "properties": {
-          "type": {
-            "const": "object"
-          },
-          "properties": {
-            "type": "object",
-            "patternProperties": {
-              "^.*$": {
-                "$ref": "#/$defs/FormSectionGroup"
-              }
-            },
-            "additionalProperties": false
-          },
-          "x-component": {
-            "const": "FormSectionGroupContainer"
-          },
-          "x-component-props": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "title": "Form Schema",
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "required": [
-      "$id",
-      "type",
-      "x-component",
-      "properties"
-    ],
-    "properties": {
-      "$id": {
-        "type": "string"
-      },
-      "$schema": {
-      "type": "string"
-      },
-      "type": {
-        "const": "object"
-      },
+  "$id": "form-schema",
+  "type": "object",
+  "title": "FormSchema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Form schema definition",
+  "$defs": {
+    "FormField": {
+      "title": "FormField",
+      "type": "object",
+      "description": "FormField wrapper (Grid) reusable for any type of input",
+      "required": [
+        "type",
+        "x-component",
+        "properties",
+        "x-ui"
+      ],
       "properties": {
-        "type": "object",
-        "patternProperties": {
-          "^.*$": {
-            "$ref": "#/$defs/FormSectionContainer"
-          }
+        "type": {
+          "const": "object"
         },
-        "additionalProperties": false
+        "x-component": {
+          "const": "FormField"
+        },
+        "x-ui": {
+          "title": "xUi",
+          "type": "object",
+          "required": ["order"],
+          "properties": {
+            "order": {
+              "type": "integer",
+              "description": "Order of the field in the form (lower values appear first)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "properties": {
+          "title": "FormFieldProperties",
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/InputText"
+                },
+                {
+                  "$ref": "#/$defs/InputSelect"
+                },
+                {
+                  "$ref": "#/$defs/InputCheckbox"
+                },
+                {
+                  "$ref": "#/$defs/InputDate"
+                },
+                {
+                  "$ref": "#/$defs/InputPhone"
+                },
+                {
+                  "$ref": "#/$defs/InputAutocomplete"
+                },
+                {
+                  "$ref": "#/$defs/InputTextarea"
+                },
+                {
+                  "$ref": "#/$defs/InputNumber"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "x-component-props": {
+          "title": "FormFieldComponentProps",
+          "type": "object",
+          "additionalProperties": true
+        }
       },
-      "x-component": {
-        "const": "FormContainer"
-      }
+      "additionalProperties": false
     },
-    "description": "Schema de formulário",
-    "additionalProperties": false
-  }
+    "InputText": {
+      "title": "InputText",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component"
+      ],
+      "properties": {
+        "type": {
+          "const": "string"
+        },
+        "x-component": {
+          "const": "InputText"
+        },
+        "x-component-props": {
+          "title": "InputTextComponentProps",
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "placeholder": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "InputDate": {
+      "title": "InputDate",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component"
+      ],
+      "properties": {
+        "type": {
+          "const": "string"
+        },
+        "x-component": {
+          "const": "InputDate"
+        },
+        "x-component-props": {
+          "title": "InputDateComponentProps",
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "placeholder": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "InputPhone": {
+      "title": "InputPhone",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component"
+      ],
+      "properties": {
+        "type": {
+          "const": "string"
+        },
+        "x-component": {
+          "const": "InputPhone"
+        },
+        "x-component-props": {
+          "title": "InputPhoneComponentProps",
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "placeholder": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "InputSelect": {
+      "title": "InputSelect",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component"
+      ],
+      "properties": {
+        "type": {
+          "const": "string"
+        },
+        "x-component": {
+          "const": "InputSelect"
+        },
+        "x-component-props": {
+          "title": "InputSelectComponentProps",
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "placeholder": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "InputCheckbox": {
+      "title": "InputCheckbox",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component"
+      ],
+      "properties": {
+        "type": {
+          "const": "boolean"
+        },
+        "x-component": {
+          "const": "InputCheckbox"
+        },
+        "x-component-props": {
+          "title": "InputCheckboxComponentProps",
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "placeholder": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "InputTextarea": {
+      "title": "InputTextarea",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component"
+      ],
+      "properties": {
+        "type": {
+          "const": "string"
+        },
+        "x-component": {
+          "const": "InputTextarea"
+        },
+        "x-component-props": {
+          "title": "InputTextareaComponentProps",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "InputNumber": {
+      "title": "InputNumber",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component"
+      ],
+      "properties": {
+        "type": {
+          "const": "number"
+        },
+        "x-component": {
+          "const": "InputNumber"
+        },
+        "x-component-props": {
+          "title": "InputNumberComponentProps",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormSectionGroup": {
+      "title": "FormSectionGroup",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component",
+        "properties"
+      ],
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "properties": {
+          "title": "FormSectionGroupProperties",
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/$defs/FormField"
+            }
+          },
+          "additionalProperties": false
+        },
+        "x-component": {
+          "const": "FormSectionGroup"
+        },
+        "x-component-props": {
+          "title": "FormSectionGroupComponentProps",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormSectionTitle": {
+      "title": "FormSectionTitle",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component",
+        "x-content"
+      ],
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "x-slots": {
+          "title": "xSlots",
+          "type": "object"
+        },
+        "x-content": {
+          "type": "string"
+        },
+        "x-component": {
+          "const": "FormSectionTitle"
+        },
+        "x-component-props": {
+          "title": "FormSectionTitleComponentProps",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "InputAutocomplete": {
+      "title": "InputAutocomplete",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component"
+      ],
+      "properties": {
+        "type": {
+          "const": "string"
+        },
+        "x-component": {
+          "const": "InputAutocomplete"
+        },
+        "x-component-props": {
+          "title": "InputAutocompleteComponentProps",
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "placeholder": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormSectionContainer": {
+      "title": "FormSectionContainer",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component",
+        "properties",
+        "x-ui"
+      ],
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "x-ui": {
+          "title": "xUi",
+          "type": "object",
+          "required": ["order"],
+          "properties": {
+            "order": {
+              "type": "integer",
+              "description": "Order of the section in the form (lower values appear first)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "properties": {
+          "title": "FormSectionContainerProperties",
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/FormSectionTitle"
+                },
+                {
+                  "$ref": "#/$defs/FormSectionGroupContainer"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "x-component": {
+          "const": "FormSectionContainer"
+        },
+        "x-component-props": {
+          "title": "FormSectionContainerComponentProps",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormSectionGroupContainer": {
+      "title": "FormSectionGroupContainer",
+      "type": "object",
+      "required": [
+        "type",
+        "x-component",
+        "properties"
+      ],
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "properties": {
+          "title": "FormSectionGroupContainerProperties",
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/$defs/FormSectionGroup"
+            }
+          },
+          "additionalProperties": false
+        },
+        "x-component": {
+          "const": "FormSectionGroupContainer"
+        },
+        "x-component-props": {
+          "title": "FormSectionGroupContainerComponentProps",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "$id",
+    "type",
+    "x-component",
+    "properties"
+  ],
+  "properties": {
+    "$id": {
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "type": {
+      "const": "object"
+    },
+    "properties": {
+      "title": "FormSchemaProperties",
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/$defs/FormSectionContainer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "x-component": {
+      "const": "FormContainer"
+    }
+  },
+  "additionalProperties": false
+}

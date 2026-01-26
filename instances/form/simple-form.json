@@ -40,9 +40,6 @@
                       "x-component-props": {
                         "label": "First Name",
                         "placeholder": "Enter your first name"
-                      },
-                      "x-rules": {
-                        "required": true
                       }
                     }
                   }

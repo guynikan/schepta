@@ -1,73 +1,96 @@
 /**
  * RHF Form Container
  * 
- * Custom FormContainer that uses react-hook-form for state management.
- * This demonstrates how to integrate RHF with Schepta forms.
+ * Custom FormContainer that uses react-hook-form for state management
+ * with AJV validation via @hookform/resolvers/ajv.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
+import { ajvResolver } from '@hookform/resolvers/ajv';
 import type { FormContainerProps } from '@schepta/factory-react';
+import { FormSchema, generateValidationSchema } from '@schepta/core';
+import { useSchepta } from '@schepta/adapter-react';
 
 /**
- * RHF-based FormContainer component.
- * Creates its own useForm context and wraps children with FormProvider.
+ * Creates an RHF-based FormContainer component with validation.
+ * Uses react-hook-form's useForm with ajvResolver for validation.
  * 
- * This component:
- * - Creates a RHF form context with useForm()
- * - Wraps children with FormProvider for nested components to access
- * - Handles form submission with RHF's handleSubmit
+ * @param jsonSchema - JSON Schema for AJV validation
+ * @param defaultValues - Default form values
+ * @returns A FormContainer component configured with validation
  * 
  * @example
  * ```tsx
- * import { createComponentSpec } from '@schepta/core';
+ * import { createComponentSpec, generateValidationSchema } from '@schepta/core';
+ * import { createRHFFormContainer } from './RHFFormContainer';
+ * 
+ * const { jsonSchema, initialValues } = generateValidationSchema(formSchema);
  * 
  * const components = {
  *   FormContainer: createComponentSpec({
  *     id: 'FormContainer',
  *     type: 'FormContainer',
- *     factory: () => RHFFormContainer,
+ *     factory: () => createRHFFormContainer(jsonSchema, initialValues),
  *   }),
  * };
  * ```
  */
+
 export const RHFFormContainer: React.FC<FormContainerProps> = ({
   children,
   onSubmit,
 }) => {
-  const methods = useForm();
+  const { schema } = useSchepta();
+  const { jsonSchema, initialValues } = useMemo(() => 
+    generateValidationSchema(schema as FormSchema, {
+      messages: {
+        en: {
+          required: '{{label}} is required',
+          minLength: '{{label}} must be at least {{minLength}} characters',
+          maxLength: '{{label}} must be at most {{maxLength}} characters',
+          pattern: '{{label}} format is invalid',
+        }
+      },
+      locale: 'en'
+    }), [schema]);
 
-  const handleFormSubmit = methods.handleSubmit((values) => {
-    if (onSubmit) {
-      onSubmit(values);
-    }
-  });
+    const methods = useForm({
+      defaultValues: initialValues,
+      resolver: jsonSchema ? ajvResolver(jsonSchema as any) : undefined,
+    });
 
-  return (
-    <FormProvider {...methods}>
-      <form data-test-id="FormContainer" onSubmit={handleFormSubmit}>
-        {children}
-        {onSubmit && (
-          <div style={{ marginTop: '24px', textAlign: 'right' }}>
-            <button
-              type="submit"
-              data-test-id="submit-button"
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '500',
-              }}
-            >
-              Submit (RHF)
-            </button>
-          </div>
-        )}
-      </form>
-    </FormProvider>
-  );
-};
+    const handleFormSubmit = methods.handleSubmit((values) => {
+      if (onSubmit) {
+        onSubmit(values);
+      }
+    });
+
+    return (
+        <FormProvider {...methods}>
+          <form data-test-id="FormContainer" onSubmit={handleFormSubmit}>
+            {children}
+            {onSubmit && (
+              <div style={{ marginTop: '24px', textAlign: 'right' }}>
+                <button
+                  type="submit"
+                  data-test-id="submit-button"
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                  }}
+                >
+                  Submit (RHF)
+                </button>
+              </div>
+            )}
+          </form>
+        </FormProvider>
+    );
+}
