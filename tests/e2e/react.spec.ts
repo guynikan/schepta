@@ -71,6 +71,19 @@ test.describe('React Form Factory', () => {
     }
   });
 
+  test('should validate disabled fields', async ({ page }) => {
+    const disabledFields = extractFieldsFromSchema(complexFormSchema as FormSchema)
+      .filter(field => field.props.disabled === true)
+      .map(field => field.name);
+
+    await page.click('[data-test-id*="complex-form-tab"]');
+    await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
+
+    for (const field of disabledFields) {
+      await expect(page.locator(`[data-test-id*="${field}"]`).first()).toBeDisabled();
+    }
+  });
+
   test('should validate required fields', async ({ page }) => {
     const requiredFields = extractFieldsFromSchema(complexFormSchema as FormSchema)
       .filter(field => field.props.required === true)
@@ -83,7 +96,6 @@ test.describe('React Form Factory', () => {
       const fieldLocator = page.locator(`[data-test-id*="${field}"]`).first();
       await expect(fieldLocator).toHaveAttribute('required', '');
     }
-
   });
 });
 
