@@ -11,6 +11,8 @@ import type { FormFieldProperties, FormSchema } from '../schema/schema-types';
  * Represents a field node extracted from the schema
  */
 export interface FieldNode {
+  /** Custom flag from x-custom */
+  custom: boolean;
   /** Field name (leaf key in the schema, e.g., 'firstName') */
   name: string;
   /** Full path to the field (e.g., 'personalInfo.firstName') */
@@ -162,6 +164,7 @@ export function traverseFormSchema(schema: FormSchema, visitor: FieldVisitor): v
           const props = (value as any)['x-component-props'] || {};
           // Get x-ui from input (can override FormField's x-ui)
           const inputXUi = (value as any)['x-ui'] || {};
+          const inputXCustom = (value as any)['x-custom'] || false;
           
           // Check if it's an input component
           if (inputComponent && isInputComponent(inputComponent)) {
@@ -181,6 +184,7 @@ export function traverseFormSchema(schema: FormSchema, visitor: FieldVisitor): v
               component: inputComponent,
               label: props.label,
               visible,
+              custom: inputXCustom,
               props,
             };
             visitor(field);
