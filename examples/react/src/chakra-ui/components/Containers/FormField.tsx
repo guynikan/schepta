@@ -1,6 +1,7 @@
 import React from "react";
-import { Box } from "@chakra-ui/react";
+import { Box, BoxProps } from "@chakra-ui/react";
+import type { FormFieldProps } from "@schepta/factory-react";
 
-export const FormField = ({ children, ...props }: any) => {
+export const FormField: React.FC<FormFieldProps & BoxProps> = ({ children, ...props }) => {
     return <Box data-test-id="FormField" {...props}>{children}</Box>;
   };

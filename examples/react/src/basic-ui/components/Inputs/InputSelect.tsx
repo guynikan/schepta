@@ -1,16 +1,7 @@
+import type { InputSelectProps } from '@schepta/factory-react';
 import React from 'react';
 
-export const InputSelect = React.forwardRef<HTMLSelectElement, any>((props, ref) => {
-    const {
-      label,
-      name,
-      value,
-      onChange,
-      options = [],
-      placeholder = "Select...",
-      children,
-      ...rest
-    } = props;
+export const InputSelect: React.FC<InputSelectProps> = ({ label, name, value, onChange, options = [], placeholder = "Select...", children, ...rest }) => {
     return (
       <div style={{ marginBottom: "16px" }}>
         {label && (
@@ -22,7 +13,6 @@ export const InputSelect = React.forwardRef<HTMLSelectElement, any>((props, ref)
           </label>
         )}
         <select
-          ref={ref}
           id={name}
           name={name}
           data-test-id={name}
@@ -49,4 +39,4 @@ export const InputSelect = React.forwardRef<HTMLSelectElement, any>((props, ref)
         {children}
       </div>
     );
-  });
+  };

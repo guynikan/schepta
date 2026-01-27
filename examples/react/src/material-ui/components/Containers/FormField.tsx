@@ -1,6 +1,7 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, BoxProps } from "@mui/material";
+import type { FormFieldProps } from "@schepta/factory-react";
 
-export const FormField = ({ children, ...props }: any) => {
+export const FormField: React.FC<FormFieldProps & BoxProps> = ({ children, ...props }) => {
   return <Box data-test-id="FormField" {...props}>{children}</Box>;
 };

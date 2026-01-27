@@ -1,7 +1,8 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, BoxProps } from "@mui/material";
+import type { FormSectionContainerProps } from "@schepta/factory-react";
 
-export const FormSectionContainer = ({ children, ...props }: any) => {
+export const FormSectionContainer: React.FC<FormSectionContainerProps & BoxProps> = ({ children, ...props }) => {
   return (
     <Box
       sx={{ mb: 3 }}

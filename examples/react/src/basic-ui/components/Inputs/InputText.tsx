@@ -1,7 +1,7 @@
+import type { InputTextProps } from '@schepta/factory-react';
 import React from "react";
 
-export const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) => {
-  const { label, name, value, onChange, placeholder, ...rest } = props;
+export const InputText: React.FC<InputTextProps> = ({ label, name, value, onChange, placeholder, ...rest }) => {
   return (
     <div style={{ marginBottom: "16px" }}>
       {label && (
@@ -13,7 +13,6 @@ export const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) =>
         </label>
       )}
       <input
-        ref={ref}
         id={name}
         name={name}
         data-test-id={name}
@@ -30,4 +29,4 @@ export const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) =>
       />
     </div>
   );
-});
+};

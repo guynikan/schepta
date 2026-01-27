@@ -1,19 +1,17 @@
 import React from "react";
-import { Box, Grid } from "@mui/material";
+import { Box, BoxProps } from "@mui/material";
+import type { FormSectionGroupProps } from "@schepta/factory-react";
 
-export const FormSectionGroup = ({
+export const FormSectionGroup: React.FC<FormSectionGroupProps & BoxProps> = ({
   children,
-  "x-component-props": xComponentProps,
   ...props
-}: any) => {
-  const columns = xComponentProps?.columns || "1fr 1fr";
-  const gridColumns = columns === "1fr" ? 1 : 2;
+}) => {
 
   return (
     <Box
       data-test-id="FormSectionGroup"
       display="grid"
-      gridTemplateColumns={`repeat(${gridColumns}, 1fr)`}
+      gridTemplateColumns="repeat(auto-fit, minmax(200px, 1fr))"
       gap={4}
       {...props}
     >

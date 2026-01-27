@@ -1,6 +1,7 @@
 import React from "react";
-import { Box } from "@chakra-ui/react";
+import { Box, BoxProps } from "@chakra-ui/react";
+import type { FormSectionContainerProps } from "@schepta/factory-react";
 
-export const FormSectionContainer = ({ children, ...props }: any) => {
+export const FormSectionContainer: React.FC<FormSectionContainerProps & BoxProps> = ({ children, ...props }) => {
     return <Box mb={6} {...props}>{children}</Box>;
   };

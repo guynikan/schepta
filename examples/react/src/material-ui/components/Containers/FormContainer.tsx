@@ -1,10 +1,10 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, BoxProps } from "@mui/material";
 import type { FormContainerProps } from "@schepta/factory-react";
 import { SubmitButton } from "../SubmitButton";
 import { useScheptaFormAdapter } from "@schepta/factory-react";
 
-export const FormContainer: React.FC<FormContainerProps> = ({ 
+export const FormContainer: React.FC<FormContainerProps & BoxProps> = ({ 
   children, 
   onSubmit, 
 }) => {

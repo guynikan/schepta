@@ -1,8 +1,7 @@
+import type { InputNumberProps } from '@schepta/factory-react';
 import React from 'react';
 
-export const InputNumber = React.forwardRef<HTMLInputElement, any>((props, ref) => {
-    const { label, name, value, onChange, placeholder, min, max, step, ...rest } =
-      props;
+export const InputNumber: React.FC<InputNumberProps> = ({ label, name, value, onChange, placeholder, min, max, step, ...rest }) => {
     return (
       <div style={{ marginBottom: "16px" }}>
         {label && (
@@ -14,7 +13,6 @@ export const InputNumber = React.forwardRef<HTMLInputElement, any>((props, ref) 
           </label>
         )}
         <input
-          ref={ref}
           type="number"
           id={name}
           name={name}
@@ -37,4 +35,4 @@ export const InputNumber = React.forwardRef<HTMLInputElement, any>((props, ref) 
         />
       </div>
     );
-  });
+  };

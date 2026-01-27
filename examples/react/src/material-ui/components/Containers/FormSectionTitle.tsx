@@ -1,11 +1,12 @@
 import React from "react";
-import { Typography } from "@mui/material";
+import { Typography, TypographyProps } from "@mui/material";
+import type { FormSectionTitleProps } from "@schepta/factory-react";
 
-export const FormSectionTitle = ({
+export const FormSectionTitle: React.FC<FormSectionTitleProps & TypographyProps> = ({
   "x-content": content,
   children,
   ...props
-}: any) => {
+}) => {
   return (
     <Typography
       variant="h5"
