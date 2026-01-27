@@ -8,16 +8,13 @@ import { ModalForm } from "../components/Forms/ModalForm";
 import { FormWithRHF } from "../components/Forms/FormWithRHF";
 import { FormWithFormik } from "../components/Forms/FormWithFormik";
 import { FormSchema } from "@schepta/core";
+import { NativeComplexForm } from "../components/Forms/NativeComplexForm";
 
 export function BasicFormPage() {
   const [tabValue, setTabValue] = useState(0);
   const simpleSchema = simpleFormSchema as FormSchema;
   const complexSchema = complexFormSchema as FormSchema;
-  const initialValues = {
-    userInfo: {
-      enrollment: '8743',
-    }
-  }
+
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -32,14 +29,13 @@ export function BasicFormPage() {
           <Tab data-test-id="modal-form-tab" label="Modal Form" />
           <Tab data-test-id="rhf-form-tab" label="with React Hook Form" />
           <Tab data-test-id="formik-form-tab" label="with Formik" />
-          <Tab data-test-id="expressions-example-tab" label="Expressions Example" />
         </Tabs>
         
         <TabPanel value={tabValue} index={0}>
           <NativeForm schema={simpleSchema} />
         </TabPanel>
         <TabPanel value={tabValue} index={1}>
-          <NativeForm schema={complexSchema} initialValues={initialValues} />
+          <NativeComplexForm schema={complexSchema} />
         </TabPanel>
         <TabPanel value={tabValue} index={2}>
           <ModalForm schema={simpleSchema} />
@@ -49,9 +45,6 @@ export function BasicFormPage() {
         </TabPanel>
         <TabPanel value={tabValue} index={4}>
           <FormWithFormik schema={simpleSchema} />
-        </TabPanel>
-        <TabPanel value={tabValue} index={5}>
-          <p>Expressions Example</p>
         </TabPanel>
       </Paper>
     </>

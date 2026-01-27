@@ -87,6 +87,9 @@
             "basicInfo": {
               "type": "object",
               "x-component": "FormSectionGroup",
+              "x-component-props": {
+                "columns": "repeat(2, 1fr)"
+              },
               "properties": {
                 "enrollment": {
                   "type": "object",
@@ -110,7 +113,7 @@
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 2
+                    "order": 3
                   },
                   "properties": {
                     "firstName": {
@@ -128,7 +131,7 @@
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 3
+                    "order": 4
                   },
                   "properties": {
                     "lastName": {
@@ -142,11 +145,33 @@
                     }
                   }
                 },
+                "socialName": {
+                  "type": "object",
+                  "x-component": "FormField",
+                  "x-custom": true,
+                  "x-ui": {
+                    "order": 5
+                  },
+                  "x-component-props": {
+                    "style": { "gridColumn": "1 / -1" }
+                  },
+                  "properties": {
+                    "socialName": {
+                      "type": "string",
+                      "x-component": "InputText",
+                      "x-custom": true,
+                      "x-component-props": {
+                        "label": "Social Name",
+                        "placeholder": "Enter your social name"
+                      }
+                    }
+                  }
+                },
                 "userType": {
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 3
+                    "order": 2
                   },
                   "properties": {
                     "userType": {
@@ -167,7 +192,7 @@
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 4
+                    "order": 6
                   },
                   "properties": {
                     "birthDate": {
@@ -183,7 +208,7 @@
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 5
+                    "order": 7
                   },
                   "properties": {
                     "maritalStatus": {
@@ -206,8 +231,11 @@
                   "type": "object",
                   "x-component": "FormField",
                   "x-ui": {
-                    "order": 6,
+                    "order": 8,
                     "visible": "{{ $formValues.userInfo.maritalStatus === 'married' }}"
+                  },
+                  "x-component-props": {
+                    "style": { "gridColumn": "1 / -1" }
                   },
                   "properties": {
                     "spouseName": {
