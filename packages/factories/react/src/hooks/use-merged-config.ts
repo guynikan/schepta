@@ -11,6 +11,7 @@ import { useScheptaContext } from '@schepta/adapter-react';
 
 export interface MergedConfigInput {
   components?: Record<string, ComponentSpec>;
+  customComponents?: Record<string, ComponentSpec>;
   renderers?: Partial<Record<string, any>>;
   externalContext?: Record<string, any>;
   middlewares?: MiddlewareFn[];
@@ -19,6 +20,7 @@ export interface MergedConfigInput {
 
 export interface MergedConfig {
   components: Record<string, ComponentSpec>;
+  customComponents: Record<string, ComponentSpec>;
   renderers: Partial<Record<string, any>>;
   externalContext: Record<string, any>;
   baseMiddlewares: MiddlewareFn[];
@@ -39,6 +41,10 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
       ...(providerConfig?.components || {}),
       ...(props.components || {}),
     },
+    customComponents: {
+      ...(providerConfig?.customComponents || {}),
+      ...(props.customComponents || {}),
+    },
     renderers: {
       ...(providerConfig?.renderers || {}),
       ...(props.renderers || {}),
@@ -56,11 +62,13 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
       : (providerConfig?.debug?.enabled || false),
   }), [
     providerConfig?.components,
+    providerConfig?.customComponents,
     providerConfig?.renderers,
     providerConfig?.externalContext,
     providerConfig?.middlewares,
     providerConfig?.debug?.enabled,
     props.components,
+    props.customComponents,
     props.renderers,
     props.externalContext,
     props.middlewares,

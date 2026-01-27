@@ -18,6 +18,7 @@ import { getRendererRegistry } from '@schepta/core';
 export interface ScheptaProviderProps {
   children: React.ReactNode;
   components?: Record<string, ComponentSpec>;
+  customComponents?: Record<string, ComponentSpec>;
   renderers?: Partial<Record<ComponentType, RendererFn>>;
   middlewares?: MiddlewareFn[];
   debug?: DebugConfig;
@@ -30,6 +31,7 @@ export interface ScheptaProviderProps {
  */
 export interface ScheptaContextType {
   components: Record<string, ComponentSpec>;
+  customComponents: Record<string, ComponentSpec>;
   renderers: Record<ComponentType, RendererFn>;
   middlewares: MiddlewareFn[];
   debug: DebugConfig;
@@ -61,6 +63,7 @@ const ScheptaContext = createContext<ScheptaContextType | null>(null);
 export function ScheptaProvider({
   children,
   components = {},
+  customComponents = {},
   renderers = {},
   middlewares = [],
   debug = defaultDebugConfig,
@@ -78,6 +81,7 @@ export function ScheptaProvider({
       
       return {
         components: { ...parentContext.components, ...components },
+        customComponents: { ...parentContext.customComponents, ...customComponents },
         renderers: mergedRenderers,
         middlewares: [...parentContext.middlewares, ...middlewares],
         debug: { ...parentContext.debug, ...debug },
@@ -92,13 +96,14 @@ export function ScheptaProvider({
 
     return {
       components,
+      customComponents,
       renderers: mergedRenderers,
       middlewares,
       debug: mergedDebug,
       schema,
       externalContext,
     };
-  }, [parentContext, components, renderers, middlewares, debug, schema, externalContext]);
+  }, [parentContext, components, customComponents, renderers, middlewares, debug, schema, externalContext]);
 
   return (
     <ScheptaContext.Provider value={contextValue}>

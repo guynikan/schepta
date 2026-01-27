@@ -24,7 +24,7 @@ test.describe('React Form Factory', () => {
   test('should render complex form with all field types', async ({ page, baseURL }) => {
     await page.click('[data-test-id*="complex-form-tab"]');
 
-    const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).filter(field => field.visible === true).map(field => field.name);
+    const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).filter(field => field.visible === true && field.custom === false).map(field => field.name);
 
     // Wait for form to be rendered
     await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
@@ -38,6 +38,7 @@ test.describe('React Form Factory', () => {
   test('should fill form fields', async ({ page }) => {
     const fields = extractFieldsFromSchema(complexFormSchema as FormSchema).filter(field => field.props.disabled !== true
       && field.visible === true
+      && field.custom === false
     );
 
     const inputValues = {
@@ -107,6 +108,44 @@ test.describe('React Form Factory', () => {
 
     await page.locator('[data-test-id*="maritalStatus"]').selectOption('married');
     await expect(page.locator('[data-test-id*="spouseName"]')).toBeVisible();
+  });
+
+  test('should toggle social name custom field visibility', async ({ page }) => {
+    await page.click('[data-test-id*="complex-form-tab"]');
+    await page.waitForSelector('[data-test-id*="email"]', { timeout: 10000 });
+
+    // Get the toggle button and input locators
+    const toggleButton = page.locator('[data-test-id="social-name-toggle"]');
+    const socialNameInput = page.locator('[data-test-id="social-name-input"]');
+
+    // Initially, the "Add Social Name" button should be visible
+    await expect(toggleButton).toBeVisible();
+    await expect(toggleButton).toHaveText(/Add Social Name/i);
+
+    // The input should not be visible initially
+    await expect(socialNameInput).not.toBeVisible();
+
+    // Click to show the input
+    await toggleButton.click();
+
+    // Now the input should be visible
+    await expect(socialNameInput).toBeVisible();
+
+    // The button text should change to "Remove Social Name"
+    await expect(toggleButton).toHaveText(/Remove Social Name/i);
+
+    // Fill the input
+    await socialNameInput.fill('John Social');
+    await expect(socialNameInput).toHaveValue('John Social');
+
+    // Click to hide the input
+    await toggleButton.click();
+
+    // The input should be hidden again
+    await expect(socialNameInput).not.toBeVisible();
+
+    // The button should be back to "Add Social Name"
+    await expect(toggleButton).toHaveText(/Add Social Name/i);
   });
 });
 

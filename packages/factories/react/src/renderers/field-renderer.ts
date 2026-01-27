@@ -61,6 +61,9 @@ export function createFieldRenderer(options: FieldRendererOptions = {}): Rendere
       const componentProps = {
         ...xComponentProps,
         name, // Ensure name is passed
+        ...(props.externalContext ? { externalContext: props.externalContext } : {}),
+        ...(props.schema ? { schema: props.schema } : {}),
+        ...(props.componentKey ? { componentKey: props.componentKey } : {}),
       };
 
       // Create FieldWrapper using React.createElement directly since we're in React context

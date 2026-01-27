@@ -22,6 +22,10 @@
         "x-component": {
           "const": "FormField"
         },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
+        },
         "x-ui": {
           "title": "xUi",
           "type": "object",
@@ -96,6 +100,10 @@
         "x-component": {
           "const": "InputText"
         },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
+        },
         "x-component-props": {
           "title": "InputTextComponentProps",
           "type": "object",
@@ -121,6 +129,10 @@
         },
         "x-component": {
           "const": "InputDate"
+        },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
         },
         "x-component-props": {
           "title": "InputDateComponentProps",
@@ -148,6 +160,10 @@
         "x-component": {
           "const": "InputPhone"
         },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
+        },
         "x-component-props": {
           "title": "InputPhoneComponentProps",
           "type": "object",
@@ -173,6 +189,10 @@
         },
         "x-component": {
           "const": "InputSelect"
+        },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
         },
         "x-component-props": {
           "title": "InputSelectComponentProps",
@@ -200,6 +220,10 @@
         "x-component": {
           "const": "InputCheckbox"
         },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
+        },
         "x-component-props": {
           "title": "InputCheckboxComponentProps",
           "type": "object",
@@ -226,6 +250,10 @@
         "x-component": {
           "const": "InputTextarea"
         },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
+        },
         "x-component-props": {
           "title": "InputTextareaComponentProps",
           "type": "object",
@@ -247,6 +275,10 @@
         },
         "x-component": {
           "const": "InputNumber"
+        },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
         },
         "x-component-props": {
           "title": "InputNumberComponentProps",
@@ -281,6 +313,10 @@
         "x-component": {
           "const": "FormSectionGroup"
         },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
+        },
         "x-component-props": {
           "title": "FormSectionGroupComponentProps",
           "type": "object",
@@ -311,6 +347,10 @@
         "x-component": {
           "const": "FormSectionTitle"
         },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
+        },
         "x-component-props": {
           "title": "FormSectionTitleComponentProps",
           "type": "object",
@@ -332,6 +372,10 @@
         },
         "x-component": {
           "const": "InputAutocomplete"
+        },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
         },
         "x-component-props": {
           "title": "InputAutocompleteComponentProps",
@@ -394,6 +438,10 @@
         "x-component": {
           "const": "FormSectionContainer"
         },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
+        },
         "x-component-props": {
           "title": "FormSectionContainerComponentProps",
           "type": "object",
@@ -426,6 +474,10 @@
         },
         "x-component": {
           "const": "FormSectionGroupContainer"
+        },
+        "x-custom": {
+          "type": "boolean",
+          "description": "If true, the component will be replaced by a custom component with the same key name"
         },
         "x-component-props": {
           "title": "FormSectionGroupContainerComponentProps",

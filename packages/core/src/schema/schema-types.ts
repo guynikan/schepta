@@ -20,6 +20,7 @@ export interface FormSectionContainer {
   "x-ui": xUi
   properties: FormSectionContainerProperties
   "x-component": "FormSectionContainer"
+  "x-custom"?: boolean
   "x-component-props"?: FormSectionContainerComponentProps
 }
 export interface xUi {
@@ -40,6 +41,7 @@ export interface FormSectionTitle {
   "x-slots"?: XSlots
   "x-content": string
   "x-component": "FormSectionTitle"
+  "x-custom"?: boolean
   "x-component-props"?: FormSectionTitleComponentProps
 }
 export interface XSlots {
@@ -52,6 +54,7 @@ export interface FormSectionGroupContainer {
   type: "object"
   properties: FormSectionGroupContainerProperties
   "x-component": "FormSectionGroupContainer"
+  "x-custom"?: boolean
   "x-component-props"?: FormSectionGroupContainerComponentProps
 }
 export interface FormSectionGroupContainerProperties {
@@ -65,6 +68,7 @@ export interface FormSectionGroup {
   type: "object"
   properties: FormSectionGroupProperties
   "x-component": "FormSectionGroup"
+  "x-custom"?: boolean
   "x-component-props"?: FormSectionGroupComponentProps
 }
 export interface FormSectionGroupProperties {
@@ -79,6 +83,7 @@ export interface FormSectionGroupProperties {
 export interface FormField {
   type: "object"
   "x-component": "FormField"
+  "x-custom"?: boolean
   "x-ui": xUi
   properties: FormFieldProperties
   "x-component-props"?: FormFieldComponentProps
@@ -101,6 +106,7 @@ export interface FormFieldProperties {
 export interface InputText {
   type: "string"
   "x-component": "InputText"
+  "x-custom"?: boolean
   "x-component-props"?: InputTextComponentProps
 }
 export interface InputTextComponentProps {
@@ -111,6 +117,7 @@ export interface InputTextComponentProps {
 export interface InputSelect {
   type: "string"
   "x-component": "InputSelect"
+  "x-custom"?: boolean
   "x-component-props"?: InputSelectComponentProps
 }
 export interface InputSelectComponentProps {
@@ -121,6 +128,7 @@ export interface InputSelectComponentProps {
 export interface InputCheckbox {
   type: "boolean"
   "x-component": "InputCheckbox"
+  "x-custom"?: boolean
   "x-component-props"?: InputCheckboxComponentProps
 }
 export interface InputCheckboxComponentProps {
@@ -131,6 +139,7 @@ export interface InputCheckboxComponentProps {
 export interface InputDate {
   type: "string"
   "x-component": "InputDate"
+  "x-custom"?: boolean
   "x-component-props"?: InputDateComponentProps
 }
 export interface InputDateComponentProps {
@@ -141,6 +150,7 @@ export interface InputDateComponentProps {
 export interface InputPhone {
   type: "string"
   "x-component": "InputPhone"
+  "x-custom"?: boolean
   "x-component-props"?: InputPhoneComponentProps
 }
 export interface InputPhoneComponentProps {
@@ -151,6 +161,7 @@ export interface InputPhoneComponentProps {
 export interface InputAutocomplete {
   type: "string"
   "x-component": "InputAutocomplete"
+  "x-custom"?: boolean
   "x-component-props"?: InputAutocompleteComponentProps
 }
 export interface InputAutocompleteComponentProps {
@@ -161,6 +172,7 @@ export interface InputAutocompleteComponentProps {
 export interface InputTextarea {
   type: "string"
   "x-component": "InputTextarea"
+  "x-custom"?: boolean
   "x-component-props"?: InputTextareaComponentProps
 }
 export interface InputTextareaComponentProps {
@@ -169,6 +181,7 @@ export interface InputTextareaComponentProps {
 export interface InputNumber {
   type: "number"
   "x-component": "InputNumber"
+  "x-custom"?: boolean
   "x-component-props"?: InputNumberComponentProps
 }
 export interface InputNumberComponentProps {
