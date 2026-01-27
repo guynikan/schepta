@@ -33,6 +33,7 @@ export type ResolutionResult = ResolutionSuccess | null;
  */
 export interface FactorySetupResult {
   components: Record<string, ComponentSpec>;
+  customComponents?: Record<string, ComponentSpec>;
   renderers?: Partial<Record<string, any>>;
   externalContext: Record<string, any>;
   state: Record<string, any>;
@@ -96,7 +97,8 @@ export function createRendererOrchestrator(
     isDirectRootProperty: boolean = false
   ): any {
     const { 
-      components, 
+      components,
+      customComponents,
       renderers: localRenderers, 
       externalContext, 
       state, 
@@ -125,6 +127,71 @@ export function createRendererOrchestrator(
     const xUi = processedSchema['x-ui'] || {};
     if (xUi.visible === false) {
       return null;
+    }
+
+    // Check for x-custom flag - if true, use custom component instead
+    const isCustomComponent = processedSchema['x-custom'] === true;
+    
+    if (isCustomComponent && customComponents) {
+      // Look up custom component by the property key name
+      const customSpec = customComponents[componentKey];
+      
+      if (customSpec) {
+        // Get renderer for the custom component type
+        const customRendererFn = getRendererForType(
+          customSpec.type || 'field',
+          undefined,
+          localRenderers as any,
+          debug?.isEnabled
+        );
+        
+        // Build props for custom component
+        const customProps = {
+          ...customSpec.defaultProps,
+          // Pass the original schema so custom component can access x-component-props, etc.
+          schema: processedSchema,
+          // Pass the component key
+          componentKey,
+          // Pass the name path for form binding
+          name: parentProps.name ? `${parentProps.name}.${componentKey}` : componentKey,
+          // Pass external context
+          externalContext,
+          // Pass x-component-props if present
+          ...(processedSchema['x-component-props'] || {}),
+        };
+        
+        // Render children if schema has properties
+        const customChildren: any[] = [];
+        if (processedSchema.properties && typeof processedSchema.properties === 'object') {
+          const childParentProps = {
+            ...customProps,
+            name: customProps.name,
+          };
+          
+          const sortedEntries = Object.entries(processedSchema.properties).sort(
+            ([, a], [, b]) => {
+              const orderA = (a as any)?.['x-ui']?.order ?? Infinity;
+              const orderB = (b as any)?.['x-ui']?.order ?? Infinity;
+              return orderA - orderB;
+            }
+          );
+          
+          for (const [key, childSchema] of sortedEntries) {
+            const childResult = render(key, childSchema as any, childParentProps, namePath, false);
+            if (childResult !== null && childResult !== undefined) {
+              customChildren.push(childResult);
+            }
+          }
+        }
+        
+        // Render the custom component
+        return customRendererFn(customSpec, customProps, runtime, customChildren.length > 0 ? customChildren : undefined);
+      } else {
+        // Custom component not found - log warning and fall back to normal rendering
+        if (debug?.isEnabled) {
+          console.warn(`Custom component not found for key: ${componentKey}. Falling back to standard component.`);
+        }
+      }
     }
     
     // Parse schema (now using processed schema)
