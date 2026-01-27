@@ -4,7 +4,7 @@
  * Factory component for rendering forms from JSON schemas.
  */
 
-import React, { useMemo, forwardRef, useImperativeHandle } from 'react';
+import { useMemo, forwardRef, useImperativeHandle } from 'react';
 import type { FormSchema, ComponentSpec, MiddlewareFn, FormAdapter } from '@schepta/core';
 import { createReactRuntimeAdapter } from '@schepta/adapter-react';
 import { 
@@ -64,6 +64,7 @@ export interface FormFactoryRef {
 export interface FormFactoryProps {
   schema: FormSchema;
   components?: Record<string, ComponentSpec>;
+  customComponents?: Record<string, ComponentSpec>;
   renderers?: Partial<Record<string, any>>;
   externalContext?: Record<string, any>;
   middlewares?: MiddlewareFn[];
@@ -76,6 +77,7 @@ export interface FormFactoryProps {
 export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function FormFactory({
   schema,
   components,
+  customComponents,
   renderers,
   externalContext,
   middlewares,
@@ -92,6 +94,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
   // Merge provider config with local props
   const mergedConfig = useMergedScheptaConfig({
     components,
+    customComponents,
     renderers,
     externalContext,
     middlewares,
@@ -180,6 +183,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
 
       return {
         components: mergedConfig.components,
+        customComponents: mergedConfig.customComponents,
         renderers: customRenderers,
         externalContext: {
           ...mergedConfig.externalContext,
@@ -195,6 +199,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function
     return createRendererOrchestrator(getFactorySetup, runtime);
   }, [
     mergedConfig.components,
+    mergedConfig.customComponents,
     mergedConfig.renderers,
     mergedConfig.externalContext,
     mergedConfig.baseMiddlewares,
