@@ -1,11 +1,17 @@
 import React from "react";
-import { TextField } from "@mui/material";
+import { TextField, TextFieldProps } from "@mui/material";
+import type { InputTextProps } from "@schepta/factory-react";
 
-export const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) => {
-    const { label, name, value, onChange, placeholder, ...rest } = props;
-    return (
-      <TextField
-        ref={ref}
+export const InputText: React.FC<InputTextProps & TextFieldProps> = ({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  ...rest
+}) => {
+  return (
+    <TextField
         fullWidth
         label={label}
         name={name}
@@ -17,4 +23,4 @@ export const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) =>
         {...rest}
       />
     );
-  });
+};

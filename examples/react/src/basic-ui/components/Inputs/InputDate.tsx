@@ -1,7 +1,7 @@
 import React from 'react';
+import type { InputDateProps } from '@schepta/factory-react';
 
-export const InputDate = React.forwardRef<HTMLInputElement, any>((props, ref) => {
-    const { label, name, value, onChange, ...rest } = props;
+export const InputDate: React.FC<InputDateProps> = ({ label, name, value, onChange, ...rest }) => {
     return (
       <div style={{ marginBottom: "16px" }}>
         {label && (
@@ -13,7 +13,6 @@ export const InputDate = React.forwardRef<HTMLInputElement, any>((props, ref) =>
           </label>
         )}
         <input
-          ref={ref}
           type="date"
           id={name}
           name={name}
@@ -30,4 +29,4 @@ export const InputDate = React.forwardRef<HTMLInputElement, any>((props, ref) =>
         />
       </div>
     );
-  });
+  };

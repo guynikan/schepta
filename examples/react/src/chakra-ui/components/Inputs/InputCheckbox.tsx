@@ -1,18 +1,23 @@
 import React from "react";
-import { Checkbox } from "@chakra-ui/react";
+import { Checkbox, CheckboxProps } from "@chakra-ui/react";
+import type { InputCheckboxProps } from "@schepta/factory-react";
 
-export const InputCheckbox = React.forwardRef<HTMLInputElement, any>((props, ref) => {
-    const { label, name, value, onChange, ...rest } = props;
-    return (
-      <Checkbox
-        ref={ref}
-        name={name}
-        isChecked={value || false}
-        onChange={(e) => onChange?.(e.target.checked)}
-        data-test-id={name}
-        {...rest}
-      >
-        {label}
-      </Checkbox>
-    );
-  });
+export const InputCheckbox: React.FC<InputCheckboxProps & CheckboxProps> = ({
+  label,
+  name,
+  value,
+  onChange,
+  ...rest
+}) => {
+  return (
+    <Checkbox
+      name={name}
+      isChecked={value || false}
+      onChange={(e) => onChange?.(e.target.checked)}
+      data-test-id={name}
+      {...rest}
+    >
+      {label}
+    </Checkbox>
+  );
+};
