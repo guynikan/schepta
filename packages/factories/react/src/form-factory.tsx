@@ -22,10 +22,23 @@ import { createDebugContext } from './utils/debug';
 import { createFieldRenderer } from './renderers/field-renderer';
 import formSchemaDefinition from '../../src/schemas/form-schema.json';
 import { ScheptaFormProvider } from './context/schepta-form-context';
-import { 
-  DefaultFormContainer, 
-  DefaultSubmitButton, 
+import {
+  DefaultFormContainer,
+  DefaultSubmitButton,
   DefaultFieldWrapper,
+  DefaultInputText,
+  DefaultInputSelect,
+  DefaultInputCheckbox,
+  DefaultInputDate,
+  DefaultInputPhone,
+  DefaultInputAutocomplete,
+  DefaultInputTextarea,
+  DefaultInputNumber,
+  DefaultFormField,
+  DefaultFormSectionContainer,
+  DefaultFormSectionTitle,
+  DefaultFormSectionGroup,
+  DefaultFormSectionGroupContainer,
   type SubmitButtonComponentType,
   type FieldWrapperType,
 } from './components';
@@ -46,6 +59,73 @@ setFactoryDefaultComponents({
     id: 'FieldWrapper',
     type: 'field-wrapper',
     factory: () => DefaultFieldWrapper,
+  }),
+  // Input components
+  InputText: createComponentSpec({
+    id: 'InputText',
+    type: 'field',
+    factory: () => DefaultInputText,
+  }),
+  InputSelect: createComponentSpec({
+    id: 'InputSelect',
+    type: 'field',
+    factory: () => DefaultInputSelect,
+  }),
+  InputCheckbox: createComponentSpec({
+    id: 'InputCheckbox',
+    type: 'field',
+    factory: () => DefaultInputCheckbox,
+  }),
+  InputDate: createComponentSpec({
+    id: 'InputDate',
+    type: 'field',
+    factory: () => DefaultInputDate,
+  }),
+  InputPhone: createComponentSpec({
+    id: 'InputPhone',
+    type: 'field',
+    factory: () => DefaultInputPhone,
+  }),
+  InputAutocomplete: createComponentSpec({
+    id: 'InputAutocomplete',
+    type: 'field',
+    factory: () => DefaultInputAutocomplete,
+  }),
+  InputTextarea: createComponentSpec({
+    id: 'InputTextarea',
+    type: 'field',
+    factory: () => DefaultInputTextarea,
+  }),
+  InputNumber: createComponentSpec({
+    id: 'InputNumber',
+    type: 'field',
+    factory: () => DefaultInputNumber,
+  }),
+  // Container components
+  FormField: createComponentSpec({
+    id: 'FormField',
+    type: 'container',
+    factory: () => DefaultFormField,
+  }),
+  FormSectionContainer: createComponentSpec({
+    id: 'FormSectionContainer',
+    type: 'container',
+    factory: () => DefaultFormSectionContainer,
+  }),
+  FormSectionTitle: createComponentSpec({
+    id: 'FormSectionTitle',
+    type: 'content',
+    factory: () => DefaultFormSectionTitle,
+  }),
+  FormSectionGroup: createComponentSpec({
+    id: 'FormSectionGroup',
+    type: 'container',
+    factory: () => DefaultFormSectionGroup,
+  }),
+  FormSectionGroupContainer: createComponentSpec({
+    id: 'FormSectionGroupContainer',
+    type: 'container',
+    factory: () => DefaultFormSectionGroupContainer,
   }),
 });
 
