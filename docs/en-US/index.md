@@ -48,7 +48,7 @@ concepts:
       description: Transforming props and behavior
     - title: Debug System
       description: Development tools
-examples:
+showcases:
   title: Examples
   description: Examples of how to use schepta
   items:

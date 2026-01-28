@@ -12,25 +12,14 @@ Framework-agnostic rendering engine for server-driven UI. Build dynamic forms an
 - ⚡ **Reactive System**: Handle declarative and imperative reactions
 - 🧩 **Type Safe**: Full TypeScript support
 
-## Examples
+## Showcases
 
 ### React (Vanilla)
 ```bash
-pnpm --filter examples-react dev
+pnpm --filter showcases-react dev
 # http://localhost:3000
 ```
 
-### React with Material UI
-```bash
-pnpm --filter examples-react-material-ui dev
-# http://localhost:3001
-```
-
-### React with Chakra UI
-```bash
-pnpm --filter examples-react-chakra-ui dev
-# http://localhost:3002
-```
 
 ## Running Tests
 
@@ -52,10 +41,10 @@ schepta/
 │   ├── core/              # Framework-agnostic core logic
 │   ├── adapters/          # Framework adapters (react, vue, vanilla)
 │   └── factories/         # Framework factories (react, vue, vanilla)
-├── examples/              # Example applications
-│   ├── react/             # React vanilla example
-│   ├── react-material-ui/ # React with Material UI
-│   └── react-chakra-ui/   # React with Chakra UI
+├── showcases/             # Showcase applications
+│   ├── react/             # React showcase
+│   ├── vue/               # Vue showcase
+│   └── vue-vuetify/       # Vue with Vuetify showcase
 └── tests/                 # E2E tests with Playwright
 ```
 
