@@ -55,24 +55,24 @@ concepts:
     - title: Debug System
       link: /concepts/07-debug-system
       description: Herramientas de desarrollo
-examples:
+showcases:
   title: Ejemplos
   description: Ve schepta en acción con ejemplos interactivos
   items:
     - title: Ejemplos React
-      link: /examples/react
+      link: /showcases/react
       description: React con react-hook-form
     - title: React Material UI
-      link: /examples/material-ui
+      link: /showcases/material-ui
       description: React con Material UI
     - title: React Chakra UI
-      link: /examples/chakra-ui
+      link: /showcases/chakra-ui
       description: React con Chakra UI
     - title: Ejemplos Vue
-      link: /examples/vue
+      link: /showcases/vue
       description: Vue con adaptador de formulario personalizado
     - title: Vue Vuetify
-      link: /examples/vuetify
+      link: /showcases/vuetify
       description: Vue con Vuetify Material Design
 ---
 
