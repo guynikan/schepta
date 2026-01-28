@@ -14,6 +14,9 @@ export interface FormSectionGroupProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /** Group children (FormField components) */
   children?: React.ReactNode;
+  /** Test ID for the form section group */
+  'data-test-id'?: string;
+  externalContext?: Record<string, any>;
   [key: string]: any;
 }
 
@@ -29,10 +32,11 @@ export type FormSectionGroupComponentType =
  */
 export const DefaultFormSectionGroup: React.FC<FormSectionGroupProps> = ({
   children,
+  externalContext,
   ...props
 }) => {
   return (
-    <div data-test-id="FormSectionGroup" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', ...props.style }} {...props}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', ...props.style }} {...props}>
       {children}
     </div>
   );

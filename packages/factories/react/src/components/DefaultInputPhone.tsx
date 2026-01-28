@@ -16,10 +16,13 @@ export interface InputPhoneProps
     React.InputHTMLAttributes<HTMLInputElement>,
     'value' | 'onChange' | 'type'
   > {
+  /** Test ID for the input phone */
+  'data-test-id'?: string;
   name: string;
   value?: string;
   onChange?: (value: string) => void;
   label?: string;
+  externalContext?: Record<string, any>;
 }
 
 /**
@@ -47,7 +50,7 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default phone input component (uses type="tel").
  */
 export const DefaultInputPhone = React.forwardRef<HTMLInputElement, InputPhoneProps>(
-  ({ label, name, value, onChange, placeholder, ...rest }, ref) => {
+  ({ label, name, value, onChange, placeholder, externalContext, ...rest }, ref) => {
     return (
       <div style={wrapperStyle}>
         {label && (
@@ -60,7 +63,6 @@ export const DefaultInputPhone = React.forwardRef<HTMLInputElement, InputPhonePr
           type="tel"
           id={name}
           name={name}
-          data-test-id={name}
           value={value ?? ''}
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}

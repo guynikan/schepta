@@ -20,6 +20,8 @@ export interface InputSelectProps
     React.SelectHTMLAttributes<HTMLSelectElement>,
     'value' | 'onChange'
   > {
+  /** Test ID for the input select */
+  'data-test-id'?: string;
   name: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -27,6 +29,7 @@ export interface InputSelectProps
   placeholder?: string;
   options?: InputSelectOption[];
   children?: React.ReactNode;
+  externalContext?: Record<string, any>;
 }
 
 /**
@@ -63,6 +66,7 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
       options = [],
       placeholder = 'Select...',
       children,
+      externalContext,
       ...rest
     },
     ref
@@ -78,7 +82,6 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
           ref={ref}
           id={name}
           name={name}
-          data-test-id={name}
           value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
