@@ -1,7 +1,7 @@
 import type { InputTextProps } from '@schepta/factory-react';
 import React from "react";
 
-export const InputText: React.FC<InputTextProps> = ({ label, name, value, onChange, placeholder, ...rest }) => {
+export const InputText: React.FC<InputTextProps> = ({ label, name, value, onChange, placeholder, externalContext, ...rest }) => {
   return (
     <div style={{ marginBottom: "16px" }}>
       {label && (

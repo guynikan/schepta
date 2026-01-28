@@ -40,6 +40,7 @@ import { useSchepta } from '@schepta/adapter-react';
 export const RHFFormContainer: React.FC<FormContainerProps> = ({
   children,
   onSubmit,
+  ...props
 }) => {
   const { schema } = useSchepta();
   const { jsonSchema, initialValues } = useMemo(() => 
@@ -68,7 +69,7 @@ export const RHFFormContainer: React.FC<FormContainerProps> = ({
 
     return (
         <FormProvider {...methods}>
-          <form data-test-id="FormContainer" onSubmit={handleFormSubmit}>
+          <form onSubmit={handleFormSubmit} {...props}>
             {children}
             {onSubmit && (
               <div style={{ marginTop: '24px', textAlign: 'right' }}>

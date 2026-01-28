@@ -15,8 +15,6 @@ import {
 import { FormikFieldWrapper } from '../formik/FormikFieldWrapper';
 import { FormikFormContainer } from '../formik/FormikFormContainer';
 
-import { components } from '../ComponentRegistry';
-
 interface FormWithFormikProps {
   schema: FormSchema;
 }
@@ -43,7 +41,6 @@ export const FormWithFormik: React.FC<FormWithFormikProps> = ({ schema }) => {
       type: 'FormContainer',
       factory: () => FormikFormContainer,
     }),
-    ...components,
   }), []);
 
   const handleSubmit = (values: Record<string, any>) => {
