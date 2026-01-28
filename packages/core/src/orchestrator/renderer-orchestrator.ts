@@ -8,11 +8,12 @@
 import type { RuntimeAdapter, ComponentSpec, DebugContextValue } from '../runtime/types';
 import type { FormAdapter } from '../forms/types';
 import type { MiddlewareFn, MiddlewareContext } from '../middleware/types';
-import { getComponentSpec, getComponentRegistry } from '../registry/component-registry';
+import { getComponentSpec } from '../registry/component-registry';
 import { getRendererForType } from '../registry/renderer-registry';
 import { applyMiddlewares } from '../middleware/types';
 import { processValue } from '../expressions/template-processor';
 import { createDefaultResolver } from '../expressions/variable-resolver';
+import { FormSchema } from '../schema/schema-types';
 
 /**
  * Resolution result - successful component resolution
@@ -47,7 +48,7 @@ export interface FactorySetupResult {
  * Resolve component spec from schema
  */
 export function resolveSpec(
-  schema: any,
+  schema: FormSchema,
   componentKey: string,
   components: Record<string, ComponentSpec>,
   localRenderers?: Partial<Record<string, any>>,
@@ -148,6 +149,8 @@ export function createRendererOrchestrator(
         // Build props for custom component
         const customProps = {
           ...customSpec.defaultProps,
+          // Injected for E2E: identifies component key in DOM
+          'data-test-id': `${componentKey}`,
           // Pass the original schema so custom component can access x-component-props, etc.
           schema: processedSchema,
           // Pass the component key
@@ -235,6 +238,8 @@ export function createRendererOrchestrator(
     const baseProps = {
       ...renderSpec.defaultProps,
       ...parentProps,
+      // Injected for E2E: identifies component key in DOM
+      'data-test-id': `${componentKey}`,
       // Add name prop ONLY for field components
       ...(isFieldComponent && currentName ? { name: currentName } : {}),
       ...(Object.keys(componentProps).length > 0 ? { 'x-component-props': componentProps } : {}),
