@@ -15,6 +15,8 @@ export interface InputNumberProps
     React.InputHTMLAttributes<HTMLInputElement>,
     'value' | 'onChange' | 'type'
   > {
+  /** Test ID for the input number */
+  'data-test-id'?: string;
   name: string;
   value?: number | string;
   onChange?: (value: number | string) => void;
@@ -22,6 +24,7 @@ export interface InputNumberProps
   min?: number;
   max?: number;
   step?: number | string;
+  externalContext?: Record<string, any>;
 }
 
 /**
@@ -49,7 +52,7 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default number input component.
  */
 export const DefaultInputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
-  ({ label, name, value, onChange, placeholder, min, max, step, ...rest }, ref) => {
+  ({ label, name, value, onChange, placeholder, min, max, step, externalContext, ...rest }, ref) => {
     return (
       <div style={wrapperStyle}>
         {label && (
@@ -62,7 +65,6 @@ export const DefaultInputNumber = React.forwardRef<HTMLInputElement, InputNumber
           type="number"
           id={name}
           name={name}
-          data-test-id={name}
           value={value ?? ''}
           placeholder={placeholder}
           min={min}

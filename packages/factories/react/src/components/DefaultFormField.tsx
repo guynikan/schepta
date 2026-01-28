@@ -13,6 +13,9 @@ import React from 'react';
 export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Form field children (typically the rendered input) */
   children?: React.ReactNode;
+  /** Test ID for the form field */
+  'data-test-id'?: string;
+  externalContext?: Record<string, any>;
 }
 
 /**
@@ -26,10 +29,11 @@ export type FormFieldComponentType = React.ComponentType<FormFieldProps>;
  */
 export const DefaultFormField: React.FC<FormFieldProps> = ({
   children,
+  externalContext,
   ...props
 }) => {
   return (
-    <div data-test-id="FormField" {...props}>
+    <div {...props}>
       {children}
     </div>
   );

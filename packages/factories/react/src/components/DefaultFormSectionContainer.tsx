@@ -14,6 +14,9 @@ export interface FormSectionContainerProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /** Section children (FormSectionTitle, FormSectionGroupContainer) */
   children?: React.ReactNode;
+  /** Test ID for the form section container */
+  'data-test-id'?: string;
+  externalContext?: Record<string, any>;
 }
 
 /**
@@ -28,10 +31,11 @@ export type FormSectionContainerComponentType =
  */
 export const DefaultFormSectionContainer: React.FC<FormSectionContainerProps> = ({
   children,
+  externalContext,
   ...props
 }) => {
   return (
-    <div data-test-id="FormSectionContainer" style={{ marginBottom: '24px', ...props.style }} {...props}>
+    <div style={{ marginBottom: '24px', ...props.style }} {...props}>
       {children}
     </div>
   );

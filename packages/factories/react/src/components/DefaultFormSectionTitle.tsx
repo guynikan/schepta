@@ -16,6 +16,9 @@ export interface FormSectionTitleProps
   'x-content'?: string;
   /** Optional children (alternative to x-content) */
   children?: React.ReactNode;
+  /** Test ID for the form section title */
+  'data-test-id'?: string;
+  externalContext?: Record<string, any>;
 }
 
 /**
@@ -31,10 +34,11 @@ export type FormSectionTitleComponentType =
 export const DefaultFormSectionTitle: React.FC<FormSectionTitleProps> = ({
   'x-content': content,
   children,
+  externalContext,
   ...props
 }) => {
   return (
-    <h2 data-test-id="FormSectionTitle" style={{ marginBottom: '16px', fontSize: '20px', fontWeight: '600', color: '#333', ...props.style }} {...props}>
+    <h2 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: '600', color: '#333', ...props.style }} {...props}>
       {content ?? children}
     </h2>
   );

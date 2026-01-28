@@ -20,6 +20,9 @@ export interface InputTextareaProps
   onChange?: (value: string) => void;
   label?: string;
   rows?: number;
+  /** Test ID for the input textarea */
+  'data-test-id'?: string;
+  externalContext?: Record<string, any>;
 }
 
 /**
@@ -50,7 +53,7 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
 export const DefaultInputTextarea = React.forwardRef<
   HTMLTextAreaElement,
   InputTextareaProps
->(({ label, name, value, onChange, placeholder, rows = 4, ...rest }, ref) => {
+>(({ label, name, value, onChange, placeholder, rows = 4, externalContext, ...rest }, ref) => {
   return (
     <div style={wrapperStyle}>
       {label && (
@@ -62,7 +65,6 @@ export const DefaultInputTextarea = React.forwardRef<
         ref={ref}
         id={name}
         name={name}
-        data-test-id={name}
         value={value ?? ''}
         placeholder={placeholder}
         rows={rows}

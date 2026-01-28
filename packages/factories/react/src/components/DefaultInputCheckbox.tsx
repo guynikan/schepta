@@ -15,6 +15,8 @@ export interface InputCheckboxProps
     React.InputHTMLAttributes<HTMLInputElement>,
     'value' | 'onChange' | 'checked' | 'type'
   > {
+  /** Test ID for the input checkbox */
+  'data-test-id'?: string;
   name: string;
   value?: boolean;
   onChange?: (value: boolean) => void;
@@ -48,7 +50,6 @@ export const DefaultInputCheckbox = React.forwardRef<HTMLInputElement, InputChec
             ref={ref}
             type="checkbox"
             name={name}
-            data-test-id={name}
             checked={value ?? false}
             onChange={(e) => onChange?.(e.target.checked)}
             {...rest}

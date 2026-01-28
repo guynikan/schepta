@@ -7,7 +7,7 @@ import type { FormSchema } from '@schepta/core';
 
 export interface FormRendererProps {
   componentKey: string;
-  schema: any;
+  schema: FormSchema;
   renderer: (componentKey: string, schema: any, parentProps?: Record<string, any>) => any;
   onSubmit?: () => void;
 }

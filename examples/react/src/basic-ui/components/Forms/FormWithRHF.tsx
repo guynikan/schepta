@@ -12,8 +12,6 @@ import { createComponentSpec, FormSchema } from '@schepta/core';
 import { RHFFormContainer } from '../rhf/RHFFormContainer';
 import { RHFFieldWrapper } from '../rhf/RHFFieldWrapper';
 
-import { components } from '../ComponentRegistry';
-
 interface FormWithRHFProps {
   schema: FormSchema;
 }
@@ -69,7 +67,7 @@ export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
         </div>
         <FormFactory
           schema={schema}
-          components={{...components, ...rhfComponents}}
+          components={rhfComponents}
           onSubmit={handleSubmit}
           debug={true}
         />

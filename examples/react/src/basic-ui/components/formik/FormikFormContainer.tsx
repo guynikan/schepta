@@ -28,6 +28,7 @@ import { useSchepta } from "@schepta/adapter-react";
 export const FormikFormContainer: React.FC<FormContainerProps> = ({
   children,
   onSubmit,
+  ...props
 }) => {
   const { schema } = useSchepta();
   const { initialValues, validate } = useMemo(() => {
@@ -71,7 +72,7 @@ export const FormikFormContainer: React.FC<FormContainerProps> = ({
       onSubmit={handleSubmit}
     >
       {({ isSubmitting, errors, touched }) => (
-        <Form data-test-id="FormContainer">
+        <Form {...props}>
           {children}
           {onSubmit && (
             <div style={{ marginTop: "24px", textAlign: "right" }}>

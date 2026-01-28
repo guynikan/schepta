@@ -18,6 +18,8 @@ export interface FormContainerProps {
   children?: React.ReactNode;
   /** Submit handler - when provided, renders a submit button */
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
+  /** Test ID for the form container */
+  'data-test-id'?: string;
   /** External context passed from FormFactory */
   externalContext?: Record<string, any>;
   /** 
@@ -47,9 +49,11 @@ export interface FormContainerProps {
  * <button onClick={() => formRef.current?.submit(handleSubmit)}>Submit</button>
  * ```
  */
-export const DefaultFormContainer: React.FC<FormContainerProps> = ({ 
-  children, 
+export const DefaultFormContainer: React.FC<FormContainerProps> = ({
+  children,
   onSubmit,
+  externalContext,
+  ...props
 }) => {
   const adapter = useScheptaFormAdapter();
 
@@ -61,7 +65,7 @@ export const DefaultFormContainer: React.FC<FormContainerProps> = ({
   };
 
   return (
-    <form data-test-id="FormContainer" onSubmit={handleFormSubmit}>
+    <form onSubmit={handleFormSubmit} {...props}>
       {children}
       {onSubmit && <DefaultSubmitButton />}
     </form>

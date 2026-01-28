@@ -21,12 +21,15 @@ export interface InputAutocompleteProps
     React.InputHTMLAttributes<HTMLInputElement>,
     'value' | 'onChange' | 'list'
   > {
+  /** Test ID for the input autocomplete */
+  'data-test-id'?: string;
   name: string;
   value?: string;
   onChange?: (value: string) => void;
   label?: string;
   /** List of options for autocomplete (value used for both value and label if label omitted) */
   options?: InputAutocompleteOption[] | string[];
+  externalContext?: Record<string, any>;
 }
 
 /**
@@ -64,7 +67,7 @@ function normalizeOptions(
 export const DefaultInputAutocomplete = React.forwardRef<
   HTMLInputElement,
   InputAutocompleteProps
->(({ label, name, value, onChange, placeholder, options = [], ...rest }, ref) => {
+>(({ label, name, value, onChange, placeholder, options = [], externalContext, ...rest }, ref) => {
   const listId = `${name}-datalist`;
   const normalizedOptions = normalizeOptions(options);
 
@@ -79,7 +82,6 @@ export const DefaultInputAutocomplete = React.forwardRef<
         ref={ref}
         id={name}
         name={name}
-        data-test-id={name}
         list={listId}
         value={value ?? ''}
         placeholder={placeholder}
