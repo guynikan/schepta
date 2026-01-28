@@ -1,6 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm install && pnpm build --filter='./packages/*' && pnpm --filter showcases-react build",
-  "outputDirectory": "react/dist",
-  "framework": "vite",
-  "installCommand": "cd ../.. && pnpm install"
+  "buildCommand": "cd .. && pnpm install && pnpm build --filter='./packages/*' && pnpm --filter showcases-react build && cp -r showcases/react/dist/* showcases/",
+  "outputDirectory": "./",
+  "framework": "vite"
 }

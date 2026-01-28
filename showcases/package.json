@@ -1,0 +1,12 @@
+{
+  "name": "schepta-showcases",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "cd .. && pnpm install && pnpm build --filter='./packages/*' && pnpm --filter showcases-react build && cp -r showcases/react/dist/* showcases/",
+    "dev": "cd react && pnpm dev"
+  },
+  "devDependencies": {
+    "vite": "^5.0.8"
+  }
+}
