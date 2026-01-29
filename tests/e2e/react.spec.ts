@@ -6,7 +6,7 @@ import { extractFieldsFromSchema, FormSchema } from '@schepta/core';
 
 test.describe('React Form Factory', () => {
   test.beforeEach(async ({ page, baseURL }) => {
-    await page.goto(`${baseURL || 'http://localhost:3000'}/basic`);
+    await page.goto(`${baseURL}`);
   });
 
   test('should render simple form', async ({ page }) => {
@@ -165,7 +165,7 @@ test.describe('React Form Factory', () => {
 
 test.describe('React Hook Form Integration', () => {
   test.beforeEach(async ({ page, baseURL }) => {
-    await page.goto(`${baseURL || 'http://localhost:3000'}/basic`);
+    await page.goto(`${baseURL}`);
     // Navigate to RHF form tab
     await page.click('[data-test-id*="rhf-form-tab"]');
     await page.waitForSelector('[data-test-id^="FormContainer"]', { timeout: 10000 });
@@ -200,7 +200,7 @@ test.describe('React Hook Form Integration', () => {
 
 test.describe('Formik Integration', () => {
   test.beforeEach(async ({ page, baseURL }) => {
-    await page.goto(`${baseURL || 'http://localhost:3000'}/basic`);
+    await page.goto(`${baseURL}`);
     // Navigate to Formik form tab
     await page.click('[data-test-id*="formik-form-tab"]');
     await page.waitForSelector('[data-test-id^="FormContainer"]', { timeout: 10000 });

@@ -18,19 +18,9 @@ export default defineConfig({
       name: 'react',
       use: { 
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:3000',
+        baseURL: 'https://show.schepta.org/',
       },
     }
-  ],
-  webServer: [
-    {
-      command: 'pnpm --filter showcases-react dev',
-      url: 'http://localhost:3000',
-      reuseExistingServer: true,
-      timeout: 120 * 1000,
-      stdout: 'ignore',
-      stderr: 'pipe',
-    }
-  ],
+  ]
 });
 
