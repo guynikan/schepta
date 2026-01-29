@@ -20,11 +20,11 @@ const ReactWrapper = (Component: any) => {
 };
 
 export default {
-  SimpleFormReact: defineAsyncComponent(() => import('../components/examples/SimpleFormReact.vue')),
-  ComplexFormReact: defineAsyncComponent(() => import('../components/examples/ComplexFormReact.vue')),
-  SimpleFormVue: defineAsyncComponent(() => import('../components/examples/SimpleFormVue.vue')),
-  ComplexFormVue: defineAsyncComponent(() => import('../components/examples/ComplexFormVue.vue')),
-  SimpleFormVuetify: defineAsyncComponent(() => import('../components/examples/SimpleFormVuetify.vue')),
-  ComplexFormVuetify: defineAsyncComponent(() => import('../components/examples/ComplexFormVuetify.vue')),
+  SimpleFormReact: defineAsyncComponent(() => import('../components/showcases/SimpleFormReact.vue')),
+  ComplexFormReact: defineAsyncComponent(() => import('../components/showcases/ComplexFormReact.vue')),
+  SimpleFormVue: defineAsyncComponent(() => import('../components/showcases/SimpleFormVue.vue')),
+  ComplexFormVue: defineAsyncComponent(() => import('../components/showcases/ComplexFormVue.vue')),
+  SimpleFormVuetify: defineAsyncComponent(() => import('../components/showcases/SimpleFormVuetify.vue')),
+  ComplexFormVuetify: defineAsyncComponent(() => import('../components/showcases/ComplexFormVuetify.vue')),
 };
 

@@ -39,7 +39,7 @@ const handleSubmit = (values: any) => {
 
 ## Documentation
 
-For complete documentation and examples, visit [https://schepta.dev](https://schepta.dev)
+For complete documentation and showcases, visit [https://schepta.dev](https://schepta.dev)
 
 ## License
 

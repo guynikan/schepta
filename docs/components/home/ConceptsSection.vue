@@ -11,10 +11,10 @@
     </div>
 
     <div class="section-card">
-      <h2>{{ examples.title }}</h2>
-      <p>{{ examples.description }}</p>
+      <h2>{{ showcases.title }}</h2>
+      <p>{{ showcases.description }}</p>
       <ul>
-        <li v-for="item in examples.items" :key="item.title">
+        <li v-for="item in showcases.items" :key="item.title">
           <a :href="`/${locale}${item.link}`">{{ item.title }}</a> - {{ item.description }}
         </li>
       </ul>
@@ -30,7 +30,7 @@ const { frontmatter } = useData();
 
 const locale = computed(() => frontmatter.value.locale || 'en-US');
 const concepts = computed(() => frontmatter.value.concepts || {});
-const examples = computed(() => frontmatter.value.examples || {});
+const showcases = computed(() => frontmatter.value.showcases || {});
 </script>
 
 <style scoped>

@@ -27,7 +27,7 @@ export default defineConfig({
           { text: 'Home', link: '/en-US/' },
           { text: 'Guide', link: '/en-US/guide/quick-start' },
           { text: 'Concepts', link: '/en-US/concepts/01-factories' },
-          { text: 'Examples', link: '/en-US/examples/react' },
+          { text: 'Showcases', link: '/en-US/showcases/react' },
         ],
         sidebar: {
           '/en-US/guide/': [
@@ -52,15 +52,15 @@ export default defineConfig({
               ],
             },
           ],
-          '/en-US/examples/': [
+          '/en-US/showcases/': [
             {
-              text: 'Examples',
+              text: 'Showcases',
               items: [
-                { text: 'React', link: '/en-US/examples/react' },
-                { text: 'React Material UI', link: '/en-US/examples/material-ui' },
-                { text: 'React Chakra UI', link: '/en-US/examples/chakra-ui' },
-                { text: 'Vue', link: '/en-US/examples/vue' },
-                { text: 'Vue Vuetify', link: '/en-US/examples/vuetify' },
+                { text: 'React', link: '/en-US/showcases/react' },
+                { text: 'React Material UI', link: '/en-US/showcases/material-ui' },
+                { text: 'React Chakra UI', link: '/en-US/showcases/chakra-ui' },
+                { text: 'Vue', link: '/en-US/showcases/vue' },
+                { text: 'Vue Vuetify', link: '/en-US/showcases/vuetify' },
               ],
             },
           ],
@@ -81,7 +81,7 @@ export default defineConfig({
           { text: 'Início', link: '/pt-BR/' },
           { text: 'Guia', link: '/pt-BR/guide/quick-start' },
           { text: 'Conceitos', link: '/pt-BR/concepts/01-factories' },
-          { text: 'Exemplos', link: '/pt-BR/examples/react' },
+          { text: 'Exemplos', link: '/pt-BR/showcases/react' },
         ],
         sidebar: {
           '/pt-BR/guide/': [
@@ -106,15 +106,15 @@ export default defineConfig({
               ],
             },
           ],
-          '/pt-BR/examples/': [
+          '/pt-BR/showcases/': [
             {
               text: 'Exemplos',
               items: [
-                { text: 'React', link: '/pt-BR/examples/react' },
-                { text: 'React Material UI', link: '/pt-BR/examples/material-ui' },
-                { text: 'React Chakra UI', link: '/pt-BR/examples/chakra-ui' },
-                { text: 'Vue', link: '/pt-BR/examples/vue' },
-                { text: 'Vue Vuetify', link: '/pt-BR/examples/vuetify' },
+                { text: 'React', link: '/pt-BR/showcases/react' },
+                { text: 'React Material UI', link: '/pt-BR/showcases/material-ui' },
+                { text: 'React Chakra UI', link: '/pt-BR/showcases/chakra-ui' },
+                { text: 'Vue', link: '/pt-BR/showcases/vue' },
+                { text: 'Vue Vuetify', link: '/pt-BR/showcases/vuetify' },
               ],
             },
           ],
@@ -135,7 +135,7 @@ export default defineConfig({
           { text: 'Inicio', link: '/es-ES/' },
           { text: 'Guía', link: '/es-ES/guide/quick-start' },
           { text: 'Conceptos', link: '/es-ES/concepts/01-factories' },
-          { text: 'Ejemplos', link: '/es-ES/examples/react' },
+          { text: 'Ejemplos', link: '/es-ES/showcases/react' },
         ],
         sidebar: {
           '/es-ES/guide/': [
@@ -160,15 +160,15 @@ export default defineConfig({
               ],
             },
           ],
-          '/es-ES/examples/': [
+          '/es-ES/showcases/': [
             {
               text: 'Ejemplos',
               items: [
-                { text: 'React', link: '/es-ES/examples/react' },
-                { text: 'React Material UI', link: '/es-ES/examples/material-ui' },
-                { text: 'React Chakra UI', link: '/es-ES/examples/chakra-ui' },
-                { text: 'Vue', link: '/es-ES/examples/vue' },
-                { text: 'Vue Vuetify', link: '/es-ES/examples/vuetify' },
+                { text: 'React', link: '/es-ES/showcases/react' },
+                { text: 'React Material UI', link: '/es-ES/showcases/material-ui' },
+                { text: 'React Chakra UI', link: '/es-ES/showcases/chakra-ui' },
+                { text: 'Vue', link: '/es-ES/showcases/vue' },
+                { text: 'Vue Vuetify', link: '/es-ES/showcases/vuetify' },
               ],
             },
           ],

@@ -7,7 +7,7 @@ homeHero:
   subtitle: Framework-agnostic rendering engine for server-driven UI
   description: Transform JSON schemas into fully functional UI components. Works seamlessly with React, Vue, and vanilla JavaScript.
   getStarted: Get Started
-  viewExamples: View Examples
+  viewShowcases: View Showcases
   installCommandId: install-command
   copyButtonLabel: Copy command
   geckoAlt: Guanche Gecko - schepta mascot
@@ -48,9 +48,9 @@ concepts:
       description: Transforming props and behavior
     - title: Debug System
       description: Development tools
-examples:
-  title: Examples
-  description: Examples of how to use schepta
+showcases:
+  title: Showcases
+  description: Showcases of how to use schepta
   items:
     - title: React
       description: React example

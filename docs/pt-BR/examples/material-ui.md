@@ -12,5 +12,5 @@ Exemplos interativos de formulários schepta usando React com componentes Materi
 
 O CodeSandbox acima inclui exemplos de formulários simples e complexos. Você pode alternar entre eles usando a navegação no sandbox.
 
-Para desenvolvimento local, veja o [diretório de exemplos Material UI](https://github.com/guynikan/schepta/tree/main/examples/react-material-ui).
+Para desenvolvimento local, veja o [diretório de exemplos Material UI](https://github.com/guynikan/schepta/tree/main/showcases/react-material-ui).
 

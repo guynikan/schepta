@@ -5,8 +5,8 @@
  * No external form library dependencies (react-hook-form, formik, etc.)
  * 
  * Users can integrate form libraries by creating custom components.
- * See examples/react/src/basic-ui/components/rhf/ for RHF integration.
- * See examples/react/src/basic-ui/components/formik/ for Formik integration.
+ * See showcases/react/src/basic-ui/components/rhf/ for RHF integration.
+ * See showcases/react/src/basic-ui/components/formik/ for Formik integration.
  */
 
 // Main factory

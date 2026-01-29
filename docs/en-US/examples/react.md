@@ -1,6 +1,6 @@
-# React Examples
+# React Showcases
 
-Interactive examples of schepta forms using React and `react-hook-form`.
+Interactive showcases of schepta forms using React and `react-hook-form`.
 
 <iframe 
   src="https://codesandbox.io/embed/r9jzdl?view=split&hidenavigation=1&theme=dark"
@@ -10,6 +10,6 @@ Interactive examples of schepta forms using React and `react-hook-form`.
   sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-The CodeSandbox above includes both simple and complex form examples. You can switch between them using the navigation in the sandbox.
+The CodeSandbox above includes both simple and complex form showcases. You can switch between them using the navigation in the sandbox.
 
-For local development, see the [React examples directory](https://github.com/guynikan/schepta/tree/main/examples/react).
+For local development, see the [React showcases directory](https://github.com/guynikan/schepta/tree/main/showcases/react).

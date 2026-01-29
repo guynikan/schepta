@@ -24,7 +24,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm --filter examples-react dev',
+      command: 'pnpm --filter showcases-react dev',
       url: 'http://localhost:3000',
       reuseExistingServer: true,
       timeout: 120 * 1000,

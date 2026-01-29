@@ -1,6 +1,6 @@
-# React Material UI Examples
+# React Material UI Showcases
 
-Interactive examples of schepta forms using React with Material UI components.
+Interactive showcases of schepta forms using React with Material UI components.
 
 <iframe 
   src="https://codesandbox.io/embed/5tn7vv?view=split&hidenavigation=1&theme=dark"
@@ -10,6 +10,6 @@ Interactive examples of schepta forms using React with Material UI components.
   sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-The CodeSandbox above includes both simple and complex form examples. You can switch between them using the navigation in the sandbox.
+The CodeSandbox above includes both simple and complex form showcases. You can switch between them using the navigation in the sandbox.
 
-For local development, see the [Material UI examples directory](https://github.com/guynikan/schepta/tree/main/examples/react-material-ui).
+For local development, see the [Material UI showcases directory](https://github.com/guynikan/schepta/tree/main/showcases/react-material-ui).
