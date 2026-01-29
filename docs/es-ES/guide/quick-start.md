@@ -311,16 +311,6 @@ Aprende los conceptos fundamentales que impulsan schepta:
 - **[06. Middleware](/es-ES/concepts/06-middleware)** - Transformando props y comportamiento
 - **[07. Debug System](/es-ES/concepts/07-debug-system)** - Herramientas de desarrollo
 
-### Ejemplos
-
-Ve schepta en acción con ejemplos interactivos:
-
-- **[Ejemplos React](/es-ES/examples/react)** - React con react-hook-form
-- **[Ejemplos React Material UI](/es-ES/examples/material-ui)** - React con Material UI
-- **[Ejemplos React Chakra UI](/es-ES/examples/chakra-ui)** - React con Chakra UI
-- **[Ejemplos Vue](/es-ES/examples/vue)** - Vue con adaptador de formulario personalizado
-- **[Ejemplos Vue Vuetify](/es-ES/examples/vuetify)** - Vue con Vuetify Material Design
-
 ## Recursos
 
 - [Repositorio GitHub](https://github.com/guynikan/schepta)

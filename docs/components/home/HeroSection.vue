@@ -18,9 +18,9 @@
           </a>
           <a
             class="action-button secondary"
-            :href="`/${locale}/examples/react`"
+            :href="`/${locale}/showcases/react`"
           >
-            {{ hero.viewExamples }}
+            {{ hero.viewShowcases }}
           </a>
         </div>
         <div class="hero-install">

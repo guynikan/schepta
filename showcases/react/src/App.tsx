@@ -24,9 +24,9 @@ import { ScheptaProvider } from "@schepta/adapter-react";
 import { components } from "./basic-ui/components/ComponentRegistry";
 
 const navigationItems = [
-  { path: "/basic", label: "Basic Examples", icon: <FaReact /> },
-  { path: "/chakra-ui", label: "Chakra UI Examples", icon: <SiChakraui /> },
-  { path: "/material-ui", label: "Material UI Examples", icon: <SiMui /> },
+  { path: "/basic", label: "Basic Showcases", icon: <FaReact /> },
+  { path: "/chakra-ui", label: "Chakra UI Showcases", icon: <SiChakraui /> },
+  { path: "/material-ui", label: "Material UI Showcases", icon: <SiMui /> },
 ];
 
 function Header() {
@@ -49,7 +49,7 @@ function Header() {
               fontWeight: 700,
             }}
           >
-            Schepta React Examples
+            Schepta React Showcases
           </Typography>
 
           <Box sx={{ flexGrow: 1 }}>

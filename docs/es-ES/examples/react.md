@@ -12,5 +12,5 @@ Ejemplos interactivos de formularios schepta usando React y `react-hook-form`.
 
 El CodeSandbox de arriba incluye ejemplos de formularios simples y complejos. Puedes cambiar entre ellos usando la navegación en el sandbox.
 
-Para desarrollo local, consulta el [directorio de ejemplos React](https://github.com/guynikan/schepta/tree/main/examples/react).
+Para desarrollo local, consulta el [directorio de ejemplos React](https://github.com/guynikan/schepta/tree/main/showcases/react).
 

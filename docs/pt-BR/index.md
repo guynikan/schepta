@@ -7,7 +7,7 @@ homeHero:
   subtitle: Motor de renderização agnóstico de framework para UI dirigida por servidor
   description: Transforme schemas JSON em componentes de UI totalmente funcionais. Funciona perfeitamente com React, Vue e JavaScript vanilla.
   getStarted: Começar
-  viewExamples: Ver Exemplos
+  viewShowcases: Ver Exemplos
   installCommandId: install-command-pt
   copyButtonLabel: Copiar comando
   geckoAlt: Gecko Guanche - mascote do schepta
@@ -55,24 +55,24 @@ concepts:
     - title: Debug System
       link: /concepts/07-debug-system
       description: Ferramentas de desenvolvimento
-examples:
+showcases:
   title: Exemplos
   description: Veja o schepta em ação com exemplos interativos
   items:
     - title: Exemplos React
-      link: /examples/react
+      link: /showcases/react
       description: React com react-hook-form
     - title: React Material UI
-      link: /examples/material-ui
+      link: /showcases/material-ui
       description: React com Material UI
     - title: React Chakra UI
-      link: /examples/chakra-ui
+      link: /showcases/chakra-ui
       description: React com Chakra UI
     - title: Exemplos Vue
-      link: /examples/vue
+      link: /showcases/vue
       description: Vue com adaptador de formulário customizado
     - title: Vue Vuetify
-      link: /examples/vuetify
+      link: /showcases/vuetify
       description: Vue com Vuetify Material Design
 ---
 

@@ -7,7 +7,6 @@ import { MotionPlugin } from '@vueuse/motion'
 export default {
   ...DefaultTheme,
   enhanceApp({ app, router }) {
-    app.component('CodeSandboxEmbed', defineAsyncComponent(() => import('../../components/examples/CodeSandboxEmbed.vue')));
     app.component('TerminalIcon', defineAsyncComponent(() => import('lucide-vue-next').then(m => m.Terminal)));
     app.component('CopyIcon', defineAsyncComponent(() => import('lucide-vue-next').then(m => m.Copy)));
     app.component('CheckIcon', defineAsyncComponent(() => import('lucide-vue-next').then(m => m.Check)));

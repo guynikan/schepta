@@ -65,7 +65,7 @@ publish_package() {
 check_ready() {
   echo "🔍 Verificando se está pronto para publicar..."
   
-  # Fazer build apenas dos packages @schepta/* (não docs/examples)
+  # Fazer build apenas dos packages @schepta/* (não docs/showcases)
   echo "🔨 Fazendo build dos packages @schepta/*..."
   pnpm --filter "@schepta/*" build
   

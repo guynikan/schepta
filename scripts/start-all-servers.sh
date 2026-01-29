@@ -6,17 +6,17 @@ echo "🚀 Iniciando todos os servidores de exemplo..."
 
 # Iniciar React vanilla (porta 3000)
 echo "📦 Iniciando React vanilla na porta 3000..."
-pnpm --filter examples-react dev &
+pnpm --filter showcases-react dev &
 REACT_PID=$!
 
 # Iniciar Material UI (porta 3001)
 echo "📦 Iniciando Material UI na porta 3001..."
-pnpm --filter examples-react-material-ui dev &
+pnpm --filter showcases-react-material-ui dev &
 MATERIAL_PID=$!
 
 # Iniciar Chakra UI (porta 3002)
 echo "📦 Iniciando Chakra UI na porta 3002..."
-pnpm --filter examples-react-chakra-ui dev &
+pnpm --filter showcases-react-chakra-ui dev &
 CHAKRA_PID=$!
 
 # Aguardar servidores iniciarem
