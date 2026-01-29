@@ -24,9 +24,9 @@ import { ScheptaProvider } from "@schepta/adapter-react";
 import { components } from "./basic-ui/components/ComponentRegistry";
 
 const navigationItems = [
-  { path: "/basic", label: "Basic Showcases", icon: <FaReact /> },
-  { path: "/chakra-ui", label: "Chakra UI Showcases", icon: <SiChakraui /> },
-  { path: "/material-ui", label: "Material UI Showcases", icon: <SiMui /> },
+  { path: "/basic", label: "Basic UI", icon: <FaReact /> },
+  { path: "/chakra-ui", label: "Chakra UI", icon: <SiChakraui /> },
+  { path: "/material-ui", label: "Material UI", icon: <SiMui /> },
 ];
 
 function Header() {

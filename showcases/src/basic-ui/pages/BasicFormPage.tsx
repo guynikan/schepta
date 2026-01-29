@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Tab, Tabs, Paper } from "@mui/material";
-import simpleFormSchema from "../../../../../instances/form/simple-form.json";
-import complexFormSchema from "../../../../../instances/form/complex-form.json";
+import simpleFormSchema from "../../../../instances/form/simple-form.json";
+import complexFormSchema from "../../../../instances/form/complex-form.json";
 import { NativeForm } from "../components/Forms/NativeForm";
 import { TabPanel } from "../../material-ui/pages/MaterialFormPage";
 import { ModalForm } from "../components/Forms/ModalForm";
@@ -24,8 +24,8 @@ export function BasicFormPage() {
     <>
       <Paper elevation={2} sx={{ p: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs">
-          <Tab data-test-id="simple-form-tab" label="Simple Form (Native)" />
-          <Tab data-test-id="complex-form-tab" label="Complex Form (Native)" />
+          <Tab data-test-id="simple-form-tab" label="Simple Form" />
+          <Tab data-test-id="complex-form-tab" label="Complex Form" />
           <Tab data-test-id="modal-form-tab" label="Modal Form" />
           <Tab data-test-id="rhf-form-tab" label="with React Hook Form" />
           <Tab data-test-id="formik-form-tab" label="with Formik" />
