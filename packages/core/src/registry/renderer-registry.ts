@@ -37,24 +37,7 @@ export const defaultTypeRenderers: Record<ComponentType, RendererFn> = {
     return runtime.create(spec, propsWithChildren);
   },
   'container': (spec, props, runtime, children) => {
-    const xComponentProps = props['x-component-props'] || {};
-    const mergedProps = { ...props, ...xComponentProps };
-    const sanitized = sanitizePropsForDOM(mergedProps);
-    const propsWithChildren = children && children.length > 0 
-      ? { ...sanitized, children }
-      : sanitized;
-    return runtime.create(spec, propsWithChildren);
-  },
-  'FormContainer': (spec, props, runtime, children) => {
-    const { onSubmit, externalContext } = props;
-    const sanitized = sanitizePropsForDOM(props);
-    const propsWithChildren = {
-      ...sanitized,
-      onSubmit,
-      externalContext,
-      ...(children && children.length > 0 ? { children } : {}),
-    };
-    return runtime.create(spec, propsWithChildren);
+    return runtime.create(spec, {...props, children});
   },
   content: (spec, props, runtime, children) => {
     const sanitized = sanitizePropsForDOM(props);
@@ -84,28 +67,9 @@ export const defaultTypeRenderers: Record<ComponentType, RendererFn> = {
 };
 
 /**
- * Renderer registry overrides
- */
-const rendererRegistryOverrides = new Map<ComponentType, RendererFn>();
-
-/**
- * Register a renderer override globally
- */
-export function registerRenderer(type: ComponentType, renderer: RendererFn): void {
-  rendererRegistryOverrides.set(type, renderer);
-}
-
-/**
- * Get renderer by type with registry overrides
- */
-export function getRendererByType(type: ComponentType): RendererFn {
-  return rendererRegistryOverrides.get(type) || defaultTypeRenderers[type];
-}
-
-/**
  * Get unified renderer registry with hierarchical merging
  * 
- * Priority order: local > global > registry overrides > default
+ * Priority order: local > global > default
  */
 export function getRendererRegistry(
   globalRenderers?: Partial<Record<ComponentType, RendererFn>>,
@@ -113,11 +77,6 @@ export function getRendererRegistry(
 ): Record<ComponentType, RendererFn> {
   // Start with built-in renderers
   let merged = { ...defaultTypeRenderers };
-  
-  // Apply registry overrides (global registrations)
-  rendererRegistryOverrides.forEach((renderer, type) => {
-    merged[type] = renderer;
-  });
   
   // Apply global renderers (from provider)
   if (globalRenderers) {
@@ -166,14 +125,6 @@ export function getRendererForType(
       console.log(`Renderer resolved from global: ${type}`);
     }
     return globalRenderers[type]!;
-  }
-
-  // Registry overrides third priority
-  if (rendererRegistryOverrides.has(type)) {
-    if (debugEnabled) {
-      console.log(`Renderer resolved from registry override: ${type}`);
-    }
-    return rendererRegistryOverrides.get(type)!;
   }
 
   // Default renderer last
