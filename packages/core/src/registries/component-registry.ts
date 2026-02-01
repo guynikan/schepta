@@ -47,13 +47,6 @@ export function setFactoryDefaultComponents(
 }
 
 /**
- * Get factory default components
- */
-export function getFactoryDefaultComponents(): Record<string, ComponentSpec> {
-  return factoryDefaultComponents;
-}
-
-/**
  * Get unified component registry
  * 
  * Priority order: local > global > registry overrides > factory defaults
