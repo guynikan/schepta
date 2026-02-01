@@ -6,7 +6,7 @@
  */
 
 import { useMemo } from 'react';
-import type { ComponentSpec, MiddlewareFn } from '@schepta/core';
+import { getFactoryDefaultComponents, type ComponentSpec, type MiddlewareFn } from '@schepta/core';
 import { useScheptaContext } from '@schepta/adapter-react';
 
 export interface MergedConfigInput {
@@ -38,6 +38,7 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
 
   return useMemo(() => ({
     components: {
+      ...getFactoryDefaultComponents(),
       ...(providerConfig?.components || {}),
       ...(props.components || {}),
     },
@@ -57,8 +58,8 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
       ...(providerConfig?.middlewares || []),
       ...(props.middlewares || []),
     ],
-    debug: props.debug !== undefined 
-      ? props.debug 
+    debug: props.debug !== undefined
+      ? props.debug
       : (providerConfig?.debug?.enabled || false),
   }), [
     providerConfig?.components,

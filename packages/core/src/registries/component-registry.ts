@@ -46,81 +46,9 @@ export function setFactoryDefaultComponents(
   factoryDefaultComponents = components;
 }
 
-/**
- * Get factory default components
- */
 export function getFactoryDefaultComponents(): Record<string, ComponentSpec> {
   return factoryDefaultComponents;
-}
-
-/**
- * Get unified component registry
- * 
- * Priority order: local > global > registry overrides > factory defaults
- */
-export function getComponentRegistry(
-  globalComponents?: Record<string, ComponentSpec>,
-  localComponents?: Record<string, ComponentSpec>
-): Record<string, ComponentSpec> {
-  // Start with factory default components
-  const merged: Record<string, ComponentSpec> = { ...factoryDefaultComponents };
-  
-  // Apply global components (from provider)
-  if (globalComponents) {
-    Object.keys(globalComponents).forEach(componentName => {
-      const component = globalComponents[componentName];
-      if (component) {
-        merged[componentName] = component;
-      }
-    });
-  }
-
-  // Apply local components (maximum priority)
-  if (localComponents) {
-    Object.keys(localComponents).forEach(componentName => {
-      const component = localComponents[componentName];
-      if (component) {
-        merged[componentName] = component;
-      }
-    });
-  }
-
-  return merged;
-}
-
-/**
- * Get effective component configuration
- * Includes fallback logic and debug logging
- */
-export function getComponentSpec(
-  componentName: string,
-  globalComponents?: Record<string, ComponentSpec>,
-  localComponents?: Record<string, ComponentSpec>,
-  debugEnabled?: boolean
-): ComponentSpec | null {
-  // Local components have maximum priority
-  if (localComponents?.[componentName]) {
-    if (debugEnabled) {
-      console.log(`Component resolved from local: ${componentName}`);
-    }
-    return localComponents[componentName];
-  }
-
-  const globalRegistry = getComponentRegistry(globalComponents, localComponents);
-  
-  if (globalRegistry[componentName]) {
-    if (debugEnabled) {
-      console.log(`Component resolved from registry: ${componentName}`);
-    }
-    return globalRegistry[componentName];
-  }
-
-  if (debugEnabled) {
-    console.warn(`Component not found: ${componentName}`);
-  }
-  
-  return null;
-}
+};
 
 /**
  * Create a component spec from a factory function
@@ -128,7 +56,7 @@ export function getComponentSpec(
 export function createComponentSpec(config: {
   id: string;
   factory: ComponentSpec['factory'];
-  type?: ComponentType;
+  type: ComponentType;
   displayName?: string;
   defaultProps?: Record<string, any>;
 }): ComponentSpec {
