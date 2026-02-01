@@ -7,7 +7,6 @@
 
 import React from 'react';
 import type { ComponentSpec, RendererFn, RuntimeAdapter } from '@schepta/core';
-import { sanitizePropsForDOM } from '@schepta/core';
 import { DefaultFieldWrapper, type FieldWrapperType } from '../components/DefaultFieldWrapper';
 
 /**
@@ -81,12 +80,11 @@ export function createFieldRenderer(options: FieldRendererOptions = {}): Rendere
     const mergedProps = { ...props, ...xComponentProps };
     
     // Sanitize props to remove internal Schepta metadata before passing to DOM
-    const sanitizedProps = sanitizePropsForDOM(mergedProps);
     
     const propsWithChildren =
       children && children.length > 0
-        ? { ...sanitizedProps, children }
-        : sanitizedProps;
+        ? { ...mergedProps, children }
+        : mergedProps;
 
     return runtime.create(spec, propsWithChildren);
   };

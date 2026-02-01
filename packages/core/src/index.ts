@@ -34,7 +34,6 @@ export * from './provider';
 
 // Utils
 export * from './utils/jexl-config';
-export * from './utils/sanitize-props';
 
 // Validation
 export * from './validation';
