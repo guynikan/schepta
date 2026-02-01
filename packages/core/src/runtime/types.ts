@@ -17,7 +17,7 @@ export interface ComponentSpec {
   /** Component identifier */
   id: string;
   /** Component type (field, container, etc.) */
-  type?: ComponentType;
+  type: ComponentType;
   /** Display name for debugging */
   displayName?: string;
   /** Default props to apply */

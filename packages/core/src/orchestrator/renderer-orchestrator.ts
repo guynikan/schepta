@@ -19,8 +19,7 @@ import { FormSchema } from '../schema/schema-types';
  * Resolution result - successful component resolution
  */
 export interface ResolutionSuccess {
-  renderSpec: ComponentSpec;
-  componentToRender: ComponentSpec;
+  componentSpec: ComponentSpec;
   rendererFn: ReturnType<typeof getRendererForType>;
 }
 
@@ -57,9 +56,9 @@ export function resolveSpec(
   const componentName = schema['x-component'] || componentKey;
   // components already has provider components merged in the factory
   // Pass components as globalComponents (includes provider components) and undefined as localComponents
-  const renderSpec = getComponentSpec(componentName, components, undefined, debugEnabled);
+  const componentSpec = getComponentSpec(componentName, components, undefined, debugEnabled);
   
-  if (!renderSpec) {
+  if (!componentSpec) {
     if (debugEnabled) {
       console.warn(`Component not found: ${componentName}`);
     }
@@ -67,7 +66,7 @@ export function resolveSpec(
     return null;
   }
 
-  const componentType = renderSpec.type || 'field';
+  const componentType = componentSpec.type || 'field';
   const rendererFn = getRendererForType(
     componentType,
     undefined,
@@ -76,8 +75,7 @@ export function resolveSpec(
   );
 
   return {
-    renderSpec,
-    componentToRender: renderSpec,
+    componentSpec,
     rendererFn,
   };
 }
@@ -200,16 +198,6 @@ export function createRendererOrchestrator(
     // Parse schema (now using processed schema)
     const { 'x-component-props': componentProps = {} } = processedSchema;
 
-    // const componentSpec = getComponentSpec(componentKey, components, undefined, debug?.isEnabled);
-
-    // if(!componentSpec) {
-    //   if (debug?.isEnabled) {
-    //     console.warn(`Component not found: ${componentKey}`);
-    //   }
-    //   // Return error element (framework adapter will handle)
-    //   return null;
-    // }
-
     // Resolve component and renderer
     // Use processedSchema for x-component resolution (in case x-component has templates)
     // components already has provider components merged in the factory
@@ -228,14 +216,13 @@ export function createRendererOrchestrator(
     }
 
     // Extract successful resolution
-    const { renderSpec, componentToRender, rendererFn } = resolution as ResolutionSuccess;
+    const { componentSpec, rendererFn } = resolution as ResolutionSuccess;
 
     // Construct name path for nested fields
     // ONLY components with type: 'field' are included in the name path
     // EXCEPTION: componentKeys that are direct properties of root schema (isDirectRootProperty)
     // All other components (containers, FormContainer, content, etc.) are ignored
-    const componentType = renderSpec.type || 'field';
-    const isFieldComponent = componentType === 'field';
+    const isFieldComponent = componentSpec.type === 'field';
     
     // If field OR direct root property: add componentKey to name path
     // If not field and not root property: keep parentProps.name (don't add this component's key)
@@ -246,7 +233,7 @@ export function createRendererOrchestrator(
 
     // Props Processing (using processedSchema)
     const baseProps = {
-      ...renderSpec.defaultProps,
+      ...componentSpec.defaultProps,
       ...parentProps,
       // Injected for E2E: identifies component key in DOM
       'data-test-id': `${componentKey}`,
@@ -305,7 +292,7 @@ export function createRendererOrchestrator(
     }
 
     // Final Rendering using renderer function with children
-    return rendererFn(componentToRender, mergedProps, runtime, children.length > 0 ? children : undefined);
+    return rendererFn(componentSpec, mergedProps, runtime, children.length > 0 ? children : undefined);
   };
 }
 

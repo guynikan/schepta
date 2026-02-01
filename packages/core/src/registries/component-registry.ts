@@ -121,7 +121,7 @@ export function getComponentSpec(
 export function createComponentSpec(config: {
   id: string;
   factory: ComponentSpec['factory'];
-  type?: ComponentType;
+  type: ComponentType;
   displayName?: string;
   defaultProps?: Record<string, any>;
 }): ComponentSpec {
