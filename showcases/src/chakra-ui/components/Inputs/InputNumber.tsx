@@ -11,6 +11,9 @@ export const InputNumber: React.FC<InputNumberProps & InputProps> = ({
   min,
   max,
   step,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -28,6 +31,7 @@ export const InputNumber: React.FC<InputNumberProps & InputProps> = ({
         max={max}
         step={step}
         data-test-id={name}
+        {...xComponentProps}
         {...rest}
       />
     </FormControl>

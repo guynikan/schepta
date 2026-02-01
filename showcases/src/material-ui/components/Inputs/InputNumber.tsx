@@ -11,6 +11,9 @@ export const InputNumber: React.FC<InputNumberProps & TextFieldProps> = ({
   min,
   max,
   step,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -27,6 +30,7 @@ export const InputNumber: React.FC<InputNumberProps & TextFieldProps> = ({
         inputProps={{ min, max, step }}
         data-test-id={name}
         margin="normal"
+        {...xComponentProps}
         {...rest}
       />
     );

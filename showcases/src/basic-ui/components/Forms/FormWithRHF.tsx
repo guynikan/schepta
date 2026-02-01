@@ -36,7 +36,7 @@ export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
     // Register RHF FormContainer with validation - this provides the FormProvider context
     FormContainer: createComponentSpec({
       id: 'FormContainer',
-      type: 'FormContainer',
+      type: 'container',
       factory: () => RHFFormContainer,
     }),
   }), []);

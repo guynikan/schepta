@@ -8,6 +8,9 @@ export const InputText: React.FC<InputTextProps & TextFieldProps> = ({
   value,
   onChange,
   placeholder,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -20,6 +23,7 @@ export const InputText: React.FC<InputTextProps & TextFieldProps> = ({
         onChange={(e) => onChange?.(e.target.value)}
         data-test-id={name}
         margin="normal"
+        {...xComponentProps}
         {...rest}
       />
     );

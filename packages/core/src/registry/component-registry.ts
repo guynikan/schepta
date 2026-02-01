@@ -14,7 +14,6 @@ export const defaultTypeProps: Record<ComponentType, Record<string, any>> = {
   field: { fullWidth: true },
   'field-wrapper': {},
   'container': {},
-  'FormContainer': {},
   content: {},
   addon: {},
   'menu-item': {},

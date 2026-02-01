@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "showcases:dev": "turbo --filter showcases dev",
     "test": "turbo test --filter='./packages/*'",
     "test:e2e": "playwright test --config=tests/playwright.config.ts",
     "test:e2e:ui": "playwright test --ui --config=tests/playwright.config.ts",

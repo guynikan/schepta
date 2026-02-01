@@ -38,7 +38,7 @@ export const FormWithFormik: React.FC<FormWithFormikProps> = ({ schema }) => {
     // Register Formik FormContainer with validation - this provides the Formik context
     FormContainer: createComponentSpec({
       id: 'FormContainer',
-      type: 'FormContainer',
+      type: 'container',
       factory: () => FormikFormContainer,
     }),
   }), []);

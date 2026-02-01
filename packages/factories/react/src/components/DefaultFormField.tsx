@@ -4,7 +4,7 @@
  * Wrapper (grid cell) for a single form field. Can be overridden via createComponentSpec.
  */
 
-import React from 'react';
+import React from "react";
 
 /**
  * Props passed to the FormField component.
@@ -14,8 +14,10 @@ export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Form field children (typically the rendered input) */
   children?: React.ReactNode;
   /** Test ID for the form field */
-  'data-test-id'?: string;
+  "data-test-id"?: string;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -30,10 +32,15 @@ export type FormFieldComponentType = React.ComponentType<FormFieldProps>;
 export const DefaultFormField: React.FC<FormFieldProps> = ({
   children,
   externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...props
 }) => {
   return (
-    <div {...props}>
+    <div
+      {...xComponentProps}
+      {...props}
+    >
       {children}
     </div>
   );

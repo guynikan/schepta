@@ -19,6 +19,8 @@ export interface FormSectionTitleProps
   /** Test ID for the form section title */
   'data-test-id'?: string;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -35,10 +37,12 @@ export const DefaultFormSectionTitle: React.FC<FormSectionTitleProps> = ({
   'x-content': content,
   children,
   externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...props
 }) => {
   return (
-    <h2 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: '600', color: '#333', ...props.style }} {...props}>
+    <h2 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: '600', color: '#333', ...props.style }} {...xComponentProps} {...props}>
       {content ?? children}
     </h2>
   );

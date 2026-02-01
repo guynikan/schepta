@@ -12,6 +12,9 @@ export const InputPhone: React.FC<InputPhoneProps & InputProps> = ({
   min,
   max,
   step,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -24,6 +27,7 @@ export const InputPhone: React.FC<InputPhoneProps & InputProps> = ({
       min={min}
       max={max}
       step={step}
+      {...xComponentProps}
       {...rest}
     />
   );

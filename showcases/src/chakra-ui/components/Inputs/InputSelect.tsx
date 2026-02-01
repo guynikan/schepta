@@ -9,6 +9,9 @@ export const InputSelect: React.FC<InputSelectProps & SelectProps> = ({
   onChange,
   options = [],
   placeholder = "Select...",
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -20,6 +23,7 @@ export const InputSelect: React.FC<InputSelectProps & SelectProps> = ({
         onChange={(e) => onChange?.(e.target.value)}
         data-test-id={name}
         placeholder={placeholder}
+        {...xComponentProps}
         {...rest}
       >
         {options.map((opt: any) => (
