@@ -7,7 +7,7 @@
 import type { ComponentSpec, ComponentType, DebugConfig } from '../runtime/types';
 import type { FormSchema } from '../schema/schema-types';
 import type { MiddlewareFn } from '../middleware/types';
-import type { RendererFn } from '../registry/renderer-registry';
+import type { RendererFn } from '../registries/renderer-registry';
 
 /**
  * Provider configuration

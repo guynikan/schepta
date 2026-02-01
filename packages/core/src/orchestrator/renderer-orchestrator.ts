@@ -8,8 +8,8 @@
 import type { RuntimeAdapter, ComponentSpec, DebugContextValue } from '../runtime/types';
 import type { FormAdapter } from '../forms/types';
 import type { MiddlewareFn, MiddlewareContext } from '../middleware/types';
-import { getComponentSpec } from '../registry/component-registry';
-import { getRendererForType } from '../registry/renderer-registry';
+import { getComponentSpec } from '../registries/component-registry';
+import { getRendererForType } from '../registries/renderer-registry';
 import { applyMiddlewares } from '../middleware/types';
 import { processValue } from '../expressions/template-processor';
 import { createDefaultResolver } from '../expressions/variable-resolver';
@@ -199,6 +199,16 @@ export function createRendererOrchestrator(
     
     // Parse schema (now using processed schema)
     const { 'x-component-props': componentProps = {} } = processedSchema;
+
+    // const componentSpec = getComponentSpec(componentKey, components, undefined, debug?.isEnabled);
+
+    // if(!componentSpec) {
+    //   if (debug?.isEnabled) {
+    //     console.warn(`Component not found: ${componentKey}`);
+    //   }
+    //   // Return error element (framework adapter will handle)
+    //   return null;
+    // }
 
     // Resolve component and renderer
     // Use processedSchema for x-component resolution (in case x-component has templates)

@@ -11,8 +11,8 @@ export * from './runtime/types';
 export * from './forms/types';
 
 // Registry system
-export * from './registry/component-registry';
-export * from './registry/renderer-registry';
+export * from './registries/component-registry';
+export * from './registries/renderer-registry';
 
 // Orchestrator
 export * from './orchestrator/renderer-orchestrator';
