@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest';
 import { mergeProviderConfigs, resolveProviderConfig } from './provider';
 import type { ProviderConfig } from './types';
 import type { FormSchema } from '../schema/schema-types';
-import { createComponentSpec } from '../registry/component-registry';
+import { createComponentSpec } from '../registries/component-registry';
 
 describe('Provider Utilities', () => {
   describe('mergeProviderConfigs', () => {

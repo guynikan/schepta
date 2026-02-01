@@ -25,6 +25,8 @@ export interface InputNumberProps
   max?: number;
   step?: number | string;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -52,7 +54,7 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default number input component.
  */
 export const DefaultInputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
-  ({ label, name, value, onChange, placeholder, min, max, step, externalContext, ...rest }, ref) => {
+  ({ label, name, value, onChange, placeholder, min, max, step, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
     return (
       <div style={wrapperStyle}>
         {label && (
@@ -74,6 +76,7 @@ export const DefaultInputNumber = React.forwardRef<HTMLInputElement, InputNumber
             onChange?.(e.target.value ? Number(e.target.value) : '')
           }
           style={inputStyle}
+          {...xComponentProps}
           {...rest}
         />
       </div>

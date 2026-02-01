@@ -7,6 +7,9 @@ export const InputDate: React.FC<InputDateProps & TextFieldProps> = ({
   name,
   value,
   onChange,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -20,6 +23,7 @@ export const InputDate: React.FC<InputDateProps & TextFieldProps> = ({
       InputLabelProps={{ shrink: true }}
       data-test-id={name}
       margin="normal"
+      {...xComponentProps}
       {...rest}
     />
   );

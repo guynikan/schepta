@@ -6,7 +6,7 @@
 
 import type { ProviderConfig } from './types';
 import { defaultDebugConfig } from './types';
-import { getRendererRegistry } from '../registry/renderer-registry';
+import { getRendererRegistry } from '../registries/renderer-registry';
 
 /**
  * Merge two provider configurations hierarchically

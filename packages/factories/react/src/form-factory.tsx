@@ -47,7 +47,7 @@ import {
 setFactoryDefaultComponents({
   FormContainer: createComponentSpec({
     id: 'FormContainer',
-    type: 'FormContainer',
+    type: 'container',
     factory: () => DefaultFormContainer,
   }),
   SubmitButton: createComponentSpec({

@@ -16,6 +16,7 @@ export interface FormSectionGroupProps
   children?: React.ReactNode;
   /** Test ID for the form section group */
   'data-test-id'?: string;
+  'x-component-props'?: Record<string, any>;
   externalContext?: Record<string, any>;
   [key: string]: any;
 }
@@ -33,6 +34,7 @@ export type FormSectionGroupComponentType =
 export const DefaultFormSectionGroup: React.FC<FormSectionGroupProps> = ({
   children,
   externalContext,
+  'x-component-props': xComponentProps,
   ...props
 }) => {
   return (

@@ -22,6 +22,9 @@ export interface InputCheckboxProps
   onChange?: (value: boolean) => void;
   label?: string;
   children?: React.ReactNode;
+  externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -42,7 +45,7 @@ const labelStyle: React.CSSProperties = {
  * Default checkbox input component.
  */
 export const DefaultInputCheckbox = React.forwardRef<HTMLInputElement, InputCheckboxProps>(
-  ({ label, name, value, onChange, children, ...rest }, ref) => {
+  ({ label, name, value, onChange, children, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
     return (
       <div style={wrapperStyle}>
         <label style={labelStyle}>
@@ -52,6 +55,7 @@ export const DefaultInputCheckbox = React.forwardRef<HTMLInputElement, InputChec
             name={name}
             checked={value ?? false}
             onChange={(e) => onChange?.(e.target.checked)}
+            {...xComponentProps}
             {...rest}
           />
           {label}

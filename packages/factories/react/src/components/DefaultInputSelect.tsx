@@ -30,6 +30,8 @@ export interface InputSelectProps
   options?: InputSelectOption[];
   children?: React.ReactNode;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -67,6 +69,8 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
       placeholder = 'Select...',
       children,
       externalContext,
+      "x-component-props": xComponentProps,
+      "x-ui": xUi,
       ...rest
     },
     ref
@@ -85,6 +89,7 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
           value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
+          {...xComponentProps}
           {...rest}
         >
           <option value="">{placeholder}</option>

@@ -17,6 +17,8 @@ export interface FormSectionGroupContainerProps
   /** Test ID for the form section group container */
   'data-test-id'?: string;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**

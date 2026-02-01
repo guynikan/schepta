@@ -8,6 +8,9 @@ export const InputText: React.FC<InputTextProps & InputProps> = ({
   value,
   onChange,
   placeholder,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -19,6 +22,7 @@ export const InputText: React.FC<InputTextProps & InputProps> = ({
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
         data-test-id={name}
+        {...xComponentProps}
         {...rest}
       />
     </FormControl>
