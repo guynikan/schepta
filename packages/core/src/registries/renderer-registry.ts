@@ -5,59 +5,9 @@
  * Renderers are functions that wrap components with additional rendering logic.
  */
 
-import type { ComponentType, ComponentSpec, RuntimeAdapter } from '../runtime/types';
+import { defaultRenderers, RendererFn } from '../defaults/register-default-renderers';
+import type { ComponentType } from '../runtime/types';
 
-/**
- * Renderer function - wraps component rendering with additional logic
- */
-export type RendererFn = (
-  componentSpec: ComponentSpec,
-  props: Record<string, any>,
-  runtime: RuntimeAdapter,
-  children?: any[]
-) => any;
-
-/**
- * Default renderers - pass props as is
- */
-export const defaultTypeRenderers: Record<ComponentType, RendererFn> = {
-  field: (spec, props, runtime, children) => {
-    const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
-    return runtime.create(spec, propsWithChildren);
-  },
-  'field-wrapper': (spec, props, runtime, children) => {
-    const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
-    return runtime.create(spec, propsWithChildren);
-  },
-  'container': (spec, props, runtime, children) => {
-    return runtime.create(spec, {...props, children});
-  },
-  content: (spec, props, runtime, children) => {
-    const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
-    return runtime.create(spec, propsWithChildren);
-  },
-  addon: (spec, props, runtime) => {
-    return runtime.create(spec, props);
-  },
-  'menu-item': (spec, props, runtime, children) => {
-    const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
-    return runtime.create(spec, propsWithChildren);
-  },
-  'menu-container': (spec, props, runtime, children) => {
-    const propsWithChildren = children && children.length > 0 
-      ? { ...props, children }
-      : props;
-    return runtime.create(spec, propsWithChildren);
-  },
-};
 
 /**
  * Get unified renderer registry with hierarchical merging
@@ -69,8 +19,8 @@ export function getRendererRegistry(
   localRenderers?: Partial<Record<ComponentType, RendererFn>>
 ): Record<ComponentType, RendererFn> {
   // Start with built-in renderers
-  let merged = { ...defaultTypeRenderers };
-  
+  let merged = { ...defaultRenderers };
+
   // Apply global renderers (from provider)
   if (globalRenderers) {
     Object.keys(globalRenderers).forEach(type => {
@@ -80,7 +30,7 @@ export function getRendererRegistry(
       }
     });
   }
-  
+
   // Apply local renderers (maximum priority)
   if (localRenderers) {
     Object.keys(localRenderers).forEach(type => {
@@ -90,7 +40,7 @@ export function getRendererRegistry(
       }
     });
   }
-  
+
   return merged;
 }
 
@@ -124,6 +74,6 @@ export function getRendererForType(
   if (debugEnabled) {
     console.log(`Renderer resolved from default: ${type}`);
   }
-  return defaultTypeRenderers[type];
+  return defaultRenderers[type];
 }
 

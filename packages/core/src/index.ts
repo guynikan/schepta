@@ -14,6 +14,8 @@ export * from './forms/types';
 export * from './registries/component-registry';
 export * from './registries/renderer-registry';
 
+export * from './defaults/register-default-renderers'
+
 // Orchestrator
 export * from './orchestrator/renderer-orchestrator';
 
