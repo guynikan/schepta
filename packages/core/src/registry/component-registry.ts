@@ -54,21 +54,6 @@ export function getFactoryDefaultComponents(): Record<string, ComponentSpec> {
 }
 
 /**
- * Registry overrides (global registrations)
- */
-const registryOverrides = new Map<string, Partial<ComponentSpec>>();
-
-/**
- * Register a component override globally
- */
-export function registerComponent(name: string, config: Partial<ComponentSpec>): void {
-  registryOverrides.set(name, {
-    ...registryOverrides.get(name),
-    ...config,
-  });
-}
-
-/**
  * Get unified component registry
  * 
  * Priority order: local > global > registry overrides > factory defaults
@@ -98,16 +83,6 @@ export function getComponentRegistry(
         merged[componentName] = component;
       }
     });
-  }
-
-  // Apply registry overrides
-  for (const [name, override] of Array.from(registryOverrides.entries())) {
-    const existing = merged[name];
-    merged[name] = {
-      ...existing,
-      ...override,
-      id: override.id || existing?.id || name,
-    } as ComponentSpec;
   }
 
   return merged;
