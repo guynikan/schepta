@@ -5,75 +5,58 @@
  * Renderers are functions that wrap components with additional rendering logic.
  */
 
-import { defaultRenderers, RendererFn } from '../defaults/register-default-renderers';
-import type { ComponentType } from '../runtime/types';
-
+import type { RendererSpec } from '../runtime/types';
 
 /**
- * Get unified renderer registry with hierarchical merging
+ * Props passed to field renderer components (framework-agnostic interface)
+ * Each framework (React, Vue) will type the component appropriately.
+ */
+export interface FieldRendererProps {
+  /** Field name (supports dot notation for nested fields) */
+  name: string;
+  component: any;
+  /** Props to pass to the field component */
+  componentProps: Record<string, any>;
+  /** Optional children */
+  children?: any;
+}
+
+let factoryDefaultRenderers: Record<string, RendererSpec> = {};
+
+export function setFactoryDefaultRenderers(renderers: Record<string, RendererSpec>): void {
+  factoryDefaultRenderers = renderers;
+}
+
+export function getFactoryDefaultRenderers(): Record<string, RendererSpec> {
+  return factoryDefaultRenderers;
+}
+
+/**
+ * Create a renderer spec from a component.
+ * Similar API to createComponentSpec - user just passes the component.
  * 
- * Priority order: local > global > default
+ * @example Using with React
+ * ```tsx
+ * import { createRendererSpec } from '@schepta/core';
+ * import { RHFFieldRenderer } from './rhf/RHFFieldRenderer';
+ * 
+ * const renderers = {
+ *   field: createRendererSpec({
+ *     id: 'rhf-field-renderer',
+ *     type: 'field',
+ *     component: RHFFieldRenderer,
+ *   }),
+ * };
+ * 
+ * <FormFactory renderers={renderers} />
+ * ```
  */
-export function getRendererRegistry(
-  globalRenderers?: Partial<Record<ComponentType, RendererFn>>,
-  localRenderers?: Partial<Record<ComponentType, RendererFn>>
-): Record<ComponentType, RendererFn> {
-  // Start with built-in renderers
-  let merged = { ...defaultRenderers };
-
-  // Apply global renderers (from provider)
-  if (globalRenderers) {
-    Object.keys(globalRenderers).forEach(type => {
-      const renderer = globalRenderers[type as ComponentType];
-      if (renderer) {
-        merged[type as ComponentType] = renderer;
-      }
-    });
-  }
-
-  // Apply local renderers (maximum priority)
-  if (localRenderers) {
-    Object.keys(localRenderers).forEach(type => {
-      const renderer = localRenderers[type as ComponentType];
-      if (renderer) {
-        merged[type as ComponentType] = renderer;
-      }
-    });
-  }
-
-  return merged;
+export function createRendererSpec(
+  config: RendererSpec
+): RendererSpec {
+  return {
+    id: config.id,
+    type: config.type,
+    component: config.component,
+  };
 }
-
-/**
- * Get effective renderer for a component type
- * Includes debug logging
- */
-export function getRendererForType(
-  type: ComponentType,
-  globalRenderers?: Partial<Record<ComponentType, RendererFn>>,
-  localRenderers?: Partial<Record<ComponentType, RendererFn>>,
-  debugEnabled?: boolean
-): RendererFn {
-  // Local renderers have maximum priority
-  if (localRenderers?.[type]) {
-    if (debugEnabled) {
-      console.log(`Renderer resolved from local: ${type}`);
-    }
-    return localRenderers[type]!;
-  }
-
-  // Global renderers second priority
-  if (globalRenderers?.[type]) {
-    if (debugEnabled) {
-      console.log(`Renderer resolved from global: ${type}`);
-    }
-    return globalRenderers[type]!;
-  }
-
-  // Default renderer last
-  if (debugEnabled) {
-    console.log(`Renderer resolved from default: ${type}`);
-  }
-  return defaultRenderers[type];
-}
-

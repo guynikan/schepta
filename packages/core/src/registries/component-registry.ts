@@ -12,7 +12,7 @@ import type { ComponentSpec, ComponentType } from '../runtime/types';
  */
 export const defaultTypeProps: Record<ComponentType, Record<string, any>> = {
   field: { fullWidth: true },
-  'field-wrapper': {},
+  button: {},
   'container': {},
   content: {},
   addon: {},
@@ -55,14 +55,14 @@ export function getFactoryDefaultComponents(): Record<string, ComponentSpec> {
  */
 export function createComponentSpec(config: {
   id: string;
-  factory: ComponentSpec['factory'];
+  component: ComponentSpec['component'];
   type: ComponentType;
   displayName?: string;
   defaultProps?: Record<string, any>;
 }): ComponentSpec {
   return {
     id: config.id,
-    factory: config.factory,
+    component: config.component,
     type: config.type,
     displayName: config.displayName || config.id,
     defaultProps: config.defaultProps || (config.type ? defaultTypeProps[config.type] : {}),

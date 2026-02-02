@@ -20,7 +20,7 @@ export const defaultRenderers: Record<ComponentType, RendererFn> = {
             : props;
         return runtime.create(spec, propsWithChildren);
     },
-    'field-wrapper': (spec, props, runtime, children) => {
+    button: (spec, props, runtime, children) => {
         const propsWithChildren = children && children.length > 0
             ? { ...props, children }
             : props;
@@ -50,5 +50,4 @@ export const defaultRenderers: Record<ComponentType, RendererFn> = {
             : props;
         return runtime.create(spec, propsWithChildren);
     },
-
 }
