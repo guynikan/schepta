@@ -5,6 +5,6 @@ export const components = {
   InputText: createComponentSpec({
     id: "InputText",
     type: "field",
-    factory: (props, runtime) => InputText,
+    component: (props, runtime) => InputText,
   }),
 };

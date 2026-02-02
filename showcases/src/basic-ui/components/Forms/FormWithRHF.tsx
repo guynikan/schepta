@@ -2,15 +2,15 @@
  * Form with React Hook Form
  * 
  * Example component demonstrating how to use Schepta with react-hook-form.
- * This shows how to inject custom RHF components via the component registry
+ * This shows how to inject custom RHF field renderer via the renderer registry
  * with AJV validation using @hookform/resolvers/ajv.
  */
 
 import React, { useState, useMemo } from 'react';
 import { FormFactory } from '@schepta/factory-react';
-import { createComponentSpec, FormSchema } from '@schepta/core';
+import { createComponentSpec, createRendererSpec, FormSchema } from '@schepta/core';
 import { RHFFormContainer } from '../rhf/RHFFormContainer';
-import { RHFFieldWrapper } from '../rhf/RHFFieldWrapper';
+import { RHFFieldRenderer } from '../rhf/RHFFieldRenderer';
 
 interface FormWithRHFProps {
   schema: FormSchema;
@@ -25,19 +25,21 @@ interface FormWithRHFProps {
 export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
   const [submittedValues, setSubmittedValues] = useState<Record<string, any> | null>(null);
 
-  // Create RHF components with validation config
-  const rhfComponents = useMemo(() => ({
-    // Register RHF FieldWrapper - this makes all fields use RHF's Controller
-    FieldWrapper: createComponentSpec({
-      id: 'FieldWrapper',
-      type: 'field-wrapper',
-      factory: () => RHFFieldWrapper,
+  // Create RHF renderers - custom field renderer using RHF's Controller
+  const rhfRenderers = useMemo(() => ({
+    field: createRendererSpec({
+      id: 'rhf-field-renderer',
+      type: 'field',
+      component: () => RHFFieldRenderer,
     }),
-    // Register RHF FormContainer with validation - this provides the FormProvider context
+  }), []);
+
+  // Create RHF components - custom FormContainer with RHF FormProvider
+  const rhfComponents = useMemo(() => ({
     FormContainer: createComponentSpec({
       id: 'FormContainer',
       type: 'container',
-      factory: () => RHFFormContainer,
+      component: () => RHFFormContainer,
     }),
   }), []);
 
@@ -63,10 +65,11 @@ export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
           fontSize: '14px',
         }}>
           This form uses <strong>react-hook-form</strong> with <strong>AJV validation</strong>.
-          The FieldWrapper and FormContainer are custom RHF implementations.
+          The field renderer and FormContainer are custom RHF implementations.
         </div>
         <FormFactory
           schema={schema}
+          renderers={rhfRenderers}
           components={rhfComponents}
           onSubmit={handleSubmit}
           debug={true}
