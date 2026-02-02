@@ -12,7 +12,7 @@ import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@schepta/core'
  */
 export class VueRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec, props: Record<string, any>): RenderResult {
-    const component = spec.factory(props, this) as any;
+    const component = spec.component(props, this) as any;
     
     // Extract children from props if present (Vue passes children as third argument to h())
     const { children, ...restProps } = props;
