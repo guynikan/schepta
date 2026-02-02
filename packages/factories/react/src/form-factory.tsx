@@ -13,7 +13,7 @@ import type {
 } from "@schepta/core";
 import { createReactRuntimeAdapter } from "@schepta/adapter-react";
 import {
-  createRendererOrchestrator,
+  createComponentOrchestrator,
   type FactorySetupResult,
   setFactoryDefaultComponents,
 } from "@schepta/core";
@@ -206,7 +206,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
         };
       };
 
-      return createRendererOrchestrator(getFactorySetup, runtime);
+      return createComponentOrchestrator(getFactorySetup, runtime);
     }, [
       mergedConfig.components,
       mergedConfig.customComponents,

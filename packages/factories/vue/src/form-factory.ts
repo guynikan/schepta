@@ -8,7 +8,7 @@ import { createVueRuntimeAdapter } from '@schepta/adapter-vue';
 import { createVueFormAdapter } from '@schepta/adapter-vue';
 import { useScheptaContext } from '@schepta/adapter-vue';
 import { 
-  createRendererOrchestrator, 
+  createComponentOrchestrator, 
   type FactorySetupResult,
   setFactoryDefaultComponents,
   createComponentSpec,
@@ -211,7 +211,7 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
       };
 
       const renderer = computed(() => 
-        createRendererOrchestrator(getFactorySetup, runtime.value)
+        createComponentOrchestrator(getFactorySetup, runtime.value)
       );
 
       const rootComponentKey = computed(() => (props.schema as any)['x-component'] || 'FormContainer');

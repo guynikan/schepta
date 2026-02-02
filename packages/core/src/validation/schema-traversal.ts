@@ -129,7 +129,7 @@ export type FieldVisitor = (field: FieldNode) => void;
  * Traverse a FormSchema and call visitor for each input field found.
  * Tracks the full path to each field matching the orchestrator's name path logic.
  * 
- * Path building rules (matching renderer-orchestrator.ts):
+ * Path building rules (matching component-orchestrator.ts):
  * - Direct children of FormContainer (root properties) are included
  * - Field components (type: 'field') add their key to the path
  * - Other containers just pass through the parent path
@@ -201,7 +201,7 @@ export function traverseFormSchema(schema: FormSchema, visitor: FieldVisitor): v
           const childComponent = (value as any)['x-component'];
           
           // Determine if this key should be added to the path
-          // This matches the orchestrator's logic in renderer-orchestrator.ts:
+          // This matches the orchestrator's logic in component-orchestrator.ts:
           // - Direct children of FormContainer (root properties) are included
           // - Only FormSectionContainer adds to path (it's a root property container)
           // - Other containers (FormSectionGroup, FormSectionGroupContainer, etc.) don't add to path

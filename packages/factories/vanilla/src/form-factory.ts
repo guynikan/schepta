@@ -7,7 +7,7 @@ import { createVanillaRuntimeAdapter } from '@schepta/adapter-vanilla';
 import { createVanillaFormAdapter } from '@schepta/adapter-vanilla';
 import { getScheptaContext } from '@schepta/adapter-vanilla';
 import { 
-  createRendererOrchestrator,
+  createComponentOrchestrator,
   setFactoryDefaultComponents,
   createComponentSpec,
 } from '@schepta/core';
@@ -105,7 +105,7 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
     };
   };
 
-  const renderer = createRendererOrchestrator(getFactorySetup, runtime);
+  const renderer = createComponentOrchestrator(getFactorySetup, runtime);
   const rootComponentKey = (options.schema as any)['x-component'] || 'FormContainer';
 
   // Render form

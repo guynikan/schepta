@@ -14,7 +14,7 @@ npm install @schepta/core
 import { 
   ComponentRegistry, 
   RendererRegistry, 
-  RendererOrchestrator,
+  componentOrchestrator,
   createComponentSpec 
 } from '@schepta/core';
 
@@ -30,8 +30,8 @@ registry.register(
   })
 );
 
-// Create renderer orchestrator
-const orchestrator = new RendererOrchestrator(registry);
+// Create component orchestrator
+const orchestrator = new componentOrchestrator(registry);
 ```
 
 ## Documentation

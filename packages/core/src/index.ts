@@ -17,7 +17,7 @@ export * from './registries/renderer-registry';
 export * from './defaults/register-default-renderers'
 
 // Orchestrator
-export * from './orchestrator/renderer-orchestrator';
+export * from './orchestrators/component-orchestrator';
 
 // Middleware system
 export * from './middleware/types';

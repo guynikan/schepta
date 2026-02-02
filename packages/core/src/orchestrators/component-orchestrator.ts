@@ -1,5 +1,5 @@
 /**
- * Renderer Orchestrator
+ * Component Orchestrator
  * 
  * Framework-agnostic orchestrator that processes schemas, resolves components,
  * applies middlewares, and coordinates rendering.
@@ -86,10 +86,10 @@ export function resolveSpec(
 }
 
 /**
- * Renderer orchestrator factory
+ * Component orchestrator factory
  * Returns a renderer function that processes schemas
  */
-export function createRendererOrchestrator(
+export function createComponentOrchestrator(
   getFactorySetup: () => FactorySetupResult,
   runtime: RuntimeAdapter
 ) {
