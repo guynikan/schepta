@@ -23,12 +23,12 @@ setFactoryDefaultComponents({
   FormContainer: createComponentSpec({
     id: 'FormContainer',
     type: 'container',
-    factory: () => createDefaultFormContainer,
+    component: () => createDefaultFormContainer,
   }),
   SubmitButton: createComponentSpec({
     id: 'SubmitButton',
-    type: 'content',
-    factory: () => createDefaultSubmitButton,
+    type: 'button',
+    component: () => createDefaultSubmitButton,
   }),
 });
 
