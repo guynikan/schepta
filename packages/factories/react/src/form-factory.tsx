@@ -16,6 +16,7 @@ import {
   createComponentOrchestrator,
   type FactorySetupResult,
   setFactoryDefaultComponents,
+  setFactoryDefaultRenderers,
 } from "@schepta/core";
 import { createTemplateExpressionMiddleware } from "@schepta/core";
 import { FormRenderer } from "./form-renderer";
@@ -23,19 +24,14 @@ import { useMergedScheptaConfig } from "./hooks/use-merged-config";
 import { useScheptaForm } from "./hooks/use-schepta-form";
 import { useSchemaValidation } from "./hooks/use-schema-validation";
 import { createDebugContext } from "./utils/debug";
-import { createFieldRenderer } from "./renderers/field-renderer";
 import formSchemaDefinition from "../../src/schemas/form-schema.json";
 import { ScheptaFormProvider } from "./context/schepta-form-context";
-import {
-  DefaultSubmitButton,
-  DefaultFieldWrapper,
-  type SubmitButtonComponentType,
-  type FieldWrapperType,
-} from "./components";
 import { defaultComponents } from "./defaults/register-default-components";
+import { defaultRenderers } from "./defaults/register-default-renderers";
 
 // Register factory default components (called once on module load)
 setFactoryDefaultComponents(defaultComponents);
+setFactoryDefaultRenderers(defaultRenderers);
 
 /**
  * Ref interface for external form control
@@ -146,37 +142,11 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
     // Get root component key from schema
     const rootComponentKey = (schema as any)["x-component"] || "FormContainer";
 
-    // Resolve SubmitButton component from registry (provider or local) or use default
-    const SubmitButtonComponent = useMemo((): SubmitButtonComponentType => {
-      const customComponent = mergedConfig.components.SubmitButton?.factory?.(
-        {},
-        runtime
-      );
-      return (
-        (customComponent as SubmitButtonComponentType) || DefaultSubmitButton
-      );
-    }, [mergedConfig.components.SubmitButton, runtime]);
-
-    // Resolve FieldWrapper component from registry (provider or local) or use default
-    const FieldWrapperComponent = useMemo((): FieldWrapperType => {
-      const customComponent = mergedConfig.components.FieldWrapper?.factory?.(
-        {},
-        runtime
-      );
-      return (customComponent as FieldWrapperType) || DefaultFieldWrapper;
-    }, [mergedConfig.components.FieldWrapper, runtime]);
-
     // Create renderer orchestrator
     const renderer = useMemo(() => {
       const getFactorySetup = (): FactorySetupResult => {
         // Create debug context
         const debugContext = createDebugContext(mergedConfig.debug);
-
-        // Create custom renderers with field renderer (passing resolved FieldWrapper)
-        const customRenderers = {
-          ...mergedConfig.renderers,
-          field: createFieldRenderer({ FieldWrapper: FieldWrapperComponent }),
-        };
 
         // Create template expression middleware with current form values (always first)
         const templateMiddleware = createTemplateExpressionMiddleware({
@@ -194,7 +164,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
         return {
           components: mergedConfig.components,
           customComponents: mergedConfig.customComponents,
-          renderers: customRenderers,
+          renderers: mergedConfig.renderers,
           externalContext: {
             ...mergedConfig.externalContext,
           },
@@ -218,8 +188,6 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
       runtime,
       onSubmit,
       formValues,
-      SubmitButtonComponent,
-      FieldWrapperComponent,
     ]);
 
     return (

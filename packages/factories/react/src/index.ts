@@ -20,12 +20,9 @@ export {
 export {
   DefaultFormContainer,
   DefaultSubmitButton,
-  DefaultFieldWrapper,
   type FormContainerProps,
   type SubmitButtonProps,
   type SubmitButtonComponentType,
-  type FieldWrapperProps,
-  type FieldWrapperType,
   // Input components
   DefaultInputText,
   DefaultInputSelect,
@@ -71,6 +68,11 @@ export {
   type FormSectionGroupContainerComponentType,
 } from './components';
 
+// Renderers (types and defaults)
+export {
+  DefaultFieldRenderer,
+} from './renderers';
+
 // Context and hooks for form state management
 export {
   ScheptaFormProvider,
@@ -82,9 +84,6 @@ export {
 
 // Hooks (for advanced usage)
 export * from './hooks';
-
-// Renderers (for customization)
-export * from './renderers';
 
 // Utilities
 export * from './utils';
