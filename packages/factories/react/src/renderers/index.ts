@@ -1,6 +1,1 @@
-/**
- * Schepta React Factory Renderers
- */
-
-export * from './field-renderer';
-
+export * from './DefaultFieldRenderer';

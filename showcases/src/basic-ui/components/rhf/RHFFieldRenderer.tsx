@@ -1,35 +1,38 @@
 /**
- * RHF Field Wrapper
+ * RHF Field Renderer
  * 
- * Custom FieldWrapper that uses react-hook-form's Controller.
+ * Custom field renderer that uses react-hook-form's Controller.
  * This demonstrates how to integrate RHF with Schepta forms.
  */
 
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import type { FieldWrapperProps } from '@schepta/factory-react';
+import type { FieldRendererProps } from '@schepta/core';
 
 /**
- * RHF-based FieldWrapper component.
+ * RHF-based field renderer component.
  * Uses react-hook-form's Controller to bind fields to form state.
  * 
- * Register this component via the components prop to use RHF
+ * Register this renderer via the renderers prop to use RHF
  * for form state management.
  * 
  * @example
  * ```tsx
- * import { createComponentSpec } from '@schepta/core';
+ * import { createRendererSpec } from '@schepta/core';
+ * import { RHFFieldRenderer } from './rhf/RHFFieldRenderer';
  * 
- * const components = {
- *   FieldWrapper: createComponentSpec({
- *     id: 'FieldWrapper',
- *     type: 'wrapper',
- *     factory: () => RHFFieldWrapper,
+ * const renderers = {
+ *   field: createRendererSpec({
+ *     id: 'rhf-field-renderer',
+ *     type: 'field',
+ *     component: RHFFieldRenderer,
  *   }),
  * };
+ * 
+ * <FormFactory renderers={renderers} />
  * ```
  */
-export const RHFFieldWrapper: React.FC<FieldWrapperProps> = ({
+export const RHFFieldRenderer: React.FC<FieldRendererProps> = ({
   name,
   component: Component,
   componentProps = {},

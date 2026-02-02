@@ -1,24 +1,24 @@
 /**
- * Renderer Orchestrator
+ * Component Orchestrator
  * 
  * Framework-agnostic orchestrator that processes schemas, resolves components,
  * applies middlewares, and coordinates rendering.
  */
 
-import type { RuntimeAdapter, ComponentSpec, DebugContextValue } from '../runtime/types';
+import type { RuntimeAdapter, ComponentSpec, DebugContextValue, RenderResult } from '../runtime/types';
 import type { FormAdapter } from '../forms/types';
 import type { MiddlewareFn, MiddlewareContext } from '../middleware/types';
-import { getRendererForType } from '../registries/renderer-registry';
 import { applyMiddlewares } from '../middleware/types';
 import { processValue } from '../expressions/template-processor';
 import { createDefaultResolver } from '../expressions/variable-resolver';
+import { createRendererOrchestrator } from './renderer-orchestrator';
 
 /**
  * Resolution result - successful component resolution
  */
 export interface ResolutionSuccess {
   componentSpec: ComponentSpec;
-  rendererFn: ReturnType<typeof getRendererForType>;
+  rendererFn: (componentSpec: ComponentSpec, props: Record<string, any>, runtime: RuntimeAdapter, children?: any[]) => RenderResult;
 }
 
 /**
@@ -49,7 +49,7 @@ export function resolveSpec(
   componentKey: string,
   components: Record<string, ComponentSpec>,
   customComponents?: Record<string, ComponentSpec>,
-  localRenderers?: Partial<Record<string, any>>,
+  renderers?: Partial<Record<string, any>>,
   debugEnabled?: boolean
 ): ResolutionResult {
   const componentName = schema['x-component'] || componentKey;
@@ -58,9 +58,9 @@ export function resolveSpec(
   let componentSpec = null;
 
   if (isCustomComponent && customComponents) {
-      componentSpec = customComponents[componentKey];
+    componentSpec = customComponents[componentKey];
   } else {
-      componentSpec = components[componentName];
+    componentSpec = components[componentName];
   }
 
   if (!componentSpec) {
@@ -72,12 +72,7 @@ export function resolveSpec(
   }
 
   const componentType = componentSpec.type || 'field';
-  const rendererFn = getRendererForType(
-    componentType,
-    undefined,
-    localRenderers as any,
-    debugEnabled
-  );
+  const rendererFn = createRendererOrchestrator(renderers?.[componentType]);
 
   return {
     componentSpec,
@@ -86,10 +81,10 @@ export function resolveSpec(
 }
 
 /**
- * Renderer orchestrator factory
+ * Component orchestrator factory
  * Returns a renderer function that processes schemas
  */
-export function createRendererOrchestrator(
+export function createComponentOrchestrator(
   getFactorySetup: () => FactorySetupResult,
   runtime: RuntimeAdapter
 ) {
@@ -103,7 +98,7 @@ export function createRendererOrchestrator(
     const {
       components,
       customComponents,
-      renderers: localRenderers,
+      renderers,
       externalContext,
       state,
       middlewares,
@@ -144,7 +139,7 @@ export function createRendererOrchestrator(
       componentKey,
       components,
       customComponents,
-      localRenderers,
+      renderers,
       debug?.isEnabled
     );
 
@@ -235,4 +230,3 @@ export function createRendererOrchestrator(
     return rendererFn(componentSpec, mergedProps, runtime, children.length > 0 ? children : undefined);
   };
 }
-

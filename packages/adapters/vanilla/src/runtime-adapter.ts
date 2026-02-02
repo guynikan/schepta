@@ -13,7 +13,7 @@ import type { DOMElement } from './types';
  */
 export class VanillaRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec, props: Record<string, any>): RenderResult {
-    const component = spec.factory(props, this);
+    const component = spec.component(props, this);
     
     // If component returns a DOM element directly
     if (component instanceof HTMLElement) {

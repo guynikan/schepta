@@ -2,17 +2,18 @@
  * Form with Formik
  * 
  * Example component demonstrating how to use Schepta with Formik.
- * This shows how to inject custom Formik components via the component registry
+ * This shows how to inject custom Formik field renderer via the renderer registry
  * with AJV validation using createFormikValidator.
  */
 
 import React, { useState, useMemo } from 'react';
 import { FormFactory } from '@schepta/factory-react';
 import { 
-  createComponentSpec, 
+  createComponentSpec,
+  createRendererSpec,
   FormSchema, 
 } from '@schepta/core';
-import { FormikFieldWrapper } from '../formik/FormikFieldWrapper';
+import { FormikFieldRenderer } from '../formik/FormikFieldRenderer';
 import { FormikFormContainer } from '../formik/FormikFormContainer';
 
 interface FormWithFormikProps {
@@ -28,18 +29,21 @@ interface FormWithFormikProps {
 export const FormWithFormik: React.FC<FormWithFormikProps> = ({ schema }) => {
   const [submittedValues, setSubmittedValues] = useState<Record<string, any> | null>(null);
 
-  const formikComponents = useMemo(() => ({
-    // Register Formik FieldWrapper - this makes all fields use Formik's context
-    FieldWrapper: createComponentSpec({
-      id: 'FieldWrapper',
-      type: 'field-wrapper',
-      factory: () => FormikFieldWrapper,
+  // Create Formik renderers - custom field renderer using Formik's context
+  const formikRenderers = useMemo(() => ({
+    field: createRendererSpec({
+      id: 'formik-field-renderer',
+      type: 'field',
+      component: () => FormikFieldRenderer,
     }),
-    // Register Formik FormContainer with validation - this provides the Formik context
+  }), []);
+
+  // Create Formik components - custom FormContainer with Formik context
+  const formikComponents = useMemo(() => ({
     FormContainer: createComponentSpec({
       id: 'FormContainer',
       type: 'container',
-      factory: () => FormikFormContainer,
+      component: () => FormikFormContainer,
     }),
   }), []);
 
@@ -65,10 +69,11 @@ export const FormWithFormik: React.FC<FormWithFormikProps> = ({ schema }) => {
           fontSize: '14px',
         }}>
           This form uses <strong>Formik</strong> with <strong>AJV validation</strong>.
-          The FieldWrapper and FormContainer are custom Formik implementations.
+          The field renderer and FormContainer are custom Formik implementations.
         </div>
         <FormFactory
           schema={schema}
+          renderers={formikRenderers}
           components={formikComponents}
           onSubmit={handleSubmit}
           debug={true}
