@@ -1,8 +1,6 @@
 import { registerApplication, start } from 'single-spa';
 import ReactDOM from "react-dom/client";
 import { lifecycles as reactApp, homeLifecycles } from './frameworks/react';
-import * as vueApp from './frameworks/vue';
-import * as vanillaApp from './vanilla';
 import React from 'react';
 import { Header } from './frameworks/react/components/Header';
 
@@ -41,14 +39,17 @@ registerApplication({
 
 registerApplication({
   name: 'vue',
-  app: () => Promise.resolve(vueApp),
+  app: () => import('./frameworks/vue'),
   activeWhen: (location) => location.pathname === '/vue'
 });
 
 registerApplication({
   name: 'vanilla',
-  app: () => Promise.resolve(vanillaApp),
-  activeWhen: (location) => location.pathname === '/vanilla'
+  app: () => import('./vanilla'),
+  activeWhen: (location) => location.pathname === '/vanilla',
+  customProps: {
+    domElementGetter: () => document.getElementById('vanilla')!,
+  },
 });
 
 start();

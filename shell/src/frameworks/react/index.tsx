@@ -9,6 +9,14 @@ export const lifecycles = singleSpaReact({
   React,
   ReactDOMClient,
   rootComponent: App,
+  errorBoundary(err, info, props) {
+    return (
+      <div style={{ padding: 24, textAlign: 'center', color: '#c62828' }}>
+        <h2>Something went wrong</h2>
+        <pre style={{ textAlign: 'left', overflow: 'auto' }}>{err?.message}</pre>
+      </div>
+    );
+  },
 });
 
 export const homeLifecycles = singleSpaReact({
