@@ -30,7 +30,7 @@ import { useSchepta } from '@schepta/adapter-react';
  * const components = {
  *   FormContainer: createComponentSpec({
  *     id: 'FormContainer',
- *     type: 'FormContainer',
+ *     type: 'container',
  *     factory: () => createRHFFormContainer(jsonSchema, initialValues),
  *   }),
  * };
@@ -40,6 +40,7 @@ import { useSchepta } from '@schepta/adapter-react';
 export const RHFFormContainer: React.FC<FormContainerProps> = ({
   children,
   onSubmit,
+  externalContext,
   ...props
 }) => {
   const { schema } = useSchepta();

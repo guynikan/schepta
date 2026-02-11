@@ -148,7 +148,6 @@
                 "socialName": {
                   "type": "object",
                   "x-component": "FormField",
-                  "x-custom": true,
                   "x-ui": {
                     "order": 5
                   },

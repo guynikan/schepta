@@ -16,6 +16,7 @@ import complexFormSchema from "../../../../../instances/form/complex-form.json";
 export function ChakraFormPage() {
   const simpleSchema = simpleFormSchema as FormSchema;
   const complexSchema = complexFormSchema as FormSchema;
+
   return (
     <ChakraProvider>
       <Box

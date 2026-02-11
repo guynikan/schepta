@@ -1,35 +1,38 @@
 /**
- * Formik Field Wrapper
+ * Formik Field Renderer
  * 
- * Custom FieldWrapper that uses Formik's context.
+ * Custom field renderer that uses Formik's context.
  * This demonstrates how to integrate Formik with Schepta forms.
  */
 
 import React from 'react';
 import { useFormikContext } from 'formik';
-import type { FieldWrapperProps } from '@schepta/factory-react';
+import type { FieldRendererProps } from '@schepta/core';
 
 /**
- * Formik-based FieldWrapper component.
+ * Formik-based field renderer component.
  * Uses Formik's context to bind fields to form state.
  * 
- * Register this component via the components prop to use Formik
+ * Register this renderer via the renderers prop to use Formik
  * for form state management.
  * 
  * @example
  * ```tsx
- * import { createComponentSpec } from '@schepta/core';
+ * import { createRendererSpec } from '@schepta/core';
+ * import { FormikFieldRenderer } from './formik/FormikFieldRenderer';
  * 
- * const components = {
- *   FieldWrapper: createComponentSpec({
- *     id: 'FieldWrapper',
- *     type: 'wrapper',
- *     factory: () => FormikFieldWrapper,
+ * const renderers = {
+ *   field: createRendererSpec({
+ *     id: 'formik-field-renderer',
+ *     type: 'field',
+ *     component: FormikFieldRenderer,
  *   }),
  * };
+ * 
+ * <FormFactory renderers={renderers} />
  * ```
  */
-export const FormikFieldWrapper: React.FC<FieldWrapperProps> = ({
+export const FormikFieldRenderer: React.FC<FieldRendererProps> = ({
   name,
   component: Component,
   componentProps = {},

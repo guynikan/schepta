@@ -99,7 +99,7 @@ export const NativeComplexForm = ({ schema }: FormProps) => {
     socialName: createComponentSpec({
       id: 'socialName', // Same as the key name in the schema
       type: 'field',
-      factory: () => SocialNameInput,
+      component: () => SocialNameInput,
     }),
   }), []);
 

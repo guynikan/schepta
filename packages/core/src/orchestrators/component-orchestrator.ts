@@ -55,12 +55,19 @@ export function resolveSpec(
   const componentName = schema['x-component'] || componentKey;
 
   const isCustomComponent = schema['x-custom'] === true;
-  let componentSpec = null;
+  let componentSpec: ComponentSpec | null = null;
 
-  if (isCustomComponent && customComponents) {
+  if (isCustomComponent && customComponents?.[componentKey]) {
     componentSpec = customComponents[componentKey];
-  } else {
-    componentSpec = components[componentName];
+  }
+  if (!componentSpec) {
+    componentSpec = components[componentName] ?? null;
+  }
+
+  if (componentSpec && isCustomComponent && !customComponents?.[componentKey] && debugEnabled) {
+      console.warn(
+        `x-custom is set but no custom component registered for "${componentKey}"; using "${componentName}" from registry.`
+      );
   }
 
   if (!componentSpec) {

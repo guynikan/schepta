@@ -7,6 +7,8 @@ import { useScheptaFormAdapter } from "@schepta/factory-react";
 export const FormContainer: React.FC<FormContainerProps & BoxProps> = ({ 
   children, 
   onSubmit, 
+  externalContext,
+  ...props
 }) => {
   const adapter = useScheptaFormAdapter();
 
@@ -20,6 +22,7 @@ export const FormContainer: React.FC<FormContainerProps & BoxProps> = ({
       component="form"
       data-test-id="FormContainer"
       onSubmit={handleFormSubmit}
+      {...props}
     >
       {children}
       {onSubmit && <SubmitButton onSubmit={onSubmit} />}

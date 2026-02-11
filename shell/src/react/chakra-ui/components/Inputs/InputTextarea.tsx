@@ -14,6 +14,9 @@ export const InputTextarea: React.FC<InputTextareaProps & TextareaProps> = ({
   onChange,
   placeholder,
   rows = 4,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -26,6 +29,7 @@ export const InputTextarea: React.FC<InputTextareaProps & TextareaProps> = ({
         rows={rows}
         onChange={(e) => onChange?.(e.target.value)}
         data-test-id={name}
+        {...xComponentProps}
         {...rest}
       />
     </FormControl>

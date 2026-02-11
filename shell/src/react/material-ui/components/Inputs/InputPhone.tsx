@@ -11,6 +11,9 @@ export const InputPhone: React.FC<InputPhoneProps & TextFieldProps> = ({
   min,
   max,
   step,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -21,6 +24,7 @@ export const InputPhone: React.FC<InputPhoneProps & TextFieldProps> = ({
       onChange={onChange}
       placeholder={placeholder}
       inputProps={{ min, max, step }}
+      {...xComponentProps}
       {...rest}
     />
   );

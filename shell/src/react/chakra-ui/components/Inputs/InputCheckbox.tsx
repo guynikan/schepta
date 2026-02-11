@@ -7,6 +7,9 @@ export const InputCheckbox: React.FC<InputCheckboxProps & CheckboxProps> = ({
   name,
   value,
   onChange,
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -15,6 +18,7 @@ export const InputCheckbox: React.FC<InputCheckboxProps & CheckboxProps> = ({
       isChecked={value || false}
       onChange={(e) => onChange?.(e.target.checked)}
       data-test-id={name}
+      {...xComponentProps}
       {...rest}
     >
       {label}

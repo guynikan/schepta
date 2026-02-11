@@ -10,6 +10,9 @@ export const InputSelect: React.FC<InputSelectProps & TextFieldProps> = ({
   onChange,
   options = [],
   placeholder = 'Select...',
+  externalContext,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
   ...rest
 }) => {
   return (
@@ -22,6 +25,7 @@ export const InputSelect: React.FC<InputSelectProps & TextFieldProps> = ({
         onChange={(e) => onChange?.(e.target.value)}
         data-test-id={name}
         margin="normal"
+        {...xComponentProps}
         {...rest}
       >
         <MenuItem value="">{placeholder}</MenuItem>
