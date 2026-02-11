@@ -1,12 +1,40 @@
 /**
  * Vue Form Adapter
- * 
+ *
  * Implements FormAdapter using Vue reactive state
  */
 
-import { ref, reactive, watch, type Ref } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import type { FormAdapter, FieldOptions, ReactiveState } from '@schepta/core';
 import { VueReactiveState } from './reactive-state';
+
+function getNestedValue(obj: Record<string, any>, path: string): any {
+  const parts = path.split('.');
+  let value: any = obj;
+  for (const part of parts) {
+    if (value === undefined || value === null) return undefined;
+    value = value[part];
+  }
+  return value;
+}
+
+function setNestedValue(obj: Record<string, any>, path: string, value: any): void {
+  const parts = path.split('.');
+  let current: any = obj;
+
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+    if (current[part] === undefined || current[part] === null) {
+      current[part] = {};
+    } else if (typeof current[part] !== 'object') {
+      current[part] = {};
+    } else {
+      current[part] = { ...current[part] };
+    }
+    current = current[part];
+  }
+  current[parts[parts.length - 1]] = value;
+}
 
 /**
  * Vue form adapter implementation
@@ -26,58 +54,72 @@ export class VueFormAdapter implements FormAdapter {
     return { ...this.values };
   }
 
+  /**
+   * Get the reactive values object (for framework integration).
+   * Mutations to this object are reflected in the adapter state.
+   */
+  getState(): Record<string, any> {
+    return this.values;
+  }
+
   getValue(field: string): any {
-    return this.values[field];
+    return getNestedValue(this.values, field);
   }
 
   setValue(field: string, value: any): void {
-    this.values[field] = value;
-    // Validate on set
-    this.validateField(field);
+    setNestedValue(this.values, field, value);
+    this.validateField(field, value);
   }
 
   watch(field?: string): ReactiveState<any> {
     if (field) {
-      const fieldRef = ref(this.values[field]);
-      watch(() => this.values[field], (newValue) => {
-        fieldRef.value = newValue;
-      });
+      const fieldRef = ref(this.getValue(field));
+      watch(
+        () => this.getValue(field),
+        (newValue) => {
+          fieldRef.value = newValue;
+        },
+        { deep: true }
+      );
       return new VueReactiveState(fieldRef);
     } else {
       const allValuesRef = ref(this.getValues());
-      watch(() => this.values, (newValues) => {
-        allValuesRef.value = { ...newValues };
-      }, { deep: true });
+      watch(
+        () => this.values,
+        () => {
+          allValuesRef.value = { ...this.values };
+        },
+        { deep: true }
+      );
       return new VueReactiveState(allValuesRef);
     }
   }
 
   reset(values?: Record<string, any>): void {
     if (values) {
+      Object.keys(this.values).forEach((key) => delete this.values[key]);
       Object.assign(this.values, values);
     } else {
-      Object.keys(this.values).forEach(key => {
-        delete this.values[key];
-      });
+      Object.keys(this.values).forEach((key) => delete this.values[key]);
     }
-    Object.keys(this.errors).forEach(key => {
-      delete this.errors[key];
-    });
+    Object.keys(this.errors).forEach((key) => delete this.errors[key]);
   }
 
   register(field: string, options?: FieldOptions): void {
     if (options?.validate) {
       this.validators.set(field, options.validate);
     }
-    if (options?.defaultValue !== undefined) {
-      this.values[field] = options.defaultValue;
+    if (options?.defaultValue !== undefined && this.getValue(field) === undefined) {
+      this.setValue(field, options.defaultValue);
     }
   }
 
   unregister(field: string): void {
-    delete this.values[field];
-    delete this.errors[field];
     this.validators.delete(field);
+    if (field.indexOf('.') === -1) {
+      delete this.values[field];
+    }
+    delete this.errors[field];
   }
 
   getErrors(): Record<string, any> {
@@ -96,9 +138,7 @@ export class VueFormAdapter implements FormAdapter {
     if (field) {
       delete this.errors[field];
     } else {
-      Object.keys(this.errors).forEach(key => {
-        delete this.errors[key];
-      });
+      Object.keys(this.errors).forEach((key) => delete this.errors[key]);
     }
   }
 
@@ -108,16 +148,32 @@ export class VueFormAdapter implements FormAdapter {
 
   handleSubmit(onSubmit: (values: Record<string, any>) => void | Promise<void>): () => void {
     return () => {
-      if (this.isValid()) {
-        onSubmit(this.getValues());
+      let hasErrors = false;
+      const newErrors: Record<string, any> = {};
+
+      this.validators.forEach((validator, field) => {
+        const value = this.getValue(field);
+        const result = validator(value);
+        if (result !== true) {
+          hasErrors = true;
+          newErrors[field] = typeof result === 'string' ? result : 'Validation failed';
+        }
+      });
+
+      if (hasErrors) {
+        Object.keys(this.errors).forEach((key) => delete this.errors[key]);
+        Object.assign(this.errors, newErrors);
+        return;
       }
+
+      onSubmit(this.getValues());
     };
   }
 
-  private validateField(field: string): void {
+  private validateField(field: string, value: any): void {
     const validator = this.validators.get(field);
     if (validator) {
-      const result = validator(this.values[field]);
+      const result = validator(value);
       if (result === true) {
         delete this.errors[field];
       } else if (typeof result === 'string') {
@@ -135,4 +191,3 @@ export class VueFormAdapter implements FormAdapter {
 export function createVueFormAdapter(initialValues?: Record<string, any>): VueFormAdapter {
   return new VueFormAdapter(initialValues);
 }
-

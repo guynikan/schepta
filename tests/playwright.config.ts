@@ -16,12 +16,18 @@ export default defineConfig({
   projects: [
     {
       name: 'react',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
-        // baseURL: 'https://show.schepta.org/',
         baseURL: 'http://localhost:3000/',
       },
-    }
-  ]
+    },
+    {
+      name: 'vue',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:3000/',
+      },
+    },
+  ],
 });
 

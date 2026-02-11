@@ -13,6 +13,7 @@
           v-for="(tab, index) in tabs"
           :key="tab.id"
           :class="['tab', { active: activeTab === index }]"
+          :data-test-id="tab.testId"
           @click="activeTab = index"
         >
           {{ tab.label }}
@@ -21,16 +22,15 @@
 
       <div class="tab-content">
         <div v-if="activeTab === 0" style="padding: 1rem 0;">
-          <h3>Simple Vue Form</h3>
-          <p>Esta é uma demonstração básica do Schepta no Vue (monorepo unificado)</p>
-          <div style="padding: 1rem; background: #e8f5e8; border-radius: 4px; margin-top: 1rem;">
-            <p><strong>✅ Funcionando!</strong> Este microfrontend Vue está rodando dentro do shell principal.</p>
-          </div>
+          <NativeForm :schema="simpleSchema" />
         </div>
 
         <div v-if="activeTab === 1" style="padding: 1rem 0;">
-          <h3>Complex Vue Form</h3>
-          <p>Aqui seria um formulário mais complexo com Schepta</p>
+          <NativeComplexForm :schema="complexSchema" />
+        </div>
+
+        <div v-if="activeTab === 2" style="padding: 1rem 0;">
+          <VuetifyFormPage />
         </div>
       </div>
     </div>
@@ -39,12 +39,22 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import NativeForm from './NativeForm.vue';
+import NativeComplexForm from './NativeComplexForm.vue';
+import VuetifyFormPage from '../vuetify/pages/VuetifyFormPage.vue';
+import simpleFormSchema from '../../../../../instances/form/simple-form.json';
+import complexFormSchema from '../../../../../instances/form/complex-form.json';
+import type { FormSchema } from '@schepta/core';
 
 const activeTab = ref(0);
 
+const simpleSchema = simpleFormSchema as FormSchema;
+const complexSchema = complexFormSchema as FormSchema;
+
 const tabs = [
-  { id: 'simple', label: 'Simple Form' },
-  { id: 'complex', label: 'Complex Form' }
+  { id: 'simple', label: 'Simple Form', testId: 'simple-form-tab' },
+  { id: 'complex', label: 'Complex Form', testId: 'complex-form-tab' },
+  { id: 'vuetify', label: 'Vuetify UI', testId: 'vuetify-form-tab' },
 ];
 </script>
 
