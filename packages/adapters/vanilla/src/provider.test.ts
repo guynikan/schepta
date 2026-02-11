@@ -25,7 +25,7 @@ describe('Vanilla Provider', () => {
   it('should create provider and store config', () => {
     const componentSpec = createComponentSpec({
       id: 'TestComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 
@@ -43,7 +43,7 @@ describe('Vanilla Provider', () => {
   it('should get context from container', () => {
     const componentSpec = createComponentSpec({
       id: 'TestComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 
@@ -58,7 +58,7 @@ describe('Vanilla Provider', () => {
   it('should get context from child container (parent lookup)', () => {
     const componentSpec = createComponentSpec({
       id: 'TestComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 
@@ -73,13 +73,13 @@ describe('Vanilla Provider', () => {
   it('should support nested providers with hierarchical merge', () => {
     const ParentComponent = createComponentSpec({
       id: 'ParentComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 
     const ChildComponent = createComponentSpec({
       id: 'ChildComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 
@@ -157,7 +157,7 @@ describe('Vanilla Provider', () => {
   it('should destroy provider and remove config', () => {
     const componentSpec = createComponentSpec({
       id: 'TestComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 

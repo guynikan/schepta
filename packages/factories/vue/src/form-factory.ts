@@ -8,7 +8,7 @@ import { createVueRuntimeAdapter } from '@schepta/adapter-vue';
 import { createVueFormAdapter } from '@schepta/adapter-vue';
 import { useScheptaContext } from '@schepta/adapter-vue';
 import { 
-  createRendererOrchestrator, 
+  createComponentOrchestrator, 
   type FactorySetupResult,
   setFactoryDefaultComponents,
   createComponentSpec,
@@ -21,13 +21,13 @@ import { DefaultFormContainer, DefaultSubmitButton } from './components';
 setFactoryDefaultComponents({
   FormContainer: createComponentSpec({
     id: 'FormContainer',
-    type: 'FormContainer',
-    factory: () => DefaultFormContainer,
+    type: 'container',
+    component: () => DefaultFormContainer,
   }),
   SubmitButton: createComponentSpec({
     id: 'SubmitButton',
     type: 'content',
-    factory: () => DefaultSubmitButton,
+    component: () => DefaultSubmitButton,
   }),
 });
 
@@ -211,7 +211,7 @@ export function createFormFactory(defaultProps: FormFactoryProps) {
       };
 
       const renderer = computed(() => 
-        createRendererOrchestrator(getFactorySetup, runtime.value)
+        createComponentOrchestrator(getFactorySetup, runtime.value)
       );
 
       const rootComponentKey = computed(() => (props.schema as any)['x-component'] || 'FormContainer');

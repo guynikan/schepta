@@ -6,7 +6,6 @@
 
 import type { ProviderConfig } from './types';
 import { defaultDebugConfig } from './types';
-import { getRendererRegistry } from '../registry/renderer-registry';
 
 /**
  * Merge two provider configurations hierarchically
@@ -28,10 +27,10 @@ export function mergeProviderConfigs(
   };
 
   // Merge renderers using registry function (handles hierarchical merging)
-  const mergedRenderers = getRendererRegistry(
-    global.renderers,
-    local.renderers
-  );
+  const mergedRenderers = {
+    ...global.renderers,
+    ...local.renderers
+  }
 
   // Merge middlewares (local appended after global)
   const mergedMiddlewares = [

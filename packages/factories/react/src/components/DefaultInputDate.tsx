@@ -22,6 +22,8 @@ export interface InputDateProps
   /** Test ID for the input date */
   'data-test-id'?: string;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -49,7 +51,7 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default date input component.
  */
 export const DefaultInputDate = React.forwardRef<HTMLInputElement, InputDateProps>(
-  ({ label, name, value, onChange, externalContext, ...rest }, ref) => {
+  ({ label, name, value, onChange, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
     return (
       <div style={wrapperStyle}>
         {label && (
@@ -65,6 +67,7 @@ export const DefaultInputDate = React.forwardRef<HTMLInputElement, InputDateProp
           value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
+          {...xComponentProps}
           {...rest}
         />
       </div>

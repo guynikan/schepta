@@ -39,6 +39,8 @@ export interface SubmitButtonProps {
   externalContext?: Record<string, any>;
   /** Optional children */
   children?: React.ReactNode;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -51,7 +53,7 @@ export type SubmitButtonComponentType = React.ComponentType<SubmitButtonProps>;
  * Default submit button component
  * Can be overridden via components prop or ScheptaProvider
  */
-export const DefaultSubmitButton: React.FC<SubmitButtonProps> = ({ onSubmit }) => {
+export const DefaultSubmitButton: React.FC<SubmitButtonProps> = ({ onSubmit, "x-component-props": xComponentProps, "x-ui": xUi }) => {
   return (
     <div style={{ marginTop: '24px', textAlign: 'right' }}>
       <button
@@ -67,6 +69,7 @@ export const DefaultSubmitButton: React.FC<SubmitButtonProps> = ({ onSubmit }) =
           fontSize: '16px',
           fontWeight: '500',
         }}
+        {...xComponentProps}
       >
         Submit
       </button>

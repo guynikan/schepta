@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest';
 import { mergeProviderConfigs, resolveProviderConfig } from './provider';
 import type { ProviderConfig } from './types';
 import type { FormSchema } from '../schema/schema-types';
-import { createComponentSpec } from '../registry/component-registry';
+import { createComponentSpec } from '../registries/component-registry';
 
 describe('Provider Utilities', () => {
   describe('mergeProviderConfigs', () => {
@@ -15,7 +15,7 @@ describe('Provider Utilities', () => {
         components: {
           InputText: createComponentSpec({
             id: 'InputText',
-            factory: () => null,
+            component: () => null,
             type: 'field',
           }),
         },
@@ -25,7 +25,7 @@ describe('Provider Utilities', () => {
         components: {
           InputText: createComponentSpec({
             id: 'InputText',
-            factory: () => null,
+            component: () => null,
             type: 'field',
             displayName: 'CustomInputText',
           }),
@@ -126,7 +126,7 @@ describe('Provider Utilities', () => {
         components: {
           InputText: createComponentSpec({
             id: 'InputText',
-            factory: () => null,
+            component: () => null,
             type: 'field',
           }),
         },
@@ -141,7 +141,7 @@ describe('Provider Utilities', () => {
         components: {
           InputText: createComponentSpec({
             id: 'InputText',
-            factory: () => null,
+            component: () => null,
             type: 'field',
           }),
         },
@@ -156,7 +156,7 @@ describe('Provider Utilities', () => {
         components: {
           InputText: createComponentSpec({
             id: 'InputText',
-            factory: () => null,
+            component: () => null,
             type: 'field',
           }),
         },
@@ -166,7 +166,7 @@ describe('Provider Utilities', () => {
         components: {
           Button: createComponentSpec({
             id: 'Button',
-            factory: () => null,
+            component: () => null,
             type: 'field',
           }),
         },

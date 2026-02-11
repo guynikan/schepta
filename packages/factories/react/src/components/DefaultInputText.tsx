@@ -22,6 +22,8 @@ export interface InputTextProps
   /** Test ID for the input text */
   'data-test-id'?: string;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -49,7 +51,7 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default text input component.
  */
 export const DefaultInputText = React.forwardRef<HTMLInputElement, InputTextProps>(
-  ({ label, name, value, onChange, placeholder, externalContext, ...rest }, ref) => {
+  ({ label, name, value, onChange, placeholder, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
     return (
       <div style={wrapperStyle}>
         {label && (
@@ -65,6 +67,7 @@ export const DefaultInputText = React.forwardRef<HTMLInputElement, InputTextProp
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
+          {...xComponentProps}
           {...rest}
         />
       </div>

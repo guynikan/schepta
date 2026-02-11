@@ -30,6 +30,8 @@ export interface InputAutocompleteProps
   /** List of options for autocomplete (value used for both value and label if label omitted) */
   options?: InputAutocompleteOption[] | string[];
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -67,7 +69,7 @@ function normalizeOptions(
 export const DefaultInputAutocomplete = React.forwardRef<
   HTMLInputElement,
   InputAutocompleteProps
->(({ label, name, value, onChange, placeholder, options = [], externalContext, ...rest }, ref) => {
+>(({ label, name, value, onChange, placeholder, options = [], externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
   const listId = `${name}-datalist`;
   const normalizedOptions = normalizeOptions(options);
 
@@ -87,6 +89,7 @@ export const DefaultInputAutocomplete = React.forwardRef<
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
         style={inputStyle}
+        {...xComponentProps}
         {...rest}
       />
       <datalist id={listId}>

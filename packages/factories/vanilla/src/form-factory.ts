@@ -7,7 +7,7 @@ import { createVanillaRuntimeAdapter } from '@schepta/adapter-vanilla';
 import { createVanillaFormAdapter } from '@schepta/adapter-vanilla';
 import { getScheptaContext } from '@schepta/adapter-vanilla';
 import { 
-  createRendererOrchestrator,
+  createComponentOrchestrator,
   setFactoryDefaultComponents,
   createComponentSpec,
 } from '@schepta/core';
@@ -22,13 +22,13 @@ import {
 setFactoryDefaultComponents({
   FormContainer: createComponentSpec({
     id: 'FormContainer',
-    type: 'FormContainer',
-    factory: () => createDefaultFormContainer,
+    type: 'container',
+    component: () => createDefaultFormContainer,
   }),
   SubmitButton: createComponentSpec({
     id: 'SubmitButton',
-    type: 'content',
-    factory: () => createDefaultSubmitButton,
+    type: 'button',
+    component: () => createDefaultSubmitButton,
   }),
 });
 
@@ -105,7 +105,7 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
     };
   };
 
-  const renderer = createRendererOrchestrator(getFactorySetup, runtime);
+  const renderer = createComponentOrchestrator(getFactorySetup, runtime);
   const rootComponentKey = (options.schema as any)['x-component'] || 'FormContainer';
 
   // Render form

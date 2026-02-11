@@ -1,27 +1,24 @@
 /**
- * Renderer Orchestrator
+ * Component Orchestrator
  * 
  * Framework-agnostic orchestrator that processes schemas, resolves components,
  * applies middlewares, and coordinates rendering.
  */
 
-import type { RuntimeAdapter, ComponentSpec, DebugContextValue } from '../runtime/types';
+import type { RuntimeAdapter, ComponentSpec, DebugContextValue, RenderResult } from '../runtime/types';
 import type { FormAdapter } from '../forms/types';
 import type { MiddlewareFn, MiddlewareContext } from '../middleware/types';
-import { getComponentSpec } from '../registry/component-registry';
-import { getRendererForType } from '../registry/renderer-registry';
 import { applyMiddlewares } from '../middleware/types';
 import { processValue } from '../expressions/template-processor';
 import { createDefaultResolver } from '../expressions/variable-resolver';
-import { FormSchema } from '../schema/schema-types';
+import { createRendererOrchestrator } from './renderer-orchestrator';
 
 /**
  * Resolution result - successful component resolution
  */
 export interface ResolutionSuccess {
-  renderSpec: ComponentSpec;
-  componentToRender: ComponentSpec;
-  rendererFn: ReturnType<typeof getRendererForType>;
+  componentSpec: ComponentSpec;
+  rendererFn: (componentSpec: ComponentSpec, props: Record<string, any>, runtime: RuntimeAdapter, children?: any[]) => RenderResult;
 }
 
 /**
@@ -48,18 +45,25 @@ export interface FactorySetupResult {
  * Resolve component spec from schema
  */
 export function resolveSpec(
-  schema: FormSchema,
+  schema: any,
   componentKey: string,
   components: Record<string, ComponentSpec>,
-  localRenderers?: Partial<Record<string, any>>,
+  customComponents?: Record<string, ComponentSpec>,
+  renderers?: Partial<Record<string, any>>,
   debugEnabled?: boolean
 ): ResolutionResult {
   const componentName = schema['x-component'] || componentKey;
-  // components already has provider components merged in the factory
-  // Pass components as globalComponents (includes provider components) and undefined as localComponents
-  const renderSpec = getComponentSpec(componentName, components, undefined, debugEnabled);
-  
-  if (!renderSpec) {
+
+  const isCustomComponent = schema['x-custom'] === true;
+  let componentSpec = null;
+
+  if (isCustomComponent && customComponents) {
+    componentSpec = customComponents[componentKey];
+  } else {
+    componentSpec = components[componentName];
+  }
+
+  if (!componentSpec) {
     if (debugEnabled) {
       console.warn(`Component not found: ${componentName}`);
     }
@@ -67,26 +71,20 @@ export function resolveSpec(
     return null;
   }
 
-  const componentType = renderSpec.type || 'field';
-  const rendererFn = getRendererForType(
-    componentType,
-    undefined,
-    localRenderers as any,
-    debugEnabled
-  );
+  const componentType = componentSpec.type || 'field';
+  const rendererFn = createRendererOrchestrator(renderers?.[componentType]);
 
   return {
-    renderSpec,
-    componentToRender: renderSpec,
+    componentSpec,
     rendererFn,
   };
 }
 
 /**
- * Renderer orchestrator factory
+ * Component orchestrator factory
  * Returns a renderer function that processes schemas
  */
-export function createRendererOrchestrator(
+export function createComponentOrchestrator(
   getFactorySetup: () => FactorySetupResult,
   runtime: RuntimeAdapter
 ) {
@@ -97,18 +95,18 @@ export function createRendererOrchestrator(
     namePath: string[] = [],
     isDirectRootProperty: boolean = false
   ): any {
-    const { 
+    const {
       components,
       customComponents,
-      renderers: localRenderers, 
-      externalContext, 
-      state, 
-      middlewares, 
+      renderers,
+      externalContext,
+      state,
+      middlewares,
       onSubmit,
       debug,
       formAdapter
     } = getFactorySetup();
-    
+
     // Process schema with template expressions BEFORE extracting props
     // This ensures that $formValues.* and $externalContext.* are replaced
     // in any property of the schema (x-ui, x-content, x-component-props, etc.)
@@ -116,12 +114,12 @@ export function createRendererOrchestrator(
       externalContext,
       formValues: state,
     });
-    
+
     const processedSchema = processValue(schema, resolver, {
       externalContext,
       formValues: state,
     }) as any;
-    
+
     // Check visibility via x-ui.visible
     // If visible === false, don't render this component (and its children)
     // By default, visible is true
@@ -130,73 +128,6 @@ export function createRendererOrchestrator(
       return null;
     }
 
-    // Check for x-custom flag - if true, use custom component instead
-    const isCustomComponent = processedSchema['x-custom'] === true;
-    
-    if (isCustomComponent && customComponents) {
-      // Look up custom component by the property key name
-      const customSpec = customComponents[componentKey];
-      
-      if (customSpec) {
-        // Get renderer for the custom component type
-        const customRendererFn = getRendererForType(
-          customSpec.type || 'field',
-          undefined,
-          localRenderers as any,
-          debug?.isEnabled
-        );
-        
-        // Build props for custom component
-        const customProps = {
-          ...customSpec.defaultProps,
-          // Injected for E2E: identifies component key in DOM
-          'data-test-id': `${componentKey}`,
-          // Pass the original schema so custom component can access x-component-props, etc.
-          schema: processedSchema,
-          // Pass the component key
-          componentKey,
-          // Pass the name path for form binding
-          name: parentProps.name ? `${parentProps.name}.${componentKey}` : componentKey,
-          // Pass external context
-          externalContext,
-          // Pass x-component-props if present
-          ...(processedSchema['x-component-props'] || {}),
-        };
-        
-        // Render children if schema has properties
-        const customChildren: any[] = [];
-        if (processedSchema.properties && typeof processedSchema.properties === 'object') {
-          const childParentProps = {
-            ...customProps,
-            name: customProps.name,
-          };
-          
-          const sortedEntries = Object.entries(processedSchema.properties).sort(
-            ([, a], [, b]) => {
-              const orderA = (a as any)?.['x-ui']?.order ?? Infinity;
-              const orderB = (b as any)?.['x-ui']?.order ?? Infinity;
-              return orderA - orderB;
-            }
-          );
-          
-          for (const [key, childSchema] of sortedEntries) {
-            const childResult = render(key, childSchema as any, childParentProps, namePath, false);
-            if (childResult !== null && childResult !== undefined) {
-              customChildren.push(childResult);
-            }
-          }
-        }
-        
-        // Render the custom component
-        return customRendererFn(customSpec, customProps, runtime, customChildren.length > 0 ? customChildren : undefined);
-      } else {
-        // Custom component not found - log warning and fall back to normal rendering
-        if (debug?.isEnabled) {
-          console.warn(`Custom component not found for key: ${componentKey}. Falling back to standard component.`);
-        }
-      }
-    }
-    
     // Parse schema (now using processed schema)
     const { 'x-component-props': componentProps = {} } = processedSchema;
 
@@ -204,13 +135,14 @@ export function createRendererOrchestrator(
     // Use processedSchema for x-component resolution (in case x-component has templates)
     // components already has provider components merged in the factory
     const resolution = resolveSpec(
-      processedSchema, 
-      componentKey, 
-      components, 
-      localRenderers, 
+      processedSchema,
+      componentKey,
+      components,
+      customComponents,
+      renderers,
       debug?.isEnabled
     );
-    
+
     // Check if resolution failed
     if (!resolution || resolution === null) {
       // Return error component (framework adapter will provide)
@@ -218,15 +150,14 @@ export function createRendererOrchestrator(
     }
 
     // Extract successful resolution
-    const { renderSpec, componentToRender, rendererFn } = resolution as ResolutionSuccess;
+    const { componentSpec, rendererFn } = resolution as ResolutionSuccess;
 
     // Construct name path for nested fields
     // ONLY components with type: 'field' are included in the name path
     // EXCEPTION: componentKeys that are direct properties of root schema (isDirectRootProperty)
     // All other components (containers, FormContainer, content, etc.) are ignored
-    const componentType = renderSpec.type || 'field';
-    const isFieldComponent = componentType === 'field';
-    
+    const isFieldComponent = componentSpec.type === 'field';
+
     // If field OR direct root property: add componentKey to name path
     // If not field and not root property: keep parentProps.name (don't add this component's key)
     const shouldIncludeInPath = isFieldComponent || isDirectRootProperty;
@@ -236,10 +167,11 @@ export function createRendererOrchestrator(
 
     // Props Processing (using processedSchema)
     const baseProps = {
-      ...renderSpec.defaultProps,
+      ...componentSpec.defaultProps,
       ...parentProps,
       // Injected for E2E: identifies component key in DOM
       'data-test-id': `${componentKey}`,
+      schema,
       // Add name prop ONLY for field components
       ...(isFieldComponent && currentName ? { name: currentName } : {}),
       ...(Object.keys(componentProps).length > 0 ? { 'x-component-props': componentProps } : {}),
@@ -261,7 +193,7 @@ export function createRendererOrchestrator(
       debug,
       formAdapter,
     };
-    
+
     const mergedProps = applyMiddlewares(baseProps, processedSchema, middlewares, middlewareContext);
 
     // Render children if schema has properties (use processedSchema)
@@ -282,7 +214,7 @@ export function createRendererOrchestrator(
           return orderA - orderB;
         }
       );
-      
+
       for (const [key, childSchema] of sortedEntries) {
         // If this component is the root (FormContainer) and has no name, 
         // then its direct children are root properties and should be included in name path
@@ -295,7 +227,6 @@ export function createRendererOrchestrator(
     }
 
     // Final Rendering using renderer function with children
-    return rendererFn(componentToRender, mergedProps, runtime, children.length > 0 ? children : undefined);
+    return rendererFn(componentSpec, mergedProps, runtime, children.length > 0 ? children : undefined);
   };
 }
-

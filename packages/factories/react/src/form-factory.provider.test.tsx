@@ -48,7 +48,7 @@ const simpleFormSchema = {
 // Mock components
 const InputTextSpec = createComponentSpec({
   id: 'InputText',
-  factory: () => null,
+  component: () => null,
   type: 'field',
 });
 
@@ -78,7 +78,7 @@ describe('FormFactory Provider Integration', () => {
   it('should prioritize local props over provider config', () => {
     const LocalInputTextSpec = createComponentSpec({
       id: 'InputText',
-      factory: () => null,
+      component: () => null,
       type: 'field',
       displayName: 'LocalInputText',
     });

@@ -4,13 +4,12 @@
  * Vue implementation of schepta Provider
  */
 
-import { provide, inject, defineComponent, h, type Component } from 'vue';
+import { provide, inject, defineComponent, h } from 'vue';
 import type { ComponentSpec, ComponentType, DebugConfig } from '@schepta/core';
 import type { FormSchema } from '@schepta/core';
 import type { MiddlewareFn } from '@schepta/core';
 import type { RendererFn } from '@schepta/core';
 import { defaultDebugConfig } from '@schepta/core';
-import { getRendererRegistry } from '@schepta/core';
 
 /**
  * Provider configuration type
@@ -84,7 +83,7 @@ export function createScheptaProvider(props: ScheptaProviderProps = {}) {
         
         if (parentContext) {
           // Merge with parent (hierarchical override)
-          const mergedRenderers = getRendererRegistry(parentContext.renderers, componentProps.renderers);
+          const mergedRenderers = { ...parentContext.renderers, ...componentProps.renderers };
           
           return {
             components: { ...parentContext.components, ...componentProps.components },
@@ -97,12 +96,11 @@ export function createScheptaProvider(props: ScheptaProviderProps = {}) {
         }
 
         // Root provider
-        const mergedRenderers = getRendererRegistry(undefined, componentProps.renderers);
         const mergedDebug = { ...defaultDebugConfig, ...componentProps.debug };
 
         return {
           components: componentProps.components || {},
-          renderers: mergedRenderers,
+          renderers: componentProps.renderers,
           middlewares: localMiddlewares,
           debug: mergedDebug,
           schema: componentProps.schema as FormSchema | undefined,

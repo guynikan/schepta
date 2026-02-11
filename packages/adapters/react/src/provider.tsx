@@ -10,7 +10,6 @@ import type { FormSchema } from '@schepta/core';
 import type { MiddlewareFn } from '@schepta/core';
 import type { RendererFn } from '@schepta/core';
 import { defaultDebugConfig } from '@schepta/core';
-import { getRendererRegistry } from '@schepta/core';
 
 /**
  * Provider configuration type (matches SpectraProviderProps from old project)
@@ -73,16 +72,14 @@ export function ScheptaProvider({
   // Check if we're nested inside another ScheptaProvider (Material-UI pattern)
   const parentContext = useContext(ScheptaContext);
 
-  const contextValue = useMemo<ScheptaContextType>(() => {
+  const contextValue = useMemo(() => {
     // If we have a parent context, merge with it (hierarchical override)
     if (parentContext) {
-      // Use renderer registry for hierarchical merging
-      const mergedRenderers = getRendererRegistry(parentContext.renderers, renderers);
       
       return {
         components: { ...parentContext.components, ...components },
         customComponents: { ...parentContext.customComponents, ...customComponents },
-        renderers: mergedRenderers,
+        renderers: { ...parentContext.renderers, ...renderers },
         middlewares: [...parentContext.middlewares, ...middlewares],
         debug: { ...parentContext.debug, ...debug },
         schema: schema || parentContext.schema,
@@ -90,14 +87,12 @@ export function ScheptaProvider({
       };
     }
 
-    // If we're the root provider, use renderer registry with defaults
-    const mergedRenderers = getRendererRegistry(undefined, renderers);
     const mergedDebug = { ...defaultDebugConfig, ...debug };
 
     return {
       components,
       customComponents,
-      renderers: mergedRenderers,
+      renderers,
       middlewares,
       debug: mergedDebug,
       schema,
@@ -106,7 +101,7 @@ export function ScheptaProvider({
   }, [parentContext, components, customComponents, renderers, middlewares, debug, schema, externalContext]);
 
   return (
-    <ScheptaContext.Provider value={contextValue}>
+    <ScheptaContext.Provider value={contextValue as ScheptaContextType}>
       {children}
     </ScheptaContext.Provider>
   );

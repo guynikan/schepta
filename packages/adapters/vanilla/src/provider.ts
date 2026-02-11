@@ -9,7 +9,6 @@ import type { FormSchema } from '@schepta/core';
 import type { MiddlewareFn } from '@schepta/core';
 import type { RendererFn } from '@schepta/core';
 import { defaultDebugConfig } from '@schepta/core';
-import { getRendererRegistry } from '@schepta/core';
 
 /**
  * Provider configuration type
@@ -56,10 +55,10 @@ export function createScheptaProvider(
   const parentContext = getParentProviderContext(container);
 
   // Compute merged context value
-  const contextValue: ScheptaContextType = (() => {
+  const contextValue = (() => {
     if (parentContext) {
       // Merge with parent (hierarchical override)
-      const mergedRenderers = getRendererRegistry(parentContext.renderers, props.renderers);
+      const mergedRenderers = { ...parentContext.renderers, ...props.renderers };
       
       return {
         components: { ...parentContext.components, ...(props.components || {}) },
@@ -72,12 +71,11 @@ export function createScheptaProvider(
     }
 
     // Root provider
-    const mergedRenderers = getRendererRegistry(undefined, props.renderers);
     const mergedDebug = { ...defaultDebugConfig, ...props.debug };
 
     return {
       components: props.components || {},
-      renderers: mergedRenderers,
+      renderers: props.renderers,
       middlewares: props.middlewares || [],
       debug: mergedDebug,
       schema: props.schema,
@@ -86,7 +84,7 @@ export function createScheptaProvider(
   })();
 
   // Store provider config in map
-  providerMap.set(container, contextValue);
+  providerMap.set(container, contextValue as ScheptaContextType);
 
   return {
     destroy: () => {

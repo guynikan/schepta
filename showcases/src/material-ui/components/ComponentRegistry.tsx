@@ -16,73 +16,73 @@ import { FormSectionGroup } from "./Containers/FormSectionGroup";
 export const components = {
   'FormContainer': createComponentSpec({
     id: "FormContainer",
-    type: "FormContainer",
-    factory: (props, runtime) => FormContainer,
+    type: "container",
+    component: (props, runtime) => FormContainer,
   }),
   InputText: createComponentSpec({
     id: "InputText",
     type: "field",
-    factory: (props, runtime) => InputText,
+    component: (props, runtime) => InputText,
   }),
   InputSelect: createComponentSpec({
     id: "InputSelect",
     type: "field",
-    factory: (props, runtime) => InputSelect,
+    component: (props, runtime) => InputSelect,
   }),
   InputCheckbox: createComponentSpec({
     id: "InputCheckbox",
     type: "field",
-    factory: (props, runtime) => InputCheckbox,
+    component: (props, runtime) => InputCheckbox,
   }),
   InputPhone: createComponentSpec({
     id: "InputPhone",
     type: "field",
-    factory: (props, runtime) => InputText,
+    component: (props, runtime) => InputText,
     defaultProps: { type: "tel" },
   }),
   InputTextarea: createComponentSpec({
     id: "InputTextarea",
     type: "field",
-    factory: (props, runtime) => InputTextarea,
+    component: (props, runtime) => InputTextarea,
   }),
   InputNumber: createComponentSpec({
     id: "InputNumber",
     type: "field",
-    factory: (props, runtime) => InputNumber,
+    component: (props, runtime) => InputNumber,
   }),
   InputDate: createComponentSpec({
     id: "InputDate",
     type: "field",
-    factory: (props, runtime) => InputDate,
+    component: (props, runtime) => InputDate,
   }),
   SubmitButton: createComponentSpec({
     id: "SubmitButton",
     type: 'content',
-    factory: (props, runtime) => SubmitButton,
+    component: (props, runtime) => SubmitButton,
   }),
   FormField: createComponentSpec({
     id: "FormField",
     type: 'container',
-    factory: (props, runtime) => FormField,
+    component: (props, runtime) => FormField,
   }),
   FormSectionContainer: createComponentSpec({
     id: "FormSectionContainer",
     type: "container",
-    factory: (props, runtime) => FormSectionContainer,
+    component: (props, runtime) => FormSectionContainer,
   }),
   FormSectionTitle: createComponentSpec({
     id: "FormSectionTitle",
     type: 'content',
-    factory: (props, runtime) => FormSectionTitle,
+    component: (props, runtime) => FormSectionTitle,
   }),
   FormSectionGroupContainer: createComponentSpec({
     id: "FormSectionGroupContainer",
     type: 'container',
-    factory: (props, runtime) => FormSectionGroupContainer,
+    component: (props, runtime) => FormSectionGroupContainer,
   }),
   FormSectionGroup: createComponentSpec({
     id: "FormSectionGroup",
     type: 'container',
-    factory: (props, runtime) => FormSectionGroup,
+    component: (props, runtime) => FormSectionGroup,
   }),
 };

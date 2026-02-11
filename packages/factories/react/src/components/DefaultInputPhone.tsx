@@ -23,6 +23,8 @@ export interface InputPhoneProps
   onChange?: (value: string) => void;
   label?: string;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  "x-ui"?: Record<string, any>;
 }
 
 /**
@@ -50,7 +52,7 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default phone input component (uses type="tel").
  */
 export const DefaultInputPhone = React.forwardRef<HTMLInputElement, InputPhoneProps>(
-  ({ label, name, value, onChange, placeholder, externalContext, ...rest }, ref) => {
+  ({ label, name, value, onChange, placeholder, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
     return (
       <div style={wrapperStyle}>
         {label && (
@@ -67,6 +69,7 @@ export const DefaultInputPhone = React.forwardRef<HTMLInputElement, InputPhonePr
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
+          {...xComponentProps}
           {...rest}
         />
       </div>

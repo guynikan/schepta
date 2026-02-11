@@ -17,6 +17,8 @@ export interface FormSectionContainerProps
   /** Test ID for the form section container */
   'data-test-id'?: string;
   externalContext?: Record<string, any>;
+  "x-component-props"?: Record<string, any>;
+  'x-ui'?: Record<string, any>;
 }
 
 /**
@@ -32,6 +34,8 @@ export type FormSectionContainerComponentType =
 export const DefaultFormSectionContainer: React.FC<FormSectionContainerProps> = ({
   children,
   externalContext,
+  'x-ui': xUi,
+  "x-component-props": xComponentProps,
   ...props
 }) => {
   return (

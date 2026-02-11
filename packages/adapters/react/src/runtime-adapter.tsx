@@ -5,14 +5,14 @@
  */
 
 import React from 'react';
-import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@schepta/core';
+import type { RuntimeAdapter, ComponentSpec, RenderResult, RendererSpec } from '@schepta/core';
 
 /**
  * React runtime adapter implementation
  */
 export class ReactRuntimeAdapter implements RuntimeAdapter {
-  create(spec: ComponentSpec, props: Record<string, any>): RenderResult {
-    const component = spec.factory(props, this);
+  create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
+    const component = spec.component(props, this);
     // If factory returns a React component type, create element
     if (typeof component === 'function' || typeof component === 'object') {
       return React.createElement(component as any, props);

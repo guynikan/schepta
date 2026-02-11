@@ -11,11 +11,13 @@ export * from './runtime/types';
 export * from './forms/types';
 
 // Registry system
-export * from './registry/component-registry';
-export * from './registry/renderer-registry';
+export * from './registries/component-registry';
+export * from './registries/renderer-registry';
+
+export * from './defaults/register-default-renderers'
 
 // Orchestrator
-export * from './orchestrator/renderer-orchestrator';
+export * from './orchestrators/component-orchestrator';
 
 // Middleware system
 export * from './middleware/types';
@@ -34,7 +36,6 @@ export * from './provider';
 
 // Utils
 export * from './utils/jexl-config';
-export * from './utils/sanitize-props';
 
 // Validation
 export * from './validation';

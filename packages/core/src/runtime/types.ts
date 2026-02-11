@@ -17,13 +17,22 @@ export interface ComponentSpec {
   /** Component identifier */
   id: string;
   /** Component type (field, container, etc.) */
-  type?: ComponentType;
+  type: ComponentType;
   /** Display name for debugging */
   displayName?: string;
   /** Default props to apply */
   defaultProps?: Record<string, any>;
   /** Factory function to create component instance */
-  factory: ComponentFactory;
+  component: ComponentFactory;
+}
+
+export interface RendererSpec {
+  /** Renderer identifier */
+  id: string;
+  /** Component type this renderer handles */
+  type: ComponentType;
+  /** The renderer component */
+  component: ComponentFactory;
 }
 
 /**
@@ -51,7 +60,7 @@ export interface ElementSpec {
  */
 export interface RuntimeAdapter {
   /** Create an element from a component spec and props */
-  create(spec: ComponentSpec, props: Record<string, any>): RenderResult;
+  create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult;
   
   /** Create a fragment/container for children */
   fragment(children: RenderResult[]): RenderResult;
@@ -102,9 +111,8 @@ export interface Context<T> {
  */
 export type ComponentType = 
   | 'field' 
-  | 'field-wrapper' 
+  | 'button'
   | 'container' 
-  | 'FormContainer' 
   | 'content' 
   | 'addon' 
   | 'menu-item' 

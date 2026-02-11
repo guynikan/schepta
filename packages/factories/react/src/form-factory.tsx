@@ -1,140 +1,46 @@
 /**
  * React Form Factory
- * 
+ *
  * Factory component for rendering forms from JSON schemas.
  */
 
-import { useMemo, forwardRef, useImperativeHandle } from 'react';
-import type { FormSchema, ComponentSpec, MiddlewareFn, FormAdapter } from '@schepta/core';
-import { createReactRuntimeAdapter } from '@schepta/adapter-react';
-import { 
-  createRendererOrchestrator, 
+import { useMemo, forwardRef, useImperativeHandle } from "react";
+import type {
+  FormSchema,
+  ComponentSpec,
+  MiddlewareFn,
+  FormAdapter,
+} from "@schepta/core";
+import { createReactRuntimeAdapter } from "@schepta/adapter-react";
+import {
+  createComponentOrchestrator,
   type FactorySetupResult,
   setFactoryDefaultComponents,
-  createComponentSpec,
-} from '@schepta/core';
-import { createTemplateExpressionMiddleware } from '@schepta/core';
-import { FormRenderer } from './form-renderer';
-import { useMergedScheptaConfig } from './hooks/use-merged-config';
-import { useScheptaForm } from './hooks/use-schepta-form';
-import { useSchemaValidation } from './hooks/use-schema-validation';
-import { createDebugContext } from './utils/debug';
-import { createFieldRenderer } from './renderers/field-renderer';
-import formSchemaDefinition from '../../src/schemas/form-schema.json';
-import { ScheptaFormProvider } from './context/schepta-form-context';
-import {
-  DefaultFormContainer,
-  DefaultSubmitButton,
-  DefaultFieldWrapper,
-  DefaultInputText,
-  DefaultInputSelect,
-  DefaultInputCheckbox,
-  DefaultInputDate,
-  DefaultInputPhone,
-  DefaultInputAutocomplete,
-  DefaultInputTextarea,
-  DefaultInputNumber,
-  DefaultFormField,
-  DefaultFormSectionContainer,
-  DefaultFormSectionTitle,
-  DefaultFormSectionGroup,
-  DefaultFormSectionGroupContainer,
-  type SubmitButtonComponentType,
-  type FieldWrapperType,
-} from './components';
+  setFactoryDefaultRenderers,
+} from "@schepta/core";
+import { createTemplateExpressionMiddleware } from "@schepta/core";
+import { FormRenderer } from "./form-renderer";
+import { useMergedScheptaConfig } from "./hooks/use-merged-config";
+import { useScheptaForm } from "./hooks/use-schepta-form";
+import { useSchemaValidation } from "./hooks/use-schema-validation";
+import { createDebugContext } from "./utils/debug";
+import formSchemaDefinition from "../../src/schemas/form-schema.json";
+import { ScheptaFormProvider } from "./context/schepta-form-context";
+import { defaultComponents } from "./defaults/register-default-components";
+import { defaultRenderers } from "./defaults/register-default-renderers";
 
 // Register factory default components (called once on module load)
-setFactoryDefaultComponents({
-  FormContainer: createComponentSpec({
-    id: 'FormContainer',
-    type: 'FormContainer',
-    factory: () => DefaultFormContainer,
-  }),
-  SubmitButton: createComponentSpec({
-    id: 'SubmitButton',
-    type: 'content',
-    factory: () => DefaultSubmitButton,
-  }),
-  FieldWrapper: createComponentSpec({
-    id: 'FieldWrapper',
-    type: 'field-wrapper',
-    factory: () => DefaultFieldWrapper,
-  }),
-  // Input components
-  InputText: createComponentSpec({
-    id: 'InputText',
-    type: 'field',
-    factory: () => DefaultInputText,
-  }),
-  InputSelect: createComponentSpec({
-    id: 'InputSelect',
-    type: 'field',
-    factory: () => DefaultInputSelect,
-  }),
-  InputCheckbox: createComponentSpec({
-    id: 'InputCheckbox',
-    type: 'field',
-    factory: () => DefaultInputCheckbox,
-  }),
-  InputDate: createComponentSpec({
-    id: 'InputDate',
-    type: 'field',
-    factory: () => DefaultInputDate,
-  }),
-  InputPhone: createComponentSpec({
-    id: 'InputPhone',
-    type: 'field',
-    factory: () => DefaultInputPhone,
-  }),
-  InputAutocomplete: createComponentSpec({
-    id: 'InputAutocomplete',
-    type: 'field',
-    factory: () => DefaultInputAutocomplete,
-  }),
-  InputTextarea: createComponentSpec({
-    id: 'InputTextarea',
-    type: 'field',
-    factory: () => DefaultInputTextarea,
-  }),
-  InputNumber: createComponentSpec({
-    id: 'InputNumber',
-    type: 'field',
-    factory: () => DefaultInputNumber,
-  }),
-  // Container components
-  FormField: createComponentSpec({
-    id: 'FormField',
-    type: 'container',
-    factory: () => DefaultFormField,
-  }),
-  FormSectionContainer: createComponentSpec({
-    id: 'FormSectionContainer',
-    type: 'container',
-    factory: () => DefaultFormSectionContainer,
-  }),
-  FormSectionTitle: createComponentSpec({
-    id: 'FormSectionTitle',
-    type: 'content',
-    factory: () => DefaultFormSectionTitle,
-  }),
-  FormSectionGroup: createComponentSpec({
-    id: 'FormSectionGroup',
-    type: 'container',
-    factory: () => DefaultFormSectionGroup,
-  }),
-  FormSectionGroupContainer: createComponentSpec({
-    id: 'FormSectionGroupContainer',
-    type: 'container',
-    factory: () => DefaultFormSectionGroupContainer,
-  }),
-});
+setFactoryDefaultComponents(defaultComponents);
+setFactoryDefaultRenderers(defaultRenderers);
 
 /**
  * Ref interface for external form control
  */
 export interface FormFactoryRef {
   /** Submit the form with the provided handler */
-  submit: (onSubmit: (values: Record<string, any>) => void | Promise<void>) => void;
+  submit: (
+    onSubmit: (values: Record<string, any>) => void | Promise<void>
+  ) => void;
   /** Reset form to initial or provided values */
   reset: (values?: Record<string, any>) => void;
   /** Get current form values */
@@ -154,151 +60,148 @@ export interface FormFactoryProps {
   debug?: boolean;
 }
 
-export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(function FormFactory({
-  schema,
-  components,
-  customComponents,
-  renderers,
-  externalContext,
-  middlewares,
-  adapter: providedAdapter,
-  initialValues,
-  onSubmit,
-  debug = false,
-}: FormFactoryProps, ref) {
-  // Validate schema instance before rendering
-  const validation = useSchemaValidation(schema, {
-    formSchema: formSchemaDefinition,
-  });
+export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
+  function FormFactory(
+    {
+      schema,
+      components,
+      customComponents,
+      renderers,
+      externalContext,
+      middlewares,
+      adapter: providedAdapter,
+      initialValues,
+      onSubmit,
+      debug = false,
+    }: FormFactoryProps,
+    ref
+  ) {
+    // Validate schema instance before rendering
+    const validation = useSchemaValidation(schema, {
+      formSchema: formSchemaDefinition,
+    });
 
-  // Merge provider config with local props
-  const mergedConfig = useMergedScheptaConfig({
-    components,
-    customComponents,
-    renderers,
-    externalContext,
-    middlewares,
-    debug,
-  });
+    // Merge provider config with local props
+    const mergedConfig = useMergedScheptaConfig({
+      components,
+      customComponents,
+      renderers,
+      externalContext,
+      middlewares,
+      debug,
+    });
 
-  const { formAdapter, formValues, reset } = useScheptaForm(schema, {
-    initialValues,
-    adapter: providedAdapter,
-  });
+    const { formAdapter, formValues, reset } = useScheptaForm(schema, {
+      initialValues,
+      adapter: providedAdapter,
+    });
 
-  // Expose form control methods via ref for external submit scenarios
-  useImperativeHandle(ref, () => ({
-    submit: (submitFn) => formAdapter.handleSubmit(submitFn)(),
-    reset: (values) => reset(values),
-    getValues: () => formAdapter.getValues(),
-  }), [formAdapter, reset]);
+    // Expose form control methods via ref for external submit scenarios
+    useImperativeHandle(
+      ref,
+      () => ({
+        submit: (submitFn) => formAdapter.handleSubmit(submitFn)(),
+        reset: (values) => reset(values),
+        getValues: () => formAdapter.getValues(),
+      }),
+      [formAdapter, reset]
+    );
 
-  // Create runtime adapter
-  const runtime = useMemo(() => createReactRuntimeAdapter(), []);
+    // Create runtime adapter
+    const runtime = useMemo(() => createReactRuntimeAdapter(), []);
 
-  // If schema validation failed, render error UI
-  if (!validation.valid) {
+    // If schema validation failed, render error UI
+    if (!validation.valid) {
+      return (
+        <div
+          style={{
+            padding: "16px",
+            backgroundColor: "#fff0f0",
+            border: "1px solid #ffcccc",
+            borderRadius: "4px",
+            fontFamily: "monospace",
+          }}
+        >
+          <h3 style={{ color: "#cc0000", margin: "0 0 12px 0" }}>
+            Schema Validation Error
+          </h3>
+          <pre
+            style={{
+              whiteSpace: "pre-wrap",
+              fontSize: "12px",
+              margin: 0,
+              color: "#660000",
+            }}
+          >
+            {validation.formattedErrors}
+          </pre>
+        </div>
+      );
+    }
+
+    // Get root component key from schema
+    const rootComponentKey = (schema as any)["x-component"] || "FormContainer";
+
+    // Create renderer orchestrator
+    const renderer = useMemo(() => {
+      const getFactorySetup = (): FactorySetupResult => {
+        // Create debug context
+        const debugContext = createDebugContext(mergedConfig.debug);
+
+        // Create template expression middleware with current form values (always first)
+        const templateMiddleware = createTemplateExpressionMiddleware({
+          externalContext: mergedConfig.externalContext,
+          formValues,
+          debug: debugContext,
+        });
+
+        // Build middlewares: template middleware first, then provider, then local
+        const updatedMiddlewares = [
+          templateMiddleware,
+          ...mergedConfig.baseMiddlewares,
+        ];
+
+        return {
+          components: mergedConfig.components,
+          customComponents: mergedConfig.customComponents,
+          renderers: mergedConfig.renderers,
+          externalContext: {
+            ...mergedConfig.externalContext,
+          },
+          state: formValues,
+          middlewares: updatedMiddlewares,
+          onSubmit,
+          debug: debugContext,
+          formAdapter,
+        };
+      };
+
+      return createComponentOrchestrator(getFactorySetup, runtime);
+    }, [
+      mergedConfig.components,
+      mergedConfig.customComponents,
+      mergedConfig.renderers,
+      mergedConfig.externalContext,
+      mergedConfig.baseMiddlewares,
+      mergedConfig.debug,
+      formAdapter,
+      runtime,
+      onSubmit,
+      formValues,
+    ]);
+
     return (
-      <div style={{ 
-        padding: '16px', 
-        backgroundColor: '#fff0f0', 
-        border: '1px solid #ffcccc',
-        borderRadius: '4px',
-        fontFamily: 'monospace',
-      }}>
-        <h3 style={{ color: '#cc0000', margin: '0 0 12px 0' }}>
-          Schema Validation Error
-        </h3>
-        <pre style={{ 
-          whiteSpace: 'pre-wrap', 
-          fontSize: '12px',
-          margin: 0,
-          color: '#660000',
-        }}>
-          {validation.formattedErrors}
-        </pre>
-      </div>
+      <ScheptaFormProvider
+        initialValues={initialValues}
+        adapter={formAdapter}
+        values={formValues}
+      >
+        <FormRenderer
+          componentKey={rootComponentKey}
+          schema={schema}
+          renderer={renderer}
+        />
+      </ScheptaFormProvider>
     );
   }
-
-  // Get root component key from schema
-  const rootComponentKey = (schema as any)['x-component'] || 'FormContainer';
-
-  // Resolve SubmitButton component from registry (provider or local) or use default
-  const SubmitButtonComponent = useMemo((): SubmitButtonComponentType => {
-    const customComponent = mergedConfig.components.SubmitButton?.factory?.({}, runtime);
-    return (customComponent as SubmitButtonComponentType) || DefaultSubmitButton;
-  }, [mergedConfig.components.SubmitButton, runtime]);
-
-  // Resolve FieldWrapper component from registry (provider or local) or use default
-  const FieldWrapperComponent = useMemo((): FieldWrapperType => {
-    const customComponent = mergedConfig.components.FieldWrapper?.factory?.({}, runtime);
-    return (customComponent as FieldWrapperType) || DefaultFieldWrapper;
-  }, [mergedConfig.components.FieldWrapper, runtime]);
-
-  // Create renderer orchestrator
-  const renderer = useMemo(() => {
-    const getFactorySetup = (): FactorySetupResult => {
-      // Create debug context
-      const debugContext = createDebugContext(mergedConfig.debug);
-
-      // Create custom renderers with field renderer (passing resolved FieldWrapper)
-      const customRenderers = {
-        ...mergedConfig.renderers,
-        field: createFieldRenderer({ FieldWrapper: FieldWrapperComponent }),
-      };
-
-      // Create template expression middleware with current form values (always first)
-      const templateMiddleware = createTemplateExpressionMiddleware({
-        externalContext: mergedConfig.externalContext,
-        formValues,
-        debug: debugContext,
-      });
-
-      // Build middlewares: template middleware first, then provider, then local
-      const updatedMiddlewares = [
-        templateMiddleware,
-        ...mergedConfig.baseMiddlewares,
-      ];
-
-      return {
-        components: mergedConfig.components,
-        customComponents: mergedConfig.customComponents,
-        renderers: customRenderers,
-        externalContext: {
-          ...mergedConfig.externalContext,
-        },
-        state: formValues,
-        middlewares: updatedMiddlewares,
-        onSubmit,
-        debug: debugContext,
-        formAdapter,
-      };
-    };
-
-    return createRendererOrchestrator(getFactorySetup, runtime);
-  }, [
-    mergedConfig.components,
-    mergedConfig.customComponents,
-    mergedConfig.renderers,
-    mergedConfig.externalContext,
-    mergedConfig.baseMiddlewares,
-    mergedConfig.debug,
-    formAdapter,
-    runtime,
-    onSubmit,
-    formValues,
-    SubmitButtonComponent,
-    FieldWrapperComponent,
-  ]);
-
-  return (
-    <ScheptaFormProvider initialValues={initialValues} adapter={formAdapter} values={formValues}>
-      <FormRenderer
-        componentKey={rootComponentKey}
-        schema={schema}
-        renderer={renderer}
-      />
-    </ScheptaFormProvider>
-  );
-});
+);

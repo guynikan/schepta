@@ -18,7 +18,8 @@ export default defineConfig({
       name: 'react',
       use: { 
         ...devices['Desktop Chrome'],
-        baseURL: 'https://show.schepta.org/',
+        // baseURL: 'https://show.schepta.org/',
+        baseURL: 'http://localhost:3000/',
       },
     }
   ]
