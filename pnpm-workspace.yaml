@@ -1,7 +1,6 @@
 packages:
   - 'packages/**'
   - 'showcases/**'
-  - 'shell/**'
   - 'tests'
   - 'docs'
 
