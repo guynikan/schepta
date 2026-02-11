@@ -15,73 +15,73 @@ import { FormSectionGroup } from "./Containers/FormSectionGroup";
 
 export const components = {
   'FormContainer': createComponentSpec({
-    id: "FormContainer",
+    id: "FormContainer-chakra-ui",
     type: "container",
     component: (props, runtime) => FormContainer,
   }),
   InputText: createComponentSpec({
-    id: "InputText",
+    id: "InputText-chakra-ui",
     type: "field",
     component: (props, runtime) => InputText,
   }),
   InputSelect: createComponentSpec({
-    id: "InputSelect",
+    id: "InputSelect-chakra-ui",
     type: "field",
     component: (props, runtime) => InputSelect,
   }),
   InputCheckbox: createComponentSpec({
-    id: "InputCheckbox",
+    id: "InputCheckbox-chakra-ui",
     type: "field",
     component: (props, runtime) => InputCheckbox,
   }),
   InputPhone: createComponentSpec({
-    id: "InputPhone",
+    id: "InputPhone-chakra-ui",
     type: "field",
     component: (props, runtime) => InputText,
     defaultProps: { type: "tel" },
   }),
   InputTextarea: createComponentSpec({
-    id: "InputTextarea",
+    id: "InputTextarea-chakra-ui",
     type: "field",
     component: (props, runtime) => InputTextarea,
   }),
   InputNumber: createComponentSpec({
-    id: "InputNumber",
+    id: "InputNumber-chakra-ui",
     type: "field",
     component: (props, runtime) => InputNumber,
   }),
   InputDate: createComponentSpec({
-    id: "InputDate",
+    id: "InputDate-chakra-ui",
     type: "field",
     component: (props, runtime) => InputDate,
   }),
   SubmitButton: createComponentSpec({
-    id: "SubmitButton",
+    id: "SubmitButton-chakra-ui",
     type: 'content',
     component: (props, runtime) => SubmitButton,
   }),
   FormField: createComponentSpec({
-    id: "FormField",
+    id: "FormField-chakra-ui",
     type: 'container',
     component: (props, runtime) => FormField,
   }),
   FormSectionContainer: createComponentSpec({
-    id: "FormSectionContainer",
+    id: "FormSectionContainer-chakra-ui",
     type: "container",
     component: (props, runtime) => FormSectionContainer,
   }),
   FormSectionTitle: createComponentSpec({
-    id: "FormSectionTitle",
+    id: "FormSectionTitle-chakra-ui",
     type: 'content',
     component: (props, runtime) => FormSectionTitle,
   }),
   FormSectionGroupContainer: createComponentSpec({
-    id: "FormSectionGroupContainer",
+    id: "FormSectionGroupContainer-chakra-ui",
     type: 'container',
     component: (props, runtime) => FormSectionGroupContainer,
   }),
   FormSectionGroup: createComponentSpec({
-    id: "FormSectionGroup",
+    id: "FormSectionGroup-chakra-ui",
     type: 'container',
     component: (props, runtime) => FormSectionGroup,
   }),

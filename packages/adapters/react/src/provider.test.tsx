@@ -33,7 +33,7 @@ describe('ScheptaProvider', () => {
   it('should provide components configuration', () => {
     const componentSpec = createComponentSpec({
       id: 'TestComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 
@@ -60,13 +60,13 @@ describe('ScheptaProvider', () => {
   it('should support nested providers with hierarchical merge', () => {
     const ParentComponent = createComponentSpec({
       id: 'ParentComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 
     const ChildComponent = createComponentSpec({
       id: 'ChildComponent',
-      factory: () => null,
+      component: () => null,
       type: 'field',
     });
 

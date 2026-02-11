@@ -12,6 +12,7 @@ import type { RuntimeAdapter, ComponentSpec, RenderResult, RendererSpec } from '
  */
 export class ReactRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
+    if (spec.component) {
     const component = spec.component(props, this);
     // If factory returns a React component type, create element
     if (typeof component === 'function' || typeof component === 'object') {
@@ -19,6 +20,9 @@ export class ReactRuntimeAdapter implements RuntimeAdapter {
     }
     // If it's already an element, return it
     return component as RenderResult;
+    } else {
+      throw new Error(`Component ${spec.id} is not a function`);
+    }
   }
 
   fragment(children: RenderResult[]): RenderResult {

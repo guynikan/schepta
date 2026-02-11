@@ -1,6 +1,6 @@
 import { FormSchema } from "@schepta/core";
-import simpleFormSchema from "../../../../instances/form/simple-form.json";
-import complexFormSchema from "../../../../instances/form/complex-form.json";
+import simpleFormSchema from "../../../../../../instances/form/simple-form.json";
+import complexFormSchema from "../../../../../../instances/form/complex-form.json";
 import { Paper, Box, Tabs, Tab } from "@mui/material";
 import React, { useState } from "react";
 import { Form } from "../components/Form";

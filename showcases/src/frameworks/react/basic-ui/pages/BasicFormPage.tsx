@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Tab, Tabs, Paper } from "@mui/material";
-import simpleFormSchema from "../../../../instances/form/simple-form.json";
-import complexFormSchema from "../../../../instances/form/complex-form.json";
+import simpleFormSchema from "../../../../../../instances/form/simple-form.json";
+import complexFormSchema from "../../../../../../instances/form/complex-form.json";
 import { NativeForm } from "../components/Forms/NativeForm";
 import { TabPanel } from "../../material-ui/pages/MaterialFormPage";
 import { ModalForm } from "../components/Forms/ModalForm";

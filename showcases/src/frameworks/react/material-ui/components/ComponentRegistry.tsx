@@ -15,73 +15,73 @@ import { FormSectionGroup } from "./Containers/FormSectionGroup";
 
 export const components = {
   'FormContainer': createComponentSpec({
-    id: "FormContainer",
+    id: "FormContainer-material-ui",
     type: "container",
     component: (props, runtime) => FormContainer,
   }),
   InputText: createComponentSpec({
-    id: "InputText",
+    id: "InputText-material-ui",
     type: "field",
     component: (props, runtime) => InputText,
   }),
   InputSelect: createComponentSpec({
-    id: "InputSelect",
+    id: "InputSelect-material-ui",
     type: "field",
     component: (props, runtime) => InputSelect,
   }),
   InputCheckbox: createComponentSpec({
-    id: "InputCheckbox",
+    id: "InputCheckbox-material-ui",
     type: "field",
     component: (props, runtime) => InputCheckbox,
   }),
   InputPhone: createComponentSpec({
-    id: "InputPhone",
+    id: "InputPhone-material-ui",
     type: "field",
     component: (props, runtime) => InputText,
     defaultProps: { type: "tel" },
   }),
   InputTextarea: createComponentSpec({
-    id: "InputTextarea",
+    id: "InputTextarea-material-ui",
     type: "field",
     component: (props, runtime) => InputTextarea,
   }),
   InputNumber: createComponentSpec({
-    id: "InputNumber",
+    id: "InputNumber-material-ui",
     type: "field",
     component: (props, runtime) => InputNumber,
   }),
   InputDate: createComponentSpec({
-    id: "InputDate",
+    id: "InputDate-material-ui",
     type: "field",
     component: (props, runtime) => InputDate,
   }),
   SubmitButton: createComponentSpec({
-    id: "SubmitButton",
+    id: "SubmitButton-material-ui",
     type: 'content',
     component: (props, runtime) => SubmitButton,
   }),
   FormField: createComponentSpec({
-    id: "FormField",
+    id: "FormField-material-ui",
     type: 'container',
     component: (props, runtime) => FormField,
   }),
   FormSectionContainer: createComponentSpec({
-    id: "FormSectionContainer",
+    id: "FormSectionContainer-material-ui",
     type: "container",
     component: (props, runtime) => FormSectionContainer,
   }),
   FormSectionTitle: createComponentSpec({
-    id: "FormSectionTitle",
+    id: "FormSectionTitle-material-ui",
     type: 'content',
     component: (props, runtime) => FormSectionTitle,
   }),
   FormSectionGroupContainer: createComponentSpec({
-    id: "FormSectionGroupContainer",
+    id: "FormSectionGroupContainer-material-ui",
     type: 'container',
     component: (props, runtime) => FormSectionGroupContainer,
   }),
   FormSectionGroup: createComponentSpec({
-    id: "FormSectionGroup",
+    id: "FormSectionGroup-material-ui",
     type: 'container',
     component: (props, runtime) => FormSectionGroup,
   }),

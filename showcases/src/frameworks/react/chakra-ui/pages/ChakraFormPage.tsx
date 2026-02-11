@@ -10,12 +10,13 @@ import {
 } from "@chakra-ui/react";
 import { Form } from "../components/Form";
 import { FormSchema } from "@schepta/core";
-import simpleFormSchema from "../../../../instances/form/simple-form.json";
-import complexFormSchema from "../../../../instances/form/complex-form.json";
+import simpleFormSchema from "../../../../../../instances/form/simple-form.json";
+import complexFormSchema from "../../../../../../instances/form/complex-form.json";
 
 export function ChakraFormPage() {
   const simpleSchema = simpleFormSchema as FormSchema;
   const complexSchema = complexFormSchema as FormSchema;
+
   return (
     <ChakraProvider>
       <Box
