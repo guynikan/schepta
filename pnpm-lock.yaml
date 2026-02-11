@@ -301,18 +301,27 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.0
         version: 3.10.0(react-hook-form@7.68.0)
+      '@mdi/font':
+        specifier: ^7.4.47
+        version: 7.4.47
       '@mui/material':
         specifier: ^5.15.0
         version: 5.18.0(@emotion/react@11.14.0)(@emotion/styled@11.14.1)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)
       '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../packages/adapters/react
+      '@schepta/adapter-vue':
+        specifier: workspace:*
+        version: link:../packages/adapters/vue
       '@schepta/core':
         specifier: workspace:*
         version: link:../packages/core
       '@schepta/factory-react':
         specifier: workspace:*
         version: link:../packages/factories/react
+      '@schepta/factory-vue':
+        specifier: workspace:*
+        version: link:../packages/factories/vue
       '@tanstack/react-router':
         specifier: ^1.159.5
         version: 1.159.5(react-dom@18.3.1)(react@18.3.1)
@@ -346,6 +355,9 @@ importers:
       vue:
         specifier: ^3.4.0
         version: 3.5.25(typescript@5.9.3)
+      vuetify:
+        specifier: ^3.11.2
+        version: 3.11.2(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.25)
     devDependencies:
       '@types/react':
         specifier: ^18.2.47

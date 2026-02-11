@@ -1,22 +1,42 @@
 /**
  * @schepta/factory-vue
- * 
- * Vue factories for schepta rendering engine
+ *
+ * Vue factories for schepta rendering engine.
+ * API aligned with @schepta/factory-react.
  */
 
-// Main factory
 export {
-  createFormFactory,
+  FormFactory,
   type FormFactoryProps,
   type FormFactoryRef,
 } from './form-factory';
 
-// Components (types and defaults)
 export {
   DefaultFormContainer,
+  DefaultFormField,
+  DefaultFormSectionContainer,
+  DefaultFormSectionGroup,
+  DefaultFormSectionGroupContainer,
+  DefaultFormSectionTitle,
+  DefaultInputAutocomplete,
+  DefaultInputCheckbox,
+  DefaultInputDate,
+  DefaultInputNumber,
+  DefaultInputPhone,
+  DefaultInputSelect,
+  DefaultInputText,
+  DefaultInputTextarea,
   DefaultSubmitButton,
-  type FormContainerProps,
-  type SubmitButtonProps,
-  type SubmitButtonComponentType,
 } from './components';
 
+export { DefaultFieldRenderer } from './renderers/DefaultFieldRenderer';
+
+export {
+  ScheptaFormProvider,
+  useScheptaFormAdapter,
+  useScheptaFormValues,
+  useScheptaFieldValue,
+  type ScheptaFormProviderProps,
+} from './context/schepta-form-context';
+
+export { FormRenderer } from './form-renderer';

@@ -5,13 +5,16 @@
  */
 
 import { h, Fragment, VNode } from 'vue';
-import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@schepta/core';
+import type { RuntimeAdapter, ComponentSpec, RenderResult, RendererSpec } from '@schepta/core';
 
 /**
  * Vue runtime adapter implementation
  */
 export class VueRuntimeAdapter implements RuntimeAdapter {
-  create(spec: ComponentSpec, props: Record<string, any>): RenderResult {
+  create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
+    if (!spec.component) {
+      throw new Error(`Component ${(spec as any).id} is not a function`);
+    }
     const component = spec.component(props, this) as any;
     
     // Extract children from props if present (Vue passes children as third argument to h())

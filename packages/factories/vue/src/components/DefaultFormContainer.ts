@@ -1,12 +1,13 @@
 /**
  * Default Form Container Component for Vue
- * 
+ *
  * Built-in form container that wraps children in a <form> tag
  * and renders a submit button. Can be overridden via createComponentSpec.
  */
 
 import { defineComponent, h, type PropType } from 'vue';
-import { DefaultSubmitButton, type SubmitButtonComponentType } from './DefaultSubmitButton';
+import { DefaultSubmitButton } from './DefaultSubmitButton';
+import { useScheptaFormAdapter } from '../context/schepta-form-context';
 
 /**
  * Props for FormContainer component.
@@ -14,44 +15,45 @@ import { DefaultSubmitButton, type SubmitButtonComponentType } from './DefaultSu
  */
 export interface FormContainerProps {
   /** Submit handler - when provided, renders a submit button */
-  onSubmit?: () => void;
+  onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   /** External context passed from FormFactory */
   externalContext?: Record<string, any>;
-  /** 
-   * Custom SubmitButton component - resolved by FormFactory from registry.
-   * If not provided, uses DefaultSubmitButton.
-   */
-  SubmitButtonComponent?: SubmitButtonComponentType;
 }
 
 /**
  * Default form container component for Vue.
- * 
+ *
  * Renders children inside a <form> tag with an optional submit button.
- * 
- * - When `onSubmit` is provided: renders submit button inside the form
- * - When `onSubmit` is NOT provided: no submit button (for external submit via formRef)
+ * Uses ScheptaFormAdapter for form submission.
  */
 export const DefaultFormContainer = defineComponent({
   name: 'DefaultFormContainer',
   props: {
     onSubmit: {
-      type: Function as PropType<() => void>,
+      type: Function as PropType<(values: Record<string, any>) => void | Promise<void>>,
       required: false,
     },
   },
   setup(props, { slots }) {
+    const adapter = useScheptaFormAdapter();
     return () => {
-      return h('form', {
-        'data-test-id': 'FormContainer',
-        onSubmit: (e: Event) => {
-          e.preventDefault();
-          props.onSubmit?.();
+      const handleSubmit = (e: Event) => {
+        e.preventDefault();
+        if (props.onSubmit) {
+          adapter.handleSubmit(props.onSubmit)();
         }
-      }, [
-        slots.default?.(),
-        props.onSubmit && h(DefaultSubmitButton, { onSubmit: props.onSubmit })
-      ]);
+      };
+      return h(
+        'form',
+        {
+          'data-test-id': 'FormContainer',
+          onSubmit: handleSubmit,
+        },
+        [
+          slots.default?.(),
+          props.onSubmit && h(DefaultSubmitButton),
+        ]
+      );
     };
-  }
+  },
 });
