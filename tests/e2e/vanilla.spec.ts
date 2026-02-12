@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Vanilla Form Factory', () => {
   test.beforeEach(async ({ page, baseURL }) => {
-    await page.goto(`${baseURL}/vanilla`);
+    await page.goto(`${baseURL}`);
     await page.waitForSelector('[data-test-id="simple-form-tab"]', { timeout: 10000 });
   });
 

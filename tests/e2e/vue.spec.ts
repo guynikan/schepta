@@ -5,7 +5,7 @@ import { extractFieldsFromSchema, FormSchema } from '@schepta/core';
 
 test.describe('Vue Form Factory', () => {
   test.beforeEach(async ({ page, baseURL }) => {
-    await page.goto(`${baseURL}/vue`);
+    await page.goto(`${baseURL}`);
   });
 
   test('should render simple form', async ({ page }) => {
