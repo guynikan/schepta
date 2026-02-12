@@ -2,40 +2,30 @@
  * Vanilla JS Form Factory
  */
 
-import type { FormSchema, ComponentSpec, FactorySetupResult, FormAdapter } from '@schepta/core';
+import type { FormSchema, ComponentSpec, FactorySetupResult, FormAdapter, MiddlewareFn } from '@schepta/core';
 import { createVanillaRuntimeAdapter } from '@schepta/adapter-vanilla';
 import { createVanillaFormAdapter } from '@schepta/adapter-vanilla';
 import { getScheptaContext } from '@schepta/adapter-vanilla';
 import { 
   createComponentOrchestrator,
-  setFactoryDefaultComponents,
-  createComponentSpec,
+  createTemplateExpressionMiddleware,
+  createSchemaValidator,
+  formatValidationErrors,
+  getFactoryDefaultComponents,
+  getFactoryDefaultRenderers,
 } from '@schepta/core';
 import { buildInitialValues } from '@schepta/core';
+import formSchemaDefinition from '../../src/schemas/form-schema.json';
 import { renderForm } from './form-renderer';
-import { 
-  createDefaultFormContainer, 
-  createDefaultSubmitButton
-} from './components';
-
-// Register factory default components (called once on module load)
-setFactoryDefaultComponents({
-  FormContainer: createComponentSpec({
-    id: 'FormContainer',
-    type: 'container',
-    component: () => createDefaultFormContainer,
-  }),
-  SubmitButton: createComponentSpec({
-    id: 'SubmitButton',
-    type: 'button',
-    component: () => createDefaultSubmitButton,
-  }),
-});
+import { registerDefaultComponents } from './defaults/register-default-components';
+import { registerDefaultRenderers } from './defaults/register-default-renderers';
 
 export interface FormFactoryOptions {
   schema: FormSchema;
   components?: Record<string, ComponentSpec>;
+  customComponents?: Record<string, ComponentSpec>;
   renderers?: Partial<Record<string, any>>;
+  middlewares?: MiddlewareFn[];
   externalContext?: Record<string, any>;
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
@@ -60,47 +50,147 @@ export interface FormFactoryResult {
 }
 
 export function createFormFactory(options: FormFactoryOptions): FormFactoryResult {
+  // Register default components and renderers
+  registerDefaultComponents();
+  
+  // Validate schema
+  let validation: { valid: boolean; errors?: any[] };
+  try {
+    const validator = createSchemaValidator(formSchemaDefinition as object, { throwOnError: false });
+    validation = validator(options.schema);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    validation = {
+      valid: false,
+      errors: [{ message: `Schema compilation error: ${msg}` }],
+    };
+  }
+  
+  if (!validation.valid) {
+    console.error('Schema validation failed:', validation.errors);
+    const errorDiv = document.createElement('div');
+    errorDiv.style.color = '#dc2626';
+    errorDiv.style.padding = '16px';
+    errorDiv.style.background = '#fee2e2';
+    errorDiv.style.border = '1px solid #fecaca';
+    errorDiv.style.borderRadius = '4px';
+    errorDiv.style.marginBottom = '16px';
+    errorDiv.innerHTML = `
+      <h3 style="margin-top: 0;">Schema Validation Error</h3>
+      <pre style="white-space: pre-wrap; font-size: 13px;">${formatValidationErrors(validation.errors || [])}</pre>
+    `;
+    options.container.appendChild(errorDiv);
+    
+    // Return empty form factory result
+    const emptyAdapter = createVanillaFormAdapter({});
+    return {
+      formAdapter: emptyAdapter,
+      submit: () => {},
+      reset: () => {},
+      getValues: () => ({}),
+      destroy: () => {
+        options.container.innerHTML = '';
+      },
+    };
+  }
+  
+  // Build initial values
+  const defaultValues = options.initialValues || buildInitialValues(options.schema);
+  
+  // Create form adapter
+  const formAdapter = createVanillaFormAdapter(defaultValues);
+  
+  // Register default renderers with adapter
+  registerDefaultRenderers(formAdapter);
+  
   // Get provider config (optional - returns null if no provider)
   const providerConfig = getScheptaContext(options.container);
   
   // Merge: local props > provider config > defaults
-  const mergedComponents = options.components || providerConfig?.components || {};
-  const mergedRenderers = options.renderers || providerConfig?.renderers || {};
-  const mergedMiddlewares = providerConfig?.middlewares || [];
-  const mergedExternalContext = {
-    ...(providerConfig?.externalContext || {}),
-    ...(options.externalContext || {}),
+  const mergedComponents = {
+    ...getFactoryDefaultComponents(),
+    ...(providerConfig?.components || {}),
+    ...(options.components || {}),
+    ...(options.customComponents || {}),
   };
+  const mergedRenderers = {
+    ...getFactoryDefaultRenderers(),
+    ...(providerConfig?.renderers || {}),
+    ...(options.renderers || {}),
+  };
+  // Preserve getters/setters in externalContext using Object.defineProperties
+  const mergedExternalContext: Record<string, any> = {};
+  
+  // Copy provider context first
+  if (providerConfig?.externalContext) {
+    Object.keys(providerConfig.externalContext).forEach(key => {
+      const descriptor = Object.getOwnPropertyDescriptor(providerConfig.externalContext, key);
+      if (descriptor) {
+        Object.defineProperty(mergedExternalContext, key, descriptor);
+      }
+    });
+  }
+  
+  // Then copy options context (overrides provider)
+  if (options.externalContext) {
+    Object.keys(options.externalContext).forEach(key => {
+      const descriptor = Object.getOwnPropertyDescriptor(options.externalContext, key);
+      if (descriptor) {
+        Object.defineProperty(mergedExternalContext, key, descriptor);
+      }
+    });
+  }
+  
+  // Add onSubmit
+  if (options.onSubmit) {
+    mergedExternalContext.onSubmit = options.onSubmit;
+  }
   const mergedDebug = options.debug !== undefined 
     ? options.debug 
     : (providerConfig?.debug?.enabled || false);
   
-  const formAdapter = createVanillaFormAdapter(
-    options.initialValues || buildInitialValues(options.schema)
-  );
+  // Create runtime adapter
   const runtime = createVanillaRuntimeAdapter();
 
   const getFactorySetup = (): FactorySetupResult => {
+    const formValues = formAdapter.getValues();
+    
+    // Debug context
+    const debugContext = mergedDebug ? {
+      isEnabled: true,
+      log: (category: string, message: string, data?: any) => {
+        console.log(`[${category}]`, message, data);
+      },
+      buffer: {
+        add: () => {},
+        clear: () => {},
+        getAll: () => [],
+      },
+    } : undefined;
+    
+    // Create middlewares with template expressions
+    const templateMiddleware = createTemplateExpressionMiddleware({
+      formValues,
+      externalContext: mergedExternalContext,
+      debug: debugContext,
+      formAdapter,
+    });
+    
+    const middlewares = [
+      templateMiddleware,
+      ...(providerConfig?.middlewares || []),
+      ...(options.middlewares || []),
+    ];
+    
     return {
       components: mergedComponents,
+      customComponents: options.customComponents,
       renderers: mergedRenderers,
-      externalContext: {
-        ...mergedExternalContext,
-      },
-      state: formAdapter.getValues(),
-      middlewares: mergedMiddlewares,
+      externalContext: mergedExternalContext,
+      state: formValues,
+      middlewares,
       onSubmit: options.onSubmit ? () => formAdapter.handleSubmit(options.onSubmit!)() : undefined,
-      debug: mergedDebug ? {
-        isEnabled: true,
-        log: (category: string, message: string, data?: any) => {
-          console.log(`[${category}]`, message, data);
-        },
-        buffer: {
-          add: () => {},
-          clear: () => {},
-          getAll: () => [],
-        },
-      } : undefined,
+      debug: debugContext,
       formAdapter,
     };
   };

@@ -310,6 +310,9 @@ importers:
       '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../packages/adapters/react
+      '@schepta/adapter-vanilla':
+        specifier: workspace:*
+        version: link:../packages/adapters/vanilla
       '@schepta/adapter-vue':
         specifier: workspace:*
         version: link:../packages/adapters/vue
@@ -319,6 +322,9 @@ importers:
       '@schepta/factory-react':
         specifier: workspace:*
         version: link:../packages/factories/react
+      '@schepta/factory-vanilla':
+        specifier: workspace:*
+        version: link:../packages/factories/vanilla
       '@schepta/factory-vue':
         specifier: workspace:*
         version: link:../packages/factories/vue

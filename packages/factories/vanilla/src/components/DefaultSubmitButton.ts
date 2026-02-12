@@ -28,7 +28,7 @@ export function createDefaultSubmitButton(props: SubmitButtonProps): HTMLElement
   container.style.textAlign = 'right';
 
   const button = document.createElement('button');
-  button.type = 'button';
+  button.type = 'submit';
   button.textContent = 'Submit';
   button.dataset.testId = 'submit-button';
   button.style.padding = '12px 24px';
@@ -39,7 +39,6 @@ export function createDefaultSubmitButton(props: SubmitButtonProps): HTMLElement
   button.style.cursor = 'pointer';
   button.style.fontSize = '16px';
   button.style.fontWeight = '500';
-  button.addEventListener('click', props.onSubmit);
 
   container.appendChild(button);
   return container;
