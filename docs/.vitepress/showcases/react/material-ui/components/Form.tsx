@@ -21,7 +21,7 @@ export const Form = ({ schema, onSubmit }: FormProps) => {
   return (
     <>
       <Paper
-        elevation={2}
+        elevation={0}
         sx={{ p: 4 }}
       >
         <FormFactory
@@ -32,14 +32,14 @@ export const Form = ({ schema, onSubmit }: FormProps) => {
         />
       </Paper>
       {submittedValues && (
-        <Paper elevation={1} sx={{ mt: 3, p: 2, bgcolor: 'grey.50' }}>
+        <Paper elevation={0} sx={{ mt: 3, p: 2, bgcolor: 'background.default', border: '1px solid var(--schepta-border)', borderRadius: 1 }}>
           <Typography variant="subtitle1" gutterBottom>
             Submitted Values:
           </Typography>
           <Box
             component="pre"
             sx={{
-              bgcolor: 'white',
+              bgcolor: 'background.paper',
               p: 2,
               borderRadius: 1,
               overflow: 'auto',

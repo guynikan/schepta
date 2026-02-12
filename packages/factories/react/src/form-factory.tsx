@@ -28,8 +28,9 @@ import formSchemaDefinition from "../../src/schemas/form-schema.json";
 import { ScheptaFormProvider } from "./context/schepta-form-context";
 import { defaultComponents } from "./defaults/register-default-components";
 import { defaultRenderers } from "./defaults/register-default-renderers";
+import { injectScheptaTokens } from "./schepta-tokens";
 
-// Register factory default components (called once on module load)
+injectScheptaTokens();
 setFactoryDefaultComponents(defaultComponents);
 setFactoryDefaultRenderers(defaultRenderers);
 
@@ -116,13 +117,13 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
         <div
           style={{
             padding: "16px",
-            backgroundColor: "#fff0f0",
-            border: "1px solid #ffcccc",
+            backgroundColor: "var(--schepta-error-bg)",
+            border: "1px solid var(--schepta-error-border)",
             borderRadius: "4px",
             fontFamily: "monospace",
           }}
         >
-          <h3 style={{ color: "#cc0000", margin: "0 0 12px 0" }}>
+          <h3 style={{ color: "var(--schepta-error-text)", margin: "0 0 12px 0" }}>
             Schema Validation Error
           </h3>
           <pre
@@ -130,7 +131,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
               whiteSpace: "pre-wrap",
               fontSize: "12px",
               margin: 0,
-              color: "#660000",
+              color: "var(--schepta-error-text-muted)",
             }}
           >
             {validation.formattedErrors}

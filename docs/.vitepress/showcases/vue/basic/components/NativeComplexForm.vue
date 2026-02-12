@@ -4,12 +4,12 @@
       style="
         margin-bottom: 24px;
         padding: 20px;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        background: var(--schepta-bg-soft);
+        border: 1px solid var(--schepta-border);
         border-radius: 8px;
       "
     >
-      <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px; font-weight: 600">
+      <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px; font-weight: 600; color: var(--schepta-text-1)">
         What you can see in this form:
       </h3>
       <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8">
@@ -57,7 +57,7 @@
     </div>
     <div
       style="
-        border: 1px solid #ddd;
+        border: 1px solid var(--schepta-border);
         padding: 24px;
         border-radius: 8px;
       "
@@ -76,15 +76,15 @@
       style="
         margin-top: 24px;
         padding: 16px;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        background: var(--schepta-bg-soft);
+        border: 1px solid var(--schepta-border);
         border-radius: 8px;
       "
     >
-      <h3 style="margin-top: 0">Submitted Values:</h3>
+      <h3 style="margin-top: 0; color: var(--schepta-text-1)">Submitted Values:</h3>
       <pre
         style="
-          background: white;
+          background: var(--schepta-bg);
           padding: 12px;
           border-radius: 4px;
           overflow: auto;

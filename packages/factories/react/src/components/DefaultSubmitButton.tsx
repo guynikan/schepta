@@ -61,8 +61,8 @@ export const DefaultSubmitButton: React.FC<SubmitButtonProps> = ({ onSubmit, "x-
         data-test-id="submit-button"
         style={{
           padding: '12px 24px',
-          backgroundColor: '#007bff',
-          color: 'white',
+          backgroundColor: 'var(--schepta-brand)',
+          color: 'var(--schepta-brand-text)',
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',

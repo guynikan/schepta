@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 2rem;">
-    <h2 style="color: #1976d2; margin-bottom: 1rem;">Vue + Vuetify - Schepta Forms</h2>
+    <h2 style="color: var(--schepta-brand); margin-bottom: 1rem;">Vue + Vuetify - Schepta Forms</h2>
     
     <v-card>
       <v-tabs v-model="activeTab">

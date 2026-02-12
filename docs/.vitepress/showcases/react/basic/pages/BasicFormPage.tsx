@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Tab, Tabs, Paper } from "@mui/material";
+import React, { useMemo, useState } from "react";
+import { Tab, Tabs, Paper, ThemeProvider, createTheme } from "@mui/material";
 import simpleFormSchema from "../../../../../../instances/form/simple-form.json";
 import complexFormSchema from "../../../../../../instances/form/complex-form.json";
 import { NativeForm } from "../components/Forms/NativeForm";
@@ -9,8 +9,13 @@ import { FormWithRHF } from "../components/Forms/FormWithRHF";
 import { FormWithFormik } from "../components/Forms/FormWithFormik";
 import { FormSchema } from "@schepta/core";
 import { NativeComplexForm } from "../components/Forms/NativeComplexForm";
+import { getToken } from "../../../../utils/getToken";
 
-export function BasicFormPage() {
+interface BasicFormPageProps {
+  isDark?: boolean;
+}
+
+export function BasicFormPage({ isDark = false }: BasicFormPageProps) {
   const [tabValue, setTabValue] = useState(0);
   const simpleSchema = simpleFormSchema as FormSchema;
   const complexSchema = complexFormSchema as FormSchema;
@@ -20,9 +25,26 @@ export function BasicFormPage() {
     setTabValue(newValue);
   };
 
+  const muiTheme = useMemo(() => {
+    return createTheme({
+      palette: {
+        mode: isDark ? "dark" : "light",
+        background: {
+          default: getToken("--schepta-bg", "#ffffff"),
+          paper: getToken("--schepta-bg", "#ffffff"),
+        },
+        text: {
+          primary: getToken("--schepta-text-1", "#333333"),
+          secondary: getToken("--schepta-text-2", "#666666"),
+        },
+        divider: getToken("--schepta-border", "#cccccc"),
+      },
+    });
+  }, [isDark]);
+
   return (
-    <>
-      <Paper elevation={2} sx={{ p: 3 }}>
+    <ThemeProvider theme={muiTheme}>
+      <Paper elevation={0} sx={{ p: 3, border: '1px solid var(--schepta-border)', borderRadius: 2 }}>
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
@@ -54,6 +76,6 @@ export function BasicFormPage() {
           <FormWithFormik schema={simpleSchema} />
         </TabPanel>
       </Paper>
-    </>
+    </ThemeProvider>
   );
 }

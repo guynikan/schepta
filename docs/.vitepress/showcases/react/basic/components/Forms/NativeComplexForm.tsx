@@ -39,7 +39,7 @@ const SocialNameInput = ({ name, schema, externalContext }: SocialNameInputProps
         style={{
           background: 'none',
           border: 'none',
-          color: '#2563eb',
+          color: 'var(--schepta-brand)',
           cursor: 'pointer',
           padding: 0,
           fontSize: '14px',
@@ -63,7 +63,7 @@ const SocialNameInput = ({ name, schema, externalContext }: SocialNameInputProps
               display: 'block',
               width: '100%',
               padding: '8px 12px',
-              border: '1px solid #d1d5db',
+              border: '1px solid var(--schepta-border)',
               borderRadius: '4px',
               fontSize: '14px',
             }}
@@ -114,12 +114,12 @@ export const NativeComplexForm = ({ schema }: FormProps) => {
         style={{
           marginBottom: "24px",
           padding: "20px",
-          background: "#f9fafb",
-          border: "1px solid #e5e7eb",
+          background: "var(--schepta-bg-soft)",
+          border: "1px solid var(--schepta-border)",
           borderRadius: "8px",
         }}
       >
-        <h3 style={{ marginTop: 0, marginBottom: "16px", fontSize: "18px", fontWeight: 600 }}>
+        <h3 style={{ marginTop: 0, marginBottom: "16px", fontSize: "18px", fontWeight: 600, color: "var(--schepta-text-1)" }}>
           What you can see in this form:
         </h3>
         <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "14px", lineHeight: "1.8" }}>
@@ -166,7 +166,7 @@ export const NativeComplexForm = ({ schema }: FormProps) => {
       </div>
       <div
         style={{
-          border: "1px solid #ddd",
+          border: "1px solid var(--schepta-border)",
           padding: "24px",
           borderRadius: "8px",
         }}
@@ -188,15 +188,15 @@ export const NativeComplexForm = ({ schema }: FormProps) => {
           style={{
             marginTop: "24px",
             padding: "16px",
-            background: "#f9fafb",
-            border: "1px solid #e5e7eb",
+            background: "var(--schepta-bg-soft)",
+            border: "1px solid var(--schepta-border)",
             borderRadius: "8px",
           }}
         >
           <h3 style={{ marginTop: 0 }}>Submitted Values:</h3>
           <pre
             style={{
-              background: "white",
+              background: "var(--schepta-bg)",
               padding: "12px",
               borderRadius: "4px",
               overflow: "auto",

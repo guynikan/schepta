@@ -1,7 +1,7 @@
 <template>
   <div
     style="
-      border: 1px solid #ddd;
+      border: 1px solid var(--schepta-border);
       padding: 24px;
       border-radius: 8px;
     "
@@ -17,15 +17,15 @@
       style="
         margin-top: 24px;
         padding: 16px;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        background: var(--schepta-bg-soft);
+        border: 1px solid var(--schepta-border);
         border-radius: 8px;
       "
     >
       <h3 style="margin-top: 0">Submitted Values:</h3>
       <pre
         style="
-          background: white;
+          background: var(--schepta-bg);
           padding: 12px;
           border-radius: 4px;
           overflow: auto;

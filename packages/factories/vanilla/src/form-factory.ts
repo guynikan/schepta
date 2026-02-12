@@ -18,6 +18,7 @@ import formSchemaDefinition from '../../src/schemas/form-schema.json';
 import { renderForm } from './form-renderer';
 import { registerDefaultComponents } from './defaults/register-default-components';
 import { createDefaultRenderers } from './defaults/register-default-renderers';
+import { injectScheptaTokens } from './schepta-tokens';
 
 export interface FormFactoryOptions {
   schema: FormSchema;
@@ -49,6 +50,8 @@ export interface FormFactoryResult {
 }
 
 export function createFormFactory(options: FormFactoryOptions): FormFactoryResult {
+  injectScheptaTokens();
+
   // Register default components and renderers
   registerDefaultComponents();
   
@@ -68,10 +71,10 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
   if (!validation.valid) {
     console.error('Schema validation failed:', validation.errors);
     const errorDiv = document.createElement('div');
-    errorDiv.style.color = '#dc2626';
+    errorDiv.style.color = 'var(--schepta-error-text)';
     errorDiv.style.padding = '16px';
-    errorDiv.style.background = '#fee2e2';
-    errorDiv.style.border = '1px solid #fecaca';
+    errorDiv.style.background = 'var(--schepta-error-bg)';
+    errorDiv.style.border = '1px solid var(--schepta-error-border)';
     errorDiv.style.borderRadius = '4px';
     errorDiv.style.marginBottom = '16px';
     errorDiv.innerHTML = `

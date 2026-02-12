@@ -1,9 +1,14 @@
 import { FormSchema } from "@schepta/core";
 import simpleFormSchema from "../../../../../../instances/form/simple-form.json";
 import complexFormSchema from "../../../../../../instances/form/complex-form.json";
-import { Paper, Box, Tabs, Tab } from "@mui/material";
-import React, { useState } from "react";
+import { Paper, Box, Tabs, Tab, ThemeProvider, createTheme } from "@mui/material";
+import React, { useMemo, useState } from "react";
 import { Form } from "../components/Form";
+import { getToken } from "../../../../utils/getToken";
+
+interface MaterialFormPageProps {
+  isDark?: boolean;
+}
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -26,7 +31,7 @@ export function TabPanel(props: TabPanelProps) {
   );
 }
 
-export function MaterialFormPage() {
+export function MaterialFormPage({ isDark = false }: MaterialFormPageProps) {
   const [tabValue, setTabValue] = useState(0);
   const simpleSchema = simpleFormSchema as FormSchema;
   const complexSchema = complexFormSchema as FormSchema;
@@ -35,11 +40,32 @@ export function MaterialFormPage() {
     setTabValue(newValue);
   };
 
+  const muiTheme = useMemo(() => {
+    return createTheme({
+      palette: {
+        mode: isDark ? "dark" : "light",
+        background: {
+          default: getToken("--schepta-bg", "#ffffff"),
+          paper: getToken("--schepta-bg", "#ffffff"),
+        },
+        text: {
+          primary: getToken("--schepta-text-1", "#333333"),
+          secondary: getToken("--schepta-text-2", "#666666"),
+        },
+        divider: getToken("--schepta-border", "#cccccc"),
+      },
+    });
+  }, [isDark]);
+
   return (
-    <>
+    <ThemeProvider theme={muiTheme}>
       <Paper
-        elevation={2}
-        sx={{ p: 3 }}
+        elevation={0}
+        sx={{
+          p: 3,
+          border: "1px solid var(--schepta-border)",
+          borderRadius: 2,
+        }}
       >
         <Tabs
           value={tabValue}
@@ -62,6 +88,6 @@ export function MaterialFormPage() {
           <Form schema={complexSchema} />
         </TabPanel>
       </Paper>
-    </>
+    </ThemeProvider>
   );
 }

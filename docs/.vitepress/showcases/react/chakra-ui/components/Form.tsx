@@ -36,7 +36,7 @@ export const Form = ({ schema, onSubmit }: FormProps) => {
         <Box
           mt={6}
           p={4}
-          bg="gray.50"
+          bg="chakra-subtle-bg"
           borderWidth="1px"
           borderRadius="lg"
         >

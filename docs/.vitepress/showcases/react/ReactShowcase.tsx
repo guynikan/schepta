@@ -1,29 +1,51 @@
-import React from 'react';
-import { ScheptaProvider } from '@schepta/adapter-react';
-import { BasicFormPage } from './basic/pages/BasicFormPage';
-import { MaterialFormPage } from './material-ui/pages/MaterialFormPage';
-import { ChakraFormPage } from './chakra-ui/pages/ChakraFormPage';
-import simpleFormSchema from '../../../../instances/form/simple-form.json';
-import { FormSchema } from '@schepta/core';
+import React, { useMemo } from "react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ScheptaProvider } from "@schepta/adapter-react";
+import { BasicFormPage } from "./basic/pages/BasicFormPage";
+import { MaterialFormPage } from "./material-ui/pages/MaterialFormPage";
+import { ChakraFormPage } from "./chakra-ui/pages/ChakraFormPage";
+import simpleFormSchema from "../../../../instances/form/simple-form.json";
+import { FormSchema } from "@schepta/core";
+import { getToken } from "../../utils/getToken";
+import { components } from "./basic/components/ComponentRegistry";
 
 interface ReactShowcaseProps {
-  variant?: 'basic' | 'material-ui' | 'chakra-ui';
+  variant?: "basic" | "material-ui" | "chakra-ui";
+  isDark?: boolean;
 }
 
-export function ReactShowcase({ variant = 'basic' }: ReactShowcaseProps) {
-  const components = {
-    basic: BasicFormPage,
-    'material-ui': MaterialFormPage,
-    'chakra-ui': ChakraFormPage,
+export function ReactShowcase({
+  variant = "basic",
+  isDark = false,
+}: ReactShowcaseProps) {
+  const labelMiddleware = (props: any) => {
+    if (props.label) {
+      return { ...props, label: `[Provider] ${props.label}` };
+    }
+    return props;
   };
 
-  const Component = components[variant];
+  const content = (() => {
+    switch (variant) {
+      case "chakra-ui":
+        return <ChakraFormPage isDark={isDark} />;
+      case "material-ui":
+        return <MaterialFormPage isDark={isDark} />;
+      default:
+        return <BasicFormPage isDark={isDark} />;
+    }
+  })();
 
   return (
-    <ScheptaProvider schema={simpleFormSchema as FormSchema}>
-      <div className="react-showcase">
-        <Component />
-      </div>
+    <ScheptaProvider
+      components={components}
+      middlewares={[labelMiddleware]}
+      externalContext={{
+        user: { id: 1, name: "Provider User" },
+        api: "https://api.example.com",
+      }}
+    >
+      {content}
     </ScheptaProvider>
   );
 }

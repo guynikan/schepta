@@ -79,8 +79,8 @@ export const RHFFormContainer: React.FC<FormContainerProps> = ({
                   data-test-id="submit-button"
                   style={{
                     padding: '12px 24px',
-                    backgroundColor: '#007bff',
-                    color: 'white',
+                    backgroundColor: 'var(--schepta-brand)',
+                    color: '#fff',
                     border: 'none',
                     borderRadius: '4px',
                     cursor: 'pointer',

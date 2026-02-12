@@ -58,7 +58,7 @@ const onInput = (e: Event) => {
 const buttonStyle = {
   background: 'none',
   border: 'none',
-  color: '#2563eb',
+  color: 'var(--schepta-brand)',
   cursor: 'pointer',
   padding: 0,
   fontSize: '14px',
@@ -76,7 +76,7 @@ const inputStyle = {
   display: 'block',
   width: '100%',
   padding: '8px 12px',
-  border: '1px solid #d1d5db',
+  border: '1px solid var(--schepta-border)',
   borderRadius: '4px',
   fontSize: '14px',
 };

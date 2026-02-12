@@ -37,8 +37,8 @@ export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
         onClick={() => setIsOpen(true)}
         style={{
           padding: '12px 24px',
-          backgroundColor: '#6366f1',
-          color: 'white',
+          backgroundColor: 'var(--schepta-brand)',
+          color: '#fff',
           border: 'none',
           borderRadius: '6px',
           cursor: 'pointer',
@@ -70,7 +70,7 @@ export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: 'var(--schepta-bg)',
               borderRadius: '12px',
               width: '100%',
               maxWidth: '500px',
@@ -84,7 +84,7 @@ export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
             <div
               style={{
                 padding: '16px 24px',
-                borderBottom: '1px solid #e5e7eb',
+                borderBottom: '1px solid var(--schepta-border)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -100,7 +100,7 @@ export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
                   border: 'none',
                   fontSize: '24px',
                   cursor: 'pointer',
-                  color: '#6b7280',
+                  color: 'var(--schepta-text-2)',
                 }}
               >
                 ×
@@ -121,7 +121,7 @@ export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
             <div
               style={{
                 padding: '16px 24px',
-                borderTop: '1px solid #e5e7eb',
+                borderTop: '1px solid var(--schepta-border)',
                 display: 'flex',
                 justifyContent: 'flex-end',
                 gap: '12px',
@@ -131,9 +131,9 @@ export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
                 onClick={() => setIsOpen(false)}
                 style={{
                   padding: '10px 20px',
-                  backgroundColor: 'white',
-                  color: '#374151',
-                  border: '1px solid #d1d5db',
+                  backgroundColor: 'var(--schepta-bg)',
+                  color: 'var(--schepta-text-1)',
+                  border: '1px solid var(--schepta-border)',
                   borderRadius: '6px',
                   cursor: 'pointer',
                   fontSize: '14px',
@@ -147,8 +147,8 @@ export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
                 data-test-id="external-submit-button"
                 style={{
                   padding: '10px 20px',
-                  backgroundColor: '#007bff',
-                  color: 'white',
+                  backgroundColor: 'var(--schepta-brand)',
+                  color: '#fff',
                   border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
@@ -168,13 +168,13 @@ export const ModalForm = ({ schema, onSubmit }: FormModalProps) => {
         <div style={{
           marginTop: '24px',
           padding: '16px',
-          background: '#f9fafb',
-          border: '1px solid #e5e7eb',
+          background: 'var(--schepta-bg-soft)',
+          border: '1px solid var(--schepta-border)',
           borderRadius: '8px',
         }}>
           <h3 style={{ marginTop: 0 }}>Submitted Values:</h3>
           <pre style={{
-            background: 'white',
+            background: 'var(--schepta-bg)',
             padding: '12px',
             borderRadius: '4px',
             overflow: 'auto',

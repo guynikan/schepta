@@ -14,7 +14,7 @@ export interface InputAutocompleteOption {
 const inputStyle = {
   width: '100%',
   padding: '8px',
-  border: '1px solid #ccc',
+  border: '1px solid var(--schepta-border)',
   borderRadius: '4px',
 };
 

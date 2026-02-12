@@ -82,8 +82,8 @@ export const FormikFormContainer: React.FC<FormContainerProps> = ({
                 data-test-id="submit-button"
                 style={{
                   padding: "12px 24px",
-                  backgroundColor: isSubmitting ? "#6c757d" : "#28a745",
-                  color: "white",
+                  backgroundColor: isSubmitting ? "var(--schepta-text-2)" : "var(--schepta-brand)",
+                  color: "#fff",
                   border: "none",
                   borderRadius: "4px",
                   cursor: isSubmitting ? "not-allowed" : "pointer",

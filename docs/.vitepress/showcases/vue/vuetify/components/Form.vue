@@ -6,9 +6,9 @@
       @submit="handleSubmit"
     />
 
-    <div v-if="submittedValues" style="margin-top: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 4px;">
-      <h3 style="margin-bottom: 0.5rem; color: #1976d2;">Submitted Values:</h3>
-      <pre style="background: white; padding: 1rem; border-radius: 4px; overflow: auto;">{{ JSON.stringify(submittedValues, null, 2) }}</pre>
+    <div v-if="submittedValues" style="margin-top: 2rem; padding: 1rem; background: var(--schepta-bg-soft); border: 1px solid var(--schepta-border); border-radius: 4px;">
+      <h3 style="margin-bottom: 0.5rem; color: var(--schepta-brand);">Submitted Values:</h3>
+      <pre style="background: var(--schepta-bg); color: var(--schepta-text-1); padding: 1rem; border-radius: 4px; overflow: auto;">{{ JSON.stringify(submittedValues, null, 2) }}</pre>
     </div>
   </div>
 </template>

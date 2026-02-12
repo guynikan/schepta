@@ -28,7 +28,7 @@ export function createSocialNameInput(props: SocialNameInputProps): HTMLElement 
   toggleBtn.setAttribute('data-test-id', 'social-name-toggle');
   toggleBtn.style.background = 'none';
   toggleBtn.style.border = 'none';
-  toggleBtn.style.color = '#2563eb';
+  toggleBtn.style.color = 'var(--schepta-brand)';
   toggleBtn.style.cursor = 'pointer';
   toggleBtn.style.padding = '0';
   toggleBtn.style.fontSize = '14px';
@@ -65,7 +65,7 @@ export function createSocialNameInput(props: SocialNameInputProps): HTMLElement 
   input.style.display = 'block';
   input.style.width = '100%';
   input.style.padding = '8px 12px';
-  input.style.border = '1px solid #d1d5db';
+  input.style.border = '1px solid var(--schepta-border)';
   input.style.borderRadius = '4px';
   input.style.fontSize = '14px';
   

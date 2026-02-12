@@ -39,7 +39,7 @@ export function createInputDate(props: InputDateProps): HTMLElement {
   
   input.style.width = '100%';
   input.style.padding = '8px';
-  input.style.border = '1px solid #ccc';
+  input.style.border = '1px solid var(--schepta-border)';
   input.style.borderRadius = '4px';
   input.style.fontSize = '14px';
   

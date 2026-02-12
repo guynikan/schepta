@@ -10,9 +10,9 @@ export function createFormSectionContainer(props: FormSectionContainerProps): HT
   const wrapper = document.createElement('div');
   wrapper.style.marginBottom = '24px';
   wrapper.style.padding = '20px';
-  wrapper.style.border = '1px solid #e5e7eb';
+  wrapper.style.border = '1px solid var(--schepta-border)';
   wrapper.style.borderRadius = '8px';
-  wrapper.style.background = '#fff';
+  wrapper.style.background = 'var(--schepta-bg)';
   
   // Render children
   if (props.children) {

@@ -52,7 +52,7 @@ export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
     <>
       <div
         style={{
-          border: '1px solid #ddd',
+          border: '1px solid var(--schepta-border)',
           padding: '24px',
           borderRadius: '8px',
         }}
@@ -60,7 +60,7 @@ export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
         <div style={{ 
           marginBottom: '16px', 
           padding: '8px 12px', 
-          backgroundColor: '#e7f3ff', 
+          backgroundColor: 'var(--schepta-bg-soft)', 
           borderRadius: '4px',
           fontSize: '14px',
         }}>
@@ -79,13 +79,13 @@ export const FormWithRHF: React.FC<FormWithRHFProps> = ({ schema }) => {
         <div style={{
           marginTop: '24px',
           padding: '16px',
-          background: '#f9fafb',
-          border: '1px solid #e5e7eb',
+          background: 'var(--schepta-bg-soft)',
+          border: '1px solid var(--schepta-border)',
           borderRadius: '8px',
         }}>
           <h3 style={{ marginTop: 0 }}>Submitted Values (RHF):</h3>
           <pre style={{
-            background: 'white',
+            background: 'var(--schepta-bg)',
             padding: '12px',
             borderRadius: '4px',
             overflow: 'auto',

@@ -8,8 +8,8 @@ export function createSubmitButton(props: SubmitButtonProps): HTMLElement {
   button.textContent = 'Submit';
   button.dataset.testId = 'submit-button-complex-form';
   button.style.padding = '12px 24px';
-  button.style.backgroundColor = '#007bff';
-  button.style.color = 'white';
+  button.style.backgroundColor = 'var(--schepta-brand)';
+  button.style.color = 'var(--schepta-brand-text)';
   button.style.border = 'none';
   button.style.borderRadius = '4px';
   button.style.cursor = 'pointer';
