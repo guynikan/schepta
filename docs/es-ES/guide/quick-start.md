@@ -21,10 +21,9 @@ pnpm add @schepta/core
 
 # Instalar adaptador y factory de React (para proyectos React)
 pnpm add @schepta/adapter-react @schepta/factory-react
-
-# Instalar React Hook Form (requerido para formularios)
-pnpm add react-hook-form
 ```
+
+FormFactory usa estado nativo de React por defecto, así que **no se requiere ninguna biblioteca de formularios** para tu primer formulario. Para integrar con React Hook Form o Formik más adelante, consulta el [Showcase React](/es-ES/showcases/react).
 
 ## Configuración del Provider
 
@@ -56,7 +55,9 @@ function App() {
 
 | Prop | Tipo | Descripción |
 |------|------|-------------|
-| `components` | `Record<string, ComponentSpec>` | Registro global de componentes |
+| `components` | `Record<string, ComponentSpec>` | Registro global de componentes (opcional) |
+| `customComponents` | `Record<string, ComponentSpec>` | Componentes customizados por clave del schema (opcional) |
+| `renderers` | `Partial<Record<ComponentType, RendererFn>>` | Renderers customizados por tipo de componente (opcional) |
 | `middlewares` | `Middleware[]` | Pila global de middleware |
 | `externalContext` | `object` | Contexto compartido (usuario, API, etc.) |
 | `debug` | `object` | Configuración de depuración |
@@ -70,9 +71,9 @@ Los componentes deben registrarse usando `createComponentSpec` antes de poder us
 schepta soporta varios tipos de componentes:
 
 - **`field`** - Campos de entrada (texto, select, checkbox, etc.)
-- **`container`** - Componentes contenedores (FormField, FormSection, etc.)
-- **`content`** - Componentes de contenido (títulos, botones, etc.)
-- **`FormContainer`** - Contenedor raíz del formulario
+- **`container`** - Componentes contenedores (FormField, FormSection, FormContainer, etc.)
+- **`content`** - Componentes de contenido (títulos, etc.)
+- **`button`** - Componentes de botón (ej. SubmitButton)
 
 ### Creando Especificaciones de Componentes
 
@@ -102,7 +103,7 @@ const components = {
   InputText: createComponentSpec({
     id: 'InputText',
     type: 'field',
-    factory: (props, runtime) => InputText,
+    component: (props, runtime) => InputText,
   }),
 };
 ```
@@ -112,7 +113,7 @@ const components = {
 ```tsx
 import { createComponentSpec } from '@schepta/core';
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useScheptaFormAdapter } from '@schepta/factory-react';
 
 // Define tus componentes
 const InputText = React.forwardRef<HTMLInputElement, any>((props, ref) => {
@@ -144,67 +145,118 @@ const FormSectionTitle = ({ 'x-content': content, ...props }: any) => {
   return <h2 {...props}>{content}</h2>;
 };
 
+const FormSectionGroup = ({ children, ...props }: any) => {
+  return <div style={{ display: 'grid', gap: '16px' }} {...props}>{children}</div>;
+};
+
+const FormSectionGroupContainer = ({ children, ...props }: any) => {
+  return <div {...props}>{children}</div>;
+};
+
 const SubmitButton = ({ 'x-content': content, ...props }: any) => {
-  const { handleSubmit } = useFormContext();
   return (
-    <button
-      type="button"
-      onClick={() => handleSubmit(props.onSubmit)()}
-      {...props}
-    >
-      {content || 'Submit'}
+    <button type="submit" {...props}>
+      {content || 'Enviar'}
     </button>
   );
 };
 
-const FormContainer = ({ children, ...props }: any) => {
-  return <form {...props}>{children}</form>;
+const FormContainer = ({ children, onSubmit, ...props }: any) => {
+  const adapter = useScheptaFormAdapter();
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSubmit) adapter.handleSubmit(onSubmit)();
+  };
+  return (
+    <form onSubmit={handleFormSubmit} {...props}>
+      {children}
+    </form>
+  );
 };
 
 // Registrar todos los componentes usando createComponentSpec
 export const globalComponents = {
-  'FormContainer': createComponentSpec({
+  FormContainer: createComponentSpec({
     id: 'FormContainer',
-    type: 'FormContainer',
-    factory: (props, runtime) => FormContainer,
+    type: 'container',
+    component: (props, runtime) => FormContainer,
   }),
   InputText: createComponentSpec({
     id: 'InputText',
     type: 'field',
-    factory: (props, runtime) => InputText,
+    component: (props, runtime) => InputText,
   }),
   FormField: createComponentSpec({
     id: 'FormField',
     type: 'container',
-    factory: (props, runtime) => FormField,
+    component: (props, runtime) => FormField,
   }),
   FormSectionContainer: createComponentSpec({
     id: 'FormSectionContainer',
     type: 'container',
-    factory: (props, runtime) => FormSectionContainer,
+    component: (props, runtime) => FormSectionContainer,
   }),
   FormSectionTitle: createComponentSpec({
     id: 'FormSectionTitle',
     type: 'content',
-    factory: (props, runtime) => FormSectionTitle,
+    component: (props, runtime) => FormSectionTitle,
+  }),
+  FormSectionGroup: createComponentSpec({
+    id: 'FormSectionGroup',
+    type: 'container',
+    component: (props, runtime) => FormSectionGroup,
+  }),
+  FormSectionGroupContainer: createComponentSpec({
+    id: 'FormSectionGroupContainer',
+    type: 'container',
+    component: (props, runtime) => FormSectionGroupContainer,
   }),
   SubmitButton: createComponentSpec({
     id: 'SubmitButton',
-    type: 'content',
-    factory: (props, runtime) => SubmitButton,
+    type: 'button',
+    component: (props, runtime) => SubmitButton,
   }),
 };
 ```
 
 ## Tu Primer Formulario
 
-Ahora vamos a crear un ejemplo completo combinando todo:
+Ahora vamos a crear un ejemplo completo combinando todo.
+
+### Ejemplo Mínimo (Usando los Valores por Defecto)
+
+FormFactory incluye componentes integrados, así que puedes renderizar un formulario solo con un schema y `onSubmit`—sin registro customizado:
+
+```tsx
+import React from 'react';
+import { ScheptaProvider } from '@schepta/adapter-react';
+import { FormFactory } from '@schepta/factory-react';
+import formSchema from './form-schema.json';
+
+function App() {
+  const handleSubmit = (values: any) => {
+    console.log('Form submitted:', values);
+  };
+
+  return (
+    <ScheptaProvider>
+      <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+        <h1>Mi Primer Formulario schepta</h1>
+        <FormFactory schema={formSchema} onSubmit={handleSubmit} />
+      </div>
+    </ScheptaProvider>
+  );
+}
+
+export default App;
+```
 
 ### 1. Define tu Schema
 
+Puedes usar `x-component-props` o `x-ui` para etiquetas y placeholders de los campos. La propiedad `$schema` es opcional (útil para validación en el IDE dentro del monorepo).
+
 ```json
 {
-  "$schema": "../../packages/factories/src/schemas/form-schema.json",
   "$id": "my-first-form",
   "type": "object",
   "x-component": "FormContainer",
@@ -233,7 +285,7 @@ Ahora vamos a crear un ejemplo completo combinando todo:
                     "firstName": {
                       "type": "string",
                       "x-component": "InputText",
-                      "x-ui": {
+                      "x-component-props": {
                         "label": "First Name",
                         "placeholder": "Enter your first name"
                       },
@@ -258,7 +310,7 @@ Ahora vamos a crear un ejemplo completo combinando todo:
 }
 ```
 
-### 2. Ejemplo Completo de React
+### 2. Ejemplo Completo de React (Con Componentes Customizados)
 
 ```tsx
 import React from 'react';
@@ -313,5 +365,5 @@ Aprende los conceptos fundamentales que impulsan schepta:
 
 ## Recursos
 
+- [Showcase React](/es-ES/showcases/react) - Ejemplos con React Hook Form y Formik
 - [Repositorio GitHub](https://github.com/guynikan/schepta)
-
