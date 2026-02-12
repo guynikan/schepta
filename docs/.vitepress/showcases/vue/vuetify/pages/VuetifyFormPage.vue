@@ -1,7 +1,5 @@
 <template>
-  <div style="padding: 2rem;">
-    <h2 style="color: var(--schepta-brand); margin-bottom: 1rem;">Vue + Vuetify - Schepta Forms</h2>
-    
+  <div style="background: var(--schepta-bg); border-radius: 8px; margin: 1rem 0;border: 1px solid var(--schepta-border);">
     <v-card>
       <v-tabs v-model="activeTab">
         <v-tab value="simple">SIMPLE FORM</v-tab>
