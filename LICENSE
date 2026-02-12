@@ -1,0 +1,69 @@
+Schepta Non-Commercial License (SNCL)
+
+Copyright (c) 2024-present Schepta Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, merge, publish, and distribute copies of the Software, subject
+to the following conditions:
+
+NON-COMMERCIAL USE ONLY
+
+The Software may be used, copied, modified, merged, published, and distributed
+free of charge for:
+
+1. Personal projects
+2. Educational purposes
+3. Research and academic projects
+4. Non-profit organizations
+5. Evaluation and testing purposes
+6. Open-source projects (provided they also comply with this license)
+
+COMMERCIAL USE RESTRICTIONS
+
+Commercial use of the Software is PROHIBITED without obtaining a separate
+commercial license. "Commercial use" includes, but is not limited to:
+
+1. Using the Software in any application, product, or service that generates
+   revenue, directly or indirectly
+2. Using the Software in any business operation or commercial entity
+3. Using the Software to provide paid services or products to third parties
+4. Incorporating the Software into proprietary software that is sold or
+   licensed for a fee
+5. Using the Software in any for-profit organization or commercial venture
+
+COMMERCIAL LICENSE
+
+For commercial use, please contact the copyright holders to obtain a
+commercial license. Commercial licenses are available for:
+
+- Individual commercial projects
+- Enterprise licenses
+- OEM and redistribution rights
+
+Contact: https://github.com/guynikan/schepta
+
+ATTRIBUTION
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+WARRANTY DISCLAIMER
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+TERMINATION
+
+This license automatically terminates if you violate any of its terms. Upon
+termination, you must cease all use of the Software and destroy all copies.
+
+GOVERNING LAW
+
+This license shall be governed by and construed in accordance with the laws
+applicable in the jurisdiction of the copyright holders.
