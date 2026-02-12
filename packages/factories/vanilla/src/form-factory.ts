@@ -12,13 +12,12 @@ import {
   createSchemaValidator,
   formatValidationErrors,
   getFactoryDefaultComponents,
-  getFactoryDefaultRenderers,
 } from '@schepta/core';
 import { buildInitialValues } from '@schepta/core';
 import formSchemaDefinition from '../../src/schemas/form-schema.json';
 import { renderForm } from './form-renderer';
 import { registerDefaultComponents } from './defaults/register-default-components';
-import { registerDefaultRenderers } from './defaults/register-default-renderers';
+import { createDefaultRenderers } from './defaults/register-default-renderers';
 
 export interface FormFactoryOptions {
   schema: FormSchema;
@@ -100,8 +99,8 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
   // Create form adapter
   const formAdapter = createVanillaFormAdapter(defaultValues);
   
-  // Register default renderers with adapter
-  registerDefaultRenderers(formAdapter);
+  // Create default renderers with adapter
+  const defaultRenderers = createDefaultRenderers(formAdapter);
   
   // Get provider config (optional - returns null if no provider)
   const providerConfig = getScheptaContext(options.container);
@@ -114,7 +113,7 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
     ...(options.customComponents || {}),
   };
   const mergedRenderers = {
-    ...getFactoryDefaultRenderers(),
+    ...defaultRenderers,
     ...(providerConfig?.renderers || {}),
     ...(options.renderers || {}),
   };

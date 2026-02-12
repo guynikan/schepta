@@ -4,8 +4,8 @@ import complexFormSchema from '../../instances/form/complex-form.json';
 import { extractFieldsFromSchema, FormSchema } from '@schepta/core';
 
 test.describe('Vue Form Factory', () => {
-  test.beforeEach(async ({ page, baseURL }) => {
-    await page.goto(`${baseURL}vue`);
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:3000/vue');
   });
 
   test('should render simple form', async ({ page }) => {
