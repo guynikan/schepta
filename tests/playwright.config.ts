@@ -18,13 +18,18 @@ export default defineConfig({
   // Output folders for test artifacts
   outputDir: '../test-results',
   snapshotDir: '../test-screenshots',
+  webServer: {
+    command: 'cd ../docs && pnpm dev',
+    port: 5173,
+    reuseExistingServer: true,
+  },
   projects: [
     {
       name: 'react',
       testMatch: '**/*react.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'https://show.schepta.org/react',
+        baseURL: 'http://localhost:5173/en-US/showcases/react',
       },
     },
     {
@@ -32,7 +37,7 @@ export default defineConfig({
       testMatch: '**/*vue.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'https://show.schepta.org/vue',
+        baseURL: 'http://localhost:5173/en-US/showcases/vue',
       },
     },
     {
@@ -40,7 +45,7 @@ export default defineConfig({
       testMatch: '**/*vanilla.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'https://show.schepta.org/vanilla',
+        baseURL: 'http://localhost:5173/en-US/showcases/vanilla',
       },
     },
   ],

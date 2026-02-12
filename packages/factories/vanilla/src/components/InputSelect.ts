@@ -43,7 +43,7 @@ export function createInputSelect(props: InputSelectProps): HTMLElement {
   
   select.style.width = '100%';
   select.style.padding = '8px';
-  select.style.border = '1px solid #ccc';
+  select.style.border = '1px solid var(--schepta-border)';
   select.style.borderRadius = '4px';
   select.style.fontSize = '14px';
   

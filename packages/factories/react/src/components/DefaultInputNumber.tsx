@@ -38,7 +38,7 @@ export type InputNumberComponentType = React.ComponentType<InputNumberProps>;
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '8px',
-  border: '1px solid #ccc',
+  border: '1px solid var(--schepta-border)',
   borderRadius: '4px',
 };
 

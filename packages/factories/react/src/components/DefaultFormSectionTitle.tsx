@@ -4,7 +4,7 @@
  * Section title (x-content). Can be overridden via createComponentSpec.
  */
 
-import React from 'react';
+import React from "react";
 
 /**
  * Props passed to the FormSectionTitle component.
@@ -13,11 +13,11 @@ import React from 'react';
 export interface FormSectionTitleProps
   extends React.HTMLAttributes<HTMLHeadingElement> {
   /** Title content (from schema x-content) */
-  'x-content'?: string;
+  "x-content"?: string;
   /** Optional children (alternative to x-content) */
   children?: React.ReactNode;
   /** Test ID for the form section title */
-  'data-test-id'?: string;
+  "data-test-id"?: string;
   externalContext?: Record<string, any>;
   "x-component-props"?: Record<string, any>;
   "x-ui"?: Record<string, any>;
@@ -34,7 +34,7 @@ export type FormSectionTitleComponentType =
  * Default form section title component.
  */
 export const DefaultFormSectionTitle: React.FC<FormSectionTitleProps> = ({
-  'x-content': content,
+  "x-content": content,
   children,
   externalContext,
   "x-component-props": xComponentProps,
@@ -42,7 +42,17 @@ export const DefaultFormSectionTitle: React.FC<FormSectionTitleProps> = ({
   ...props
 }) => {
   return (
-    <h2 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: '600', color: '#333', ...props.style }} {...xComponentProps} {...props}>
+    <h2
+      style={{
+        marginBottom: "16px",
+        fontSize: "20px",
+        fontWeight: "600",
+        color: "var(--schepta-text-1)",
+        ...props.style,
+      }}
+      {...xComponentProps}
+      {...props}
+    >
       {content ?? children}
     </h2>
   );

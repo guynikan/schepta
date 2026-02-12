@@ -21,3 +21,15 @@
   background-repeat: no-repeat;
   background-position: top center;
 }
+
+/* ─── Schepta tokens → VitePress theme mapping ─── */
+
+:root {
+  --schepta-bg: var(--vp-c-bg);
+  --schepta-bg-soft: var(--vp-c-bg-soft);
+  --schepta-text-1: var(--vp-c-text-1);
+  --schepta-text-2: var(--vp-c-text-2);
+  --schepta-border: var(--vp-c-divider);
+  --schepta-brand: var(--vp-c-brand-1);
+  --schepta-brand-text: #ffffff;
+}

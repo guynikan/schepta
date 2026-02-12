@@ -40,7 +40,7 @@ export function createInputTextarea(props: InputTextareaProps): HTMLElement {
   
   textarea.style.width = '100%';
   textarea.style.padding = '8px';
-  textarea.style.border = '1px solid #ccc';
+  textarea.style.border = '1px solid var(--schepta-border)';
   textarea.style.borderRadius = '4px';
   textarea.style.fontSize = '14px';
   textarea.style.fontFamily = 'inherit';

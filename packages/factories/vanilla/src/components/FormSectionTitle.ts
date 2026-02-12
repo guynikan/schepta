@@ -14,7 +14,7 @@ export function createFormSectionTitle(props: FormSectionTitleProps): HTMLElemen
   heading.style.fontWeight = '600';
   heading.style.marginTop = '0';
   heading.style.marginBottom = '16px';
-  heading.style.color = '#111827';
+  heading.style.color = 'var(--schepta-text-1)';
   
   return heading;
 }

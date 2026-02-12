@@ -359,19 +359,20 @@ schepta/
 │       ├── react/              # React form factory
 │       ├── vue/                # Vue form factory
 │       └── vanilla/            # Vanilla JS form factory
-├── showcases/                   # Example applications
-│   ├── src/
-│   │   ├── frameworks/         # React & Vue showcases
-│   │   │   ├── react/         # React examples (basic, MUI, Chakra, RHF, Formik)
-│   │   │   └── vue/           # Vue examples (basic, Vuetify)
-│   │   └── vanilla/           # Vanilla JS examples
-│   └── public/                # Static assets
 ├── tests/                      # E2E tests with Playwright
 │   ├── e2e/                   # Test specs
 │   └── playwright.config.ts   # Playwright configuration
 ├── instances/                  # Shared schema instances
 │   └── form/                  # Form schemas
 ├── docs/                       # Documentation site (VitePress)
+│   ├── .vitepress/
+│   │   └── showcases/         # Interactive showcases (React, Vue, Vanilla)
+│   │       ├── react/         # React examples (basic, MUI, Chakra, RHF, Formik)
+│   │       ├── vue/           # Vue examples (basic, Vuetify)
+│   │       └── vanilla/       # Vanilla JS examples
+│   ├── en-US/showcases/       # Showcase pages (English)
+│   ├── pt-BR/showcases/       # Showcase pages (Portuguese)
+│   └── es-ES/showcases/       # Showcase pages (Spanish)
 └── scripts/                    # Build and publish scripts
 ```
 

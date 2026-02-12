@@ -20,7 +20,7 @@ export const DefaultFormSectionTitle = defineComponent({
             marginBottom: '16px',
             fontSize: '20px',
             fontWeight: '600',
-            color: '#333',
+            color: 'var(--schepta-text-1)',
           },
         },
         props['x-content'] ?? slots.default?.()
