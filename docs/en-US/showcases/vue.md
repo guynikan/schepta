@@ -16,8 +16,6 @@ Explore different tabs to see:
 - **Simple Form**: Basic form with native Vue components
 - **Complex Form**: Advanced form with conditional fields and validation
 
-> For Vuetify UI integration, check the [Vuetify showcase](./vuetify) in the sidebar.
-
 <ClientOnly>
   <VueShowcase variant="basic" />
 </ClientOnly>

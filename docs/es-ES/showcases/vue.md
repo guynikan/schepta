@@ -16,8 +16,6 @@ Explora las diferentes pestañas para ver:
 - **Formulario Simple**: Formulario básico con componentes Vue nativos
 - **Formulario Complejo**: Formulario avanzado con campos condicionales y validación
 
-> Para la integración con Vuetify UI, consulta el [showcase de Vuetify](./vuetify) en el menú lateral.
-
 <ClientOnly>
   <VueShowcase variant="basic" />
 </ClientOnly>

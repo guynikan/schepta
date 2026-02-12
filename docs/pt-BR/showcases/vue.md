@@ -16,8 +16,6 @@ Explore as diferentes abas para ver:
 - **Formulário Simples**: Formulário básico com componentes Vue nativos
 - **Formulário Complexo**: Formulário avançado com campos condicionais e validação
 
-> Para integração com Vuetify UI, confira o [showcase Vuetify](./vuetify) no menu lateral.
-
 <ClientOnly>
   <VueShowcase variant="basic" />
 </ClientOnly>
