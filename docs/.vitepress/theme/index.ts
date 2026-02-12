@@ -13,6 +13,33 @@ export default {
 
     app.use(MotionPlugin);
     
+    // Force full page reload when navigating to/from showcase pages.
+    // This avoids framework conflicts between React and Vue runtimes.
+    // VitePress onBeforeRouteChange only receives `to` (not `from`).
+    if (typeof window !== 'undefined') {
+      const showcasePattern = /\/showcases\/(react|material-ui|chakra-ui|vue|vuetify|vanilla)/;
+      
+      router.onBeforeRouteChange = (to: string) => {
+        const currentPath = window.location.pathname;
+        
+        // Normalize: remove trailing .html
+        const normalizedTo = to.replace(/\.html$/, '');
+        const normalizedFrom = currentPath.replace(/\.html$/, '');
+        
+        const isFromShowcase = showcasePattern.test(normalizedFrom);
+        const isToShowcase = showcasePattern.test(normalizedTo);
+        
+        // If navigating between showcases or to/from a showcase, do a full reload
+        if (isFromShowcase || isToShowcase) {
+          // Avoid infinite reload loop: if already on target, do nothing
+          if (normalizedFrom === normalizedTo) return;
+          
+          window.location.href = normalizedTo;
+          return false; // Cancel SPA navigation
+        }
+      };
+    }
+    
     if (typeof window !== 'undefined') {
       const handleLanguageClick = (e: MouseEvent) => {
         const target = e.target as HTMLElement;

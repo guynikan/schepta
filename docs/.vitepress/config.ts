@@ -56,11 +56,24 @@ export default defineConfig({
             {
               text: 'Showcases',
               items: [
-                { text: 'React', link: '/en-US/showcases/react' },
-                { text: 'React Material UI', link: '/en-US/showcases/material-ui' },
-                { text: 'React Chakra UI', link: '/en-US/showcases/chakra-ui' },
-                { text: 'Vue', link: '/en-US/showcases/vue' },
-                { text: 'Vue Vuetify', link: '/en-US/showcases/vuetify' },
+                {
+                  text: 'React',
+                  collapsed: false,
+                  items: [
+                    { text: 'Basic', link: '/en-US/showcases/react' },
+                    { text: 'Material UI', link: '/en-US/showcases/material-ui' },
+                    { text: 'Chakra UI', link: '/en-US/showcases/chakra-ui' },
+                  ],
+                },
+                {
+                  text: 'Vue',
+                  collapsed: false,
+                  items: [
+                    { text: 'Basic', link: '/en-US/showcases/vue' },
+                    { text: 'Vuetify', link: '/en-US/showcases/vuetify' },
+                  ],
+                },
+                { text: 'Vanilla JS', link: '/en-US/showcases/vanilla' },
               ],
             },
           ],
@@ -110,11 +123,24 @@ export default defineConfig({
             {
               text: 'Exemplos',
               items: [
-                { text: 'React', link: '/pt-BR/showcases/react' },
-                { text: 'React Material UI', link: '/pt-BR/showcases/material-ui' },
-                { text: 'React Chakra UI', link: '/pt-BR/showcases/chakra-ui' },
-                { text: 'Vue', link: '/pt-BR/showcases/vue' },
-                { text: 'Vue Vuetify', link: '/pt-BR/showcases/vuetify' },
+                {
+                  text: 'React',
+                  collapsed: false,
+                  items: [
+                    { text: 'Básico', link: '/pt-BR/showcases/react' },
+                    { text: 'Material UI', link: '/pt-BR/showcases/material-ui' },
+                    { text: 'Chakra UI', link: '/pt-BR/showcases/chakra-ui' },
+                  ],
+                },
+                {
+                  text: 'Vue',
+                  collapsed: false,
+                  items: [
+                    { text: 'Básico', link: '/pt-BR/showcases/vue' },
+                    { text: 'Vuetify', link: '/pt-BR/showcases/vuetify' },
+                  ],
+                },
+                { text: 'Vanilla JS', link: '/pt-BR/showcases/vanilla' },
               ],
             },
           ],
@@ -164,11 +190,24 @@ export default defineConfig({
             {
               text: 'Ejemplos',
               items: [
-                { text: 'React', link: '/es-ES/showcases/react' },
-                { text: 'React Material UI', link: '/es-ES/showcases/material-ui' },
-                { text: 'React Chakra UI', link: '/es-ES/showcases/chakra-ui' },
-                { text: 'Vue', link: '/es-ES/showcases/vue' },
-                { text: 'Vue Vuetify', link: '/es-ES/showcases/vuetify' },
+                {
+                  text: 'React',
+                  collapsed: false,
+                  items: [
+                    { text: 'Básico', link: '/es-ES/showcases/react' },
+                    { text: 'Material UI', link: '/es-ES/showcases/material-ui' },
+                    { text: 'Chakra UI', link: '/es-ES/showcases/chakra-ui' },
+                  ],
+                },
+                {
+                  text: 'Vue',
+                  collapsed: false,
+                  items: [
+                    { text: 'Básico', link: '/es-ES/showcases/vue' },
+                    { text: 'Vuetify', link: '/es-ES/showcases/vuetify' },
+                  ],
+                },
+                { text: 'Vanilla JS', link: '/es-ES/showcases/vanilla' },
               ],
             },
           ],
@@ -196,16 +235,17 @@ export default defineConfig({
     },
     resolve: {
       alias: {
-        '@schepta/core': resolve(__dirname, '../packages/core/src'),
-        '@schepta/factory-react': resolve(__dirname, '../packages/factories/react/src'),
-        '@schepta/factory-vue': resolve(__dirname, '../packages/factories/vue/src'),
-        '@schepta/adapter-react': resolve(__dirname, '../packages/adapters/react/src'),
-        '@schepta/adapter-vue': resolve(__dirname, '../packages/adapters/vue/src'),
+        '@schepta/core': resolve(__dirname, '../../packages/core/src'),
+        '@schepta/factory-react': resolve(__dirname, '../../packages/factories/react/src'),
+        '@schepta/factory-vue': resolve(__dirname, '../../packages/factories/vue/src'),
+        '@schepta/factory-vanilla': resolve(__dirname, '../../packages/factories/vanilla/src'),
+        '@schepta/adapter-react': resolve(__dirname, '../../packages/adapters/react/src'),
+        '@schepta/adapter-vue': resolve(__dirname, '../../packages/adapters/vue/src'),
+        '@schepta/adapter-vanilla': resolve(__dirname, '../../packages/adapters/vanilla/src'),
       },
     },
     optimizeDeps: {
       include: ['react', 'react-dom', 'vue', 'vuetify'],
-      exclude: ['vitepress'],
     },
     server: {
       hmr: {

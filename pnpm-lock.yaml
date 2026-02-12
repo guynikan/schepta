@@ -26,12 +26,30 @@ importers:
 
   docs:
     dependencies:
+      '@chakra-ui/react':
+        specifier: ^2.8.2
+        version: 2.10.9(@emotion/react@11.14.0)(@emotion/styled@11.14.1)(@types/react@18.3.27)(framer-motion@10.18.0)(react-dom@18.3.1)(react@18.3.1)
+      '@emotion/react':
+        specifier: ^11.11.0
+        version: 11.14.0(@types/react@18.3.27)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.11.0
+        version: 11.14.1(@emotion/react@11.14.0)(@types/react@18.3.27)(react@18.3.1)
+      '@hookform/resolvers':
+        specifier: ^3.9.0
+        version: 3.10.0(react-hook-form@7.68.0)
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
+      '@mui/material':
+        specifier: ^5.15.0
+        version: 5.18.0(@emotion/react@11.14.0)(@emotion/styled@11.14.1)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)
       '@schepta/adapter-react':
         specifier: workspace:*
         version: link:../packages/adapters/react
+      '@schepta/adapter-vanilla':
+        specifier: workspace:*
+        version: link:../packages/adapters/vanilla
       '@schepta/adapter-vue':
         specifier: workspace:*
         version: link:../packages/adapters/vue
@@ -41,12 +59,24 @@ importers:
       '@schepta/factory-react':
         specifier: workspace:*
         version: link:../packages/factories/react
+      '@schepta/factory-vanilla':
+        specifier: workspace:*
+        version: link:../packages/factories/vanilla
       '@schepta/factory-vue':
         specifier: workspace:*
         version: link:../packages/factories/vue
+      '@tanstack/react-router':
+        specifier: ^1.159.5
+        version: 1.159.5(react-dom@18.3.1)(react@18.3.1)
       '@vueuse/motion':
         specifier: ^3.0.3
         version: 3.0.3(vue@3.5.25)
+      formik:
+        specifier: ^2.4.6
+        version: 2.4.9(@types/react@18.3.27)(react@18.3.1)
+      framer-motion:
+        specifier: ^10.16.16
+        version: 10.18.0(react-dom@18.3.1)(react@18.3.1)
       lucide-vue-next:
         specifier: ^0.561.0
         version: 0.561.0(vue@3.5.25)
@@ -57,8 +87,11 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
       react-hook-form:
-        specifier: ^7.49.0
+        specifier: ^7.52.2
         version: 7.68.0(react@18.3.1)
+      react-icons:
+        specifier: ^5.0.0
+        version: 5.5.0(react@18.3.1)
       react-router-dom:
         specifier: ^6.20.0
         version: 6.30.2(react-dom@18.3.1)(react@18.3.1)
@@ -92,7 +125,7 @@ importers:
         version: 2.1.2(vite@5.4.21)(vue@3.5.25)(vuetify@3.11.2)
       vitepress:
         specifier: ^1.0.0
-        version: 1.6.4(@algolia/client-search@5.46.0)(@types/node@20.19.25)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3)(typescript@5.9.3)
+        version: 1.6.4(@algolia/client-search@5.46.0)(@types/node@20.19.25)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3)(typescript@5.9.3)
 
   packages/adapters/react:
     dependencies:
@@ -899,10 +932,10 @@ packages:
     resolution: {integrity: sha512-y05ayQFyUmCXze79+56v/4HpycYF3uFqB78pLPrSV5ZKAlDuIAAJNhaRi8tTdRNXh05yxX/TyNnzD6LwSM89vQ==}
     dev: true
 
-  /@docsearch/js@3.8.2(@algolia/client-search@5.46.0)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3):
+  /@docsearch/js@3.8.2(@algolia/client-search@5.46.0)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3):
     resolution: {integrity: sha512-Q5wY66qHn0SwA7Taa0aDbHiJvaFJLOJyHmooQ7y8hlwwQLQ/5WwCcoX0g7ii04Qi2DJlHsd0XXzJ8Ypw9+9YmQ==}
     dependencies:
-      '@docsearch/react': 3.8.2(@algolia/client-search@5.46.0)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3)
+      '@docsearch/react': 3.8.2(@algolia/client-search@5.46.0)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3)
       preact: 10.28.0
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -912,7 +945,7 @@ packages:
       - search-insights
     dev: true
 
-  /@docsearch/react@3.8.2(@algolia/client-search@5.46.0)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3):
+  /@docsearch/react@3.8.2(@algolia/client-search@5.46.0)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3):
     resolution: {integrity: sha512-xCRrJQlTt8N9GU0DG4ptwHRkfnSnD/YpdeaXe02iKfqs97TkZJv60yE+1eq/tjPcVnTW8dP5qLP7itifFVV5eg==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 19.0.0'
@@ -932,6 +965,7 @@ packages:
       '@algolia/autocomplete-core': 1.17.7(@algolia/client-search@5.46.0)(algoliasearch@5.46.0)(search-insights@2.17.3)
       '@algolia/autocomplete-preset-algolia': 1.17.7(@algolia/client-search@5.46.0)(algoliasearch@5.46.0)
       '@docsearch/css': 3.8.2
+      '@types/react': 18.3.27
       algoliasearch: 5.46.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -5632,7 +5666,7 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vitepress@1.6.4(@algolia/client-search@5.46.0)(@types/node@20.19.25)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3)(typescript@5.9.3):
+  /vitepress@1.6.4(@algolia/client-search@5.46.0)(@types/node@20.19.25)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3)(typescript@5.9.3):
     resolution: {integrity: sha512-+2ym1/+0VVrbhNyRoFFesVvBvHAVMZMK0rw60E3X/5349M1GuVdKeazuksqopEdvkKwKGs21Q729jX81/bkBJg==}
     hasBin: true
     peerDependencies:
@@ -5645,7 +5679,7 @@ packages:
         optional: true
     dependencies:
       '@docsearch/css': 3.8.2
-      '@docsearch/js': 3.8.2(@algolia/client-search@5.46.0)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3)
+      '@docsearch/js': 3.8.2(@algolia/client-search@5.46.0)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.17.3)
       '@iconify-json/simple-icons': 1.2.61
       '@shikijs/core': 2.5.0
       '@shikijs/transformers': 2.5.0
