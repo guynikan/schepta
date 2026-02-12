@@ -27,14 +27,6 @@ export default defineConfig({
           if (id.includes('node_modules/vue/') || id.includes('node_modules/@vue/')) {
             return 'vue-vendor';
           }
-          // MUI + Emotion
-          if (id.includes('node_modules/@mui/') || id.includes('node_modules/@emotion/')) {
-            return 'mui-vendor';
-          }
-          // Chakra UI + Framer Motion
-          if (id.includes('node_modules/@chakra-ui/') || id.includes('node_modules/framer-motion/')) {
-            return 'chakra-vendor';
-          }
           // TanStack Router
           if (id.includes('node_modules/@tanstack/router')) {
             return 'router-vendor';
@@ -43,13 +35,13 @@ export default defineConfig({
           if (id.includes('node_modules/single-spa')) {
             return 'single-spa-vendor';
           }
-          // Form libs (só carregados na rota /react)
-          if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/formik') || id.includes('node_modules/@hookform')) {
-            return 'form-vendor';
+          // React Hook Form + @hookform (separate chunk avoids circular init; Formik stays in app bundle so React is available)
+          if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/@hookform')) {
+            return 'rhf-vendor';
           }
         }
       }
     },
-    chunkSizeWarningLimit: 400
+    chunkSizeWarningLimit: 700
   }
 });

@@ -24,7 +24,7 @@ export default defineConfig({
       testMatch: '**/*react.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:3000/',
+        baseURL: 'http://localhost:4173',
       },
     },
     {
@@ -32,7 +32,7 @@ export default defineConfig({
       testMatch: '**/*vue.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:3000/',
+        baseURL: 'http://localhost:4173',
       },
     },
     {
@@ -40,7 +40,7 @@ export default defineConfig({
       testMatch: '**/*vanilla.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:3000/',
+        baseURL: 'http://localhost:4173',
       },
     },
   ],

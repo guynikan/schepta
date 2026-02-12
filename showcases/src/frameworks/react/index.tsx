@@ -23,4 +23,12 @@ export const homeLifecycles = singleSpaReact({
   React,
   ReactDOMClient,
   rootComponent: HomePage,
+  errorBoundary(err, info, props) {
+    return (
+      <div style={{ padding: 24, textAlign: 'center', color: '#c62828' }}>
+        <h2>Something went wrong</h2>
+        <pre style={{ textAlign: 'left', overflow: 'auto' }}>{err?.message}</pre>
+      </div>
+    );
+  },
 });
