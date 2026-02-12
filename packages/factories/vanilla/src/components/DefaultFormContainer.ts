@@ -13,7 +13,7 @@ import { createDefaultSubmitButton, type SubmitButtonFactory } from './DefaultSu
  */
 export interface FormContainerProps {
   /** Child elements to render inside the form */
-  children?: HTMLElement[];
+  children?: any[];
   /** Submit handler - when provided, renders a submit button */
   onSubmit?: () => void;
   /** External context passed from FormFactory */
@@ -50,12 +50,23 @@ export function createDefaultFormContainer(props: FormContainerProps): HTMLEleme
     props.onSubmit?.();
   });
 
-  // Append children
-  props.children?.forEach(child => form.appendChild(child));
+  // Append children - handle both HTMLElement and DOMElement wrapper
+  if (props.children) {
+    props.children.forEach(child => {
+      if (child && typeof child === 'object') {
+        if ('element' in child && child.element instanceof HTMLElement) {
+          form.appendChild(child.element);
+        } else if (child instanceof HTMLElement) {
+          form.appendChild(child);
+        }
+      }
+    });
+  }
   
   // Add submit button if onSubmit is provided
   if (props.onSubmit) {
-    const submitButton = createDefaultSubmitButton({ onSubmit: props.onSubmit });
+    const submitButtonFactory = props.createSubmitButton || createDefaultSubmitButton;
+    const submitButton = submitButtonFactory({ onSubmit: props.onSubmit });
     form.appendChild(submitButton);
   }
 

@@ -29,12 +29,43 @@ export class VanillaFormAdapter implements FormAdapter {
   }
 
   getValue(field: string): any {
+    // Support nested paths (e.g., "user.name")
+    if (field.includes('.')) {
+      const parts = field.split('.');
+      let value: any = this.values;
+      for (const part of parts) {
+        if (value === undefined || value === null) return undefined;
+        value = value[part];
+      }
+      return value;
+    }
     return this.values[field];
   }
 
   setValue(field: string, value: any): void {
-    const oldValue = this.values[field];
-    this.values[field] = value;
+    const oldValue = this.getValue(field);
+    
+    // Support nested paths (e.g., "user.name")
+    if (field.includes('.')) {
+      const parts = field.split('.');
+      let current: any = this.values;
+      
+      // Create nested structure if needed
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!current[part] || typeof current[part] !== 'object') {
+          current[part] = {};
+        }
+        current = current[part];
+      }
+      
+      // Set the final value
+      const lastPart = parts[parts.length - 1];
+      current[lastPart] = value;
+    } else {
+      this.values[field] = value;
+    }
+    
     this.validateField(field);
     this.emitter.emit('change', { field, value, oldValue });
     this.emitter.emit(`change:${field}`, { value, oldValue });

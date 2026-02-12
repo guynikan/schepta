@@ -4,7 +4,7 @@
  * Implements RuntimeAdapter using DOM APIs
  */
 
-import type { RuntimeAdapter, ComponentSpec, RenderResult } from '@schepta/core';
+import type { RuntimeAdapter, ComponentSpec, RendererSpec, RenderResult } from '@schepta/core';
 
 import type { DOMElement } from './types';
 
@@ -12,7 +12,32 @@ import type { DOMElement } from './types';
  * Vanilla JS runtime adapter implementation
  */
 export class VanillaRuntimeAdapter implements RuntimeAdapter {
-  create(spec: ComponentSpec, props: Record<string, any>): RenderResult {
+  create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
+    if (!spec) {
+      console.error('[VanillaRuntime] Invalid spec:', spec);
+      throw new Error(`Invalid spec: spec is null/undefined`);
+    }
+    
+    // Handle RendererSpec (for field renderers, etc)
+    if ('renderer' in spec && spec.renderer && typeof spec.renderer === 'function') {
+      const result = spec.renderer(props);
+      if (result instanceof HTMLElement) {
+        return this.wrapElement(result, props);
+      }
+      if (result && 'element' in result) {
+        return result as DOMElement;
+      }
+      throw new Error(`Renderer ${spec.id} did not return a valid element`);
+    }
+    
+    // Handle ComponentSpec
+    if (!spec.component) {
+      console.error('[VanillaRuntime] Invalid spec:', spec);
+      throw new Error(`Invalid component spec: spec.id=${spec.id}, has component=${!!spec.component}`);
+    }
+    
+    // Call component function - it returns the element or factory
+    // Pass runtime adapter as second arg for compatibility with spec interface
     const component = spec.component(props, this);
     
     // If component returns a DOM element directly

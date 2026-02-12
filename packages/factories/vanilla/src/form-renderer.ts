@@ -14,35 +14,22 @@ export interface FormRendererOptions {
 }
 
 export function renderForm(options: FormRendererOptions): DocumentFragment | DOMElement | null {
-  const result = options.renderer(options.componentKey, options.schema);
-  
-  if (!result) {
-    return null;
-  }
-
-  // Handle children if schema has properties
-  if (options.schema.properties && typeof options.schema.properties === 'object') {
-    const fragment = document.createDocumentFragment();
+  try {
+    const result = options.renderer(options.componentKey, options.schema);
     
-    if (result && 'element' in result) {
-      const domElement = result as DOMElement;
-      fragment.appendChild(domElement.element);
-      
-      for (const [key, childSchema] of Object.entries(options.schema.properties)) {
-        const childResult = options.renderer(key, childSchema as any);
-        if (childResult && 'element' in childResult) {
-          fragment.appendChild((childResult as DOMElement).element);
-        }
-      }
-      
-      return fragment;
+    if (!result) {
+      console.warn('[renderForm] Renderer returned null/undefined for key:', options.componentKey);
+      return null;
     }
-  }
 
-  if (result && 'element' in result) {
-    return result as DOMElement;
-  }
+    if (result && 'element' in result) {
+      return result as DOMElement;
+    }
 
-  return null;
+    return null;
+  } catch (error) {
+    console.error('[renderForm] Error rendering component:', options.componentKey, error);
+    throw error;
+  }
 }
 

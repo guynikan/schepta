@@ -15,6 +15,7 @@ import { defaultDebugConfig } from '@schepta/core';
  */
 export interface ScheptaProviderProps {
   components?: Record<string, ComponentSpec>;
+  customComponents?: Record<string, ComponentSpec>;
   renderers?: Partial<Record<ComponentType, RendererFn>>;
   middlewares?: MiddlewareFn[];
   debug?: DebugConfig;
@@ -27,6 +28,7 @@ export interface ScheptaProviderProps {
  */
 export interface ScheptaContextType {
   components: Record<string, ComponentSpec>;
+  customComponents: Record<string, ComponentSpec>;
   renderers: Record<ComponentType, RendererFn>;
   middlewares: MiddlewareFn[];
   debug: DebugConfig;
@@ -62,6 +64,7 @@ export function createScheptaProvider(
       
       return {
         components: { ...parentContext.components, ...(props.components || {}) },
+        customComponents: { ...parentContext.customComponents, ...(props.customComponents || {}) },
         renderers: mergedRenderers,
         middlewares: [...parentContext.middlewares, ...(props.middlewares || [])],
         debug: { ...parentContext.debug, ...props.debug },
@@ -75,6 +78,7 @@ export function createScheptaProvider(
 
     return {
       components: props.components || {},
+      customComponents: props.customComponents || {},
       renderers: props.renderers,
       middlewares: props.middlewares || [],
       debug: mergedDebug,

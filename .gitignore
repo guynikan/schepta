@@ -22,6 +22,16 @@ docs/CODESANDBOX_TEMPLATES.md
 .env.local
 .env.*.local
 
+# Playwright test artifacts
 test-results/
+test-screenshots/
 tests/test-results/
 tests/playwright-report/
+playwright-report/
+
+# Screenshots (ignore all images in root)
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.webp
