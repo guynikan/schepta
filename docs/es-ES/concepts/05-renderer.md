@@ -1,156 +1,108 @@
 # El Motor de Renderizado
 
-**Sistema que controla cómo se renderiza cada tipo de componente** — el "puente" entre componentes React/Vue y lógica de presentación.
+**Sistema que controla cómo se renderiza cada tipo de componente** — el "puente" entre componentes React/Vue y la lógica de presentación.
 
 <img src="/images/05-renderer.svg" alt="Renderer" />
 
+**El sistema de Renderer decide qué wrapper usar para cada tipo de componente:**
 
-**El Sistema de Renderer decide qué wrapper usar para cada tipo de componente:**
-
-### 🔧 Qué Son los Renderers:
+### Qué Son los Renderers:
 
 | **Tipo de Renderer** | **Función** | **Usado Para** | **Ejemplo** |
 | ----------------- | ---------- | -------------- | ----------- |
-| **field** | Renderiza campos de formulario | InputText, Select, etc. | Añade validación automática |
+| **field** | Renderiza campos de formulario | InputText, Select, etc. | Vincula al adapter de formulario, pasa props |
+| **button** | Renderiza botones | SubmitButton | Comportamiento de botón |
 | **container** | Renderiza contenedores de formulario | FormGroup, Section | Organiza layout |
-| **menu-item** | Renderiza elementos de menú | MenuLink, MenuButton | Añade navegación |
-| **menu-container** | Renderiza contenedores de menú | MenuContainer | Organiza jerarquía |
-| **content** | Renderiza contenido estático | Text, Image | Visualización simple |
+| **content** | Renderiza contenido estático | Títulos, labels | Visualización simple |
+| **menu-item** | Renderiza ítems de menú | MenuLink, MenuButton | Navegación (cuando se usa MenuFactory) |
+| **menu-container** | Renderiza contenedores de menú | MenuContainer | Jerarquía de menú |
+| **addon** | Renderiza addons | UI de complemento | Contenido suplementario |
 
-### 📊 Cómo Funcionan:
+### Cómo Funcionan:
 
 **Componente → Renderer → DOM**
 ```text
-InputText Component → FieldRenderer → <input> + validación + props
+InputText Component → FieldRenderer → <input> + binding de formulario + props
 ```
 
 **El Renderer Añade:**
-- Pipeline de **middleware** automático  
-- **Inyección de contexto** (formulario, menú)
-- **Transformación de props** específica del tipo
-- **Error boundaries** integrados
+- **Binding con adapter de formulario** (ej. value, onChange del contexto de formulario Schepta)
+- **Inyección de contexto** (valores del formulario, contexto externo)
+- **Transformación de props** específica por tipo
 
-> **💡 Resultado:** ¡Los componentes se enfocan en UI, los Renderers se enfocan en lógica de presentación!
+> **Resultado:** ¡Componentes enfocados en la UI, Renderers en la lógica de presentación!
 
 
-## 🚀 Tipos de Renderer
+## Tipos de Renderer
 
-**Cada tipo de renderer tiene responsabilidades específicas:**
-
-### 📝 Field Renderer - Campos de Formulario:
+### Field Renderer - Campos de Formulario:
 
 | **Responsabilidad** | **Implementación** | **Beneficio** |
 | -------------------- | ----------------- | ------------- |
-| **Integración de Formulario** | useFormContext() automático | Props de formulario inyectadas |
-| **Pipeline de Validación** | withCpfValidation, withRules | Validación automática |
-| **Props Dinámicas** | useReactions() | Props cambian basadas en estado |
-| **Integración de Debug** | useDebug() | Debug visual automático |
+| **Integración con formulario** | Adapter de formulario (ej. useScheptaFormAdapter en React) | value y onChange ligados al estado del formulario |
+| **Props** | Recibe name, component, componentProps | Renderizado consistente de campos |
+| **Renderers customizados** | Override vía `renderers.field` | Usar con React Hook Form, Formik, etc. |
 
-### 🏗️ Container Renderer - Layout y Organización:
+### Container Renderer - Layout y Organización:
 
 | **Responsabilidad** | **Implementación** | **Beneficio** |
 | -------------------- | ----------------- | ------------- |
-| **Ordenamiento de Hijos** | Ordenamiento `x-ui.order` | Layout automático |
-| **Filtrado de Props** | Eliminar props de contenedor | Props limpias |
-| **Lógica de Layout** | Layout responsivo | UI adaptativa |
-| **Gestión de Secciones** | Agrupar elementos relacionados | Organización visual |
+| **Orden de hijos** | Ordenación por `x-ui.order` | Layout automático |
+| **Filtrado de props** | Quitar props de contenedor | Props limpias |
+| **Gestión de secciones** | Agrupar ítems relacionados | Organización visual |
 
-### 🧭 Menu Renderers - Navegación:
+### Content y Button Renderers:
 
-| **Renderer** | **Función** | **Características** |
-| ------------ | ---------- | ------------ |
-| **menu-item** | Elementos de menú individuales | Manejo de enlaces, estados activos |
-| **menu-container** | Organización de menú | Jerarquía, ordenamiento, responsivo |
-
-### 📄 Content Renderer - Visualización:
-
-| **Función** | **Uso** | **Características** |
-| ---------- | ------- | ------------------- |
-| **Contenido Estático** | Texto, imágenes, etc. | Sin integración de formulario |
-| **Procesamiento Mínimo** | Renderizado directo | Rendimiento optimizado |
+- **content:** Contenido estático (títulos, texto). Procesamiento mínimo.
+- **button:** Componentes de botón (ej. SubmitButton). Tipo `button` en la spec del componente.
 
 
-## ⚙️ Cómo Funciona el Sistema
+## Cómo Funciona el Sistema
 
-**Flujo conceptual de cómo los renderers procesan componentes:**
-
-### 🔄 Pipeline de Resolución:
+### Pipeline de Resolución:
 
 ```
 Schema JSON
     ↓
-Detectar Tipo (¿Qué renderer usar?)
+Detectar Tipo (tipo de la spec: field, container, button, content, ...)
     ↓
-Obtener Renderer (En jerarquía de prioridad)
+Elegir Renderer (Default → renderers de ScheptaProvider → renderers de la Factory)
     ↓
-Preparar Props (Fusionar + contexto)
+Preparar Props (Merge + contexto)
     ↓
-Aplicar Middleware (Transformar + validar)
+Aplicar Middleware (ej. expresiones de template)
     ↓
-Renderizar (Componente + wrapper)
+Renderizar (Renderer envuelve el componente)
     ↓
 Elemento React/Vue Final
 ```
 
-### 🎯 Jerarquía de Resolución:
+### Jerarquía de Resolución:
 
 **Cómo el sistema elige qué renderer usar:**
 
 | **Prioridad** | **Fuente** | **Cuándo Usar** | **Ejemplo** |
 | -------------- | --------- | --------------- | ----------- |
-| **1ra - Local** | Props de factory | Personalización específica | `<FormFactory renderers=\{\{field: CustomField\}\} />` |
-| **2da - Global** | scheptaProvider | Predeterminado de aplicación | `<scheptaProvider renderers=\{\{field: AppField\}\} />` |
-| **3ra - Registro** | registerRenderer() | Extensiones globales | `registerRenderer('field', LibField)` |
-| **4ta - Predeterminado** | Sistema integrado | Comportamiento predeterminado | FieldRenderer interno |
+| **1ª - Default** | Built-in de la factory | Comportamiento por defecto | DefaultFieldRenderer para tipo `field` |
+| **2ª - Global** | ScheptaProvider | Por defecto de la aplicación | `<ScheptaProvider renderers={{ field: AppFieldRenderer }} />` |
+| **3ª - Local** | Props de la factory | Override por factory | `<FormFactory renderers={{ field: CustomField }} />` |
 
-### ⚡ Orquestador Central:
-
-**El "director" que coordina todo el proceso:**
-
-**Responsabilidades:**
-- **Detecta** qué tipo de componente renderizar
-- **Elige** el renderer apropiado de la jerarquía  
-- **Prepara** props fusionando contextos
-- **Aplica** pipeline de middleware específico del tipo
-- **Renderiza** el componente final con su wrapper
+No existe una API separada "registerRenderer"; los renderers vienen de los defaults de la factory, luego de los `renderers` del Provider, luego de la prop `renderers` de la factory.
 
 
-## 🤝 Por Qué Existen los Renderers
+## Por Qué Existen los Renderers
 
-**Los problemas que el sistema de renderers resuelve:**
-
-### 🎯 Separación de Responsabilidades:
-
-**Sin renderers**, cada componente necesita:
-- Mezclar lógica de UI con lógica de negocio
-- Gestionar contexto manual e inconsistentemente  
-- Implementar validación específica del tipo en cada campo
-- Transformar props de manera ad-hoc y no estandarizada
-
-**Con renderers**, los componentes se vuelven:
-- **Más limpios:** enfoque exclusivo en presentación visual
-- **Más consistentes:** inyección de contexto automática y estandarizada
-- **Más reutilizables:** validación y lógica encapsuladas en el renderer
-- **Más predecibles:** transformación de props sigue patrones establecidos
-
-### 🔄 Flexibilidad del Sistema:
-
-**El mismo componente puede tener diferentes comportamientos:**
-- **Campo de Formulario:** FieldRenderer añade validación + integración de formulario
-- **Visualización Solo Lectura:** ContentRenderer mantiene visualización simple, sin lógica de formulario  
-- **Elemento de Menú:** ItemRenderer añade navegación + estado activo
-- **App Personalizada:** CustomRenderer implementa comportamiento específico de la aplicación
-
-**Esto permite:** apps multi-tenant, A/B testing, integración con diferentes librerías de UI, y extensiones personalizadas sin modificar componentes base.
+**Separación de responsabilidades:**
+- **Componentes** definen la UI (input, botón, contenedor).
+- **Renderers** los envuelven con binding de formulario, layout u otro comportamiento. El field renderer por defecto usa el adapter de formulario de Schepta para que los campos funcionen sin una biblioteca de formularios específica; puedes reemplazarlo por un renderer custom que use React Hook Form o Formik.
 
 
-## 💡 Conceptos Relacionados
+## Conceptos Relacionados
 
-**Los Renderers son el "motor" que conecta otros conceptos:**
+**Los renderers son el "motor" que conecta otros conceptos:**
 
 - **[01. Factories](./01-factories.md):** Las factories usan renderers para procesar cada componente
-- **[04. Schema Resolution](./04-schema-resolution.md):** Pipeline de resolución detecta qué renderer usar  
-- **[06. Middleware](./06-middleware.md):** Cada renderer tiene un pipeline específico
-- **[03. Provider](./03-provider.md):** Configura renderers globalmente
-- **[07. Debug System](./07-debug-system.md):** Herramientas de debug muestran qué renderer fue elegido
-
+- **[04. Schema Resolution](./04-schema-resolution.md):** El pipeline de resolución detecta qué renderer usar  
+- **[06. Middleware](./06-middleware.md):** El pipeline corre antes/durante el render
+- **[03. Provider](./03-provider.md):** Configura renderers globalmente vía prop `renderers`
+- **[07. Debug System](./07-debug-system.md):** Debug puede mostrar qué renderer se eligió

@@ -4,25 +4,24 @@
 
 <img src="/images/04-schema-resolution.svg" alt="Schema Resolution" />
 
-
 **Schema Resolution is the process that transforms JSON configurations into functional interfaces:**
 
-### 🔧 What It Does:
+### What It Does:
 
 | **Input** | **Process** | **Output** | **Result** |
 | --------- | ------------ | ---------- | ------------- |
-| JSON Schema from backend | Resolution + Validation | React/Vue Element Tree | Rendered interface |
-| Component specs | Registry lookup | Component instances | Working components |
+| JSON Schema | Resolution + Validation | React/Vue Element Tree | Rendered interface |
+| Component specs | Lookup (defaults + Provider + local) | Component instances | Working components |
 | Props and context | Middleware pipeline | Enhanced props | Correct behavior |
 
-### 📊 Resolution Flow:
+### Resolution Flow:
 
 **Automatic Steps:**
 1. **Schema Parsing:** JSON → Internal structure
-2. **Component Lookup:** `x-component` → React/Vue Component
-3. **Props Resolution:** Schema properties → Component props  
-4. **Context Injection:** Form/Menu context → Component context
-5. **Middleware Application:** Props transformation pipeline
+2. **Component Lookup:** `x-component` (and optional `x-custom`) → Component from merged registry
+3. **Props Resolution:** Schema properties → Component props
+4. **Context Injection:** Form adapter, external context → available to components
+5. **Middleware Application:** Props transformation (e.g. template expressions)
 6. **Element Creation:** React.createElement() / Vue h() calls
 
 **Visual Example:**
@@ -34,122 +33,84 @@
 <InputText name="email" required={true} onChange={...} />
 ```
 
-> **💡 Result:** Declarative schema → Imperative component.
+> **Result:** Declarative schema → Imperative component.
 
 
-## 🚀 Resolution Types
+## Resolution Types
 
-**Different schema types require different resolution strategies:**
-
-### 📝 Form Schema Resolution:
+### Form Schema Resolution:
 
 | **Schema Property** | **Resolution Strategy** | **React/Vue Result** | **Example** |
 | ------------------- | ----------------------- | ---------------- | ----------- |
 | `name` | Field identification | `name` prop | `<input name="email" />` |
-| `x-component` | Component registry lookup | Component type | `<InputText />` |
+| `x-component` | Component lookup from merged registry | Component type | `<InputText />` |
 | `required` | Validation rule | `required` prop + validation | `required={true}` |
-| `x-component-props` | Props passthrough | Direct props | `placeholder="Enter email"` |
+| `x-component-props` | Props passthrough (after template processing) | Direct props | `placeholder="Enter email"` |
 | `x-rules` | Validation configuration | Validation props | `pattern="email"` |
 
-### 🧭 Menu Schema Resolution:
-
-| **Schema Property** | **Resolution Strategy** | **React/Vue Result** | **Example** |
-| ------------------- | ----------------------- | ---------------- | ----------- |
-| `label` | Text content | `children` prop | `<MenuItem>Dashboard</MenuItem>` |
-| `url` | Navigation target | `href` or `onClick` | `<Link to="/dashboard" />` |
-| `icon` | Icon component | Icon element | `<DashboardIcon />` |
-| `visible` | Conditional rendering | Conditional wrapper | `{visible && <MenuItem />}` |
-| `children` | Nested menu items | Recursive resolution | `<Submenu items={...} />` |
-
-### 🎨 Component Schema Resolution:
+### Component Schema Resolution:
 
 | **Schema Property** | **Resolution Strategy** | **React/Vue Result** | **Example** |
 | ------------------- | ----------------------- | ---------------- | ----------- |
 | `x-component` | Component type lookup | Component class | `<Button />` |
-| `x-ui` | Layout/styling props | CSS/styling props | `className="col-md-6"` |
-| `x-component-props` | Component-specific props | Props object | `{ variant: "primary" }` |
-| `x-reactions` | Event handlers | Event props | `onClick={handleClick}` |
+| `x-ui` | Layout/styling props | Passed to component | Layout props |
+| `x-component-props` | Component-specific props (template expressions resolved) | Props object | `{ variant: "primary" }` |
 
 
-## ⚙️ Resolution Engine
+## Resolution Engine
 
 **How the system resolves schemas internally:**
 
-### 🔄 Resolution Pipeline:
+### Resolution Pipeline:
 
 ```
 Raw JSON Schema
     ↓
-Validate Schema (Valid JSON?)
+Validate Schema (Valid structure?)
     ↓
-Resolve Component (Registry lookup)
+Resolve Component (Lookup: customComponents for x-custom, else merged components)
     ↓
 Map Props (Schema → Component props)
     ↓
-Inject Context (Form/Menu/Global context)
+Inject Context (formValues, externalContext)
     ↓
-Apply Middleware (Transformations pipeline)
+Apply Middleware (e.g. template expressions)
     ↓
 Create Element (React.createElement / Vue h())
     ↓
 Final React/Vue Element
 ```
 
-### 🎯 Resolution Priorities:
+### Resolution Priorities:
 
-**Component Resolution Order:**
-1. **Local components** (factory props)
-2. **Global components** (scheptaProvider)
-3. **Registry overrides** (registerComponent calls)
-4. **Default components** (built-in registry)
+**Component Resolution:**
+- When a schema node has `x-custom: true`, the resolver looks up the node key in **customComponents** (Provider / factory).
+- Otherwise, the component name (`x-component` or node key) is looked up in the **merged components** registry. Merge order: **Default (factory) → Global (ScheptaProvider) → Local (factory props)**. Later overrides earlier.
 
 **Props Resolution Order:**
-1. **Schema-defined props** (`x-component-props`)
-2. **Derived props** (from schema structure)
-3. **Context props** (form context, etc.)
+1. **Schema-defined props** (`x-component-props`, etc.), with template expressions resolved
+2. **Derived props** (from schema structure, e.g. field name)
+3. **Context** (form adapter, externalContext) available to components
 4. **Default props** (component defaults)
 
 **Middleware Resolution Order:**
-1. **Built-in middleware** (validation, formatting)
-2. **Global middleware** (scheptaProvider)
-3. **Local middleware** (factory props)
-4. **Component middleware** (component-specific)
+- Template expression middleware runs first (so `{{ $formValues.x }}` and `{{ $externalContext.x }}` are resolved).
+- Then **Provider `middlewares`** and **factory `middlewares`** run in array order.
 
 
-## 📊 Resolution Strategies
+## Expression Resolution
 
-**Different strategies for different content types:**
+**Template expressions in props are resolved using form values and external context:**
 
-### 🎯 Expression Resolution:
-
-| **Expression Type**         | **Resolution Strategy** | **Example**                         | **Result**        |
-| --------------------------- | ----------------------- | ----------------------------------- | ----------------- |
-| **Static Values**           | Direct assignment       | `"required": true`                  | `required={true}` |
-| **Segment Expressions**     | Context substitution    | `"\{\{ $segment.tenant \}\}"`           | `"bank 1"`        |
-| **Association Expressions** | Association lookup      | `"\{\{ $target.title \}\}"`             | `"Portal Title"`  |
-| **JEXL Expressions**        | Expression evaluation   | `"\{\{ $segment.role === 'admin' \}\}"` | `true`            |
-
-### 🔧 Conditional Resolution:
-
-**Visibility Resolution:**
-```typescript
-const visible = evaluateExpression(schema.visible, context);
-if (!visible) return null; // Component doesn't render
-```
-
-**Dynamic Props Resolution:**
-```typescript
-const dynamicProps = schema['x-component-props'];
-const resolvedProps = resolveDynamicValues(dynamicProps, context);
-```
-
-**Validation Resolution:**
-- **Rules → Props:** `x-rules` transformed into validation properties
-- **Context Injection:** Form context automatically injected for validation
-- **Error Handling:** Fallbacks for invalid or malformed rules
+| **Expression Type**   | **Resolution** | **Example** | **Result** |
+| --------------------- | --------------- | ----------- | ---------- |
+| **Static values**     | Direct          | `"required": true` | `required={true}` |
+| **Form values**       | `$formValues`   | `"{{ $formValues.email }}"` | Current form field value |
+| **External context**  | `$externalContext` | `"{{ $externalContext.user.name }}"` | Value from Provider externalContext |
+| **JEXL expressions**  | Evaluated       | `"{{ $formValues.age >= 18 }}"` | boolean |
 
 
-## 💡 Related Concepts
+## Related Concepts
 
 **Schema Resolution is the "processor" that connects schemas with React/Vue:**
 

@@ -1,25 +1,24 @@
-# Linguagem dos Schemas
+# Schema Language
 
 **Sintaxe e propriedades que o schepta entende** — o "vocabulário" para definir interfaces dinâmicas.
 
 <img src="/images/02-schema-language.svg" alt="Schema Language" />
 
+**Schema Language define como escrever JSON que o schepta pode interpretar:**
 
-**Schema Language define como escrever JSON que o schepta consegue interpretar:**
+### Propriedades Essenciais:
 
-### 🔧 Propriedades Essenciais:
-
-| **Property** | **Função** | **Valor** | **Resultado** |
+| **Propriedade** | **Função** | **Valor** | **Resultado** |
 | ------------ | ---------- | --------- | ------------- |
-| `x-component` | Define qual component usar | `"InputText"` | Component React/Vue específico |
-| `x-component-props` | Props para o component | `{ placeholder: "Email" }` | Props passadas direto |
+| `x-component` | Define qual componente usar | `"InputText"` | Componente React/Vue específico |
+| `x-component-props` | Props do componente | `{ placeholder: "Email" }` | Props passadas diretamente |
 | `x-ui` | Layout e visual | `{ order: 1 }` | Ordenação e posicionamento |
 | `x-rules` | Validação e regras | `{ required: true }` | Validação automática |
 | `name` | Identificador único | `"email"` | Campo identificado |
 
-### 📊 Sintaxe Básica:
+### Sintaxe Básica:
 
-**Form Field:**
+**Campo de formulário:**
 ```json
 {
   "name": "email",
@@ -34,7 +33,7 @@
 }
 ```
 
-**Menu Item:**
+**Item de menu:**
 ```json
 {
   "type": "object",
@@ -43,53 +42,51 @@
     "label": "Dashboard",
     "href": "/dashboard",
     "icon": "dashboard"
-  },
-  "active": "\{\{ $segment.role === 'admin' \}\}"
+  }
 }
 ```
 
-> **💡 Resultado:** JSON estruturado → Component React/Vue funcionando. Sintaxe simples e poderosa!
+> **Resultado:** JSON estruturado → Componente React/Vue funcionando. Sintaxe simples e poderosa!
 
 
-## 🚀 Core Properties
+## Propriedades Principais
 
 **Propriedades fundamentais que todo schema deve conhecer:**
 
-### 🎯 Component Definition:
+### Definição de Componente:
 
-| **Property** | **Required** | **Type** | **Description** | **Example** |
+| **Propriedade** | **Obrigatório** | **Tipo** | **Descrição** | **Exemplo** |
 | ------------ | ------------ | -------- | --------------- | ----------- |
-| `x-component` | ✅ Yes | string | Component name | `"InputText"`, `"MenuLink"` |
-| `x-component-props` | ❌ No | object | Component props | `{ variant: "outlined" }` |
-| `type` | ❌ Context | string | Schema type | `"string"`, `"object"` |
-| `name` | ❌ Forms | string | Field identifier | `"email"`, `"password"` |
+| `x-component` | Sim | string | Nome do componente | `"InputText"`, `"MenuLink"` |
+| `x-component-props` | Não | object | Props do componente | `{ variant: "outlined" }` |
+| `type` | Contexto | string | Tipo do schema | `"string"`, `"object"` |
+| `name` | Não (formulários) | string | Identificador do campo | `"email"`, `"password"` |
 
-### 🎨 Visual & Layout:
+### Visual e Layout:
 
-| **Property** | **Required** | **Type** | **Description** | **Example** |
+| **Propriedade** | **Obrigatório** | **Tipo** | **Descrição** | **Exemplo** |
 | ------------ | ------------ | -------- | --------------- | ----------- |
-| `x-ui` | ❌ No | object | UI configuration | `{ order: 1, grid: { xs: 12 } }` |
-| `title` | ❌ No | string | Display label | `"Email Address"` |
-| `description` | ❌ No | string | Help text | `"Enter your work email"` |
-| `placeholder` | ❌ No | string | Input placeholder | `"user@company.com"` |
+| `x-ui` | Não | object | Configuração de UI | `{ order: 1, grid: { xs: 12 } }` |
+| `title` | Não | string | Rótulo de exibição | `"Email"` |
+| `description` | Não | string | Texto de ajuda | `"Digite seu email"` |
+| `placeholder` | Não | string | Placeholder do input | `"user@company.com"` |
 
-### ⚡ Behavior & Logic:
+### Comportamento e Lógica:
 
-| **Property** | **Required** | **Type** | **Description** | **Example** |
+| **Propriedade** | **Obrigatório** | **Tipo** | **Descrição** | **Exemplo** |
 | ------------ | ------------ | -------- | --------------- | ----------- |
-| `x-rules` | ❌ No | object | Validation rules | `{ required: true, minLength: 8 }` |
-| `x-reactions` | ❌ No | object | Dynamic behavior | `{ visible: "\{\{ $form.type === 'admin' \}\}" }` |
-| `active` | ❌ Menus | boolean/string | Active state | `true` or `"\{\{ $segment.role === 'admin' \}\}"` |
-| `visible` | ❌ No | boolean/string | Visibility control | `"\{\{ $form.plan !== 'basic' \}\}"` |
+| `x-content` | Não | string | Conteúdo estático (ex.: rótulo de botão) | `"Enviar Formulário"` |
+
+**Valores dinâmicos:** Use expressões de template em `x-component-props` (ou outras props) com `{{ $formValues.fieldName }}` e `{{ $externalContext.property }}`. O middleware de template substitui isso em tempo de execução. Veja Expression Language abaixo.
 
 
-## 📊 Schema Types
+## Tipos de Schema
 
 **Diferentes tipos de schema para diferentes casos de uso:**
 
-### 📝 Form Schemas:
+### Schemas de Formulário:
 
-**Field Schema Structure:**
+**Estrutura do schema de campo:**
 ```json
 {
   "name": "fieldName",
@@ -110,7 +107,7 @@
 }
 ```
 
-**Form Container Schema:**
+**Schema do container do formulário:**
 ```json
 {
   "type": "object",
@@ -123,70 +120,45 @@
 ```
 
 
-## ⚙️ Advanced Properties
+## Responsivo e Layout
 
-**Propriedades avançadas para casos específicos:**
-
-### 🔧 Component Extensions:
-
-| **Property** | **Purpose** | **Usage** | **Example** |
-| ------------ | ----------- | --------- | ----------- |
-| `x-decorator` | Wrapper component | Field decoration | `"FormItem"` |
-| `x-decorator-props` | Decorator props | Decorator configuration | `{ label: "Field Label" }` |
-| `x-content` | Static content | Text/HTML content | `"Submit Form"` |
-| `x-data` | Static data | Pre-filled data | `{ options: ["A", "B"] }` |
-
-### 🎯 Conditional Logic:
-
-| **Property** | **Type** | **Purpose** | **Example** |
-| ------------ | -------- | ----------- | ----------- |
-| `x-visible` | boolean/string | Show/hide component | `"\{\{ $form.type === 'premium' \}\}"` |
-| `x-disabled` | boolean/string | Enable/disable | `"\{\{ $form.readonly \}\}"` |
-| `x-pattern` | object | Display patterns | `{ loading: "\{\{ $form.isLoading \}\}" }` |
-| `x-validator` | string/function | Custom validation | `"validateCPF"` |
-
-### 📱 Responsive & Layout:
-
-| **Property** | **Configuration** | **Purpose** | **Example** |
+| **Propriedade** | **Configuração** | **Propósito** | **Exemplo** |
 | ------------ | ----------------- | ----------- | ----------- |
-| `x-ui.grid` | Grid system | Responsive layout | `{ xs: 12, md: 6, lg: 4 }` |
-| `x-ui.order` | number | Display order | `1`, `2`, `3` |
-| `x-ui.span` | number | Column span | `2` (spans 2 columns) |
-| `x-ui.offset` | number | Column offset | `1` (offset by 1 column) |
+| `x-ui.grid` | Sistema de grid | Layout responsivo | `{ xs: 12, md: 6, lg: 4 }` |
+| `x-ui.order` | number | Ordem de exibição | `1`, `2`, `3` |
+| `x-ui.span` | number | Colunas ocupadas | `2` (ocupa 2 colunas) |
+| `x-ui.offset` | number | Offset de coluna | `1` (desloca 1 coluna) |
 
 
-## 🔍 Expression Language
+## Expression Language
 
-**Sintaxe para expressões dinâmicas dentro dos schemas:**
+**Sintaxe para expressões dinâmicas nos schemas. As expressões são processadas pelo middleware de template e suportam `$formValues` e `$externalContext`.**
 
-### 📊 Expression Types:
+### Tipos de Expressão:
 
-| **Expression Type** | **Syntax** | **Context** | **Example** |
+| **Tipo de Expressão** | **Sintaxe** | **Contexto** | **Exemplo** |
 | ------------------- | ---------- | ----------- | ----------- |
-| **Form State** | `\{\{ $form.fieldName \}\}` | Form values | `"\{\{ $form.email \}\}"` |
-| **Segment Context** | `\{\{ $segment.property \}\}` | User context | `"\{\{ $segment.role \}\}"` |
-| **Association Target** | `\{\{ $target.property \}\}` | Linked configs | `"\{\{ $target.locale.title \}\}"` |
-| **External Context** | `\{\{ $context.property \}\}` | External data | `"\{\{ $context.user.name \}\}"` |
+| **Valores do formulário** | `{{ $formValues.fieldName }}` | Estado atual do formulário | `"{{ $formValues.email }}"` |
+| **Contexto externo** | `{{ $externalContext.property }}` | `externalContext` do Provider | `"{{ $externalContext.user.name }}"` |
 
-### ⚡ Operators Available:
+### Operadores Disponíveis:
 
-| **Operator** | **Usage** | **Example** | **Result** |
+| **Operador** | **Uso** | **Exemplo** | **Resultado** |
 | ------------ | --------- | ----------- | ---------- |
-| `===`, `!==` | Equality | `"\{\{ $segment.role === 'admin' \}\}"` | boolean |
-| `&&`, `\|\|` | Logical | `"\{\{ $form.type === 'user' && $segment.plan === 'premium' \}\}"` | boolean |
-| `>`, `<`, `>=`, `<=` | Comparison | `"\{\{ $form.age >= 18 \}\}"` | boolean |
-| `contains()` | Array/string contains | `"\{\{ contains($segment.roles, 'admin') \}\}"` | boolean |
-| `startsWith()` | String starts | `"\{\{ startsWith($form.email, 'admin') \}\}"` | boolean |
+| `===`, `!==` | Igualdade | `"{{ $externalContext.role === 'admin' }}"` | boolean |
+| `&&`, `\|\|` | Lógico | `"{{ $formValues.type === 'user' && $externalContext.plan === 'premium' }}"` | boolean |
+| `>`, `<`, `>=`, `<=` | Comparação | `"{{ $formValues.age >= 18 }}"` | boolean |
+
+Expressões podem ser usadas dentro de strings em props (ex.: em `x-component-props`) e são avaliadas com os valores atuais do formulário e do contexto externo.
 
 
-## 💡 Conceitos Relacionados
+## Conceitos Relacionados
 
 **Schema Language é a "sintaxe" que conecta todos os conceitos:**
 
-- **[01. Factories](./01-factories.md):** Factories interpretam Schema Language
+- **[01. Factories](./01-factories.md):** Factories interpretam o Schema Language
 - **[04. Schema Resolution](./04-schema-resolution.md):** Pipeline que processa a sintaxe  
-- **[05. Renderer](./05-renderer.md):** Renderers executam as propriedades dos schemas
-- **[06. Middleware](./06-middleware.md):** Pipeline transforma propriedades dos schemas
-- **[03. Provider](./03-provider.md):** Configura components e contexts usados nos schemas
-- **[07. Debug System](./07-debug-system.md):** Debug mostra como schemas são interpretados
-
+- **[05. Renderer](./05-renderer.md):** Renderers executam propriedades do schema
+- **[06. Middleware](./06-middleware.md):** Pipeline transforma propriedades do schema (incluindo expressões de template)
+- **[03. Provider](./03-provider.md):** Configura componentes e contextos usados nos schemas
+- **[07. Debug System](./07-debug-system.md):** Debug mostra como os schemas são interpretados

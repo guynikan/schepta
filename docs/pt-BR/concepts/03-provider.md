@@ -1,136 +1,92 @@
 # Contexto Global
 
-**Sistema que gerencia configurações e estado compartilhado** — o "centro de comando" que coordena todo o schepta.
+**Sistema que gerencia configuração e estado compartilhados** — o "centro de comando" que coordena todo o schepta.
 
 <img src="/images/03-provider.svg" alt="Provider" />
 
+**O Provider Pattern centraliza as configurações que todos os componentes precisam compartilhar:**
 
-**Provider Pattern centraliza configurações que todos os componentes precisam compartilhar:**
-
-### 🔧 O Que Faz:
+### O Que Faz:
 
 | **Configuração** | **Escopo** | **Benefício** | **Exemplo** |
 | ---------------- | ---------- | ------------- | ----------- |
-| **Component Registry** | Global | Componentes padronizados | MUI como padrão |
-| **Middleware Stack** | Global | Comportamento consistente | Validação uniforme |
-| **Context Providers** | Global | Estado compartilhado | User, permissions, locale |
+| **Registro de componentes** | Global | Componentes padronizados | Sobrescrever os defaults built-in da factory |
+| **Stack de middleware** | Global | Comportamento consistente | Expressões de template, validação |
+| **Contexto externo** | Global | Estado compartilhado | Usuário, API, locale |
 
-### 📊 Hierarquia de Configuração:
+### Hierarquia de Configuração:
 
-**Provider Hierarchy:**
+**Hierarquia do Provider:**
 ```text
-scheptaProvider (App Level)
-    ├── Component Registry Global
-    ├── Middleware Global  
-    └── Context Providers
-        └── FormFactory/MenuFactory (Local)
-            ├── Local Component Overrides
-            └── Local Middleware Overrides
+ScheptaProvider (Nível da App)
+    ├── components, customComponents, renderers
+    ├── middlewares (array)
+    ├── externalContext
+    └── debug
+        └── FormFactory / MenuFactory (Local)
+            ├── Overrides locais de componentes (prop components)
+            └── Overrides locais de middleware (prop middlewares)
 ```
 
 **Exemplo Rápido:**
 ```jsx
-<scheptaProvider
+<ScheptaProvider
   components={{ InputText: MUITextField, Button: MUIButton }}
-  middleware={{ withValidation, withAnalytics }}
+  middlewares={[withValidation, withAnalytics]}
+  externalContext={{ user: currentUser, api: apiUrl }}
+  debug={{ enabled: true }}
 >
   <App />
-</scheptaProvider>
+</ScheptaProvider>
 ```
 
-> **💡 Resultado:** Configuração uma vez → Disponível em toda aplicação. 
+> **Resultado:** Configure uma vez → Disponível em toda a aplicação.
 
 
-## 🚀 Tipos de Provider
+## Props do ScheptaProvider
 
-**Cada provider gerencia um aspecto específico do sistema:**
+| **Prop** | **Tipo** | **Descrição** |
+| -------- | -------- | ---------------- |
+| `components` | `Record<string, ComponentSpec>` | Registro global de componentes (opcional). Mesclado com os defaults da factory; props locais da factory sobrescrevem. |
+| `customComponents` | `Record<string, ComponentSpec>` | Componentes customizados por chave do schema, usados quando o nó tem `x-custom: true` (opcional). |
+| `renderers` | `Partial<Record<ComponentType, RendererSpec>>` | Renderers customizados por tipo de componente (opcional). |
+| `middlewares` | `MiddlewareFn[]` | Array de funções de middleware. Executadas em ordem; o middleware de expressões de template roda primeiro ao usar FormFactory. |
+| `externalContext` | `object` | Contexto compartilhado (usuário, API, etc.). Disponível nas expressões como `$externalContext`. |
+| `debug` | `DebugConfig` | Configuração de debug (ex.: `{ enabled: true }`). |
 
-### 🎨 scheptaProvider - Master Provider:
-
-| **Configuration** | **Purpose** | **Default** | **Override Level** |
-| ----------------- | ----------- | ----------- | ------------------ |
-| `components` | Global component registry | Built-in components | Local factory props |
-| `middleware` | Global middleware stack | Basic middleware | Local factory props |
-| `debug` | Debug panel configuration | Auto (dev mode) | Environment variables |
-
-### 🎛️ Component Registry Provider:
-
-| **Registration Type** | **Scope** | **Priority** | **Use Case** |
-| --------------------- | --------- | ------------ | ------------ |
-| **Default Registry** | System-wide | Lowest | Built-in components |
-| **Global Registry** | Application-wide | Medium | Consistent UI library |
-| **Local Registry** | Factory-specific | Highest | Component overrides |
-| **Dynamic Registry** | Runtime | Variable | A/B testing, themes |
-
-### 🔧 Middleware Provider:
-
-| **Middleware Type** | **Scope** | **Execution** | **Purpose** |
-| ------------------- | --------- | ------------- | ----------- |
-| **Core Middleware** | System | Always executed | Essential functionality |
-| **Global Middleware** | Application | Configurable | Consistent behavior |
-| **Local Middleware** | Factory | Override/extend | Specific functionality |
-| **Conditional Middleware** | Context-based | Conditional | Role/tenant specific |
+**Ordem de resolução:** Defaults da factory → Config do Provider → Props locais da factory (local vence).
 
 
-## ⚙️ Provider Architecture
+## Arquitetura do Provider
 
-**Como o sistema de providers funciona:**
+**Como o sistema de provider funciona:**
 
-### 📋 Provider Initialization:
+### Propagação de Contexto:
 
-| **Phase** | **Process** | **Result** | **Dependencies** |
-| --------- | ----------- | ---------- | ---------------- |
-| **1. Provider Setup** | Initialize provider context | Context available | None |
-| **2. Registry Registration** | Register global components | Global registry populated | Component definitions |
-| **3. Middleware Registration** | Register global middleware | Middleware stack ready | Middleware functions |
-| **4. Context Propagation** | Propagate to child components | Providers active | React/Vue context |
+**React:** Um único contexto expõe toda a configuração do provider. Use `useSchepta()` (lança erro se não houver provider) ou `useScheptaContext()` (retorna null se não houver provider).
 
-### 🎯 Context Propagation:
-
-**React Context Usage:**
 ```typescript
-// Provider contexts
-const scheptaContext = createContext<scheptaConfig>();
-const ComponentRegistryContext = createContext<ComponentRegistry>();
-const MiddlewareContext = createContext<MiddlewareStack>();
+import { useSchepta, useScheptaContext } from '@schepta/adapter-react';
 
-// Hook access
-const useschepta = () => useContext(scheptaContext);
-const useComponentRegistry = () => useContext(ComponentRegistryContext);
-const useMiddleware = () => useContext(MiddlewareContext);
+// Uso obrigatório (lança quando não há provider)
+const config = useSchepta();
+// config.components, config.customComponents, config.renderers,
+// config.middlewares, config.externalContext, config.debug
+
+// Uso opcional (null quando não há provider)
+const config = useScheptaContext();
 ```
 
-**Configuration Inheritance:**
+**Merge de configuração:** As factories mesclam a config do Provider com seus próprios defaults e props locais. Ordem de resolução de componentes: default (factory) → `components` do Provider → `components` local. Mesma ideia para renderers e middlewares.
+
+
+## Padrões de Configuração
+
+### Integração com Biblioteca de Componentes:
+
+**Integração Material-UI:**
 ```typescript
-const mergedConfig = {
-  // Default configuration
-  ...defaultscheptaConfig,
-  
-  // Provider configuration  
-  ...providerConfig,
-  
-  // Runtime overrides
-  ...runtimeConfig
-};
-```
-
-
-## 📊 Configuration Patterns
-
-**Padrões comuns de configuração do provider:**
-
-### 🎯 Application-Level Patterns:
-
-| **Pattern** | **Use Case** | **Configuration** | **Benefits** |
-| ----------- | ------------ | ----------------- | ----------- |
-| **Component Library** | Design system | Consistent components | Development speed |
-| **Micro-frontends** | Distributed app | Scoped configurations | Team independence |
-
-### 🔧 Component Library Integration:
-
-**Material-UI Integration:**
-```typescript
-<scheptaProvider
+<ScheptaProvider
   components={{
     InputText: MuiTextField,
     Button: MuiButton,
@@ -139,12 +95,12 @@ const mergedConfig = {
   }}
 >
   <App />
-</scheptaProvider>
+</ScheptaProvider>
 ```
 
-**Ant Design Integration:**
+**Integração Ant Design:**
 ```typescript
-<scheptaProvider
+<ScheptaProvider
   components={{
     InputText: AntInput,
     Button: AntButton,
@@ -153,35 +109,35 @@ const mergedConfig = {
   }}
 >
   <App />
-</scheptaProvider>
+</ScheptaProvider>
 ```
 
-### 🎨 Multi-Tenant Configuration:
+### Configuração Multi-tenant:
 
-**Tenant-Specific Providers:**
+**Providers por tenant:**
 ```typescript
 const TenantProvider = ({ tenant, children }) => {
   const tenantConfig = getTenantConfig(tenant);
-  
+
   return (
-    <scheptaProvider
+    <ScheptaProvider
       components={tenantConfig.components}
-      middleware={tenantConfig.middleware}
+      middlewares={tenantConfig.middlewares}
+      externalContext={tenantConfig.externalContext}
     >
       {children}
-    </scheptaProvider>
+    </ScheptaProvider>
   );
 };
 ```
 
 
-## 💡 Conceitos Relacionados
+## Conceitos Relacionados
 
-**Provider Pattern gerencia configuração de todos os outros conceitos:**
+**O Provider Pattern gerencia a configuração de todos os outros conceitos:**
 
-- **[01. Factories](./01-factories.md):** Factories usam configuração do Provider
-- **[04. Schema Resolution](./04-schema-resolution.md):** Resolution usa context do Provider  
-- **[05. Renderer](./05-renderer.md):** Renderers resolvidos via Provider registry
-- **[06. Middleware](./06-middleware.md):** Middleware registrados no Provider
+- **[01. Factories](./01-factories.md):** Factories usam a configuração do Provider
+- **[04. Schema Resolution](./04-schema-resolution.md):** A resolução usa o contexto do Provider  
+- **[05. Renderer](./05-renderer.md):** Renderers resolvidos via Provider
+- **[06. Middleware](./06-middleware.md):** Middleware registrado no Provider (array `middlewares`)
 - **[07. Debug System](./07-debug-system.md):** Debug configurado via Provider
-

@@ -1,174 +1,69 @@
-# Herramientas Visuales
+# Sistema de Debug
 
-**Sistema de debug visual integrado para desarrollo rápido** — el "rayos X" que muestra cómo funciona todo internamente.
+**Soporte configurable de debug para desarrollo** — logging y buffer para rastrear resolución y middleware.
 
 <img src="/images/07-debug-system.svg" alt="Debug System" />
 
+**El debug se activa vía configuración y proporciona una función de log y un buffer opcional usados durante el render:**
 
-**El Sistema de Debug ofrece visibilidad completa de lo que sucede durante el renderizado:**
+### Qué Proporciona:
 
-### 🔧 Qué Muestra:
+| **Recurso** | **Propósito** |
+| ----------- | ----------- |
+| **DebugConfig** | Habilitar debug y flags opcionales para log de resolución de componentes, middleware y reacciones |
+| **Contexto de debug** | Función `log(category, message, data?)` y un `buffer` (add, clear, getAll) pasados por middleware y resolución |
+| **Activación** | Establecer `debug={{ enabled: true }}` en ScheptaProvider o FormFactory |
 
-| **Información** | **Dónde Aparece** | **Cuándo Se Actualiza** | **Útil Para** |
-| -------------- | ---------------- | ------------------- | ------------- |
-| **Estado del Formulario** | Panel de Debug | En cada cambio | Ver valores en tiempo real |
-| **Schema Aplicado** | Inspector de Schema | Cuando cambia el schema | Validar estructura |
-| **Resolución de Componente** | Árbol de Componentes | En cada renderizado | Debug de conflictos de registro |
-| **Pipeline de Middleware** | Tracer de Pipeline | Por ejecución | Ajuste de rendimiento |
-| **Métricas de Rendimiento** | Monitor de Rendimiento | Continuamente | Optimización |
+**Activación:**
+```tsx
+<ScheptaProvider debug={{ enabled: true }}>
+  <App />
+</ScheptaProvider>
 
-### 📊 Activación Automática:
-
-**Modo Desarrollo:**
-```text
-NODE_ENV=development → Panel de Debug activo automáticamente
+// O por factory
+<FormFactory schema={schema} debug={true} />
 ```
 
-**Override Manual:**
-```text
-REACT_APP_DEBUG_schepta=true → Forzar debug en producción
-```
-
-**Toggle en Runtime:**
-```javascript
-window.schepta_DEBUG = true; // Activar debug vía consola
-```
-
-> **💡 Resultado:** Transparencia completa del sistema. ¡Debug visual sin configuración!
+> **Resultado:** Cuando está habilitado, el sistema puede registrar resolución de componentes, ejecución de middleware y reacciones. Middleware y orquestador reciben un contexto de debug y pueden registrar o bufferizar entradas.
 
 
-## 🚀 Componentes del Sistema de Debug
+## Configuración de Debug
 
-**Cada herramienta tiene una función específica:**
+**DebugConfig** (de `@schepta/core`):
 
-### 📊 Debug Panel - Panel Principal:
+| **Propiedad** | **Tipo** | **Descripción** |
+| ------------ | -------- | --------------- |
+| `enabled` | boolean | Interruptor general del debug |
+| `logComponentResolution` | boolean (opcional) | Registrar cuando se resuelven componentes |
+| `logMiddlewareExecution` | boolean (opcional) | Registrar cuando corre el middleware |
+| `logReactions` | boolean (opcional) | Registrar ejecución de reacciones |
 
-| **Sección** | **Contenido** | **Actualización** | **Interacción** |
-| --------- | ------------ | --------------- | ------------- |
-| **Valores del Formulario** | Valores actuales de campos | Tiempo real | Vista de solo lectura |
-| **Estado de Validación** | Errores, touched, dirty | En validación | Click para ver detalles |
-| **Árbol de Schema** | Estructura del schema | Al cambiar schema | Árbol expandible |
-| **Mapa de Componentes** | Componentes resueltos | En renderizado | Click para inspeccionar |
-| **Rendimiento** | Tiempo de renderizado | Continuamente | Hover para detalles |
+**DebugContextValue** (pasado cuando el debug está habilitado):
 
-### 🔍 Schema Inspector - Análisis de Schema:
+- `isEnabled` — true cuando el debug está activo
+- `log(category, message, data?)` — registrar un mensaje (ej. en consola)
+- `buffer` — `{ add(entry), clear(), getAll() }` para almacenar entradas de debug (ej. para inspección posterior)
 
-| **Característica** | **Visualización** | **Propósito** | **Navegación** |
-| ----------- | ---------------- | ------------- | ------------- |
-| **Árbol de Schema** | Vista jerárquica | Ver estructura completa | Expandir/colapsar |
-| **Detalles de Propiedad** | Pares clave-valor | Ver propiedades | Click para detalles |
-| **Reglas de Validación** | Lista de reglas | Ver reglas aplicadas | Hover para descripción |
-| **Mapeo de Componentes** | Schema → Componente | Ver resolución | Click para componente |
-
-### 🎛️ Component Tree - Visor de Jerarquía:
-
-| **Información** | **Visualización** | **Propósito** | **Acciones** |
-| --------------- | ----------- | ----------- | ----------- |
-| **Nombre de Componente** | Nodo del árbol | Identificar tipo de componente | Click para inspeccionar |
-| **Props** | Objeto expandible | Ver props actuales | Editar en devtools |
-| **Fuente de Registro** | Badge | Ver de dónde vino el componente | Trazar resolución |
-| **Contador de Renderizado** | Contador | Monitoreo de rendimiento | Reiniciar contador |
-
-### ⚡ Performance Monitor - Métricas en Tiempo Real:
-
-| **Métrica** | **Medición** | **Umbral** | **Alerta** |
-| ---------- | --------------- | ------------- | --------- |
-| **Tiempo de Renderizado** | Milisegundos por renderizado | > 16ms | Advertencia de rendimiento |
-| **Contador de Re-renderizado** | Contador por interacción | > 5 | Optimización necesaria |
-| **Procesamiento de Schema** | Tiempo para procesar schema | > 50ms | Advertencia de schema complejo |
-| **Uso de Memoria** | Memoria de componente | > 10MB | Advertencia de fuga de memoria |
+Las factories crean un contexto de debug cuando `debug.enabled` es true y lo pasan al contexto de middleware y a la resolución. El middleware puede usar `context.debug?.log()` para enviar información cuando el debug está habilitado.
 
 
-## ⚙️ Arquitectura de Debug
+## Cómo Funciona
 
-**Cómo funciona el sistema de debug internamente:**
+1. **Provider o FormFactory** recibe `debug` (ej. `{ enabled: true }`).
+2. **Config mezclada** incluye debug; cuando está habilitado, se crea un contexto de debug (ej. con `log` escribiendo en consola y un buffer).
+3. **Contexto de middleware** incluye `debug`. El middleware puede llamar a `context.debug?.log('middleware', 'message', data)`.
+4. **Resolución** puede usar el debug para advertir cuando no se encuentra un componente o cuando `x-custom` está definido pero no hay componente custom registrado.
 
-### 📋 Pipeline de Debug:
-
-| **Etapa** | **Proceso** | **Datos Colectados** | **Almacenamiento** |
-| --------- | ----------- | ------------------ | ----------- |
-| **1. Instalación de Hooks** | Instalar hooks de debug | Ciclo de vida del componente | Contexto de debug |
-| **2. Recolección de Datos** | Recolectar datos de renderizado | Props, estado, tiempo | Buffer circular |
-| **3. Procesamiento** | Procesar datos recolectados | Métricas, relaciones | Estado computado |
-| **4. Visualización** | Actualizar UI de debug | Snapshot actual | Estado React/Vue |
-| **5. Interacción** | Manejar interacción del usuario | Selecciones del usuario | Estado local |
-
-### 🎯 Estrategia de Recolección de Datos:
-
-**Seguimiento de Renderizado:**
-```typescript
-const debugData = {
-  timestamp: Date.now(),
-  component: componentName,
-  props: cloneDeep(props),
-  schema: cloneDeep(schema),
-  renderTime: performance.now() - startTime,
-  memoryUsage: getMemoryUsage()
-};
-```
-
-**Seguimiento de Pipeline:**
-```typescript
-const pipelineTrace = {
-  middlewareName: middleware.name,
-  inputProps: cloneDeep(inputProps),
-  outputProps: cloneDeep(outputProps),
-  executionTime: executionEnd - executionStart,
-  errors: capturedErrors
-};
-```
-
-**Seguimiento de Rendimiento:**
-```typescript
-const performanceMetrics = {
-  renderCount: renderCount,
-  totalRenderTime: totalTime,
-  averageRenderTime: totalTime / renderCount,
-  memoryDelta: currentMemory - previousMemory
-};
-```
+Esto da visibilidad sobre resolución y middleware sin requerir una UI separada; puedes extender el buffer o la salida de log según necesites en tu aplicación.
 
 
-## 📊 Características de Debug
+## Conceptos Relacionados
 
-**Funcionalidades específicas para cada tipo de problema:**
+**El debug se configura y usa en todos los conceptos:**
 
-### 🔧 Características de Debug de Formulario:
-
-| **Característica** | **Propósito** | **Datos Mostrados** | **Acciones Disponibles** |
-| ----------- | ----------- | --------------- | -------------------- |
-| **Value Inspector** | Ver valores actuales | Estado del formulario en tiempo real | Copiar valores |
-| **Validation Tracer** | Debug de validación | Reglas + resultados | Probar validación |
-| **Field Mapper** | Schema a componente | Mapeo de campos | Inspeccionar componente |
-| **Submit Tracer** | Debug de envío de formulario | Flujo de datos de envío | Simular envío |
-
-### 🧭 Características de Debug de Menú:
-
-| **Característica** | **Propósito** | **Datos Mostrados** | **Acciones Disponibles** |
-| ----------- | ----------- | --------------- | -------------------- |
-| **Navigation Tree** | Estructura de menú | Menú jerárquico | Expandir/colapsar |
-| **Visibility Logic** | Debug mostrar/ocultar | Expresiones de visibilidad | Probar condiciones |
-| **Route Mapping** | Menú a rutas | Mapeos de URL | Navegar directamente |
-| **Permission Check** | Debug de permisos | Lógica de permisos | Probar con roles |
-
-### 🎨 Características de Debug de Componente:
-
-| **Característica** | **Propósito** | **Datos Mostrados** | **Acciones Disponibles** |
-| ----------- | ----------- | --------------- | -------------------- |
-| **Registry Inspector** | Debug de resolución de componentes | Cadena de resolución | Override de componentes |
-| **Props Tracer** | Debug de flujo de props | Pipeline de middleware | Probar transformaciones |
-| **Context Viewer** | Debug de contexto | Valores de contexto | Modificar contexto |
-| **Render Profiler** | Debug de rendimiento | Métricas de renderizado | Perfilar renderizados |
-
-
-## 💡 Conceptos Relacionados
-
-**El Sistema de Debug es "observabilidad" para todos los demás conceptos:**
-
-- **[01. Factories](./01-factories.md):** Debug muestra cómo las factories procesan schemas
-- **[04. Schema Resolution](./04-schema-resolution.md):** Debug rastrea pasos de resolución  
-- **[05. Renderer](./05-renderer.md):** Debug muestra qué renderer fue elegido
-- **[06. Middleware](./06-middleware.md):** Debug muestra middleware aplicado
-- **[03. Provider](./03-provider.md):** Debug configurado vía Provider
-- **[02. Schema Language](./02-schema-language.md):** Debug valida sintaxis de schema
-
+- **[01. Factories](./01-factories.md):** Las factories pasan el debug al pipeline
+- **[04. Schema Resolution](./04-schema-resolution.md):** La resolución puede registrar los pasos cuando el debug está habilitado  
+- **[05. Renderer](./05-renderer.md):** Los renderers reciben las props tras el middleware (el debug puede haberse usado ahí)
+- **[06. Middleware](./06-middleware.md):** El middleware recibe `context.debug` y puede registrar o bufferizar
+- **[03. Provider](./03-provider.md):** Debug configurado vía prop `debug` del Provider
+- **[02. Schema Language](./02-schema-language.md):** El schema es lo que la resolución y el middleware procesan; el debug ayuda a rastrear cómo se interpreta

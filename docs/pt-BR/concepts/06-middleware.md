@@ -1,187 +1,99 @@
 # Transformação de Props
 
-**Sistema que intercepta e modifica props antes da renderização** — o "filtro inteligente" entre schema e component.
+**Sistema que intercepta e modifica props antes da renderização** — o "filtro inteligente" entre schema e componente.
 
 <img src="/images/06-middleware.svg" alt="Middleware" />
 
+**O Pipeline de Middleware permite modificar o comportamento dos componentes sem alterar código:**
 
-**Middleware Pipeline permite modificar comportamento dos componentes sem alterar o código:**
+### O Que Faz:
 
-### 🔧 O Que Faz:
-
-| **Input** | **Middleware** | **Transformation** | **Output** |
+| **Entrada** | **Middleware** | **Transformação** | **Saída** |
 | --------- | -------------- | ------------------ | ---------- |
-| Raw props do schema | `withValidation` | Adiciona rules de validação | Props com validation |
-| Valores brutos | `withFormatting` | Formata CPF, phone, etc. | Valores formatados |
-| Props básicos | `withConditional` | Aplica regras de visibilidade | Props condicionais |
-| Component props | `withCustomLogic` | Business logic específica | Props finais |
+| Props brutas do schema | Middleware de expressões de template | Substitui `{{ $formValues.x }}`, `{{ $externalContext.x }}` | Props resolvidas |
+| Props + schema + contexto | Middleware customizado | Validação, formatação, lógica | Props finais |
+| Props do componente | Seu middleware | Qualquer transformação | Props enriquecidas |
 
-### 📊 Pipeline Flow:
+### Fluxo do Pipeline:
 
-**Execução Sequencial:**
+**Execução sequencial (ordem do array):**
 ```text
-Raw Props → Middleware 1 → Middleware 2 → Middleware N → Final Props → Component
+Props Brutas → Middleware 1 → Middleware 2 → ... → Props Finais → Componente
 ```
 
-**Exemplo Prático:**
+**Built-in:** O middleware de expressões de template roda primeiro (ao usar FormFactory), então os valores do formulário e o contexto externo ficam disponíveis para substituição. Em seguida quaisquer middlewares que você passar (`middlewares` do Provider e `middlewares` da factory) rodam em ordem.
+
+> **Resultado:** Props básicas → Props enriquecidas. Funcionalidade sem código duplicado!
+
+
+## Interface do Middleware
+
+**Assinatura (de `@schepta/core`):**
+
 ```typescript
-// Input
-{ name: "cpf", value: "12345678901", required: true }
+import type { MiddlewareFn, MiddlewareContext } from '@schepta/core';
 
-// Middleware Pipeline
-→ withFormatting: formata CPF
-→ withValidation: adiciona validação
-→ withCustomLogic: adiciona business rules
-
-// Output  
-{ name: "cpf", value: "123.456.789-01", required: true, pattern: /\d{3}\.\d{3}\.\d{3}-\d{2}/, onValidate: validateCPF }
-```
-
-> **💡 Resultado:** Props básicos → Props enriquecidos. Funcionalidade sem código duplicado!
-
-
-## 🚀 Tipos de Middleware
-
-**Cada middleware tem uma responsabilidade específica:**
-
-### 🛡️ Validation Middleware:
-
-| **Função** | **Entrada** | **Transformação** | **Resultado** |
-| ---------- | ----------- | ----------------- | ------------- |
-| **Required Fields** | `required: true` | Adiciona validator | Campo obrigatório |
-| **Pattern Validation** | `pattern: "email"` | Regex validation | Email válido |
-| **Custom Rules** | `x-rules: { minLength: 8 }` | Business validation | Regras específicas |
-| **Cross-Field** | Multiple field refs | Field dependency | Validação entre campos |
-
-### 🎨 Formatting Middleware:
-
-| **Função** | **Entrada** | **Transformação** | **Resultado** |
-| ---------- | ----------- | ----------------- | ------------- |
-| **CPF/CNPJ** | `type: "cpf"` | Mask formatting | `123.456.789-01` |
-| **Phone** | `type: "phone"` | Phone formatting | `(11) 99999-9999` |
-| **Currency** | `type: "currency"` | Money formatting | `R$ 1.234,56` |
-| **Date** | `type: "date"` | Date formatting | `dd/mm/yyyy` |
-
-### 🎯 Conditional Middleware:
-
-| **Função** | **Entrada** | **Transformação** | **Resultado** |
-| ---------- | ----------- | ----------------- | ------------- |
-| **Visibility** | `visible: "\{\{ expression \}\}"` | Show/hide logic | Component visível/oculto |
-| **Disabled State** | `disabled: "\{\{ condition \}\}"` | Enable/disable | Component habilitado/desabilitado |
-| **Dynamic Props** | `props: "\{\{ context \}\}"` | Context-based props | Props dinâmicos |
-| **Role-based** | `roles: ["admin"]` | Permission check | Component por permissão |
-
-### 🔧 Custom Business Middleware:
-
-| **Função** | **Entrada** | **Transformação** | **Resultado** |
-| ---------- | ----------- | ----------------- | ------------- |
-| **Audit Logging** | Any component | Add logging | Auditoria automática |
-| **Analytics** | User interactions | Add tracking | Métricas de uso |
-| **Caching** | Expensive operations | Add memoization | Performance melhorada |
-| **Error Boundary** | Component errors | Add error handling | Resilência aumentada |
-
-
-## ⚙️ Arquitetura do Pipeline
-
-**Como o sistema de middleware funciona internamente:**
-
-### 📋 Execution Flow:
-
-| **Stage** | **Input** | **Process** | **Output** | **Error Strategy** |
-| --------- | --------- | ----------- | ---------- | ------------------ |
-| **1. Middleware Registration** | Middleware list | Sort by priority | Ordered pipeline | Skip invalid middleware |
-| **2. Props Preparation** | Raw schema props | Normalize props | Standard props | Use defaults |
-| **3. Pipeline Execution** | Props + middleware | Sequential transformation | Enhanced props | Skip failing middleware |
-| **4. Props Validation** | Final props | Validate prop types | Valid props | Filter invalid props |
-| **5. Component Injection** | Component + props | Props injection | Ready component | Error boundary |
-
-### 🎯 Middleware Interface:
-
-**Standard Middleware Signature:**
-```typescript
-type Middleware = (
-  props: ComponentProps,
-  schema: SchemaNode,
-  context: RenderContext
-) => ComponentProps | Promise<ComponentProps>;
-```
-
-**Middleware Registration:**
-```typescript
-const middleware = {
-  // Built-in middleware (always executed)
-  withValidation: validationMiddleware,
-  withFormatting: formattingMiddleware,
-  
-  // Custom middleware (priority-based)
-  withBusinessLogic: customBusinessMiddleware,
-  withAnalytics: analyticsMiddleware
+const myMiddleware: MiddlewareFn = (props, schema, context) => {
+  // props: objeto de props atual
+  // schema: o nó do schema para este componente
+  // context: MiddlewareContext
+  return { ...props, /* suas alterações */ };
 };
 ```
 
-**Priority System:**
+**MiddlewareContext** fornece:
+- `formValues` — valores atuais do formulário (para middleware que usa formulário)
+- `externalContext` — `externalContext` do Provider (usuário, API, etc.)
+- `debug` — utilitários de debug quando debug está habilitado
+- `formAdapter` — adapter de formulário quando disponível (ex.: no FormFactory)
+
+**Registro:** Middlewares são passados como **array**, não como objeto. A ordem de execução é a ordem no array.
+
 ```typescript
-const middlewareOrder = [
-  'withFormatting',    // Priority: 1 (execute first)
-  'withValidation',    // Priority: 2
-  'withConditional',   // Priority: 3
-  'withBusinessLogic', // Priority: 4
-  'withAnalytics'      // Priority: 5 (execute last)
-];
+<ScheptaProvider middlewares={[templateMiddleware, withValidation, withAnalytics]}>
+  ...
+</ScheptaProvider>
+
+// Ou por factory
+<FormFactory schema={schema} middlewares={[customMiddleware]} />
 ```
 
+O pipeline aplica os middlewares em sequência; cada um recebe o resultado do anterior. Use `applyMiddlewares` do core se precisar rodar o mesmo pipeline em outro lugar.
 
-## 📊 Middleware Patterns
 
-**Padrões comuns de implementação de middleware:**
+## Padrões de Middleware
 
-### 🔧 Transformation Patterns:
+**Padrões de transformação:**
 
-| **Pattern** | **Purpose** | **Implementation** | **Example** |
-| ----------- | ----------- | ------------------ | ----------- |
-| **Enhancer** | Add functionality | `props => ({ ...props, newFeature })` | Add validation |
-| **Filter** | Remove/modify props | `props => omit(props, 'sensitiveData')` | Security filtering |
-| **Mapper** | Transform values | `props => ({ ...props, value: transform(props.value) })` | Format values |
-| **Conditional** | Apply conditionally | `(props, schema, context) => condition ? enhance(props) : props` | Role-based features |
+| **Padrão** | **Propósito** | **Implementação** |
+| ----------- | ----------- | ------------------ |
+| **Enhancer** | Adicionar funcionalidade | `(props, schema, context) => ({ ...props, newFeature })` |
+| **Filter** | Remover/modificar props | `(props) => omit(props, 'sensitiveData')` |
+| **Mapper** | Transformar valores | `(props) => ({ ...props, value: transform(props.value) })` |
+| **Conditional** | Aplicar condicionalmente | `(props, schema, context) => condition ? enhance(props) : props` |
 
-### 🎯 Composition Patterns:
-
-**Higher-Order Middleware:**
+**Exemplo – wrapper de logging:**
 ```typescript
-const withLogging = (middleware) => (props, schema, context) => {
-  console.log('Before:', props);
-  const result = middleware(props, schema, context);
-  console.log('After:', result);
+const withLogging = (next: MiddlewareFn): MiddlewareFn => (props, schema, context) => {
+  if (context.debug?.isEnabled) {
+    context.debug.log('middleware', 'Before', props);
+  }
+  const result = next(props, schema, context);
+  if (context.debug?.isEnabled) {
+    context.debug.log('middleware', 'After', result);
+  }
   return result;
 };
 ```
 
-**Async Middleware Chain:**
-```typescript
-const asyncPipeline = async (props, middleware) => {
-  return middleware.reduce(async (propsPromise, middleware) => {
-    const currentProps = await propsPromise;
-    return middleware(currentProps, schema, context);
-  }, Promise.resolve(props));
-};
-```
 
-**Conditional Middleware:**
-```typescript
-const conditionalMiddleware = (condition, middleware) => 
-  (props, schema, context) => 
-    condition(props, schema, context) ? middleware(props, schema, context) : props;
-```
+## Conceitos Relacionados
 
+**O Pipeline de Middleware é o "processador de props" usado por outros conceitos:**
 
-## 💡 Conceitos Relacionados
-
-**Middleware Pipeline é o "processador de props" usado por outros conceitos:**
-
-- **[01. Factories](./01-factories.md):** Factories executam pipeline para cada component
-- **[04. Schema Resolution](./04-schema-resolution.md):** Resolution aplica pipeline durante processamento  
-- **[05. Renderer](./05-renderer.md):** Renderers têm pipeline específica por tipo
-- **[02. Schema Language](./02-schema-language.md):** Propriedades dos schemas transformadas por middleware
-- **[03. Provider](./03-provider.md):** Provider registra middleware globais
-- **[07. Debug System](./07-debug-system.md):** Debug mostra middleware aplicados
-
+- **[01. Factories](./01-factories.md):** Factories executam o pipeline de middleware para cada componente
+- **[04. Schema Resolution](./04-schema-resolution.md):** A resolução aplica o middleware durante o processamento  
+- **[05. Renderer](./05-renderer.md):** Renderers recebem as props após o middleware
+- **[02. Schema Language](./02-schema-language.md):** Propriedades do schema (ex.: `x-component-props`) são transformadas pelo middleware
+- **[03. Provider](./03-provider.md):** O Provider registra o array global `middlewares`
+- **[07. Debug System](./07-debug-system.md):** O debug pode registrar a execução do middleware quando habilitado

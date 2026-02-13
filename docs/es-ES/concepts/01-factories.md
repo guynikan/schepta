@@ -4,106 +4,114 @@
 
 <img src="/images/01-factories.svg" alt="Factories" />
 
-**El patrón Factory es el corazón de schepta:**
+**El Factory Pattern es el corazón de schepta:**
 
-### 🔧 Qué Es:
+### Qué Es:
 
-| **Entrada**      | **Factory**        | **Salida**       | **Resultado**          | **Status** |
+| **Input**      | **Factory**        | **Output**       | **Resultado**          | **Estado** |
 | -------------- | ------------------ | ---------------- | ---------------------- | ------------ |
-| Form JSON      | `FormFactory`      | React/Vue Form   | Interfaz funcional  | ✅ Listo
-| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Navegación completa     | 🚧 Em desenvolvimento
+| Form JSON      | `FormFactory`      | React/Vue Form   | Interfaz funcionando  | Listo
+| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Navegación completa     | En desarrollo
 
-### 📊 Cómo Funciona:
+### Cómo Funciona:
 
 **Proceso Automático:**
-1. **JSON Schema** define estructura y comportamiento
-2. **Factory** interpreta schema y resuelve componentes
-3. **Component Registry** proporciona componentes React/Vue para renderizar
-4. **Middleware Pipeline** transforma props
-5. **React/Vue Component** renderiza interfaz final
+1. **JSON Schema** define estructura y comportamiento (usando `properties` y `x-component` por nodo)
+2. **Factory** interpreta el schema y resuelve componentes del registro (defaults + Provider + props locales)
+3. **Middleware Pipeline** transforma props (ej. expresiones de template)
+4. **React/Vue Component** renderiza la interfaz final
 
 **Ejemplo Rápido:**
 ```json
-{ "fields": [{ "name": "email", "x-component": "InputEmail" }] }
+{
+  "type": "object",
+  "x-component": "FormContainer",
+  "properties": {
+    "email": {
+      "type": "string",
+      "x-component": "InputText",
+      "x-component-props": { "placeholder": "Email" }
+    }
+  }
+}
 ```
 ↓ **FormFactory procesa**
 ```jsx
-<input type="email" name="email" />
+<form>
+  <input name="email" placeholder="Email" />
+</form>
 ```
 
-> **💡 Resultado:** JSON estructurado → Interfaz React/Vue funcional. ¡Cero configuración manual!
+> **Resultado:** JSON estructurado → Interfaz React/Vue funcional. ¡Cero configuración manual!
 
-## 🚀 Tipos de Factory
+## Tipos de Factory
 
 **Cada Factory está especializada en un tipo de interfaz:**
 
-### 📝 FormFactory - Formularios Dinámicos:
+### FormFactory - Formularios Dinámicos:
 
 | **Propiedad del Schema** | **Función** | **Ejemplo** | **Resultado** |
 | ------------------- | ---------- | ----------- | ------------- |
-| `fields[]` | Define campos del formulario | `[{ name: "email" }]` | Campo de email |
-| `x-component` | Tipo de entrada | `"InputText"` | Entrada de texto |
-| `required` | Validación requerida | `true` | Campo requerido |
-| `x-rules` | Validaciones personalizadas | `{ minLength: 8 }` | Validación de longitud |
+| `properties` | Define la estructura del formulario (JSON Schema) | `{ "email": { ... } }` | Nodos anidados con componentes |
+| `x-component` | Componente a renderizar | `"InputText"` | Input de texto |
+| `x-component-props` | Props del componente | `{ "placeholder": "Email" }` | Pasadas al componente |
 
-### 🧭 MenuFactory - Navegación Dinámica:
+### MenuFactory - Navegación Dinámica:
 
 | **Propiedad del Schema** | **Función** | **Ejemplo** | **Resultado** |
 | ------------------- | ---------- | ----------- | ------------- |
-| `properties{}` | Define elementos del menú | `{ "home": {...} }` | Elemento de navegación |
+| `properties` | Define ítems de menú | `{ "home": {...} }` | Ítem de navegación |
 | `x-component-props.href` | Enlace de navegación | `"/dashboard"` | Enlace funcional |
-| `active` | Control de visibilidad | `"\{\{ $segment.role === 'admin' \}\}"` | Menú basado en permisos |
 | `properties.submenu` | Submenú jerárquico | Propiedades anidadas | Menú desplegable |
 
-## ⚙️ Arquitectura de Factory
+## Arquitectura de la Factory
 
-**Cómo funciona el patrón Factory internamente:**
+**Cómo funciona el Factory Pattern internamente:**
 
-### 🔄 Pipeline de Procesamiento:
+### Pipeline de Procesamiento:
 
 ```
 JSON Schema
     ↓
 Validar Schema (¿Estructura correcta?)
     ↓
-Resolver Componentes (x-component → componente React/Vue)
+Resolver Componentes (x-component → componente de defaults / Provider / local)
     ↓
 Transformar Props (Middleware + contexto)
     ↓
-Orquestar Render (Árbol de componentes final)
+Orquestar Render (Árbol final de componentes)
     ↓
 Elementos React/Vue
 ```
 
-### 🎯 Cómo se Especializan las Factories:
+### Cómo se Especializan las Factories:
 
 **Cada Factory tiene lógica específica para su dominio:**
-- **FormFactory:** Inyecta FormContext, aplica validaciones, gestiona estado
+- **FormFactory:** Inyecta contexto del adapter de formulario, aplica validaciones, gestiona estado
 - **MenuFactory:** Gestiona navegación, estados activos, jerarquía de menú
 
-**Puntos de extensión:** Component Registry (global/local), Middleware Pipeline (transformaciones personalizadas), Context Providers (estado específico del dominio).
+**Puntos de extensión:** `components` y `customComponents` del Provider, props de la Factory para overrides locales, Middleware Pipeline (ej. array `middlewares`), `externalContext` para estado compartido.
 
-## 📊 Casos de Uso Prácticos
+## Casos de Uso Prácticos
 
-**El patrón Factory resuelve problemas reales de desarrollo:**
+**El Factory Pattern resuelve problemas reales de desarrollo:**
 
-### 🎯 Escenarios Resueltos:
+### Escenarios Resueltos:
 
 | **Situación** | **Problema Tradicional** | **Con Factory Pattern** | **Beneficio** |
 | ------------ | ----------------------- | ----------------------- | ------------- |
-| **Formularios Repetitivos** | Copiar-pegar JSX | Schema reutilizable | Principio DRY |
-| **Validaciones Complejas** | Código duplicado | Reglas en schema | Centralización |
-| **Menús Dinámicos** | Condicionales hardcodeados | Expresiones `visible` | Flexibilidad |
+| **Formularios Repetitivos** | Copy-paste de JSX | Schema reutilizable | Principio DRY |
+| **Validaciones Complejas** | Código duplicado | Reglas en el schema | Centralización |
+| **Menús Dinámicos** | Condicionales hardcoded | Expresiones en props | Flexibilidad |
 | **UI Multi-tenant** | Ramas por cliente | Schema por tenant | Escalabilidad |
-| **A/B Testing** | Feature flags complejos | Schemas diferentes | Agilidad |
+| **A/B Testing** | Feature flags complejas | Schemas diferentes | Agilidad |
 
-## 🔗 Enlaces Esenciales
+## Enlaces Esenciales
 
-| **Para Entender** | **Lee** | **Relación con Factories** |
+| **Para Entender** | **Leer** | **Relación con Factories** |
 | ----------------- | -------- | ------------------------- |
 | **Cómo escribir schemas** | [02. Schema Language](./02-schema-language.md) | Sintaxis que las factories interpretan |
 | **Pipeline interno** | [04. Schema Resolution](./04-schema-resolution.md) | Cómo las factories procesan schemas |
 | **Motor de renderizado** | [05. Renderer](./05-renderer.md) | Sistema usado por las factories |
-| **Transformaciones de props** | [06. Middleware](./06-middleware.md) | Pipeline aplicado por las factories |
-| **Configuración global** | [03. Provider](./03-provider.md) | Cómo configurar factories |
-
+| **Transformación de props** | [06. Middleware](./06-middleware.md) | Pipeline aplicado por las factories |
+| **Configuración global** | [03. Provider](./03-provider.md) | Cómo configurar las factories |
