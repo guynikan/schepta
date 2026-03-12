@@ -1,6 +1,6 @@
 {
   "name": "@schepta/factory-react",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "React factories for schepta",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -40,7 +40,8 @@
   },
   "dependencies": {
     "@schepta/core": "workspace:*",
-    "@schepta/adapter-react": "workspace:*"
+    "@schepta/adapter-react": "workspace:*",
+    "@schepta/factories": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

@@ -1,0 +1,27 @@
+{
+  "name": "@schepta/factories",
+  "version": "1.0.0",
+  "description": "Shared schemas and types for Schepta factories",
+  "files": [
+    "schemas"
+  ],
+  "exports": {
+    "./schemas/form-schema.json": "./schemas/form-schema.json",
+    "./schemas": "./schemas/form-schema.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guynikan/schepta.git",
+    "directory": "packages/factories"
+  },
+  "license": "MIT",
+  "keywords": [
+    "schepta",
+    "schemas",
+    "forms",
+    "server-driven-ui"
+  ],
+  "scripts": {
+    "build": "echo 'No build required'"
+  }
+}

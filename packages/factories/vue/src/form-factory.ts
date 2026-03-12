@@ -28,7 +28,7 @@ import {
   createSchemaValidator,
   formatValidationErrors,
 } from '@schepta/core';
-import formSchemaDefinition from '../../src/schemas/form-schema.json';
+import formSchemaDefinition from '@schepta/factories/schemas/form-schema.json';
 import { FormRenderer } from './form-renderer';
 import { ScheptaFormProvider } from './context/schepta-form-context';
 import { defaultComponents } from './defaults/register-default-components';

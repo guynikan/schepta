@@ -31,17 +31,18 @@ if [ "$DRY_RUN" = true ]; then
 fi
 echo ""
 
-# Verificar se NPM_TOKEN está configurado
+# Verificar se NPM_TOKEN está configurado e usar para auth
 if [ -z "$NPM_TOKEN" ]; then
   echo "❌ Erro: NPM_TOKEN não está configurado"
   echo "   Execute: source ~/.zshrc ou export NPM_TOKEN=..."
   exit 1
 fi
+echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
 
 # Verificar se está logado no npm
 if ! npm whoami &>/dev/null; then
-  echo "⚠️  Não está logado no npm. Tentando autenticar..."
-  echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+  echo "❌ Falha na autenticação npm. Verifica o token em https://www.npmjs.com/ (~/Access Tokens)"
+  exit 1
 fi
 
 # Função para publicar um package usando pnpm
@@ -105,7 +106,10 @@ publish_package "@schepta/adapter-react" "@schepta/adapter-react"
 publish_package "@schepta/adapter-vue" "@schepta/adapter-vue"
 publish_package "@schepta/adapter-vanilla" "@schepta/adapter-vanilla"
 
-# 3. Factories (dependem dos adapters)
+# 3. @schepta/factories (schemas; factory-* dependem dele)
+publish_package "@schepta/factories" "@schepta/factories"
+
+# 4. Factories (dependem dos adapters e de @schepta/factories)
 publish_package "@schepta/factory-react" "@schepta/factory-react"
 publish_package "@schepta/factory-vue" "@schepta/factory-vue"
 publish_package "@schepta/factory-vanilla" "@schepta/factory-vanilla"

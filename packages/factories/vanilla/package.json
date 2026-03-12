@@ -1,6 +1,6 @@
 {
   "name": "@schepta/factory-vanilla",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Vanilla JS factories for schepta",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -39,7 +39,8 @@
   },
   "dependencies": {
     "@schepta/core": "workspace:*",
-    "@schepta/adapter-vanilla": "workspace:*"
+    "@schepta/adapter-vanilla": "workspace:*",
+    "@schepta/factories": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

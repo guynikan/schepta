@@ -24,7 +24,7 @@ import { useMergedScheptaConfig } from "./hooks/use-merged-config";
 import { useScheptaForm } from "./hooks/use-schepta-form";
 import { useSchemaValidation } from "./hooks/use-schema-validation";
 import { createDebugContext } from "./utils/debug";
-import formSchemaDefinition from "../../src/schemas/form-schema.json";
+import formSchemaDefinition from "@schepta/factories/schemas/form-schema.json";
 import { ScheptaFormProvider } from "./context/schepta-form-context";
 import { defaultComponents } from "./defaults/register-default-components";
 import { defaultRenderers } from "./defaults/register-default-renderers";

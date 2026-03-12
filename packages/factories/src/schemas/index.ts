@@ -5,7 +5,7 @@
  * autocomplete, and documentation of form and menu configurations.
  */
 
-export { default as formSchema } from './form-schema.json';
+export { default as formSchema } from '@schepta/factories/schemas/form-schema.json';
 
 // Future schemas can be added here:
 // export { default as menuSchema } from './menu-schema.json';

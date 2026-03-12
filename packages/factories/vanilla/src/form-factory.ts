@@ -14,7 +14,7 @@ import {
   getFactoryDefaultComponents,
 } from '@schepta/core';
 import { buildInitialValues } from '@schepta/core';
-import formSchemaDefinition from '../../src/schemas/form-schema.json';
+import formSchemaDefinition from "@schepta/factories/schemas/form-schema.json";
 import { renderForm } from './form-renderer';
 import { registerDefaultComponents } from './defaults/register-default-components';
 import { createDefaultRenderers } from './defaults/register-default-renderers';

@@ -1,6 +1,6 @@
 {
   "name": "@schepta/factory-vue",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Vue factories for schepta",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -38,7 +38,8 @@
   },
   "dependencies": {
     "@schepta/core": "workspace:*",
-    "@schepta/adapter-vue": "workspace:*"
+    "@schepta/adapter-vue": "workspace:*",
+    "@schepta/factories": "workspace:*"
   },
   "peerDependencies": {
     "vue": ">=3.0.0"
