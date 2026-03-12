@@ -10,7 +10,7 @@
 
 | **Entrada** | **Middleware** | **Transformación** | **Salida** |
 | --------- | -------------- | ------------------ | ---------- |
-| Props brutas del schema | Middleware de expresiones de template | Reemplaza `{{ $formValues.x }}`, `{{ $externalContext.x }}` | Props resueltas |
+| Props brutas del schema | Middleware de expresiones de template | Reemplaza <code>&#123;&#123; $formValues.x &#125;&#125;</code>, <code>&#123;&#123; $externalContext.x &#125;&#125;</code> | Props resueltas |
 | Props + schema + contexto | Middleware custom | Validación, formateo, lógica | Props finales |
 | Props del componente | Tu middleware | Cualquier transformación | Props enriquecidas |
 

@@ -12,7 +12,7 @@
 | ----------- | ----------- |
 | **DebugConfig** | Enable debug and optional flags for component resolution, middleware, and reactions logging |
 | **Debug context** | A `log(category, message, data?)` function and a `buffer` (add, clear, getAll) passed through middleware and resolution |
-| **Activation** | Set `debug={{ enabled: true }}` on ScheptaProvider or FormFactory |
+| **Activation** | Set <code>debug=&#123;&#123; enabled: true &#125;&#125;</code> on ScheptaProvider or FormFactory |
 
 **Activation:**
 ```tsx

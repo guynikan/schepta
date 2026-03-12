@@ -84,8 +84,8 @@ Elemento React/Vue Final
 | **Prioridad** | **Fuente** | **Cuándo Usar** | **Ejemplo** |
 | -------------- | --------- | --------------- | ----------- |
 | **1ª - Default** | Built-in de la factory | Comportamiento por defecto | DefaultFieldRenderer para tipo `field` |
-| **2ª - Global** | ScheptaProvider | Por defecto de la aplicación | `<ScheptaProvider renderers={{ field: AppFieldRenderer }} />` |
-| **3ª - Local** | Props de la factory | Override por factory | `<FormFactory renderers={{ field: CustomField }} />` |
+| **2ª - Global** | ScheptaProvider | Por defecto de la aplicación | <code>&lt;ScheptaProvider renderers=&#123;&#123; field: AppFieldRenderer &#125;&#125; /&gt;</code> |
+| **3ª - Local** | Props de la factory | Override por factory | <code>&lt;FormFactory renderers=&#123;&#123; field: CustomField &#125;&#125; /&gt;</code> |
 
 No existe una API separada "registerRenderer"; los renderers vienen de los defaults de la factory, luego de los `renderers` del Provider, luego de la prop `renderers` de la factory.
 

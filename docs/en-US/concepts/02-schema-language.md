@@ -77,7 +77,7 @@
 | ------------ | ------------ | -------- | --------------- | ----------- |
 | `x-content` | No | string | Static content (e.g. button label) | `"Submit Form"` |
 
-**Dynamic values:** Use template expressions in `x-component-props` (or other props) with `{{ $formValues.fieldName }}` and `{{ $externalContext.property }}`. The template middleware replaces these at runtime. See Expression Language below.
+**Dynamic values:** Use template expressions in `x-component-props` (or other props) with <code>&#123;&#123; $formValues.fieldName &#125;&#125;</code> and <code>&#123;&#123; $externalContext.property &#125;&#125;</code>. The template middleware replaces these at runtime. See Expression Language below.
 
 
 ## Schema Types
@@ -138,16 +138,16 @@
 
 | **Expression Type** | **Syntax** | **Context** | **Example** |
 | ------------------- | ---------- | ----------- | ----------- |
-| **Form values** | `{{ $formValues.fieldName }}` | Current form state | `"{{ $formValues.email }}"` |
-| **External context** | `{{ $externalContext.property }}` | Provider `externalContext` | `"{{ $externalContext.user.name }}"` |
+| **Form values** | <code>&#123;&#123; $formValues.fieldName &#125;&#125;</code> | Current form state | <code>"&#123;&#123; $formValues.email &#125;&#125;"</code> |
+| **External context** | <code>&#123;&#123; $externalContext.property &#125;&#125;</code> | Provider `externalContext` | <code>"&#123;&#123; $externalContext.user.name &#125;&#125;"</code> |
 
 ### Operators Available:
 
 | **Operator** | **Usage** | **Example** | **Result** |
 | ------------ | --------- | ----------- | ---------- |
-| `===`, `!==` | Equality | `"{{ $externalContext.role === 'admin' }}"` | boolean |
-| `&&`, `\|\|` | Logical | `"{{ $formValues.type === 'user' && $externalContext.plan === 'premium' }}"` | boolean |
-| `>`, `<`, `>=`, `<=` | Comparison | `"{{ $formValues.age >= 18 }}"` | boolean |
+| `===`, `!==` | Equality | <code>"&#123;&#123; $externalContext.role === 'admin' &#125;&#125;"</code> | boolean |
+| `&&`, `\|\|` | Logical | <code>"&#123;&#123; $formValues.type === 'user' && $externalContext.plan === 'premium' &#125;&#125;"</code> | boolean |
+| `>`, `<`, `>=`, `<=` | Comparison | <code>"&#123;&#123; $formValues.age >= 18 &#125;&#125;"</code> | boolean |
 
 Expressions can be used inside strings in props (e.g. in `x-component-props`) and are evaluated with the current form values and external context.
 

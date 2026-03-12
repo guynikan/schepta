@@ -94,7 +94,7 @@ Final React/Vue Element
 4. **Default props** (component defaults)
 
 **Middleware Resolution Order:**
-- Template expression middleware runs first (so `{{ $formValues.x }}` and `{{ $externalContext.x }}` are resolved).
+- Template expression middleware runs first (so <code>&#123;&#123; $formValues.x &#125;&#125;</code> and <code>&#123;&#123; $externalContext.x &#125;&#125;</code> are resolved).
 - Then **Provider `middlewares`** and **factory `middlewares`** run in array order.
 
 
@@ -105,9 +105,9 @@ Final React/Vue Element
 | **Expression Type**   | **Resolution** | **Example** | **Result** |
 | --------------------- | --------------- | ----------- | ---------- |
 | **Static values**     | Direct          | `"required": true` | `required={true}` |
-| **Form values**       | `$formValues`   | `"{{ $formValues.email }}"` | Current form field value |
-| **External context**  | `$externalContext` | `"{{ $externalContext.user.name }}"` | Value from Provider externalContext |
-| **JEXL expressions**  | Evaluated       | `"{{ $formValues.age >= 18 }}"` | boolean |
+| **Form values**       | `$formValues`   | <code>"&#123;&#123; $formValues.email &#125;&#125;"</code> | Current form field value |
+| **External context**  | `$externalContext` | <code>"&#123;&#123; $externalContext.user.name &#125;&#125;"</code> | Value from Provider externalContext |
+| **JEXL expressions**  | Evaluated       | <code>"&#123;&#123; $formValues.age >= 18 &#125;&#125;"</code> | boolean |
 
 
 ## Related Concepts

@@ -94,7 +94,7 @@ Elemento React/Vue Final
 4. **Props padrão** (defaults do componente)
 
 **Ordem de Resolução de Middleware:**
-- O middleware de expressões de template roda primeiro (assim `{{ $formValues.x }}` e `{{ $externalContext.x }}` são resolvidos).
+- O middleware de expressões de template roda primeiro (assim <code>&#123;&#123; $formValues.x &#125;&#125;</code> e <code>&#123;&#123; $externalContext.x &#125;&#125;</code> são resolvidos).
 - Em seguida **`middlewares` do Provider** e **`middlewares` da factory** rodam na ordem do array.
 
 
@@ -105,9 +105,9 @@ Elemento React/Vue Final
 | **Tipo de Expressão**   | **Resolução** | **Exemplo** | **Resultado** |
 | --------------------- | --------------- | ----------- | ---------- |
 | **Valores estáticos**     | Direto          | `"required": true` | `required={true}` |
-| **Valores do formulário**       | `$formValues`   | `"{{ $formValues.email }}"` | Valor atual do campo |
-| **Contexto externo**  | `$externalContext` | `"{{ $externalContext.user.name }}"` | Valor do externalContext do Provider |
-| **Expressões JEXL**  | Avaliadas       | `"{{ $formValues.age >= 18 }}"` | boolean |
+| **Valores do formulário**       | `$formValues`   | <code>"&#123;&#123; $formValues.email &#125;&#125;"</code> | Valor atual do campo |
+| **Contexto externo**  | `$externalContext` | <code>"&#123;&#123; $externalContext.user.name &#125;&#125;"</code> | Valor do externalContext do Provider |
+| **Expressões JEXL**  | Avaliadas       | <code>"&#123;&#123; $formValues.age >= 18 &#125;&#125;"</code> | boolean |
 
 
 ## Conceitos Relacionados

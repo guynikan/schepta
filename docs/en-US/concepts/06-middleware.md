@@ -10,7 +10,7 @@
 
 | **Input** | **Middleware** | **Transformation** | **Output** |
 | --------- | -------------- | ------------------ | ---------- |
-| Raw props from schema | Template expression middleware | Replaces `{{ $formValues.x }}`, `{{ $externalContext.x }}` | Resolved props |
+| Raw props from schema | Template expression middleware | Replaces <code>&#123;&#123; $formValues.x &#125;&#125;</code>, <code>&#123;&#123; $externalContext.x &#125;&#125;</code> | Resolved props |
 | Props + schema + context | Custom middleware | Validation, formatting, logic | Final props |
 | Component props | Your middleware | Any transformation | Enhanced props |
 
