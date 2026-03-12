@@ -35,6 +35,7 @@ export default defineConfig({
               text: 'Guide',
               items: [
                 { text: 'Quick Start', link: '/en-US/guide/quick-start' },
+                { text: 'Schepta MCP', link: '/en-US/guide/schepta-mcp' },
               ],
             },
           ],
@@ -102,6 +103,7 @@ export default defineConfig({
               text: 'Guia',
               items: [
                 { text: 'Início Rápido', link: '/pt-BR/guide/quick-start' },
+                { text: 'Schepta MCP', link: '/pt-BR/guide/schepta-mcp' },
               ],
             },
           ],
@@ -169,6 +171,7 @@ export default defineConfig({
               text: 'Guía',
               items: [
                 { text: 'Inicio Rápido', link: '/es-ES/guide/quick-start' },
+                { text: 'Schepta MCP', link: '/es-ES/guide/schepta-mcp' },
               ],
             },
           ],
