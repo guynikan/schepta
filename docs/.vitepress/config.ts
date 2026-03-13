@@ -13,6 +13,9 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
     ['link', { rel: 'manifest', href: '/site.webmanifest' }],
+    // Google Analytics (gtag.js)
+    ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LNWTR605JG' }],
+    ['script', {}, "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-LNWTR605JG');"],
   ],
   
   locales: {
