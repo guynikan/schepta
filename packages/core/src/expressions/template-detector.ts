@@ -96,6 +96,43 @@ export function hasTemplateExpressions(value: any): boolean {
 }
 
 /**
+ * Check if a value contains template expressions that reference $formValues (recursive).
+ * Used to decide whether FormFactory needs to re-render when form values change
+ * (for cross-field template resolution). Returns false for schemas that only
+ * use $externalContext or have no templates at all — those schemas never need
+ * FormFactory to re-render on user input.
+ *
+ * @param value Value to check (can be string, object, array, etc.)
+ * @returns true if value contains any template that mentions $formValues
+ */
+export function hasFormValueTemplates(value: any): boolean {
+  if (value === null || value === undefined) {
+    return false;
+  }
+
+  if (typeof value === 'string') {
+    TEMPLATE_REGEX.lastIndex = 0;
+    if (!TEMPLATE_REGEX.test(value)) return false;
+    TEMPLATE_REGEX.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = TEMPLATE_REGEX.exec(value)) !== null) {
+      if (match[1].includes('$formValues')) return true;
+    }
+    return false;
+  }
+
+  if (Array.isArray(value)) {
+    return value.some(item => hasFormValueTemplates(item));
+  }
+
+  if (typeof value === 'object') {
+    return Object.values(value).some(val => hasFormValueTemplates(val));
+  }
+
+  return false;
+}
+
+/**
  * Get all template expressions from a value (recursive)
  * 
  * @param value Value to extract templates from
@@ -135,4 +172,3 @@ export function getAllTemplateExpressions(value: any): string[] {
   collect(value);
   return Array.from(expressions);
 }
-

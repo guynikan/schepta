@@ -1,7 +1,11 @@
 /**
  * Native React Form Adapter
- * 
- * Implements FormAdapter using React state (useState).
+ *
+ * Implements FormAdapter using internal JS state + subscriber notifications.
+ * React state (useState) is NOT used for field updates — the adapter is
+ * self-contained. Field reactivity is handled by useSyncExternalStore via
+ * subscribeField / subscribeAll. This ensures that setValue never triggers
+ * a FormFactory re-render; only the subscribed DefaultFieldRenderer re-renders.
  */
 
 import type { FormAdapter, FieldOptions, ReactiveState } from '@schepta/core';
@@ -9,11 +13,11 @@ import { ReactReactiveState } from './reactive-state';
 
 /**
  * Native React form adapter implementation.
- * Uses React state for form value management.
+ * Self-contained: holds state internally via JS, notifies React subscribers
+ * via useSyncExternalStore hooks without triggering parent component re-renders.
  */
 export class NativeReactFormAdapter implements FormAdapter {
   private state: Record<string, any>;
-  private setState: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   private errors: Record<string, any>;
   private setErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   private validators: Map<string, (value: any) => boolean | string>;
@@ -23,13 +27,11 @@ export class NativeReactFormAdapter implements FormAdapter {
   private _version: number = 0;
 
   constructor(
-    state: Record<string, any>,
-    setState: React.Dispatch<React.SetStateAction<Record<string, any>>>,
+    initialState: Record<string, any>,
     errors: Record<string, any> = {},
     setErrors: React.Dispatch<React.SetStateAction<Record<string, any>>> = () => {}
   ) {
-    this.state = state;
-    this.setState = setState;
+    this.state = initialState;
     this.errors = errors;
     this.setErrors = setErrors;
     this.validators = new Map();
@@ -37,14 +39,28 @@ export class NativeReactFormAdapter implements FormAdapter {
   }
 
   /**
-   * Update internal state reference (called when state changes)
+   * Replace the entire form state (e.g. for reset or external hydration).
+   * Updates internal state and notifies all global subscribers so that
+   * useSyncExternalStore consumers re-render.
+   */
+  setValues(newState: Record<string, any>): void {
+    this.state = newState;
+    this._version++;
+    this._globalSubscribers.forEach(cb => cb());
+    // Also notify every field subscriber so individual fields update
+    this._fieldSubscribers.forEach(subs => subs.forEach(cb => cb()));
+  }
+
+  /**
+   * Update internal state reference (called when external state changes, e.g. initialValues prop update).
+   * Does NOT notify subscribers — use setValues for that.
    */
   updateState(newState: Record<string, any>): void {
     this.state = newState;
   }
 
   /**
-   * Update internal errors reference (called when errors change)
+   * Update internal errors reference.
    */
   updateErrors(newErrors: Record<string, any>): void {
     this.errors = newErrors;
@@ -55,7 +71,6 @@ export class NativeReactFormAdapter implements FormAdapter {
   }
 
   getValue(field: string): any {
-    // Support nested fields like "user.name"
     const parts = field.split('.');
     let value: any = this.state;
     for (const part of parts) {
@@ -68,7 +83,7 @@ export class NativeReactFormAdapter implements FormAdapter {
   setValue(field: string, value: any): void {
     const parts = field.split('.');
 
-    // Update internal state synchronously so getFieldSnapshot returns fresh data
+    // Update internal state synchronously so getFieldSnapshot returns fresh data immediately
     const newState = { ...this.state };
     if (parts.length === 1) {
       newState[field] = value;
@@ -87,9 +102,6 @@ export class NativeReactFormAdapter implements FormAdapter {
     }
     this.state = newState;
     this._version++;
-
-    // Enqueue React state update
-    this.setState(newState);
 
     // Validate field if validator exists
     this.validateField(field, value);
@@ -114,14 +126,14 @@ export class NativeReactFormAdapter implements FormAdapter {
       return state;
     } else {
       const state = new ReactReactiveState(this.getValues(), (newValues) => {
-        this.setState(newValues);
+        this.setValues(newValues);
       });
       return state;
     }
   }
 
   reset(values?: Record<string, any>): void {
-    this.setState(values || {});
+    this.setValues(values || {});
     this.setErrors({});
   }
 
@@ -136,12 +148,9 @@ export class NativeReactFormAdapter implements FormAdapter {
 
   unregister(field: string): void {
     this.validators.delete(field);
-    // Optionally remove the field value
-    this.setState((prevState) => {
-      const newState = { ...prevState };
-      delete newState[field];
-      return newState;
-    });
+    const newState = { ...this.state };
+    delete newState[field];
+    this.setValues(newState);
   }
 
   getErrors(): Record<string, any> {
@@ -177,7 +186,6 @@ export class NativeReactFormAdapter implements FormAdapter {
 
   handleSubmit(onSubmit: (values: Record<string, any>) => void | Promise<void>): () => void {
     return () => {
-      // Run all validators first
       let hasErrors = false;
       const newErrors: Record<string, any> = {};
 
@@ -195,7 +203,6 @@ export class NativeReactFormAdapter implements FormAdapter {
         return;
       }
 
-      // If valid, submit
       onSubmit(this.getValues());
     };
   }
@@ -205,7 +212,6 @@ export class NativeReactFormAdapter implements FormAdapter {
     if (validator) {
       const result = validator(value);
       if (result === true) {
-        // Clear error for this field
         this.setErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
           delete newErrors[field];
@@ -221,7 +227,7 @@ export class NativeReactFormAdapter implements FormAdapter {
   }
 
   /**
-   * Subscribe to field changes
+   * Subscribe to field changes (legacy API)
    */
   subscribe(callback: (field: string, value: any) => void): () => void {
     this.listeners.add(callback);
@@ -273,7 +279,7 @@ export class NativeReactFormAdapter implements FormAdapter {
   }
 
   /**
-   * Get the current version (incremented on every setValue).
+   * Get the current version (incremented on every setValue / setValues).
    */
   getVersion(): number {
     return this._version;
@@ -281,21 +287,17 @@ export class NativeReactFormAdapter implements FormAdapter {
 }
 
 /**
- * Create a native React form adapter.
- * Use this with useState hooks in your component.
- * 
+ * Create a self-contained native React form adapter.
+ *
  * @example
  * ```tsx
- * const [formValues, setFormValues] = useState({});
- * const [errors, setErrors] = useState({});
- * const adapter = createNativeReactFormAdapter(formValues, setFormValues, errors, setErrors);
+ * const adapter = createNativeReactFormAdapter({ name: '' });
  * ```
  */
 export function createNativeReactFormAdapter(
-  state: Record<string, any>,
-  setState: React.Dispatch<React.SetStateAction<Record<string, any>>>,
+  initialState: Record<string, any>,
   errors?: Record<string, any>,
   setErrors?: React.Dispatch<React.SetStateAction<Record<string, any>>>
 ): NativeReactFormAdapter {
-  return new NativeReactFormAdapter(state, setState, errors, setErrors);
+  return new NativeReactFormAdapter(initialState, errors, setErrors);
 }

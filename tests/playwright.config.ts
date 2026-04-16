@@ -29,7 +29,7 @@ export default defineConfig({
       testMatch: '**/*react.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:5173/en-US/showcases/react',
+        baseURL: 'http://localhost:5174/en-US/showcases/react',
       },
     },
     {
@@ -37,7 +37,7 @@ export default defineConfig({
       testMatch: '**/*vue.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:5173/en-US/showcases/vue',
+        baseURL: 'http://localhost:5174/en-US/showcases/vue',
       },
     },
     {
@@ -45,7 +45,7 @@ export default defineConfig({
       testMatch: '**/*vanilla.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:5173/en-US/showcases/vanilla',
+        baseURL: 'http://localhost:5174/en-US/showcases/vanilla',
       },
     },
   ],
