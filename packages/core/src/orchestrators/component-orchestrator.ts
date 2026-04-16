@@ -40,6 +40,14 @@ export interface FactorySetupResult {
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   debug?: DebugContextValue;
   formAdapter?: FormAdapter;
+  /**
+   * Component key treated as the "root" of the schema tree.
+   *
+   * When a child schema is a direct property of this root, its name contributes
+   * to the field path even if it is not itself a `field` component. Each factory
+   * passes its own root key (e.g. `FormContainer`, `MenuContainer`).
+   */
+  rootComponentKey?: string;
 }
 
 /**
@@ -135,6 +143,7 @@ export function createComponentOrchestrator(
       middlewares,
       onSubmit,
       debug,
+      rootComponentKey,
       resolver,
       resolverContext,
       middlewareContext,
@@ -217,7 +226,10 @@ export function createComponentOrchestrator(
       );
 
       for (const [key, childSchema] of sortedEntries) {
-        const isChildRootProperty = !parentProps.name && componentKey === 'FormContainer';
+        const isChildRootProperty =
+          !parentProps.name &&
+          rootComponentKey != null &&
+          componentKey === rootComponentKey;
         const childResult = render(key, childSchema as any, childParentProps, namePath, isChildRootProperty, cached);
         if (childResult !== null && childResult !== undefined) {
           children.push(childResult);

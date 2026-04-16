@@ -44,6 +44,16 @@ export type ComponentFactory = (
 ) => RenderResult;
 
 /**
+ * Renderer function - wraps component rendering with additional logic
+ */
+export type RendererFn = (
+  componentSpec: ComponentSpec,
+  props: Record<string, any>,
+  runtime: RuntimeAdapter,
+  children?: any[]
+) => any;
+
+/**
  * Element specification for rendering
  */
 export interface ElementSpec {

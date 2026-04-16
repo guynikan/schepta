@@ -1,15 +1,22 @@
 /**
  * useMergedScheptaConfig Hook
- * 
- * Merges provider configuration with local FormFactory props.
- * Provider config serves as base, local props override.
+ *
+ * Merges factory defaults + provider configuration + local factory props
+ * into a single resolved configuration.
+ *
+ * Priority (later wins): factory defaults < provider < local props.
  */
 
 import { useMemo } from 'react';
-import { defaultRenderers, getFactoryDefaultComponents, getFactoryDefaultRenderers, type ComponentSpec, type MiddlewareFn } from '@schepta/core';
+import type { ComponentSpec, MiddlewareFn } from '@schepta/core';
 import { useScheptaContext } from '@schepta/adapter-react';
 
 export interface MergedConfigInput {
+  /** Factory built-in default components (lowest priority) */
+  defaultComponents?: Record<string, ComponentSpec>;
+  /** Factory built-in default renderers by type (lowest priority) */
+  defaultRenderers?: Partial<Record<string, any>>;
+  /** Local components override (highest priority) */
   components?: Record<string, ComponentSpec>;
   customComponents?: Record<string, ComponentSpec>;
   renderers?: Partial<Record<string, any>>;
@@ -28,18 +35,17 @@ export interface MergedConfig {
 }
 
 /**
- * Hook to merge provider configuration with local props
- * 
- * @param props - Local FormFactory props
- * @returns Merged configuration with provider as base and local as override
+ * Hook to merge factory defaults, provider and local factory props.
+ *
+ * @param props Factory defaults + local overrides
+ * @returns Resolved configuration
  */
 export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
   const providerConfig = useScheptaContext();
 
-  // local > provider > default
   return useMemo(() => ({
     components: {
-      ...getFactoryDefaultComponents(),
+      ...(props.defaultComponents || {}),
       ...(providerConfig?.components || {}),
       ...(props.components || {}),
     },
@@ -48,8 +54,7 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
       ...(props.customComponents || {}),
     },
     renderers: {
-      ...defaultRenderers,
-      ...getFactoryDefaultRenderers(),
+      ...(props.defaultRenderers || {}),
       ...(providerConfig?.renderers || {}),
       ...(props.renderers || {}),
     },
@@ -71,6 +76,8 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
     providerConfig?.externalContext,
     providerConfig?.middlewares,
     providerConfig?.debug?.enabled,
+    props.defaultComponents,
+    props.defaultRenderers,
     props.components,
     props.customComponents,
     props.renderers,
@@ -79,4 +86,3 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
     props.debug,
   ]);
 }
-

@@ -11,6 +11,17 @@ export {
   type FormFactoryRef,
 } from './form-factory';
 
+// Factory primitive for building custom Vue factories
+export {
+  createVueFactory,
+  type CreateVueFactoryConfig,
+  type VueFactoryBaseProps,
+  type VueFactoryMergedConfig,
+  type VueFactorySetupContext,
+  type VueFactorySetupHook,
+  type VueFactorySetupReturn,
+} from './create-factory';
+
 export {
   DefaultFormContainer,
   DefaultFormField,

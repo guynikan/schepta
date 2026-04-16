@@ -7,6 +7,7 @@
   ],
   "exports": {
     "./schemas/form-schema.json": "./schemas/form-schema.json",
+    "./schemas/menu-schema.json": "./schemas/menu-schema.json",
     "./schemas": "./schemas/form-schema.json"
   },
   "repository": {

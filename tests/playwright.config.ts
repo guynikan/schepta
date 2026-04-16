@@ -19,9 +19,10 @@ export default defineConfig({
   outputDir: '../test-results',
   snapshotDir: '../test-screenshots',
   webServer: {
-    command: 'cd ../docs && pnpm dev',
-    port: 5173,
+    command: 'cd ../docs && pnpm dev --port 5174',
+    url: 'http://localhost:5174',
     reuseExistingServer: true,
+    timeout: 120 * 1000,
   },
   projects: [
     {
@@ -46,6 +47,14 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:5174/en-US/showcases/vanilla',
+      },
+    },
+    {
+      name: 'menu',
+      testMatch: '**/*menu.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5174/en-US/showcases/menu',
       },
     },
   ],

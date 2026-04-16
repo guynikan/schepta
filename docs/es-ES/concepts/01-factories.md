@@ -10,8 +10,9 @@
 
 | **Input**      | **Factory**        | **Output**       | **Resultado**          | **Estado** |
 | -------------- | ------------------ | ---------------- | ---------------------- | ------------ |
-| Form JSON      | `FormFactory`      | React/Vue Form   | Interfaz funcionando  | Listo
-| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Navegación completa     | En desarrollo
+| Form JSON      | `FormFactory`      | React/Vue/Vanilla Form   | Interfaz funcionando  | Listo
+| Menu JSON      | `MenuFactory`      | React Navigation | Navegación completa     | Listo (React)
+| JSON personalizado | `createReactFactory` / `createVueFactory` / `createVanillaFactory` | Cualquier árbol de UI | Factory definida por el usuario | Listo
 
 ### Cómo Funciona:
 
@@ -115,3 +116,4 @@ Elementos React/Vue
 | **Motor de renderizado** | [05. Renderer](./05-renderer.md) | Sistema usado por las factories |
 | **Transformación de props** | [06. Middleware](./06-middleware.md) | Pipeline aplicado por las factories |
 | **Configuración global** | [03. Provider](./03-provider.md) | Cómo configurar las factories |
+| **Crear tu propia factory** | [08. Creando una Factory](./08-create-factory.md) | Construye factories personalizadas sobre la primitiva |

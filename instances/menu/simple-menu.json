@@ -1,0 +1,70 @@
+{
+  "type": "object",
+  "x-component": "MenuContainer",
+  "x-component-props": {
+    "ariaLabel": "Main navigation"
+  },
+  "properties": {
+    "dashboard": {
+      "type": "object",
+      "x-component": "MenuItem",
+      "x-ui": { "order": 1 },
+      "x-component-props": {
+        "label": "Dashboard",
+        "href": "/dashboard",
+        "icon": "🏠"
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "x-component": "MenuGroup",
+      "x-ui": { "order": 2 },
+      "x-component-props": {
+        "label": "Workspace"
+      },
+      "properties": {
+        "projects": {
+          "type": "object",
+          "x-component": "MenuItem",
+          "x-ui": { "order": 1 },
+          "x-component-props": {
+            "label": "Projects",
+            "href": "/projects",
+            "icon": "📁"
+          }
+        },
+        "teams": {
+          "type": "object",
+          "x-component": "MenuItem",
+          "x-ui": { "order": 2 },
+          "x-component-props": {
+            "label": "Teams",
+            "href": "/teams",
+            "icon": "👥"
+          }
+        },
+        "drafts": {
+          "type": "object",
+          "x-component": "MenuItem",
+          "x-ui": { "order": 3 },
+          "x-component-props": {
+            "label": "Drafts",
+            "href": "/drafts",
+            "icon": "📝",
+            "disabled": true
+          }
+        }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "x-component": "MenuItem",
+      "x-ui": { "order": 3 },
+      "x-component-props": {
+        "label": "Settings",
+        "href": "/settings",
+        "icon": "⚙️"
+      }
+    }
+  }
+}

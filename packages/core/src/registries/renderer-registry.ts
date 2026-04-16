@@ -1,8 +1,9 @@
 /**
  * Renderer Registry
- * 
- * Framework-agnostic renderer registration system.
- * Renderers are functions that wrap components with additional rendering logic.
+ *
+ * Framework-agnostic renderer helpers. Renderers wrap components with
+ * additional rendering logic (e.g. form field binding). Factories declare
+ * their own defaults locally — there is no module-level global state here.
  */
 
 import type { RendererSpec } from '../runtime/types';
@@ -21,25 +22,15 @@ export interface FieldRendererProps {
   children?: any;
 }
 
-let factoryDefaultRenderers: Record<string, RendererSpec> = {};
-
-export function setFactoryDefaultRenderers(renderers: Record<string, RendererSpec>): void {
-  factoryDefaultRenderers = renderers;
-}
-
-export function getFactoryDefaultRenderers(): Record<string, RendererSpec> {
-  return factoryDefaultRenderers;
-}
-
 /**
  * Create a renderer spec from a component.
  * Similar API to createComponentSpec - user just passes the component.
- * 
+ *
  * @example Using with React
  * ```tsx
  * import { createRendererSpec } from '@schepta/core';
  * import { RHFFieldRenderer } from './rhf/RHFFieldRenderer';
- * 
+ *
  * const renderers = {
  *   field: createRendererSpec({
  *     id: 'rhf-field-renderer',
@@ -47,7 +38,7 @@ export function getFactoryDefaultRenderers(): Record<string, RendererSpec> {
  *     component: RHFFieldRenderer,
  *   }),
  * };
- * 
+ *
  * <FormFactory renderers={renderers} />
  * ```
  */

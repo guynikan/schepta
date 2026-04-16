@@ -16,6 +16,34 @@ export {
   type FormFactoryRef,
 } from './form-factory';
 
+// Factory primitive for building custom factories
+export {
+  createReactFactory,
+  useScheptaOrchestrator,
+  type CreateReactFactoryConfig,
+  type FactoryBaseProps,
+  type FactorySetupContext,
+  type FactorySetupHook,
+  type FactorySetupReturn,
+  type UseScheptaOrchestratorInput,
+  type UseScheptaOrchestratorResult,
+} from './create-factory';
+
+// Built-in Menu factory (reference implementation built on createReactFactory)
+export {
+  MenuFactory,
+  defaultMenuComponents,
+  DefaultMenuContainer,
+  DefaultMenuGroup,
+  DefaultMenuItem,
+  type MenuFactoryProps,
+  type MenuFactoryRef,
+  type MenuSelectionPayload,
+  type DefaultMenuContainerProps,
+  type DefaultMenuGroupProps,
+  type DefaultMenuItemProps,
+} from './menu-factory';
+
 // Components (types and defaults)
 export {
   DefaultFormContainer,

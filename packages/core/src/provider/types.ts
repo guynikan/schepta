@@ -4,10 +4,9 @@
  * Framework-agnostic provider configuration types
  */
 
-import type { ComponentSpec, ComponentType, DebugConfig } from '../runtime/types';
+import type { ComponentSpec, ComponentType, DebugConfig, RendererFn } from '../runtime/types';
 import type { FormSchema } from '../schema/schema-types';
 import type { MiddlewareFn } from '../middleware/types';
-import { RendererFn } from '../defaults/register-default-renderers';
 
 /**
  * Provider configuration
