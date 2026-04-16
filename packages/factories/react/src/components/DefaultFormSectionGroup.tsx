@@ -31,15 +31,12 @@ export type FormSectionGroupComponentType =
 /**
  * Default form section group component (grid layout).
  */
-export const DefaultFormSectionGroup: React.FC<FormSectionGroupProps> = ({
-  children,
-  externalContext,
-  'x-component-props': xComponentProps,
-  ...props
-}) => {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', ...props.style }} {...props}>
-      {children}
-    </div>
-  );
-};
+export const DefaultFormSectionGroup: React.FC<FormSectionGroupProps> = React.memo(
+  function DefaultFormSectionGroup({ children, externalContext, 'x-component-props': xComponentProps, ...props }) {
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', ...props.style }} {...props}>
+        {children}
+      </div>
+    );
+  }
+);

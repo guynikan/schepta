@@ -31,14 +31,12 @@ export type FormSectionGroupContainerComponentType =
 /**
  * Default form section group container component.
  */
-export const DefaultFormSectionGroupContainer: React.FC<FormSectionGroupContainerProps> = ({
-  children,
-  externalContext,
-  ...props
-}) => {
-  return (
-    <div {...props}>
-      {children}
-    </div>
-  );
-};
+export const DefaultFormSectionGroupContainer: React.FC<FormSectionGroupContainerProps> = React.memo(
+  function DefaultFormSectionGroupContainer({ children, externalContext, ...props }) {
+    return (
+      <div {...props}>
+        {children}
+      </div>
+    );
+  }
+);

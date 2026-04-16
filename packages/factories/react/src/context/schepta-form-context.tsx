@@ -5,7 +5,7 @@
  * This is the native form state management system for Schepta.
  */
 
-import React, { createContext, useContext, useMemo, useState, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useMemo, useState, useRef, useEffect, useSyncExternalStore, useCallback } from 'react';
 import type { FormAdapter } from '@schepta/core';
 import { NativeReactFormAdapter, createNativeReactFormAdapter } from '@schepta/adapter-react';
 
@@ -156,6 +156,8 @@ export function useScheptaFormValues(): Record<string, any> {
 
 /**
  * Hook to get a specific field value reactively.
+ * Uses useSyncExternalStore for field-level granularity when the adapter supports it.
+ * Only the field that changed triggers a re-render — not all fields.
  * 
  * @param field - The field name (supports dot notation for nested fields)
  * @returns The field value
@@ -168,8 +170,24 @@ export function useScheptaFieldValue(field: string): any {
       'useScheptaFieldValue must be used within a ScheptaFormProvider.'
     );
   }
-  
-  // Support nested fields
+
+  const adapter = context.adapter;
+
+  // Fast path: NativeReactFormAdapter supports field-level subscription
+  if (adapter instanceof NativeReactFormAdapter) {
+    const subscribe = useCallback(
+      (onStoreChange: () => void) => adapter.subscribeField(field, onStoreChange),
+      [adapter, field]
+    );
+    const getSnapshot = useCallback(
+      () => adapter.getFieldSnapshot(field),
+      [adapter, field]
+    );
+
+    return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  }
+
+  // Fallback for custom adapters: use context.values (triggers on any change)
   const parts = field.split('.');
   let value: any = context.values;
   for (const part of parts) {

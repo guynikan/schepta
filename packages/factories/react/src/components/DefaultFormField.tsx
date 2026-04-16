@@ -29,19 +29,15 @@ export type FormFieldComponentType = React.ComponentType<FormFieldProps>;
 /**
  * Default form field wrapper component.
  */
-export const DefaultFormField: React.FC<FormFieldProps> = ({
-  children,
-  externalContext,
-  "x-component-props": xComponentProps,
-  "x-ui": xUi,
-  ...props
-}) => {
-  return (
-    <div
-      {...xComponentProps}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-};
+export const DefaultFormField: React.FC<FormFieldProps> = React.memo(
+  function DefaultFormField({ children, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...props }) {
+    return (
+      <div
+        {...xComponentProps}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);

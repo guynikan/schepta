@@ -184,22 +184,23 @@ export function processValue(
   resolver: VariableResolver,
   context: ResolverContext
 ): any {
-  // Handle null/undefined
   if (value === null || value === undefined) {
     return value;
   }
 
-  // Handle strings - process template expressions (pass context for JEXL)
   if (typeof value === 'string') {
     return processTemplateString(value, resolver, context);
   }
 
-  // Handle arrays - process each element recursively
+  // Short-circuit: if value contains no {{ }} templates, return as-is
+  if (!hasTemplateExpressions(value)) {
+    return value;
+  }
+
   if (Array.isArray(value)) {
     return value.map(item => processValue(item, resolver, context));
   }
 
-  // Handle objects - process each property recursively
   if (typeof value === 'object') {
     const processed: Record<string, any> = {};
     
@@ -210,7 +211,6 @@ export function processValue(
     return processed;
   }
 
-  // Handle primitives (numbers, booleans, etc.) - return as-is
   return value;
 }
 

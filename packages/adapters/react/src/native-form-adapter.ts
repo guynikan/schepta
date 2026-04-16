@@ -18,6 +18,9 @@ export class NativeReactFormAdapter implements FormAdapter {
   private setErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   private validators: Map<string, (value: any) => boolean | string>;
   private listeners: Set<(field: string, value: any) => void>;
+  private _fieldSubscribers: Map<string, Set<() => void>> = new Map();
+  private _globalSubscribers: Set<() => void> = new Set();
+  private _version: number = 0;
 
   constructor(
     state: Record<string, any>,
@@ -63,37 +66,43 @@ export class NativeReactFormAdapter implements FormAdapter {
   }
 
   setValue(field: string, value: any): void {
-    // Support nested fields like "user.name"
     const parts = field.split('.');
-    
-    this.setState((prevState) => {
-      const newState = { ...prevState };
-      
-      if (parts.length === 1) {
-        newState[field] = value;
-      } else {
-        // Handle nested path
-        let current: any = newState;
-        for (let i = 0; i < parts.length - 1; i++) {
-          const part = parts[i];
-          if (current[part] === undefined || current[part] === null) {
-            current[part] = {};
-          } else {
-            current[part] = { ...current[part] };
-          }
-          current = current[part];
+
+    // Update internal state synchronously so getFieldSnapshot returns fresh data
+    const newState = { ...this.state };
+    if (parts.length === 1) {
+      newState[field] = value;
+    } else {
+      let current: any = newState;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (current[part] === undefined || current[part] === null) {
+          current[part] = {};
+        } else {
+          current[part] = { ...current[part] };
         }
-        current[parts[parts.length - 1]] = value;
+        current = current[part];
       }
-      
-      return newState;
-    });
+      current[parts[parts.length - 1]] = value;
+    }
+    this.state = newState;
+    this._version++;
+
+    // Enqueue React state update
+    this.setState(newState);
 
     // Validate field if validator exists
     this.validateField(field, value);
 
-    // Notify listeners
+    // Notify legacy listeners
     this.listeners.forEach(listener => listener(field, value));
+
+    // Notify field-level subscribers (for useSyncExternalStore)
+    const fieldSubs = this._fieldSubscribers.get(field);
+    if (fieldSubs) {
+      fieldSubs.forEach(cb => cb());
+    }
+    this._globalSubscribers.forEach(cb => cb());
   }
 
   watch(field?: string): ReactiveState<any> {
@@ -219,6 +228,55 @@ export class NativeReactFormAdapter implements FormAdapter {
     return () => {
       this.listeners.delete(callback);
     };
+  }
+
+  /**
+   * Subscribe to changes on a specific field (for useSyncExternalStore).
+   */
+  subscribeField(field: string, callback: () => void): () => void {
+    let subs = this._fieldSubscribers.get(field);
+    if (!subs) {
+      subs = new Set();
+      this._fieldSubscribers.set(field, subs);
+    }
+    subs.add(callback);
+    return () => {
+      subs!.delete(callback);
+      if (subs!.size === 0) {
+        this._fieldSubscribers.delete(field);
+      }
+    };
+  }
+
+  /**
+   * Subscribe to any value change (for useSyncExternalStore on all values).
+   */
+  subscribeAll(callback: () => void): () => void {
+    this._globalSubscribers.add(callback);
+    return () => {
+      this._globalSubscribers.delete(callback);
+    };
+  }
+
+  /**
+   * Get a snapshot of a field value (for useSyncExternalStore).
+   */
+  getFieldSnapshot(field: string): any {
+    return this.getValue(field);
+  }
+
+  /**
+   * Get a snapshot of all values (for useSyncExternalStore).
+   */
+  getValuesSnapshot(): Record<string, any> {
+    return this.state;
+  }
+
+  /**
+   * Get the current version (incremented on every setValue).
+   */
+  getVersion(): number {
+    return this._version;
   }
 }
 

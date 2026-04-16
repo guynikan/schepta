@@ -4,7 +4,7 @@
  * Factory component for rendering forms from JSON schemas.
  */
 
-import { useMemo, forwardRef, useImperativeHandle } from "react";
+import { useMemo, useRef, useDeferredValue, forwardRef, useImperativeHandle } from "react";
 import type {
   FormSchema,
   ComponentSpec,
@@ -111,6 +111,17 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
     // Create runtime adapter
     const runtime = useMemo(() => createReactRuntimeAdapter(), []);
 
+    // Defer form values for the orchestrator's template resolution.
+    // Individual fields stay responsive via useSyncExternalStore (adapter).
+    const deferredFormValues = useDeferredValue(formValues);
+
+    // Keep mutable refs so the orchestrator closure always reads fresh values
+    // without needing to be recreated on every keystroke
+    const formValuesRef = useRef(deferredFormValues);
+    formValuesRef.current = deferredFormValues;
+    const onSubmitRef = useRef(onSubmit);
+    onSubmitRef.current = onSubmit;
+
     // If schema validation failed, render error UI
     if (!validation.valid) {
       return (
@@ -143,20 +154,19 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
     // Get root component key from schema
     const rootComponentKey = (schema as any)["x-component"] || "FormContainer";
 
-    // Create renderer orchestrator
+    // Create renderer orchestrator — stable across formValues changes.
+    // formValues and onSubmit are read from refs inside the closure.
     const renderer = useMemo(() => {
       const getFactorySetup = (): FactorySetupResult => {
-        // Create debug context
+        const currentValues = formValuesRef.current;
         const debugContext = createDebugContext(mergedConfig.debug);
 
-        // Create template expression middleware with current form values (always first)
         const templateMiddleware = createTemplateExpressionMiddleware({
           externalContext: mergedConfig.externalContext,
-          formValues,
+          formValues: currentValues,
           debug: debugContext,
         });
 
-        // Build middlewares: template middleware first, then provider, then local
         const updatedMiddlewares = [
           templateMiddleware,
           ...mergedConfig.baseMiddlewares,
@@ -169,9 +179,9 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
           externalContext: {
             ...mergedConfig.externalContext,
           },
-          state: formValues,
+          state: currentValues,
           middlewares: updatedMiddlewares,
-          onSubmit,
+          onSubmit: onSubmitRef.current,
           debug: debugContext,
           formAdapter,
         };
@@ -187,8 +197,6 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
       mergedConfig.debug,
       formAdapter,
       runtime,
-      onSubmit,
-      formValues,
     ]);
 
     return (

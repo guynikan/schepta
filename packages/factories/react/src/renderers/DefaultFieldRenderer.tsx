@@ -8,7 +8,7 @@
  * by implementing the FieldRendererProps interface.
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useScheptaFormAdapter, useScheptaFieldValue } from '../context/schepta-form-context';
 import { FieldRendererProps } from '@schepta/core';
 
@@ -71,28 +71,24 @@ export type FieldRendererType = React.ComponentType<FieldRendererProps>;
  * <FormFactory schema={schema} renderers={renderers} onSubmit={handleSubmit} />
  * ```
  */
-export const DefaultFieldRenderer: React.FC<FieldRendererProps> = ({
-  name,
-  component: Component,
-  componentProps = {},
-  children,
-}) => {
-  const adapter = useScheptaFormAdapter();
-  // Use the hook for reactivity - re-renders when this field's value changes
-  const value = useScheptaFieldValue(name);
+export const DefaultFieldRenderer: React.FC<FieldRendererProps> = React.memo(
+  function DefaultFieldRenderer({ name, component: Component, componentProps = {}, children }) {
+    const adapter = useScheptaFormAdapter();
+    const value = useScheptaFieldValue(name);
 
-  const handleChange = (newValue: any) => {
-    adapter.setValue(name, newValue);
-  };
+    const handleChange = useCallback((newValue: any) => {
+      adapter.setValue(name, newValue);
+    }, [adapter, name]);
 
-  return (
-    <Component
-      {...componentProps}
-      name={name}
-      value={value !== undefined && value !== null ? value : (componentProps.value || '')}
-      onChange={handleChange}
-    >
-      {children}
-    </Component>
-  );
-};
+    return (
+      <Component
+        {...componentProps}
+        name={name}
+        value={value !== undefined && value !== null ? value : (componentProps.value || '')}
+        onChange={handleChange}
+      >
+        {children}
+      </Component>
+    );
+  }
+);

@@ -10,6 +10,7 @@ import type { FormAdapter } from '../forms/types';
 import type { MiddlewareFn, MiddlewareContext } from '../middleware/types';
 import { applyMiddlewares } from '../middleware/types';
 import { processValue } from '../expressions/template-processor';
+import { hasTemplateExpressions } from '../expressions/template-detector';
 import { createDefaultResolver } from '../expressions/variable-resolver';
 import { createRendererOrchestrator } from './renderer-orchestrator';
 
@@ -95,13 +96,36 @@ export function createComponentOrchestrator(
   getFactorySetup: () => FactorySetupResult,
   runtime: RuntimeAdapter
 ) {
+  // Cache for static subtrees: schema nodes without {{ }} produce identical output
+  // across renders (only formValues/externalContext change between renders).
+  // Key: "componentKey\0parentName" → WeakMap<schemaRef, renderResult>
+  const _staticCache = new Map<string, WeakMap<object, any>>();
+
   return function render(
     componentKey: string,
     schema: any,
     parentProps: Record<string, any> = {},
     namePath: string[] = [],
-    isDirectRootProperty: boolean = false
+    isDirectRootProperty: boolean = false,
+    _cachedSetup?: FactorySetupResult & { resolver: ReturnType<typeof createDefaultResolver>; resolverContext: { externalContext: Record<string, any>; formValues: Record<string, any> }; middlewareContext: MiddlewareContext }
   ): any {
+    // Resolve setup + resolver once per top-level call, reuse in recursion
+    const cached = _cachedSetup ?? (() => {
+      const setup = getFactorySetup();
+      const resolverContext = {
+        externalContext: setup.externalContext,
+        formValues: setup.state,
+      };
+      const resolver = createDefaultResolver(resolverContext);
+      const middlewareContext: MiddlewareContext = {
+        formValues: setup.state,
+        externalContext: setup.externalContext,
+        debug: setup.debug,
+        formAdapter: setup.formAdapter,
+      };
+      return { ...setup, resolver, resolverContext, middlewareContext };
+    })();
+
     const {
       components,
       customComponents,
@@ -111,36 +135,35 @@ export function createComponentOrchestrator(
       middlewares,
       onSubmit,
       debug,
-      formAdapter
-    } = getFactorySetup();
+      resolver,
+      resolverContext,
+      middlewareContext,
+    } = cached;
 
-    // Process schema with template expressions BEFORE extracting props
-    // This ensures that $formValues.* and $externalContext.* are replaced
-    // in any property of the schema (x-ui, x-content, x-component-props, etc.)
-    const resolver = createDefaultResolver({
-      externalContext,
-      formValues: state,
-    });
+    // Static branch cache: if this schema node has no templates and same reference,
+    // reuse the previous render result (schema is immutable between renders).
+    const isStaticNode = schema && typeof schema === 'object' && !hasTemplateExpressions(schema);
+    if (isStaticNode) {
+      const cacheKey = `${componentKey}\0${parentProps.name || ''}`;
+      const weakMap = _staticCache.get(cacheKey);
+      if (weakMap) {
+        const cachedResult = weakMap.get(schema);
+        if (cachedResult !== undefined) {
+          return cachedResult;
+        }
+      }
+    }
 
-    const processedSchema = processValue(schema, resolver, {
-      externalContext,
-      formValues: state,
-    }) as any;
+    const processedSchema = processValue(schema, resolver, resolverContext) as any;
 
-    // Check visibility via x-ui.visible
-    // If visible === false, don't render this component (and its children)
-    // By default, visible is true
+    // Visibility pruning
     const xUi = processedSchema['x-ui'] || {};
     if (xUi.visible === false) {
       return null;
     }
 
-    // Parse schema (now using processed schema)
     const { 'x-component-props': componentProps = {} } = processedSchema;
 
-    // Resolve component and renderer
-    // Use processedSchema for x-component resolution (in case x-component has templates)
-    // components already has provider components merged in the factory
     const resolution = resolveSpec(
       processedSchema,
       componentKey,
@@ -150,70 +173,41 @@ export function createComponentOrchestrator(
       debug?.isEnabled
     );
 
-    // Check if resolution failed
     if (!resolution || resolution === null) {
-      // Return error component (framework adapter will provide)
       return null;
     }
 
-    // Extract successful resolution
     const { componentSpec, rendererFn } = resolution as ResolutionSuccess;
 
-    // Construct name path for nested fields
-    // ONLY components with type: 'field' are included in the name path
-    // EXCEPTION: componentKeys that are direct properties of root schema (isDirectRootProperty)
-    // All other components (containers, FormContainer, content, etc.) are ignored
     const isFieldComponent = componentSpec.type === 'field';
 
-    // If field OR direct root property: add componentKey to name path
-    // If not field and not root property: keep parentProps.name (don't add this component's key)
     const shouldIncludeInPath = isFieldComponent || isDirectRootProperty;
     const currentName = shouldIncludeInPath
       ? (parentProps.name ? `${parentProps.name}.${componentKey}` : componentKey)
-      : parentProps.name; // Containers just pass parent's name, don't add their key
+      : parentProps.name;
 
-    // Props Processing (using processedSchema)
     const baseProps = {
       ...componentSpec.defaultProps,
       ...parentProps,
-      // Injected for E2E: identifies component key in DOM
       'data-test-id': `${componentKey}`,
-      schema,
-      // Add name prop ONLY for field components
+      schema: processedSchema,
       ...(isFieldComponent && currentName ? { name: currentName } : {}),
       ...(Object.keys(componentProps).length > 0 ? { 'x-component-props': componentProps } : {}),
-      // Extract x-ui props if present (already processed)
-      // ...(processedSchema['x-ui'] || {}),
       'x-ui': processedSchema['x-ui'],
-      // Extract x-content if present (for content components, already processed)
       ...(processedSchema['x-content'] ? { 'x-content': processedSchema['x-content'] } : {}),
-      // Pass externalContext so components can access it (user, api, etc.)
       externalContext,
-      // Pass onSubmit separately so components can use it
       onSubmit,
-    };
-
-    // Middleware Application
-    const middlewareContext: MiddlewareContext = {
-      formValues: state,
-      externalContext,
-      debug,
-      formAdapter,
     };
 
     const mergedProps = applyMiddlewares(baseProps, processedSchema, middlewares, middlewareContext);
 
-    // Render children if schema has properties (use processedSchema)
-    // Pass name to children: fields add to path, containers just pass it through
     const children: any[] = [];
     if (processedSchema.properties && typeof processedSchema.properties === 'object') {
       const childParentProps = {
         ...mergedProps,
-        // Pass currentName to children (fields will add their key, containers will just pass it through)
         ...(currentName !== undefined ? { name: currentName } : {}),
       };
 
-      // Sort children by x-ui.order (lower values first, undefined goes last)
       const sortedEntries = Object.entries(processedSchema.properties).sort(
         ([, a], [, b]) => {
           const orderA = (a as any)?.['x-ui']?.order ?? Infinity;
@@ -223,17 +217,27 @@ export function createComponentOrchestrator(
       );
 
       for (const [key, childSchema] of sortedEntries) {
-        // If this component is the root (FormContainer) and has no name, 
-        // then its direct children are root properties and should be included in name path
         const isChildRootProperty = !parentProps.name && componentKey === 'FormContainer';
-        const childResult = render(key, childSchema as any, childParentProps, namePath, isChildRootProperty);
+        const childResult = render(key, childSchema as any, childParentProps, namePath, isChildRootProperty, cached);
         if (childResult !== null && childResult !== undefined) {
           children.push(childResult);
         }
       }
     }
 
-    // Final Rendering using renderer function with children
-    return rendererFn(componentSpec, mergedProps, runtime, children.length > 0 ? children : undefined);
+    const result = rendererFn(componentSpec, mergedProps, runtime, children.length > 0 ? children : undefined);
+
+    // Store in static cache for reuse on next render pass
+    if (isStaticNode) {
+      const cacheKey = `${componentKey}\0${parentProps.name || ''}`;
+      let weakMap = _staticCache.get(cacheKey);
+      if (!weakMap) {
+        weakMap = new WeakMap();
+        _staticCache.set(cacheKey, weakMap);
+      }
+      weakMap.set(schema, result);
+    }
+
+    return result;
   };
 }
