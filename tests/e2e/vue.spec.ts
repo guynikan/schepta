@@ -173,3 +173,55 @@ test.describe('Vue Form Factory', () => {
     expect(submittedText).toContain('Doe');
   });
 });
+
+test.describe('Template Expressions — Vue', () => {
+  // These tests validate that {{ $formValues.* }} templates are re-evaluated
+  // reactively every time a referenced value changes.
+  //
+  // Architectural note: In Vue, FormFactory passes `formValues` (a Vue reactive
+  // object) directly to ScheptaFormProvider. The Vue render function re-runs
+  // when this reactive object changes, causing the orchestrator to re-evaluate
+  // all template expressions including visibility conditions. These tests
+  // document and verify that expected behaviour.
+
+  test.beforeEach(async ({ page, baseURL }) => {
+    await page.goto(`${baseURL}`);
+    await page.click('[data-test-id*="complex-form-tab"]');
+    await page.waitForSelector('input[data-test-id*="email"]', { timeout: 10000 });
+  });
+
+  test('conditional field is hidden on initial render', async ({ page }) => {
+    // spouseName has x-ui.visible: "{{ $formValues.userInfo.maritalStatus === 'married' }}"
+    await expect(page.locator('input[data-test-id*="spouseName"]')).not.toBeVisible();
+  });
+
+  test('conditional field appears when template condition becomes true', async ({ page }) => {
+    await page.locator('select[data-test-id*="maritalStatus"]').first().selectOption('married');
+    await expect(page.locator('input[data-test-id*="spouseName"]')).toBeVisible();
+  });
+
+  test('conditional field disappears when template condition reverts to false', async ({ page }) => {
+    await page.locator('select[data-test-id*="maritalStatus"]').first().selectOption('married');
+    await expect(page.locator('input[data-test-id*="spouseName"]')).toBeVisible();
+
+    await page.locator('select[data-test-id*="maritalStatus"]').first().selectOption('single');
+    await expect(page.locator('input[data-test-id*="spouseName"]')).not.toBeVisible();
+  });
+
+  test('conditional field toggles correctly across multiple value changes', async ({ page }) => {
+    const maritalStatus = page.locator('select[data-test-id*="maritalStatus"]').first();
+    const spouseName = page.locator('input[data-test-id*="spouseName"]');
+
+    await maritalStatus.selectOption('married');
+    await expect(spouseName).toBeVisible();
+
+    await maritalStatus.selectOption('divorced');
+    await expect(spouseName).not.toBeVisible();
+
+    await maritalStatus.selectOption('married');
+    await expect(spouseName).toBeVisible();
+
+    await maritalStatus.selectOption('widowed');
+    await expect(spouseName).not.toBeVisible();
+  });
+});

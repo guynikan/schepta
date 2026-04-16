@@ -110,3 +110,72 @@ test.describe('Vanilla Form Factory', () => {
     await expect(page.locator('[data-test-id="social-name-input"]')).toHaveValue('Alex');
   });
 });
+
+test.describe('Template Expressions — Vanilla', () => {
+  // These tests validate that {{ $formValues.* }} visibility templates are
+  // re-evaluated when a referenced field changes.
+  //
+  // Architectural note: The Vanilla factory (createFormFactory) renders the
+  // form ONCE imperatively. There is currently no mechanism that re-runs the
+  // orchestrator when adapter values change. As a result, templates like
+  //   x-ui.visible: "{{ $formValues.userInfo.maritalStatus === 'married' }}"
+  // are evaluated at mount time only.
+  //
+  // The test "conditional field is hidden on initial render" is expected to
+  // PASS (correct initial evaluation).
+  // The tests that change values after render are expected to FAIL until a
+  // reactive re-render loop is added to the Vanilla factory.
+
+  test.beforeEach(async ({ page, baseURL }) => {
+    await page.goto(`${baseURL}`);
+    await page.click('[data-test-id="complex-form-tab"]');
+    await page.waitForSelector('input[name="contactInfo.email"]', { timeout: 5000 });
+  });
+
+  test('conditional field is hidden on initial render', async ({ page }) => {
+    // spouseName has x-ui.visible: "{{ $formValues.userInfo.maritalStatus === 'married' }}"
+    // maritalStatus is unset at mount → field must not be rendered
+    await expect(
+      page.locator('input[name="userInfo.spouseName"], input[data-test-id*="spouseName"]').first()
+    ).not.toBeVisible();
+  });
+
+  test('conditional field appears when template condition becomes true', async ({ page }) => {
+    // Selecting 'married' updates the adapter. The form must re-evaluate the
+    // visibility template and render spouseName.
+    await page.selectOption('select[name="userInfo.maritalStatus"]', 'married');
+    await expect(
+      page.locator('input[name="userInfo.spouseName"], input[data-test-id*="spouseName"]').first()
+    ).toBeVisible();
+  });
+
+  test('conditional field disappears when template condition reverts to false', async ({ page }) => {
+    await page.selectOption('select[name="userInfo.maritalStatus"]', 'married');
+    await expect(
+      page.locator('input[name="userInfo.spouseName"], input[data-test-id*="spouseName"]').first()
+    ).toBeVisible();
+
+    await page.selectOption('select[name="userInfo.maritalStatus"]', 'single');
+    await expect(
+      page.locator('input[name="userInfo.spouseName"], input[data-test-id*="spouseName"]').first()
+    ).not.toBeVisible();
+  });
+
+  test('conditional field toggles correctly across multiple value changes', async ({ page }) => {
+    const spouseName = page.locator(
+      'input[name="userInfo.spouseName"], input[data-test-id*="spouseName"]'
+    ).first();
+
+    await page.selectOption('select[name="userInfo.maritalStatus"]', 'married');
+    await expect(spouseName).toBeVisible();
+
+    await page.selectOption('select[name="userInfo.maritalStatus"]', 'divorced');
+    await expect(spouseName).not.toBeVisible();
+
+    await page.selectOption('select[name="userInfo.maritalStatus"]', 'married');
+    await expect(spouseName).toBeVisible();
+
+    await page.selectOption('select[name="userInfo.maritalStatus"]', 'widowed');
+    await expect(spouseName).not.toBeVisible();
+  });
+});

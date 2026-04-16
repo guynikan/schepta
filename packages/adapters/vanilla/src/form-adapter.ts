@@ -144,6 +144,32 @@ export class VanillaFormAdapter implements FormAdapter {
     };
   }
 
+  /**
+   * Subscribe to any value change.
+   * The callback fires on every setValue call with the changed field and value.
+   * Returns an unsubscribe function.
+   */
+  subscribe(callback: (field: string, value: any) => void): () => void {
+    const handler = ({ field, value }: { field: string; value: any }) => {
+      callback(field, value);
+    };
+    this.emitter.on('change', handler);
+    return () => {
+      this.emitter.off('change', handler);
+    };
+  }
+
+  /**
+   * Subscribe to reset events.
+   * Returns an unsubscribe function.
+   */
+  onReset(callback: () => void): () => void {
+    this.emitter.on('reset', callback);
+    return () => {
+      this.emitter.off('reset', callback);
+    };
+  }
+
   private validateField(field: string): void {
     const validator = this.validators.get(field);
     if (validator) {
