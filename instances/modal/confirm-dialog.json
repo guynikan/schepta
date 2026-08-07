@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "x-component": "ModalContainer",
+  "x-component-props": {
+    "ariaLabel": "Delete project confirmation",
+    "size": "md",
+    "dismissible": true
+  },
+  "properties": {
+    "header": {
+      "type": "object",
+      "x-component": "ModalHeader",
+      "x-ui": { "order": 1 },
+      "x-component-props": {
+        "title": "Delete project",
+        "description": "This action cannot be undone.",
+        "showCloseButton": true
+      }
+    },
+    "body": {
+      "type": "object",
+      "x-component": "ModalBody",
+      "x-ui": { "order": 2 },
+      "x-content": "Are you sure you want to delete this project? All associated data (tasks, comments, files) will be permanently removed."
+    },
+    "footer": {
+      "type": "object",
+      "x-component": "ModalFooter",
+      "x-ui": { "order": 3 },
+      "x-component-props": {
+        "align": "end"
+      }
+    }
+  }
+}

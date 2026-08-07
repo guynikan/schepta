@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "x-component": "LayoutContainer",
+  "x-component-props": {
+    "ariaLabel": "Application shell",
+    "variant": "with-sidebar",
+    "sidebarPosition": "left"
+  },
+  "properties": {
+    "header": {
+      "type": "object",
+      "x-component": "LayoutHeader",
+      "x-ui": { "order": 1 },
+      "x-component-props": {
+        "ariaLabel": "Top bar",
+        "sticky": true
+      },
+      "x-content": "My App"
+    },
+    "sidebar": {
+      "type": "object",
+      "x-component": "LayoutSidebar",
+      "x-ui": { "order": 2 },
+      "x-component-props": {
+        "ariaLabel": "Navigation",
+        "collapsible": true,
+        "width": "240px"
+      },
+      "x-content": "Navigation"
+    },
+    "main": {
+      "type": "object",
+      "x-component": "LayoutMain",
+      "x-ui": { "order": 3 },
+      "x-component-props": {
+        "ariaLabel": "Main area"
+      },
+      "x-content": "Main content area"
+    },
+    "footer": {
+      "type": "object",
+      "x-component": "LayoutFooter",
+      "x-ui": { "order": 4 },
+      "x-component-props": {
+        "ariaLabel": "Copyright",
+        "sticky": false
+      },
+      "x-content": "© 2026 My App"
+    }
+  }
+}

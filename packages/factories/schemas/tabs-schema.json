@@ -1,0 +1,107 @@
+{
+  "$id": "tabs-schema",
+  "type": "object",
+  "title": "TabsSchema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Tabs schema definition (horizontal/vertical tab navigation with panels).",
+  "$defs": {
+    "TabPanel": {
+      "title": "TabPanel",
+      "type": "object",
+      "required": ["type", "x-component", "x-component-props"],
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "x-component": {
+          "const": "TabPanel"
+        },
+        "x-ui": {
+          "type": "object",
+          "properties": {
+            "order": {
+              "type": "integer"
+            },
+            "visible": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "x-component-props": {
+          "type": "object",
+          "required": ["label"],
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Display label on the tab trigger"
+            },
+            "icon": {
+              "type": "string",
+              "description": "Optional icon identifier shown before the label"
+            },
+            "disabled": {
+              "type": "boolean",
+              "description": "Disables the tab (cannot be activated)"
+            },
+            "badge": {
+              "type": ["string", "number"],
+              "description": "Optional badge text / count shown next to the label"
+            }
+          },
+          "additionalProperties": true
+        },
+        "x-content": {
+          "type": "string",
+          "description": "Optional plain-text content rendered inside the tab panel"
+        },
+        "properties": {
+          "type": "object",
+          "description": "Nested schema children rendered inside the tab panel",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["type", "x-component", "properties"],
+  "properties": {
+    "type": {
+      "const": "object"
+    },
+    "x-component": {
+      "const": "TabsContainer"
+    },
+    "x-component-props": {
+      "type": "object",
+      "properties": {
+        "ariaLabel": {
+          "type": "string",
+          "description": "Accessible label for the tabs widget"
+        },
+        "orientation": {
+          "type": "string",
+          "enum": ["horizontal", "vertical"],
+          "description": "Layout orientation of the tab list"
+        },
+        "variant": {
+          "type": "string",
+          "enum": ["underline", "pills", "boxed"],
+          "description": "Visual variant of the tab list"
+        }
+      },
+      "additionalProperties": true
+    },
+    "properties": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+          "$ref": "#/$defs/TabPanel"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

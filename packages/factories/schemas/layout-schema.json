@@ -1,0 +1,111 @@
+{
+  "$id": "layout-schema",
+  "type": "object",
+  "title": "LayoutSchema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Application shell layout schema (header / sidebar / main / footer slots).",
+  "$defs": {
+    "LayoutSlot": {
+      "title": "LayoutSlot",
+      "type": "object",
+      "required": ["type", "x-component"],
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "x-component": {
+          "enum": [
+            "LayoutHeader",
+            "LayoutSidebar",
+            "LayoutMain",
+            "LayoutFooter"
+          ]
+        },
+        "x-ui": {
+          "type": "object",
+          "properties": {
+            "order": {
+              "type": "integer"
+            },
+            "visible": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "x-component-props": {
+          "type": "object",
+          "properties": {
+            "ariaLabel": {
+              "type": "string",
+              "description": "Accessible label for the slot region"
+            },
+            "sticky": {
+              "type": "boolean",
+              "description": "Hint for sticky positioning (applied by Header / Footer)"
+            },
+            "collapsible": {
+              "type": "boolean",
+              "description": "Whether the sidebar can be collapsed"
+            },
+            "width": {
+              "type": ["string", "number"],
+              "description": "Optional fixed width (Sidebar only)"
+            }
+          },
+          "additionalProperties": true
+        },
+        "x-content": {
+          "type": "string",
+          "description": "Optional plain-text content rendered inside the slot"
+        },
+        "properties": {
+          "type": "object",
+          "description": "Nested schema children rendered inside the slot",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["type", "x-component", "properties"],
+  "properties": {
+    "type": {
+      "const": "object"
+    },
+    "x-component": {
+      "const": "LayoutContainer"
+    },
+    "x-component-props": {
+      "type": "object",
+      "properties": {
+        "ariaLabel": {
+          "type": "string",
+          "description": "Accessible label for the whole page layout"
+        },
+        "variant": {
+          "type": "string",
+          "enum": ["default", "with-sidebar", "stacked"],
+          "description": "Layout variant hint. 'with-sidebar' renders a grid with the sidebar; 'stacked' stacks every slot vertically."
+        },
+        "sidebarPosition": {
+          "type": "string",
+          "enum": ["left", "right"],
+          "description": "Position of the sidebar in 'with-sidebar' variants"
+        }
+      },
+      "additionalProperties": true
+    },
+    "properties": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+          "$ref": "#/$defs/LayoutSlot"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

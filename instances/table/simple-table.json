@@ -1,0 +1,67 @@
+{
+  "type": "object",
+  "x-component": "TableContainer",
+  "x-component-props": {
+    "ariaLabel": "Team members",
+    "caption": "Team members"
+  },
+  "properties": {
+    "name": {
+      "type": "object",
+      "x-component": "TableColumn",
+      "x-ui": { "order": 1 },
+      "x-component-props": {
+        "label": "Name",
+        "field": "name",
+        "sortable": true,
+        "width": "28%"
+      }
+    },
+    "email": {
+      "type": "object",
+      "x-component": "TableColumn",
+      "x-ui": { "order": 2 },
+      "x-component-props": {
+        "label": "Email",
+        "field": "email",
+        "sortable": true,
+        "width": "32%"
+      }
+    },
+    "role": {
+      "type": "object",
+      "x-component": "TableColumn",
+      "x-ui": { "order": 3 },
+      "x-component-props": {
+        "label": "Role",
+        "field": "role",
+        "sortable": true,
+        "width": "18%"
+      }
+    },
+    "status": {
+      "type": "object",
+      "x-component": "TableColumn",
+      "x-ui": { "order": 4 },
+      "x-component-props": {
+        "label": "Status",
+        "field": "status",
+        "align": "center",
+        "format": "● {{ value }}",
+        "width": "14%"
+      }
+    },
+    "seats": {
+      "type": "object",
+      "x-component": "TableColumn",
+      "x-ui": { "order": 5 },
+      "x-component-props": {
+        "label": "Seats",
+        "field": "seats",
+        "sortable": true,
+        "align": "right",
+        "width": "8%"
+      }
+    }
+  }
+}

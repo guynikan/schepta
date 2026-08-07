@@ -19,6 +19,14 @@ export const defaultTypeProps: Record<ComponentType, Record<string, any>> = {
   addon: {},
   'menu-item': {},
   'menu-container': {},
+  'table-container': {},
+  'table-column': {},
+  'layout-container': {},
+  'layout-slot': {},
+  'tabs-container': {},
+  'tabs-panel': {},
+  'modal-container': {},
+  'modal-slot': {},
 };
 
 /**

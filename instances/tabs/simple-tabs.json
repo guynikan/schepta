@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "x-component": "TabsContainer",
+  "x-component-props": {
+    "ariaLabel": "Account sections",
+    "orientation": "horizontal",
+    "variant": "underline"
+  },
+  "properties": {
+    "overview": {
+      "type": "object",
+      "x-component": "TabPanel",
+      "x-ui": { "order": 1 },
+      "x-component-props": {
+        "label": "Overview",
+        "icon": "📊"
+      },
+      "x-content": "Quick glance at recent activity, open tasks and key metrics for the team."
+    },
+    "members": {
+      "type": "object",
+      "x-component": "TabPanel",
+      "x-ui": { "order": 2 },
+      "x-component-props": {
+        "label": "Members",
+        "icon": "👥",
+        "badge": 12
+      },
+      "x-content": "People with access to this workspace. Invite teammates and manage roles."
+    },
+    "billing": {
+      "type": "object",
+      "x-component": "TabPanel",
+      "x-ui": { "order": 3 },
+      "x-component-props": {
+        "label": "Billing",
+        "icon": "💳"
+      },
+      "x-content": "Your current plan, usage, invoices and payment method."
+    },
+    "advanced": {
+      "type": "object",
+      "x-component": "TabPanel",
+      "x-ui": { "order": 4 },
+      "x-component-props": {
+        "label": "Advanced",
+        "icon": "⚙️",
+        "disabled": true
+      },
+      "x-content": "Experimental settings. Disabled in this showcase."
+    }
+  }
+}

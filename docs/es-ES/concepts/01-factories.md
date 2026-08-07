@@ -12,6 +12,10 @@
 | -------------- | ------------------ | ---------------- | ---------------------- | ------------ |
 | Form JSON      | `FormFactory`      | React/Vue/Vanilla Form   | Interfaz funcionando  | Listo
 | Menu JSON      | `MenuFactory`      | React Navigation | Navegación completa     | Listo (React)
+| Table JSON     | `TableFactory`     | React Data Table | Filas ordenables y seleccionables | Listo (React)
+| Layout JSON    | `LayoutFactory`    | React App Shell  | Header / Sidebar / Main / Footer | Listo (React)
+| Tabs JSON      | `TabsFactory`      | React Tabs       | Estado de pestaña activa + ref API | Listo (React)
+| Modal JSON     | `ModalFactory`     | React Dialog     | Open/close/ESC/backdrop + ref API | Listo (React)
 | JSON personalizado | `createReactFactory` / `createVueFactory` / `createVanillaFactory` | Cualquier árbol de UI | Factory definida por el usuario | Listo
 
 ### Cómo Funciona:
@@ -90,6 +94,10 @@ Elementos React/Vue
 **Cada Factory tiene lógica específica para su dominio:**
 - **FormFactory:** Inyecta contexto del adapter de formulario, aplica validaciones, gestiona estado
 - **MenuFactory:** Gestiona navegación, estados activos, jerarquía de menú
+- **TableFactory:** Extrae columnas del schema, ordena filas en el cliente, rastrea selección (single/multiple) y expone ref API imperativa
+- **LayoutFactory:** Compone el shell de la aplicación a partir de slots nombrados (header / sidebar / main / footer), con variantes (`default`, `with-sidebar`, `stacked`) y ref API que lista los slots declarados
+- **TabsFactory:** Renderiza los triggers de pestañas desde el schema (label / icono / badge / disabled), gestiona la pestaña activa vía React context dedicado y expone ref API imperativa (`setActiveTab`, `getTabs`)
+- **ModalFactory:** Renderiza un diálogo con slots header / body / footer, soporta modo controlado y no controlado, dismissal por ESC y clic en el backdrop, y ref API (`open`, `close`, `toggle`, `isOpen`)
 
 **Puntos de extensión:** `components` y `customComponents` del Provider, props de la Factory para overrides locales, Middleware Pipeline (ej. array `middlewares`), `externalContext` para estado compartido.
 

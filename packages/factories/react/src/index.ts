@@ -44,6 +44,88 @@ export {
   type DefaultMenuItemProps,
 } from './menu-factory';
 
+// Built-in Table factory
+export {
+  TableFactory,
+  DefaultTableContainer,
+  DefaultTableColumn,
+  TableProvider,
+  useTableContext,
+  useOptionalTableContext,
+  type TableFactoryProps,
+  type TableFactoryRef,
+  type TableSelectionPayload,
+  type TableRowKeyGetter,
+  type TableColumnMeta,
+  type TableSortState,
+  type TableSelectionMode,
+  type SortDirection,
+  type TableContextValue,
+  type DefaultTableContainerProps,
+  type DefaultTableColumnProps,
+} from './table-factory';
+
+// Built-in Layout factory (application shell: header / sidebar / main / footer)
+export {
+  LayoutFactory,
+  defaultLayoutComponents,
+  DefaultLayoutContainer,
+  DefaultLayoutHeader,
+  DefaultLayoutSidebar,
+  DefaultLayoutMain,
+  DefaultLayoutFooter,
+  type LayoutFactoryProps,
+  type LayoutFactoryRef,
+  type LayoutVariant,
+  type SidebarPosition,
+  type DefaultLayoutContainerProps,
+  type DefaultLayoutHeaderProps,
+  type DefaultLayoutSidebarProps,
+  type DefaultLayoutMainProps,
+  type DefaultLayoutFooterProps,
+} from './layout-factory';
+
+// Built-in Tabs factory
+export {
+  TabsFactory,
+  defaultTabsComponents,
+  DefaultTabsContainer,
+  DefaultTabPanel,
+  TabsProvider,
+  useTabsContext,
+  useOptionalTabsContext,
+  type TabsFactoryProps,
+  type TabsFactoryRef,
+  type TabsChangePayload,
+  type TabMeta,
+  type TabsOrientation,
+  type TabsVariant,
+  type TabsContextValue,
+  type DefaultTabsContainerProps,
+  type DefaultTabPanelProps,
+} from './tabs-factory';
+
+// Built-in Modal factory (dialog / confirmation)
+export {
+  ModalFactory,
+  defaultModalComponents,
+  DefaultModalContainer,
+  DefaultModalHeader,
+  DefaultModalBody,
+  DefaultModalFooter,
+  ModalProvider,
+  useModalContext,
+  useOptionalModalContext,
+  type ModalFactoryProps,
+  type ModalFactoryRef,
+  type ModalSize,
+  type ModalContextValue,
+  type DefaultModalContainerProps,
+  type DefaultModalHeaderProps,
+  type DefaultModalBodyProps,
+  type DefaultModalFooterProps,
+} from './modal-factory';
+
 // Components (types and defaults)
 export {
   DefaultFormContainer,
@@ -109,6 +191,9 @@ export {
   useScheptaFieldValue,
   type ScheptaFormProviderProps,
 } from './context';
+
+// Accessibility primitives (for custom components)
+export * from './a11y';
 
 // Hooks (for advanced usage)
 export * from './hooks';
