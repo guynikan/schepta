@@ -39,8 +39,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@schepta/core": "workspace:*",
     "@schepta/adapter-react": "workspace:*",
+    "@schepta/core": "workspace:*",
     "@schepta/factories": "workspace:*"
   },
   "peerDependencies": {
@@ -48,14 +48,15 @@
     "react-dom": ">=18.0.0"
   },
   "devDependencies": {
-    "@testing-library/react": "^14.0.0",
     "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.6.3",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.2.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vitest": "^1.0.0"
+    "vitest": "^1.0.0",
+    "vitest-axe": "^0.1.0"
   }
 }
-

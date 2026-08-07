@@ -31,6 +31,7 @@ import React, {
 import { FormRenderer } from '../form-renderer';
 import { useMergedScheptaConfig } from '../hooks/use-merged-config';
 import { useScheptaSchemaValidation } from '../hooks/use-schepta-schema-validation';
+import { injectScheptaTokens } from '../schepta-tokens';
 import { useScheptaOrchestrator } from './hooks/use-schepta-orchestrator';
 import type {
   CreateReactFactoryConfig,
@@ -55,6 +56,13 @@ export function createReactFactory<
 
   const Factory = forwardRef<TRefApi, TProps>(function ScheptaFactory(rawProps, ref) {
     const props = rawProps as TProps;
+
+    // Every factory — including user-defined ones — needs the default tokens,
+    // which carry the `:focus-visible` ring and the reduced-motion overrides.
+    // Called during render (not in an effect) so the styles are in place
+    // before first paint; the function is idempotent and no-ops under SSR,
+    // where it runs again on the client during hydration.
+    injectScheptaTokens();
 
     const validation = useScheptaSchemaValidation(props.schema, {
       schemaDefinition,

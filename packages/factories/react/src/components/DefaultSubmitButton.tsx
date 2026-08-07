@@ -39,6 +39,8 @@ export interface SubmitButtonProps {
   externalContext?: Record<string, any>;
   /** Optional children */
   children?: React.ReactNode;
+  /** Disables the button (e.g. while the form is submitting) */
+  disabled?: boolean;
   "x-component-props"?: Record<string, any>;
   "x-ui"?: Record<string, any>;
 }
@@ -53,25 +55,34 @@ export type SubmitButtonComponentType = React.ComponentType<SubmitButtonProps>;
  * Default submit button component
  * Can be overridden via components prop or ScheptaProvider
  */
-export const DefaultSubmitButton: React.FC<SubmitButtonProps> = ({ onSubmit, "x-component-props": xComponentProps, "x-ui": xUi }) => {
+export const DefaultSubmitButton: React.FC<SubmitButtonProps> = ({
+  onSubmit,
+  disabled,
+  children,
+  'x-content': xContent,
+  "x-component-props": xComponentProps,
+  "x-ui": xUi,
+}) => {
   return (
     <div style={{ marginTop: '24px', textAlign: 'right' }}>
       <button
         type="submit"
         data-test-id="submit-button"
+        disabled={disabled}
         style={{
           padding: '12px 24px',
           backgroundColor: 'var(--schepta-brand)',
           color: 'var(--schepta-brand-text)',
           border: 'none',
           borderRadius: '4px',
-          cursor: 'pointer',
+          cursor: disabled ? 'not-allowed' : 'pointer',
           fontSize: '16px',
           fontWeight: '500',
+          opacity: disabled ? 0.7 : 1,
         }}
         {...xComponentProps}
       >
-        Submit
+        {xContent ?? children ?? 'Submit'}
       </button>
     </div>
   );

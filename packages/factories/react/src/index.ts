@@ -130,6 +130,17 @@ export {
 export {
   DefaultFormContainer,
   DefaultSubmitButton,
+  // Field a11y contract — reuse these in custom input components so they
+  // expose the same label / error / describedby wiring as the built-ins.
+  useFieldA11y,
+  FieldMessages,
+  FormSectionProvider,
+  useOptionalFormSectionContext,
+  type UseFieldA11yOptions,
+  type UseFieldA11yResult,
+  type FieldMessagesProps,
+  type FormSectionContextValue,
+  type HeadingLevel,
   type FormContainerProps,
   type SubmitButtonProps,
   type SubmitButtonComponentType,
@@ -189,6 +200,8 @@ export {
   useScheptaFormAdapter,
   useScheptaFormValues,
   useScheptaFieldValue,
+  useScheptaFieldError,
+  useScheptaFormErrors,
   type ScheptaFormProviderProps,
 } from './context';
 

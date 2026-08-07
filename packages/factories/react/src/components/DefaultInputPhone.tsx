@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { useFieldA11y, FieldMessages } from './field-a11y';
 
 /**
  * Props passed to the InputPhone component.
@@ -22,6 +23,8 @@ export interface InputPhoneProps
   value?: string;
   onChange?: (value: string) => void;
   label?: string;
+  /** Helper text rendered below the input and linked via aria-describedby */
+  description?: string;
   externalContext?: Record<string, any>;
   "x-component-props"?: Record<string, any>;
   "x-ui"?: Record<string, any>;
@@ -52,26 +55,52 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default phone input component (uses type="tel").
  */
 export const DefaultInputPhone = React.forwardRef<HTMLInputElement, InputPhoneProps>(
-  ({ label, name, value, onChange, placeholder, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
+  (
+    {
+      label,
+      name,
+      value,
+      onChange,
+      placeholder,
+      description,
+      required,
+      id,
+      'aria-describedby': ariaDescribedBy,
+      externalContext,
+      "x-component-props": xComponentProps,
+      "x-ui": xUi,
+      ...rest
+    },
+    ref
+  ) => {
+    const { ids, errorText, labelProps, controlProps } = useFieldA11y({
+      name,
+      id,
+      description,
+      required,
+      ariaDescribedBy,
+    });
+
     return (
       <div style={wrapperStyle}>
         {label && (
-          <label htmlFor={name} style={labelStyle}>
+          <label {...labelProps} style={labelStyle}>
             {label}
           </label>
         )}
         <input
           ref={ref}
           type="tel"
-          id={name}
           name={name}
           value={value ?? ''}
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
+          {...controlProps}
           {...xComponentProps}
           {...rest}
         />
+        <FieldMessages ids={ids} description={description} errorText={errorText} />
       </div>
     );
   }

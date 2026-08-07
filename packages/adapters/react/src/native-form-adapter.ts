@@ -24,6 +24,8 @@ export class NativeReactFormAdapter implements FormAdapter {
   private listeners: Set<(field: string, value: any) => void>;
   private _fieldSubscribers: Map<string, Set<() => void>> = new Map();
   private _globalSubscribers: Set<() => void> = new Set();
+  private _errorFieldSubscribers: Map<string, Set<() => void>> = new Map();
+  private _errorGlobalSubscribers: Set<() => void> = new Set();
   private _version: number = 0;
 
   constructor(
@@ -61,9 +63,57 @@ export class NativeReactFormAdapter implements FormAdapter {
 
   /**
    * Update internal errors reference.
+   *
+   * Called by the provider's effect when the React error state changes. When
+   * the change originated from this adapter the reference is already current,
+   * so this is a no-op and no subscriber is notified twice.
    */
   updateErrors(newErrors: Record<string, any>): void {
-    this.errors = newErrors;
+    if (newErrors === this.errors) return;
+    this.applyErrors(newErrors, { notifyReact: false });
+  }
+
+  /**
+   * Commits a new error map.
+   *
+   * Errors are owned by the adapter — the same way values are — so that
+   * `getErrorSnapshot` is correct synchronously. Previously they only lived in
+   * React state and reached the adapter one effect later, which meant a field
+   * could never read its own error during the render that produced it.
+   *
+   * `setErrors` is still called so consumers holding the React error state
+   * (and the `ScheptaFormProvider` fallback path) keep working.
+   */
+  private applyErrors(
+    next: Record<string, any>,
+    options: { notifyReact?: boolean } = {}
+  ): void {
+    const { notifyReact = true } = options;
+    const previous = this.errors;
+
+    // A valid submit commits an empty map every time. Bailing out when the
+    // map was already empty keeps getErrorsSnapshot's reference stable, so
+    // useSyncExternalStore consumers do not re-render for nothing.
+    if (Object.keys(previous).length === 0 && Object.keys(next).length === 0) {
+      return;
+    }
+
+    this.errors = next;
+
+    if (notifyReact) {
+      this.setErrors(next);
+    }
+
+    // Notify only the fields whose error actually changed, so a submit that
+    // flags one field does not re-render every other field in the form.
+    const touched = new Set([...Object.keys(previous), ...Object.keys(next)]);
+    for (const field of touched) {
+      if (previous[field] === next[field]) continue;
+      const subs = this._errorFieldSubscribers.get(field);
+      if (subs) subs.forEach((cb) => cb());
+    }
+
+    this._errorGlobalSubscribers.forEach((cb) => cb());
   }
 
   getValues(): Record<string, any> {
@@ -134,7 +184,7 @@ export class NativeReactFormAdapter implements FormAdapter {
 
   reset(values?: Record<string, any>): void {
     this.setValues(values || {});
-    this.setErrors({});
+    this.applyErrors({});
   }
 
   register(field: string, options?: FieldOptions): void {
@@ -162,21 +212,27 @@ export class NativeReactFormAdapter implements FormAdapter {
   }
 
   setError(field: string, error: any): void {
-    this.setErrors((prevErrors) => ({
-      ...prevErrors,
-      [field]: error,
-    }));
+    this.applyErrors({ ...this.errors, [field]: error });
+  }
+
+  /**
+   * Replace the whole error map at once (used by schema-level validation on
+   * submit). Exposed beyond the FormAdapter interface because validators
+   * produce all errors in a single pass.
+   */
+  setErrorsMap(errors: Record<string, any>): void {
+    this.applyErrors({ ...errors });
   }
 
   clearErrors(field?: string): void {
     if (field) {
-      this.setErrors((prevErrors) => {
-        const newErrors = { ...prevErrors };
-        delete newErrors[field];
-        return newErrors;
-      });
+      if (!(field in this.errors)) return;
+      const newErrors = { ...this.errors };
+      delete newErrors[field];
+      this.applyErrors(newErrors);
     } else {
-      this.setErrors({});
+      if (Object.keys(this.errors).length === 0) return;
+      this.applyErrors({});
     }
   }
 
@@ -199,30 +255,24 @@ export class NativeReactFormAdapter implements FormAdapter {
       });
 
       if (hasErrors) {
-        this.setErrors(newErrors);
+        this.applyErrors(newErrors);
         return;
       }
 
+      this.applyErrors({});
       onSubmit(this.getValues());
     };
   }
 
   private validateField(field: string, value: any): void {
     const validator = this.validators.get(field);
-    if (validator) {
-      const result = validator(value);
-      if (result === true) {
-        this.setErrors((prevErrors) => {
-          const newErrors = { ...prevErrors };
-          delete newErrors[field];
-          return newErrors;
-        });
-      } else {
-        this.setErrors((prevErrors) => ({
-          ...prevErrors,
-          [field]: typeof result === 'string' ? result : 'Validation failed',
-        }));
-      }
+    if (!validator) return;
+
+    const result = validator(value);
+    if (result === true) {
+      this.clearErrors(field);
+    } else {
+      this.setError(field, typeof result === 'string' ? result : 'Validation failed');
     }
   }
 
@@ -276,6 +326,52 @@ export class NativeReactFormAdapter implements FormAdapter {
    */
   getValuesSnapshot(): Record<string, any> {
     return this.state;
+  }
+
+  /**
+   * Subscribe to error changes on a specific field (for useSyncExternalStore).
+   */
+  subscribeError(field: string, callback: () => void): () => void {
+    let subs = this._errorFieldSubscribers.get(field);
+    if (!subs) {
+      subs = new Set();
+      this._errorFieldSubscribers.set(field, subs);
+    }
+    subs.add(callback);
+    return () => {
+      subs!.delete(callback);
+      if (subs!.size === 0) {
+        this._errorFieldSubscribers.delete(field);
+      }
+    };
+  }
+
+  /**
+   * Subscribe to any error change (for useSyncExternalStore).
+   */
+  subscribeErrors(callback: () => void): () => void {
+    this._errorGlobalSubscribers.add(callback);
+    return () => {
+      this._errorGlobalSubscribers.delete(callback);
+    };
+  }
+
+  /**
+   * Get a snapshot of a single field's error (for useSyncExternalStore).
+   */
+  getErrorSnapshot(field: string): any {
+    return this.errors[field];
+  }
+
+  /**
+   * Get a snapshot of all errors (for useSyncExternalStore).
+   *
+   * Returns the internal reference on purpose: useSyncExternalStore compares
+   * snapshots by identity, so returning a fresh object each call would loop
+   * forever. Same contract as getValuesSnapshot.
+   */
+  getErrorsSnapshot(): Record<string, any> {
+    return this.errors;
   }
 
   /**

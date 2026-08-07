@@ -57,6 +57,32 @@ export default defineConfig({
         baseURL: 'http://localhost:5174/en-US/showcases/menu',
       },
     },
+    {
+      name: 'table',
+      testMatch: '**/*table.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5174/en-US/showcases/table',
+      },
+    },
+    {
+      name: 'tabs',
+      testMatch: '**/*tabs.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5174/en-US/showcases/tabs',
+      },
+    },
+    {
+      // The a11y suite navigates across several showcases, so its baseURL is
+      // the docs root rather than a single showcase page.
+      name: 'a11y',
+      testMatch: '**/*a11y.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5174',
+      },
+    },
   ],
 });
 

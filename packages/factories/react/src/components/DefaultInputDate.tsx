@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { useFieldA11y, FieldMessages } from './field-a11y';
 
 /**
  * Props passed to the InputDate component.
@@ -19,6 +20,8 @@ export interface InputDateProps
   value?: string;
   onChange?: (value: string) => void;
   label?: string;
+  /** Helper text rendered below the input and linked via aria-describedby */
+  description?: string;
   /** Test ID for the input date */
   'data-test-id'?: string;
   externalContext?: Record<string, any>;
@@ -51,25 +54,50 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default date input component.
  */
 export const DefaultInputDate = React.forwardRef<HTMLInputElement, InputDateProps>(
-  ({ label, name, value, onChange, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
+  (
+    {
+      label,
+      name,
+      value,
+      onChange,
+      description,
+      required,
+      id,
+      'aria-describedby': ariaDescribedBy,
+      externalContext,
+      "x-component-props": xComponentProps,
+      "x-ui": xUi,
+      ...rest
+    },
+    ref
+  ) => {
+    const { ids, errorText, labelProps, controlProps } = useFieldA11y({
+      name,
+      id,
+      description,
+      required,
+      ariaDescribedBy,
+    });
+
     return (
       <div style={wrapperStyle}>
         {label && (
-          <label htmlFor={name} style={labelStyle}>
+          <label {...labelProps} style={labelStyle}>
             {label}
           </label>
         )}
         <input
           ref={ref}
           type="date"
-          id={name}
           name={name}
           value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
+          {...controlProps}
           {...xComponentProps}
           {...rest}
         />
+        <FieldMessages ids={ids} description={description} errorText={errorText} />
       </div>
     );
   }

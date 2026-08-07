@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { useFieldA11y, FieldMessages } from './field-a11y';
 
 export interface InputAutocompleteOption {
   value: string;
@@ -27,6 +28,8 @@ export interface InputAutocompleteProps
   value?: string;
   onChange?: (value: string) => void;
   label?: string;
+  /** Helper text rendered below the input and linked via aria-describedby */
+  description?: string;
   /** List of options for autocomplete (value used for both value and label if label omitted) */
   options?: InputAutocompleteOption[] | string[];
   externalContext?: Record<string, any>;
@@ -69,38 +72,65 @@ function normalizeOptions(
 export const DefaultInputAutocomplete = React.forwardRef<
   HTMLInputElement,
   InputAutocompleteProps
->(({ label, name, value, onChange, placeholder, options = [], externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
-  const listId = `${name}-datalist`;
-  const normalizedOptions = normalizeOptions(options);
+>(
+  (
+    {
+      label,
+      name,
+      value,
+      onChange,
+      placeholder,
+      description,
+      required,
+      id,
+      'aria-describedby': ariaDescribedBy,
+      options = [],
+      externalContext,
+      "x-component-props": xComponentProps,
+      "x-ui": xUi,
+      ...rest
+    },
+    ref
+  ) => {
+    const { ids, errorText, labelProps, controlProps } = useFieldA11y({
+      name,
+      id,
+      description,
+      required,
+      ariaDescribedBy,
+    });
+    const normalizedOptions = normalizeOptions(options);
 
-  return (
-    <div style={wrapperStyle}>
-      {label && (
-        <label htmlFor={name} style={labelStyle}>
-          {label}
-        </label>
-      )}
-      <input
-        ref={ref}
-        id={name}
-        name={name}
-        list={listId}
-        value={value ?? ''}
-        placeholder={placeholder}
-        onChange={(e) => onChange?.(e.target.value)}
-        style={inputStyle}
-        {...xComponentProps}
-        {...rest}
-      />
-      <datalist id={listId}>
-        {normalizedOptions.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </datalist>
-    </div>
-  );
-});
+    return (
+      <div style={wrapperStyle}>
+        {label && (
+          <label {...labelProps} style={labelStyle}>
+            {label}
+          </label>
+        )}
+        <input
+          ref={ref}
+          name={name}
+          list={ids.listId}
+          value={value ?? ''}
+          placeholder={placeholder}
+          onChange={(e) => onChange?.(e.target.value)}
+          style={inputStyle}
+          {...controlProps}
+          {...xComponentProps}
+          {...rest}
+        />
+        <datalist id={ids.listId}>
+          {normalizedOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </datalist>
+        <FieldMessages ids={ids} description={description} errorText={errorText} />
+      </div>
+    );
+  }
+);
 
 DefaultInputAutocomplete.displayName = 'DefaultInputAutocomplete';

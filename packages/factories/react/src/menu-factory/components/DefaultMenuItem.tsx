@@ -5,6 +5,12 @@ export interface DefaultMenuItemProps {
   href?: string;
   icon?: string;
   disabled?: boolean;
+  /**
+   * Marks this item as the one matching the current page, exposed as
+   * `aria-current="page"`. Without it a screen reader user has no way to tell
+   * where they are in the menu — the visual highlight alone is not announced.
+   */
+  active?: boolean;
   onSelect?: (payload: { href?: string; label: string }) => void;
   'data-test-id'?: string;
 }
@@ -14,6 +20,7 @@ export function DefaultMenuItem({
   href,
   icon,
   disabled,
+  active,
   onSelect,
   'data-test-id': dataTestId,
 }: DefaultMenuItemProps) {
@@ -68,6 +75,11 @@ export function DefaultMenuItem({
           href={href}
           onClick={handleClick}
           aria-disabled={disabled || undefined}
+          aria-current={active ? 'page' : undefined}
+          // `pointer-events: none` alone stops the mouse but leaves the link
+          // in the tab order, so a keyboard user could still focus and
+          // activate a disabled item.
+          tabIndex={disabled ? -1 : undefined}
           data-test-id={dataTestId}
           // `target` opts the link out of host client-side routers (e.g.
           // VitePress' window-capture click handler), which otherwise navigate
@@ -82,6 +94,7 @@ export function DefaultMenuItem({
           type="button"
           onClick={handleClick}
           disabled={disabled}
+          aria-current={active ? 'page' : undefined}
           data-test-id={dataTestId}
           style={style}
         >

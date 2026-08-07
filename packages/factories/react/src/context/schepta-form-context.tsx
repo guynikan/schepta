@@ -164,5 +164,104 @@ export function useScheptaFieldValue(field: string): any {
   return value;
 }
 
+/**
+ * Hook to get a specific field's validation error reactively.
+ *
+ * Mirrors {@link useScheptaFieldValue}: only the field whose error changed
+ * re-renders. This is what feeds `aria-invalid` and the `role="alert"` error
+ * message on the default inputs — without a reactive read the field would
+ * render its error one commit late, after the assistive technology has
+ * already moved on.
+ *
+ * @param field - The field name (dot notation for nested fields)
+ * @returns The error message, or undefined when the field is valid
+ */
+export function useScheptaFieldError(field: string): any {
+  const context = useContext(ScheptaFormContext);
+
+  if (!context) {
+    throw new Error('useScheptaFieldError must be used within a ScheptaFormProvider.');
+  }
+
+  const adapter = context.adapter;
+
+  if (adapter instanceof NativeReactFormAdapter) {
+    const subscribe = useCallback(
+      (onStoreChange: () => void) => adapter.subscribeError(field, onStoreChange),
+      [adapter, field]
+    );
+    const getSnapshot = useCallback(
+      () => adapter.getErrorSnapshot(field),
+      [adapter, field]
+    );
+
+    return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  }
+
+  // Fallback for custom adapters: direct read (not reactive)
+  return adapter.getError(field);
+}
+
+/**
+ * Like {@link useScheptaFieldError}, but returns `undefined` instead of
+ * throwing when there is no provider.
+ *
+ * The default input components use this so they stay usable outside a
+ * `FormFactory` (standalone, or inside a non-form factory), where there is no
+ * error source at all.
+ */
+export function useOptionalScheptaFieldError(field: string): any {
+  const context = useContext(ScheptaFormContext);
+  const adapter = context?.adapter;
+  const isNative = adapter instanceof NativeReactFormAdapter;
+
+  const subscribe = useCallback(
+    (onStoreChange: () => void) =>
+      isNative ? adapter.subscribeError(field, onStoreChange) : () => {},
+    [adapter, field, isNative]
+  );
+  const getSnapshot = useCallback(
+    () => (isNative ? adapter.getErrorSnapshot(field) : undefined),
+    [adapter, field, isNative]
+  );
+
+  const nativeError = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+
+  if (isNative) return nativeError;
+  return adapter?.getError(field);
+}
+
+/**
+ * Hook to read all form errors reactively.
+ *
+ * Used by the error summary in `DefaultFormContainer`, which needs the full
+ * map rather than a single field.
+ */
+export function useScheptaFormErrors(): Record<string, any> {
+  const context = useContext(ScheptaFormContext);
+
+  if (!context) {
+    throw new Error('useScheptaFormErrors must be used within a ScheptaFormProvider.');
+  }
+
+  const adapter = context.adapter;
+
+  if (adapter instanceof NativeReactFormAdapter) {
+    const subscribe = useCallback(
+      (onStoreChange: () => void) => adapter.subscribeErrors(onStoreChange),
+      [adapter]
+    );
+    const getSnapshot = useCallback(
+      () => adapter.getErrorsSnapshot(),
+      [adapter]
+    );
+
+    return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  }
+
+  // Fallback for custom adapters: no fine-grained reactivity
+  return adapter.getErrors();
+}
+
 // Export context for advanced usage
 export { ScheptaFormContext };

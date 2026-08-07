@@ -16,21 +16,18 @@ import type {
   MiddlewareFn,
   FormAdapter,
 } from '@schepta/core';
-import { hasFormValueTemplates } from '@schepta/core';
+import { hasFormValueTemplates, createFormikValidator } from '@schepta/core';
 import { NativeReactFormAdapter } from '@schepta/adapter-react';
 import formSchemaDefinition from '@schepta/factories/schemas/form-schema.json';
 import { ScheptaFormProvider } from './context/schepta-form-context';
 import { defaultComponents } from './defaults/register-default-components';
 import { defaultRenderers } from './defaults/register-default-renderers';
-import { injectScheptaTokens } from './schepta-tokens';
 import { useScheptaForm } from './hooks/use-schepta-form';
 import {
   createReactFactory,
   type FactoryBaseProps,
   type FactorySetupHook,
 } from './create-factory';
-
-injectScheptaTokens();
 
 /**
  * Ref interface for external form control
@@ -51,7 +48,31 @@ export interface FormFactoryProps extends FactoryBaseProps {
   adapter?: FormAdapter;
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
+  /**
+   * Validate values against the schema (AJV) before calling `onSubmit`.
+   * Defaults to true — this is what populates the errors that drive
+   * `aria-invalid` and the announced error messages.
+   */
+  validateOnSubmit?: boolean;
   debug?: boolean;
+}
+
+/**
+ * Writes a validator's error map into the adapter in one commit.
+ *
+ * `NativeReactFormAdapter` exposes `setErrorsMap` so the whole map lands in a
+ * single notification; other adapters only have the per-field
+ * `FormAdapter` API, so we fall back to clearing and setting field by field.
+ */
+function commitErrors(adapter: FormAdapter, errors: Record<string, string>): void {
+  if (adapter instanceof NativeReactFormAdapter) {
+    adapter.setErrorsMap(errors);
+    return;
+  }
+  adapter.clearErrors();
+  for (const [field, message] of Object.entries(errors)) {
+    adapter.setError(field, message);
+  }
 }
 
 const useFormSetup: FactorySetupHook<
@@ -59,12 +80,50 @@ const useFormSetup: FactorySetupHook<
   FormFactoryRef,
   Record<string, any>
 > = ({ props }) => {
-  const { schema, initialValues, adapter: providedAdapter, onSubmit } = props;
+  const {
+    schema,
+    initialValues,
+    adapter: providedAdapter,
+    onSubmit,
+    validateOnSubmit = true,
+  } = props;
 
   const { formAdapter, reset } = useScheptaForm(schema, {
     initialValues,
     adapter: providedAdapter,
   });
+
+  // ajv.compile is expensive — keep one compiled validator per schema.
+  const validate = useMemo(
+    () => (validateOnSubmit ? createFormikValidator(schema) : null),
+    [schema, validateOnSubmit]
+  );
+
+  /**
+   * Runs schema validation, publishes the errors, and only then hands the
+   * values to the consumer's `onSubmit`.
+   *
+   * Errors are committed even on success (as an empty map) so a field that
+   * was previously invalid clears its `aria-invalid` and drops its alert.
+   */
+  const submitWithValidation = useCallback(
+    (submitFn: (values: Record<string, any>) => void | Promise<void>) =>
+      (values: Record<string, any>) => {
+        if (!validate) return submitFn(values);
+
+        const errors = validate(values);
+        commitErrors(formAdapter, errors);
+
+        if (Object.keys(errors).length > 0) return;
+        return submitFn(values);
+      },
+    [validate, formAdapter]
+  );
+
+  const handleSubmit = useMemo(
+    () => (onSubmit ? submitWithValidation(onSubmit) : undefined),
+    [onSubmit, submitWithValidation]
+  );
 
   // Only subscribe when the schema actually depends on form values for
   // template resolution. Static schemas never re-render on input.
@@ -92,11 +151,14 @@ const useFormSetup: FactorySetupHook<
 
   const refApi = useMemo<FormFactoryRef>(
     () => ({
-      submit: (submitFn) => formAdapter.handleSubmit(submitFn)(),
+      // Imperative submits go through the same validation path as the
+      // built-in submit button, so an external button cannot bypass it.
+      submit: (submitFn) =>
+        formAdapter.handleSubmit(submitWithValidation(submitFn))(),
       reset: (values) => reset(values),
       getValues: () => formAdapter.getValues(),
     }),
-    [formAdapter, reset]
+    [formAdapter, reset, submitWithValidation]
   );
 
   const wrap = useCallback(
@@ -110,7 +172,7 @@ const useFormSetup: FactorySetupHook<
 
   return {
     formAdapter,
-    onSubmit,
+    onSubmit: handleSubmit,
     subscribe,
     getSnapshot,
     refApi,
