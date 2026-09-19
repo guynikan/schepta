@@ -6,7 +6,7 @@ Build dynamic forms and UIs from JSON schemas with full support for React, Vue, 
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
 [![License: SNCL](https://img.shields.io/badge/License-Non--Commercial-orange.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-189%20passing-brightgreen)](./tests)
+[![Tests](https://img.shields.io/badge/tests-193%20passing-brightgreen)](./tests)
 
 ## ✨ Features
 

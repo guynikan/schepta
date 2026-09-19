@@ -13,7 +13,9 @@ import { useEffect, useRef } from 'react';
 import {
   attachModalContainer,
   detachModalContainer,
+  focusTopmostModal,
   getTopmostModal,
+  hasModalContainer,
   isTopmostModal,
 } from './modal-stack';
 
@@ -86,7 +88,12 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>({
     // (it carries tabIndex={-1} for exactly this case).
     // A nested modal may already have focused itself in an earlier effect from
     // the same commit. In that case the parent must leave focus untouched.
-    if (!modalToken || isTopmostModal(modalToken)) {
+    const topmost = modalToken ? getTopmostModal() : undefined;
+    if (
+      !modalToken ||
+      isTopmostModal(modalToken) ||
+      (topmost !== undefined && !hasModalContainer(topmost.token))
+    ) {
       const focusables = getFocusable(container);
       (focusables[0] ?? container).focus();
     }
@@ -143,16 +150,12 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>({
       // were instead of being dropped at the top of the document.
       previouslyFocusedRef.current?.focus?.();
 
-      // If this was a nested modal opened in the same commit, the previous
-      // focus may be outside the parent because the parent deliberately did
-      // not steal focus. Restore focus to the remaining topmost dialog.
-      const topmost = modalToken ? getTopmostModal() : undefined;
-      if (topmost?.container && !topmost.container.contains(document.activeElement)) {
-        const focusables = getFocusable(topmost.container);
-        (focusables[0] ?? topmost.container).focus();
-      }
+      // Exclude this entry while its container is detached. Otherwise a
+      // same-commit nested close sees the closing modal as the topmost entry,
+      // and focus restoration to the still-open parent is skipped.
+      focusTopmostModal(modalToken);
     };
-  }, [active, lockScroll]);
+  }, [active, lockScroll, modalToken, parentModalToken]);
 
   return containerRef;
 }

@@ -13,6 +13,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { createComponentSpec } from '@schepta/core';
 import { ModalFactory, type ModalFactoryRef } from './modal-factory';
+import { useOptionalModalContext } from './context';
 
 const confirmSchema = {
   type: 'object',
@@ -206,6 +207,67 @@ describe('ModalFactory', () => {
     expect(childOnOpenChange).toHaveBeenLastCalledWith(false);
     expect(parentOnOpenChange).not.toHaveBeenCalled();
     expect(document.body.querySelectorAll('[data-schepta-modal="true"]')).toHaveLength(1);
+    expect(
+      document.body
+        .querySelector('[data-schepta-modal="true"]')
+        ?.contains(document.activeElement)
+    ).toBe(true);
+  });
+
+  it('keeps focus in the outer dialog around a custom nested container', async () => {
+    const parentOnOpenChange = vi.fn();
+    const childOnOpenChange = vi.fn();
+    const CustomModalContainer = ({ children }: { children?: React.ReactNode }) => {
+      const ctx = useOptionalModalContext();
+      if (!ctx?.isOpen) return null;
+      return (
+        <div role="dialog" data-test-id="custom-inner-modal">
+          {children}
+        </div>
+      );
+    };
+    const customContainer = createComponentSpec({
+      id: 'nested-custom-modal-container',
+      type: 'modal-container',
+      component: () => CustomModalContainer,
+    });
+    const NestedModalFooter = () => (
+      <ModalFactory
+        schema={confirmSchema}
+        defaultOpen
+        onOpenChange={childOnOpenChange}
+        components={{ ModalContainer: customContainer }}
+      />
+    );
+    const nestedFooter = createComponentSpec({
+      id: 'custom-nested-modal-footer',
+      type: 'modal-slot',
+      component: () => NestedModalFooter,
+    });
+
+    render(
+      <ModalFactory
+        schema={confirmSchema}
+        defaultOpen
+        onOpenChange={parentOnOpenChange}
+        components={{ ModalFooter: nestedFooter }}
+      />
+    );
+
+    const outer = document.body.querySelector('[data-schepta-modal="true"]') as HTMLElement;
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-test-id="custom-inner-modal"]')).not.toBeNull();
+      expect(outer).toContainElement(document.activeElement as HTMLElement);
+    });
+
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-test-id="custom-inner-modal"]')).toBeNull();
+      expect(outer).toContainElement(document.activeElement as HTMLElement);
+    });
+    expect(childOnOpenChange).toHaveBeenLastCalledWith(false);
+    expect(parentOnOpenChange).not.toHaveBeenCalledWith(false);
   });
 
   it('closes when clicking the header close button', () => {

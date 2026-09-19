@@ -36,6 +36,7 @@ import {
   type ModalSize,
 } from './context';
 import {
+  focusTopmostModal,
   getTopmostModal,
   hasModalContainer,
   registerModal,
@@ -118,13 +119,19 @@ const useModalSetup: FactorySetupHook<ModalFactoryProps, ModalFactoryRef> = ({
   useEffect(() => {
     if (!isOpen) return;
     const token = stackTokenRef.current!;
-    return registerModal(
+    const unregister = registerModal(
       token,
       () => {
         if (dismissibleRef.current) applyOpenRef.current(false);
       },
       parentStackToken
     );
+    return () => {
+      if (!unregister()) return;
+      // Custom containers do not use useFocusTrap, so restore focus here when
+      // one closes beneath a still-open default container.
+      focusTopmostModal();
+    };
   }, [isOpen, parentStackToken]);
 
   useEffect(() => {
@@ -177,7 +184,7 @@ const useModalSetup: FactorySetupHook<ModalFactoryProps, ModalFactoryRef> = ({
       stackToken: stackTokenRef.current!,
       parentStackToken,
     }),
-    [isOpen, dismissible, size, close, baseId]
+    [isOpen, dismissible, size, close, baseId, parentStackToken]
   );
 
   const wrap = useCallback(

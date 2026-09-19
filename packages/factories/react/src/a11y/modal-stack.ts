@@ -8,32 +8,48 @@
 
 export interface ModalStackEntry {
   token: object;
+  registrationId: object;
   parentToken?: object;
   container: HTMLElement | null;
   onEscape: () => void;
 }
 
 const modalStack: ModalStackEntry[] = [];
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+  '[contenteditable="true"]',
+].join(',');
 
 export function registerModal(
   token: object,
   onEscape: () => void,
   parentToken?: object
-): () => void {
+): () => boolean {
+  const registrationId = {};
   const existing = modalStack.find((entry) => entry.token === token);
   if (existing) {
     existing.onEscape = onEscape;
     existing.parentToken = parentToken;
+    existing.registrationId = registrationId;
   } else {
-    modalStack.push({ token, parentToken, container: null, onEscape });
+    modalStack.push({ token, registrationId, parentToken, container: null, onEscape });
   }
 
-  return () => unregisterModal(token);
+  return () => unregisterModal(token, registrationId);
 }
 
-export function unregisterModal(token: object): void {
+export function unregisterModal(token: object, registrationId?: object): boolean {
   const index = modalStack.findIndex((entry) => entry.token === token);
-  if (index >= 0) modalStack.splice(index, 1);
+  if (index < 0 || (registrationId && modalStack[index].registrationId !== registrationId)) {
+    return false;
+  }
+  modalStack.splice(index, 1);
+  return true;
 }
 
 export function attachModalContainer(
@@ -46,7 +62,13 @@ export function attachModalContainer(
     existing.container = container;
     existing.parentToken = parentToken;
   } else {
-    modalStack.push({ token, parentToken, container, onEscape: () => {} });
+    modalStack.push({
+      token,
+      registrationId: {},
+      parentToken,
+      container,
+      onEscape: () => {},
+    });
   }
 }
 
@@ -71,9 +93,23 @@ export function hasModalContainer(token: object): boolean {
   return Boolean(modalStack.find((entry) => entry.token === token)?.container);
 }
 
-export function getTopmostModal(): ModalStackEntry | undefined {
-  const leafEntries = modalStack.filter(
-    (entry) => !modalStack.some((candidate) => candidate.parentToken === entry.token)
+export function getTopmostModal(excludeToken?: object): ModalStackEntry | undefined {
+  const entries = modalStack.filter((entry) => entry.token !== excludeToken);
+  const leafEntries = entries.filter(
+    (entry) => !entries.some((candidate) => candidate.parentToken === entry.token)
   );
   return leafEntries[leafEntries.length - 1];
+}
+
+/** Focus the remaining topmost default container when a nested modal closes. */
+export function focusTopmostModal(excludeToken?: object): void {
+  const topmost = getTopmostModal(excludeToken);
+  if (!topmost?.container || topmost.container.contains(document.activeElement)) return;
+
+  const focusables = Array.from(
+    topmost.container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+  ).filter(
+    (node) => node.offsetParent !== null || node === document.activeElement
+  );
+  (focusables[0] ?? topmost.container).focus();
 }
