@@ -1,0 +1,40 @@
+{
+  "name": "@schepta/renderer-vue-vuetify",
+  "version": "1.0.0",
+  "description": "Vue and Vuetify renderer for the semantic Schepta UiSpec contract",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@schepta/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": ">=3.4.0",
+    "vuetify": ">=3.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.0",
+    "vue": "^3.4.0",
+    "vuetify": "^3.5.0"
+  }
+}

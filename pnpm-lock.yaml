@@ -331,6 +331,37 @@ importers:
         specifier: ^3.4.0
         version: 3.5.25(typescript@5.9.3)
 
+  packages/renderers/vue-vuetify:
+    dependencies:
+      '@schepta/core':
+        specifier: workspace:*
+        version: link:../../core
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.19.25
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.0
+        version: 5.2.4(vite@5.4.21)(vue@3.5.25)
+      '@vue/test-utils':
+        specifier: ^2.4.0
+        version: 2.4.6
+      tsup:
+        specifier: ^8.0.1
+        version: 8.5.1(typescript@5.9.3)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@20.19.25)(jsdom@23.2.0)
+      vue:
+        specifier: ^3.4.0
+        version: 3.5.25(typescript@5.9.3)
+      vuetify:
+        specifier: ^3.5.0
+        version: 3.11.2(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.25)
+
   tests:
     devDependencies:
       '@playwright/test':
