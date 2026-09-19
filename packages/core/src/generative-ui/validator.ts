@@ -420,13 +420,19 @@ export function validateUiSpec(input: unknown, options: UiValidationOptions = {}
   const spec = input as UiSpec;
   validateState(spec, errors);
   validateBindings(spec, errors);
-  for (const [id, element] of Object.entries(spec.elements)) {
-    validateElement(element, id, spec, options.catalog, options.rendererCapabilities, errors);
+  if (isRecord(spec.elements)) {
+    for (const [id, element] of Object.entries(spec.elements)) {
+      validateElement(element, id, spec, options.catalog, options.rendererCapabilities, errors);
+    }
   }
-  for (const [name, action] of Object.entries(spec.actions ?? {})) {
-    validateAction(action, name, spec, options.catalog, options.rendererCapabilities, errors);
+  if (isRecord(spec.actions)) {
+    for (const [name, action] of Object.entries(spec.actions)) {
+      validateAction(action, name, spec, options.catalog, options.rendererCapabilities, errors);
+    }
   }
-  validateReachability(spec, errors, warnings);
+  if (isRecord(spec.elements) && typeof spec.root === 'string') {
+    validateReachability(spec, errors, warnings);
+  }
   return { valid: errors.length === 0, errors, warnings, issues: [...errors, ...warnings] };
 }
 
