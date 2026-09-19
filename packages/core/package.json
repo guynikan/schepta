@@ -12,6 +12,7 @@
       "require": "./dist/index.js"
     }
   },
+  "bin": { "schepta-ui-spec": "./dist/ui-spec.js" },
   "files": [
     "dist",
     "README.md"

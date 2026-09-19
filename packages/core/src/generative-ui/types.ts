@@ -115,6 +115,8 @@ export interface SemanticComponentDefinition {
   /** Alias for `props`, retained to make catalog declarations explicit. */
   propsSchema?: JsonSchema;
   slots?: Record<string, SemanticSlotDefinition>;
+  /** State properties that this semantic component may bind. */
+  bindings?: Record<string, UiBindingMode[]>;
   actions?: Record<string, SemanticActionReference>;
   capabilities?: string[];
 }
@@ -186,61 +188,4 @@ export interface UiRepairResult {
 
 export interface UiInputValidationOptions {
   path?: string;
-}
-
-/** JSON context supplied to a UI generation request. */
-export type UiGenerationContext = JsonValue;
-
-export interface UiGenerationUsage {
-  inputTokens?: number;
-  outputTokens?: number;
-  totalTokens?: number;
-}
-
-export interface UiGenerationFailure {
-  code: string;
-  message: string;
-  retryable?: boolean;
-}
-
-export interface UiGenerationDecision {
-  provider: string;
-  selectedCandidateId?: string;
-  confidence?: number;
-  probabilities?: Record<string, number>;
-  reason?: string;
-  latencyMs?: number;
-  usage?: UiGenerationUsage;
-}
-
-/** Trace data is deliberately safe to persist: it never contains credentials. */
-export interface UiGenerationTrace {
-  provider: string;
-  model?: string;
-  startedAt: string;
-  completedAt: string;
-  latencyMs: number;
-  confidence?: number;
-  decisions: UiGenerationDecision[];
-  usage?: UiGenerationUsage;
-  failures: UiGenerationFailure[];
-  fallbackUsed: boolean;
-  repairAttempts: number;
-}
-
-export interface UiGenerationError {
-  code: string;
-  message: string;
-  retryable?: boolean;
-  details?: JsonValue;
-}
-
-export interface UiGenerationResponse {
-  /** Candidate returned by the model before fallback selection. */
-  candidate?: UiSpec;
-  /** Accepted candidate, which may be the deterministic fallback. */
-  spec?: UiSpec;
-  validation: UiValidationReport;
-  trace: UiGenerationTrace;
-  error?: UiGenerationError;
 }

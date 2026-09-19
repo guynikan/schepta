@@ -83,24 +83,25 @@ if (!result.accepted) console.error(result.report.errors);
 
 `acceptUiSpec` rejects non-JSON values, unsupported versions, unknown catalog entries, invalid props/action inputs and missing renderer capabilities. `canonicalizeUiSpec` and `stringifyCanonicalUiSpec` provide stable keys for hashing and caching. `repairUiSpec` only performs explicitly requested bounded repairs (`canonicalize` and/or `removeUnknownProperties`); it never executes expressions or invents semantic values.
 
-## Model generation and experimental TypeSafe System One decisions
+## Local UiSpec tooling
 
-Model generation is exposed through a provider-neutral adapter contract. Adapters return structured JSON candidates and never return JSX, Vue templates or renderer-library code:
+The core package deliberately does not generate UI, call model providers, host
+an API, or choose fallbacks. A Codex Skill is the generation boundary: it
+inspects the built-in catalog, writes JSON, validates it, and may submit at
+most two corrected candidates using the structured errors.
 
-```typescript
-import {
-  createGenerateUi,
-  createOpenAIUiProvider,
-  createTypeSafeJevDecisionProvider,
-} from '@schepta/core';
-
-const generateUi = createGenerateUi(createOpenAIUiProvider());
-const result = await generateUi('Create an onboarding screen', {}, catalog, {
-  decisionProvider: createTypeSafeJevDecisionProvider(),
-});
+```bash
+pnpm --filter @schepta/core build
+node packages/core/dist/ui-spec.mjs catalog
+node packages/core/dist/ui-spec.mjs validate path/to/ui.json
+node packages/core/dist/ui-spec.mjs normalize path/to/ui.json
 ```
 
-The OpenAI-compatible adapter reads `OPENAI_API_KEY` and defaults to `gpt-4o-mini`; the experimental TypeSafe System One adapter reads `TYPESAFE_API_KEY` and sends typed Choice questions to `https://api.typesafe.ai/v1/systemone`. It uses the decision context as `state`, asks one `ui_candidate` question, and maps candidate IDs to their labels in the Choice criteria. Neither key is stored in the repository or in generation traces. If a key is unavailable, the adapter returns a structured failure and the generation layer can use a bounded deterministic fallback. Tests can use `createOnboardingFixtureProvider` and `createDeterministicDecisionProvider` without network access.
+`reactMuiCatalog` is the built-in vocabulary used by the harness. It preserves
+the validation constraints represented by the MUI renderer (required,
+placeholder, min/max length, pattern, standardized input messages, state,
+bindings and declarative actions). FormSchema remains the separate original
+form workflow and is not embedded in UiSpec.
 
 ## License
 

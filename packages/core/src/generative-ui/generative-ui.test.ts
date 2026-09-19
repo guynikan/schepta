@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   acceptUiSpec,
+  acceptCorrectedUiSpec,
   canonicalizeUiSpec,
   createSemanticCatalog,
   repairUiSpec,
@@ -8,6 +9,7 @@ import {
   validateUiInputs,
   validateSemanticCatalog,
   validateUiSpec,
+  reactMuiCatalog,
 } from './index';
 import type { SemanticCatalog, UiSpec } from './types';
 
@@ -197,5 +199,21 @@ describe('semantic Generative UI core', () => {
     expect(result.accepted).toBe(true);
     expect(result.changes).toHaveLength(2);
     expect(result.spec).toBeDefined();
+  });
+
+  it('accepts only an initial candidate plus two error-guided corrections', () => {
+    const rejected = { version: '1.0', root: 'root', elements: { root: { component: 'Unknown' } } };
+    const result = acceptCorrectedUiSpec([rejected, rejected, rejected, validSpec()], { catalog });
+
+    expect(result.accepted).toBeUndefined();
+    expect(result.attempts).toHaveLength(3);
+    expect(result.attempts[0].report.errors[0].code).toBe('unknown-component');
+  });
+
+  it('rejects a naturally unavailable built-in component with a structured error', () => {
+    const report = validateUiSpec({ version: '1.0', root: 'date', elements: { date: { component: 'DatePicker' } } }, { catalog: reactMuiCatalog });
+
+    expect(report.valid).toBe(false);
+    expect(report.errors).toContainEqual(expect.objectContaining({ code: 'unknown-component', path: '/elements/date/component' }));
   });
 });

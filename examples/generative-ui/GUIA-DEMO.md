@@ -6,6 +6,6 @@ Na raiz do repositório, execute:
 pnpm demo:dev
 ```
 
-Abra <http://127.0.0.1:4173>. O modo **Offline / deterministic** funciona imediatamente e não exige chaves. Digite um prompt, gere a interface e compare os painéis React/MUI e Vue/Vuetify: ambos recebem o mesmo `UiSpec` validado.
+Abra <http://127.0.0.1:4173>. O app importa e renderiza `src/ui/onboarding.ui.json` usando React/MUI; não há caixa de prompt, geração offline, servidor de modelos ou chaves.
 
-Para usar geração estruturada real, configure `OPENAI_API_KEY` no processo do servidor. `TYPESAFE_API_KEY` é opcional e habilita a decisão/routing/validação tipada do JEV. As chaves nunca chegam ao navegador.
+Para testar um prompt real, inicie um worker Codex no diretório do fixture com a Skill `skills/schepta-ui/SKILL.md`. O worker consulta `schepta-ui-spec catalog`, escreve somente UiSpec e usa os erros de `validate` para no máximo duas correções.

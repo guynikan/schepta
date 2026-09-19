@@ -18,7 +18,7 @@ import StackControl from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import type { JsonObject, JsonValue, UiAction, UiElement, UiSpec } from '@schepta/core';
-import { validateUiInputs, validateUiSpec } from '@schepta/core';
+import { reactMuiCatalog, validateUiInputs, validateUiSpec } from '@schepta/core';
 import { REACT_MUI_COMPONENTS, type InputMessage, type ReactMuiComponent, type UiActionContext, type UiSpecRendererProps, type UiState } from './types';
 
 const supportedComponents = new Set<string>(REACT_MUI_COMPONENTS);
@@ -121,7 +121,15 @@ function validateElementValue(id: string, element: UiElement, spec: UiSpec, stat
   const value = declaration ? readPath(state, declaration.path) : undefined;
   if (props.required === true && (value === undefined || value === null || value === '')) return 'This field is required.';
   const stateKey = declaration ? pathParts(declaration.path)[0] : undefined;
-  const schema = stateKey ? spec.state?.[stateKey]?.schema : undefined;
+  const stateSchema = stateKey ? spec.state?.[stateKey]?.schema : undefined;
+  const schema = stateSchema && {
+    ...stateSchema,
+    ...(typeof props.minLength === 'number' ? { minLength: props.minLength } : {}),
+    ...(typeof props.maxLength === 'number' ? { maxLength: props.maxLength } : {}),
+    ...(typeof props.pattern === 'string' ? { pattern: props.pattern } : {}),
+    ...(typeof props.minimum === 'number' ? { minimum: props.minimum } : {}),
+    ...(typeof props.maximum === 'number' ? { maximum: props.maximum } : {}),
+  };
   if (!schema || value === undefined) return undefined;
   const report = validateUiInputs(value, schema, { path: declaration?.path });
   return report.errors[0]?.message;
@@ -161,7 +169,7 @@ function optionEntries(value: unknown): Array<{ value: string; label: string }> 
   });
 }
 
-function validateForRenderer(spec: UiSpec, catalog?: UiSpecRendererProps['catalog']): void {
+function validateForRenderer(spec: UiSpec, catalog: UiSpecRendererProps['catalog'] = reactMuiCatalog): void {
   const report = validateUiSpec(spec, { catalog });
   if (!report.valid) throw new UiSpecRenderError(`UiSpec is invalid: ${report.errors.map((error) => `${error.path} ${error.message}`).join('; ')}`);
   for (const [id, element] of Object.entries(spec.elements)) {

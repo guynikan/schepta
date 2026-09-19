@@ -44,7 +44,9 @@ function isJsonSafe(value: unknown, seen = new Set<unknown>()): boolean {
   if (typeof value !== 'object' || seen.has(value) || !isRecord(value) && !Array.isArray(value)) return false;
   seen.add(value);
   const values = Array.isArray(value) ? value : Object.values(value);
-  return values.every((child) => isJsonSafe(child, seen));
+  const safe = values.every((child) => isJsonSafe(child, seen));
+  seen.delete(value);
+  return safe;
 }
 
 function asSet(values: RendererCapabilities['components']): Set<string> | undefined {
@@ -234,6 +236,14 @@ function validateElement(
     if (!spec.bindings?.[bindingName]) {
       issues.push(issue('error', 'unknown-binding', `${elementPath}/bindings/${property}`, `Binding "${bindingName}" does not exist.`));
     }
+    if (definition?.bindings && !definition.bindings[property]) {
+      issues.push(issue('error', 'component-binding-unsupported', `${elementPath}/bindings/${property}`, `Component "${element.component}" does not support binding property "${property}".`));
+    }
+    const binding = spec.bindings?.[bindingName];
+    const allowedModes = definition?.bindings?.[property];
+    if (binding && allowedModes && binding.mode && !allowedModes.includes(binding.mode)) {
+      issues.push(issue('error', 'component-binding-mode-unsupported', `${elementPath}/bindings/${property}`, `Binding mode "${binding.mode}" is not supported for "${element.component}.${property}".`));
+    }
   }
 
   if (element.actions !== undefined && !isRecord(element.actions)) {
@@ -250,7 +260,7 @@ function validateElement(
     }
     const invocation = spec.actions[actionName];
     const invokedAction = isRecord(invocation) ? actionId(invocation as UiAction) : undefined;
-    if (definition?.actions && invokedAction && !definition.actions[invokedAction] && !definition.actions[event]) {
+    if (definition?.actions && (!invokedAction || (!definition.actions[invokedAction] && !definition.actions[event]))) {
       issues.push(issue('error', 'component-action-unsupported', `${elementPath}/actions/${event}`, `Component "${element.component}" does not declare action "${invokedAction}".`));
     }
   }
@@ -461,6 +471,9 @@ export function validateSemanticCatalog(input: unknown): UiValidationReport {
       if (propsSchema !== undefined) errors.push(...validateSchemaDefinition(propsSchema, `${path}/props`));
       if (definition.capabilities !== undefined && (!Array.isArray(definition.capabilities) || !definition.capabilities.every((value) => typeof value === 'string'))) {
         errors.push(issue('error', 'invalid-component-capabilities', `${path}/capabilities`, 'Component capabilities must be an array of strings.'));
+      }
+      if (definition.bindings !== undefined && (!isRecord(definition.bindings) || !Object.values(definition.bindings).every((modes) => Array.isArray(modes) && modes.every((mode) => ['read', 'write', 'twoWay'].includes(String(mode)))))) {
+        errors.push(issue('error', 'invalid-component-bindings', `${path}/bindings`, 'Component bindings must map properties to binding modes.'));
       }
       if (definition.slots !== undefined && !isRecord(definition.slots)) {
         errors.push(issue('error', 'invalid-component-slots', `${path}/slots`, 'Component slots must be an object.'));

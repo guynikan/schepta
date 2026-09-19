@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "root": "page",
+  "elements": {
+    "page": { "component": "Page", "props": { "title": "Welcome aboard", "description": "Your onboarding UiSpec is a versioned source artifact." }, "children": ["form"] },
+    "form": { "component": "Form", "props": { "title": "Start your workspace", "description": "Schepta validates the semantic contract before React/MUI renders it." }, "children": ["name", "submit"], "actions": { "submit": "submitOnboarding" } },
+    "name": { "component": "TextInput", "props": { "label": "Your name", "placeholder": "Ada Lovelace", "required": true, "minLength": 2, "maxLength": 80, "pattern": "^[A-Za-zÀ-ÿ .'-]+$" }, "bindings": { "value": "profileName" } },
+    "submit": { "component": "Button", "props": { "label": "Continue", "submit": true, "kind": "primary" } }
+  },
+  "state": { "profileName": { "schema": { "type": "string" }, "initial": "" } },
+  "bindings": { "profileName": { "path": "state.profileName", "mode": "twoWay" } },
+  "actions": { "submitOnboarding": { "action": "submit", "args": {} } },
+  "metadata": { "surface": "onboarding", "owner": "src/ui/onboarding.ui.json" }
+}
