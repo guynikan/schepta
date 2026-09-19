@@ -189,3 +189,9 @@ export interface UiRepairResult {
 export interface UiInputValidationOptions {
   path?: string;
 }
+
+/** Result of applying the semantic input rules carried by a UiSpec element. */
+export interface UiInputBehaviorResult {
+  valid: boolean;
+  errors: string[];
+}

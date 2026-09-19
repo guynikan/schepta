@@ -17,14 +17,14 @@ import SelectControl from '@mui/material/Select';
 import StackControl from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import type { JsonObject, JsonValue, UiAction, UiElement, UiSpec } from '@schepta/core';
-import { reactMuiCatalog, validateUiInputs, validateUiSpec } from '@schepta/core';
+import type { JsonObject, JsonValue, UiAction, UiElement, UiSpec, UiValidationReport } from '@schepta/core';
+import { isUiElementVisible, reactMuiCatalog, resolveUiInputProps, validateUiInputBehavior, validateUiSpec } from '@schepta/core';
 import { REACT_MUI_COMPONENTS, type InputMessage, type ReactMuiComponent, type UiActionContext, type UiSpecRendererProps, type UiState } from './types';
 
 const supportedComponents = new Set<string>(REACT_MUI_COMPONENTS);
 
 export class UiSpecRenderError extends Error {
-  constructor(message: string) {
+  constructor(message: string, public readonly report?: UiValidationReport) {
     super(message);
     this.name = 'UiSpecRenderError';
   }
@@ -115,24 +115,12 @@ function messageFor(
 }
 
 function validateElementValue(id: string, element: UiElement, spec: UiSpec, state: UiState): string | undefined {
-  const props = element.props ?? {};
+  const props = resolveUiInputProps(element.props, state);
+  if (!isUiElementVisible(element.props, state)) return undefined;
   const bindingName = element.bindings?.value ?? element.bindings?.checked;
   const declaration = bindingName ? spec.bindings?.[bindingName] : undefined;
   const value = declaration ? readPath(state, declaration.path) : undefined;
-  if (props.required === true && (value === undefined || value === null || value === '')) return 'This field is required.';
-  const stateKey = declaration ? pathParts(declaration.path)[0] : undefined;
-  const stateSchema = stateKey ? spec.state?.[stateKey]?.schema : undefined;
-  const schema = stateSchema && {
-    ...stateSchema,
-    ...(typeof props.minLength === 'number' ? { minLength: props.minLength } : {}),
-    ...(typeof props.maxLength === 'number' ? { maxLength: props.maxLength } : {}),
-    ...(typeof props.pattern === 'string' ? { pattern: props.pattern } : {}),
-    ...(typeof props.minimum === 'number' ? { minimum: props.minimum } : {}),
-    ...(typeof props.maximum === 'number' ? { maximum: props.maximum } : {}),
-  };
-  if (!schema || value === undefined) return undefined;
-  const report = validateUiInputs(value, schema, { path: declaration?.path });
-  return report.errors[0]?.message;
+  return validateUiInputBehavior(value, props).errors[0];
 }
 
 function semanticTextVariant(value: unknown): 'h1' | 'h2' | 'h3' | 'h4' | 'body1' | 'body2' | 'caption' {
@@ -171,10 +159,18 @@ function optionEntries(value: unknown): Array<{ value: string; label: string }> 
 
 function validateForRenderer(spec: UiSpec, catalog: UiSpecRendererProps['catalog'] = reactMuiCatalog): void {
   const report = validateUiSpec(spec, { catalog });
-  if (!report.valid) throw new UiSpecRenderError(`UiSpec is invalid: ${report.errors.map((error) => `${error.path} ${error.message}`).join('; ')}`);
+  if (!report.valid) {
+    const unknownComponent = report.errors.find((error) => error.code === 'unknown-component');
+    if (unknownComponent) {
+      const element = unknownComponent.path.split('/').slice(-2, -1)[0] ?? 'unknown';
+      const component = spec.elements[element]?.component ?? 'unknown';
+      throw new UiSpecRenderError(`Unknown UiSpec component "${component}" at element "${element}".`, report);
+    }
+    throw new UiSpecRenderError(`UiSpec is invalid: ${report.errors.map((error) => `${error.path} ${error.message}`).join('; ')}`, report);
+  }
   for (const [id, element] of Object.entries(spec.elements)) {
     if (!supportedComponents.has(element.component)) {
-      throw new UiSpecRenderError(`Unknown UiSpec component "${element.component}" at element "${id}".`);
+      throw new UiSpecRenderError(`Unknown UiSpec component "${element.component}" at element "${id}".`, report);
     }
   }
 }
@@ -194,7 +190,8 @@ interface TreeProps {
 }
 
 function TreeElement({ id, element, spec, state, disabled, loading, inputMessages, validationMessages, updateBinding, invokeAction, renderElement }: TreeProps) {
-  const props = element.props ?? {};
+  const props = resolveUiInputProps(element.props, state);
+  if (props.visible === false) return null;
   const ids = childIds(element);
   const children = ids.map((childId) => renderElement(childId));
   const bindingNames = Object.keys(element.bindings ?? {});
@@ -222,7 +219,7 @@ function TreeElement({ id, element, spec, state, disabled, loading, inputMessage
     case 'Text':
       return <Typography variant={semanticTextVariant(props.variant)} color={props.muted === true ? 'text.secondary' : undefined}>{textValue(props.text ?? props.content ?? '')}</Typography>;
     case 'TextInput':
-      return <TextField fullWidth label={textValue(props.label)} placeholder={textValue(props.placeholder) || undefined} type={textValue(props.inputType) || 'text'} required={props.required === true} disabled={disabled || props.disabled === true} multiline={props.multiline === true} rows={typeof props.rows === 'number' ? props.rows : undefined} value={value === undefined || value === null ? '' : textValue(value)} onChange={(event) => onChange(event.target.value, event)} error={message.severity === 'error'} helperText={message.text} name={typeof props.name === 'string' ? props.name : id} inputProps={{ readOnly: props.readOnly === true }} />;
+      return <TextField fullWidth label={textValue(props.label)} placeholder={textValue(props.placeholder) || undefined} type={textValue(props.inputType) || 'text'} required={props.required === true} disabled={disabled || props.disabled === true} multiline={props.multiline === true} rows={typeof props.rows === 'number' ? props.rows : undefined} value={value === undefined || value === null ? '' : textValue(value)} onChange={(event) => { const raw = event.target.value; onChange(props.inputType === 'number' && raw !== '' ? Number(raw) : raw, event); }} error={message.severity === 'error'} helperText={message.text} name={typeof props.name === 'string' ? props.name : id} inputProps={{ readOnly: props.readOnly === true, minLength: typeof props.minLength === 'number' ? props.minLength : undefined, maxLength: typeof props.maxLength === 'number' ? props.maxLength : undefined, pattern: typeof props.pattern === 'string' ? props.pattern : undefined, min: typeof props.min === 'number' ? props.min : typeof props.minimum === 'number' ? props.minimum : undefined, max: typeof props.max === 'number' ? props.max : typeof props.maximum === 'number' ? props.maximum : undefined }} />;
     case 'Select': {
       const label = textValue(props.label);
       return <FormControl fullWidth error={message.severity === 'error'} disabled={disabled || props.disabled === true}><InputLabel>{label}</InputLabel><SelectControl label={label} value={value === undefined || value === null ? '' : textValue(value)} onChange={(event) => onChange(event.target.value as string, event as unknown as React.SyntheticEvent)}>{optionEntries(props.options).map((option) => <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>)}</SelectControl>{message.text && <FormHelperText>{message.text}</FormHelperText>}</FormControl>;

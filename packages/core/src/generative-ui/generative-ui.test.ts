@@ -216,4 +216,13 @@ describe('semantic Generative UI core', () => {
     expect(report.valid).toBe(false);
     expect(report.errors).toContainEqual(expect.objectContaining({ code: 'unknown-component', path: '/elements/date/component' }));
   });
+
+  it('rejects unknown state properties with a structured error', () => {
+    const spec = validSpec();
+    (spec.state!.name as Record<string, unknown>).unexpected = true;
+    const report = validateUiSpec(spec, { catalog });
+
+    expect(report.valid).toBe(false);
+    expect(report.errors).toContainEqual(expect.objectContaining({ code: 'unknown-state-property', path: '/state/name/unexpected' }));
+  });
 });

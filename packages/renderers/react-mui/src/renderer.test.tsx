@@ -25,7 +25,7 @@ const onboardingSpec: UiSpec = {
     role: { path: 'state.role', mode: 'twoWay' },
     terms: { path: 'state.terms', mode: 'twoWay' },
   },
-  actions: { submit: { action: 'completeOnboarding', args: { source: 'onboarding' } } },
+  actions: { submit: { action: 'submit', args: {} } },
 };
 
 describe('UiSpecRenderer', () => {
@@ -50,8 +50,8 @@ describe('UiSpecRenderer', () => {
     render(<UiSpecRenderer spec={onboardingSpec} onAction={onAction} initialState={{ name: 'Ada' }} />);
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onAction).toHaveBeenCalledWith(expect.objectContaining({
-      action: 'completeOnboarding',
-      args: { source: 'onboarding' },
+      action: 'submit',
+      args: {},
       state: expect.objectContaining({ name: 'Ada' }),
       elementId: 'submit',
       eventName: 'press',
@@ -70,6 +70,30 @@ describe('UiSpecRenderer', () => {
     render(<UiSpecRenderer spec={onboardingSpec} error="Could not save" inputMessages={{ name: 'Name is required' }} />);
     expect(screen.getByRole('alert', { name: '' })).toHaveTextContent('Could not save');
     expect(screen.getByText('Name is required')).toBeInTheDocument();
+  });
+
+  it('uses shared semantic validation and JEXL visibility behavior', () => {
+    const onAction = vi.fn();
+    const spec: UiSpec = {
+      ...onboardingSpec,
+      elements: {
+        ...onboardingSpec.elements,
+        name: { component: 'TextInput', props: { label: 'Name', placeholder: 'For {{ $formValues.role }}', minLength: 3 }, bindings: { value: 'name' } },
+        role: { component: 'Select', props: { label: 'Role', options: [{ value: 'team', label: 'Team' }, { value: 'solo', label: 'Solo' }] }, bindings: { value: 'role' } },
+        terms: { component: 'Checkbox', props: { label: 'Accept terms', visible: "{{ $formValues.role === 'team' }}" }, bindings: { checked: 'terms' } },
+      },
+    };
+    render(<UiSpecRenderer spec={spec} onAction={onAction} />);
+
+    expect(screen.getByRole('textbox', { name: 'Name' })).toHaveAttribute('placeholder', 'For ');
+    expect(screen.queryByRole('checkbox', { name: 'Accept terms' })).not.toBeInTheDocument();
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    fireEvent.click(screen.getByRole('option', { name: 'Team' }));
+    expect(screen.getByRole('checkbox', { name: 'Accept terms' })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Al' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(onAction).not.toHaveBeenCalled();
+    expect(screen.getByText('Enter at least 3 characters.')).toBeInTheDocument();
   });
 
   it('renders the remaining semantic choice and alert components', () => {
@@ -93,6 +117,23 @@ describe('UiSpecRenderer', () => {
     try {
       expect(() => render(<UiSpecRenderer spec={spec} />)).toThrow(UiSpecRenderError);
       expect(() => render(<UiSpecRenderer spec={spec} />)).toThrow('Unknown UiSpec component "Dialog"');
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
+  it('exposes the structured validation report and does not render invalid bindings', () => {
+    const spec = { ...onboardingSpec, elements: { ...onboardingSpec.elements, name: { ...onboardingSpec.elements.name, bindings: { value: 'missing' } } } };
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() => render(<UiSpecRenderer spec={spec} />)).toThrow(UiSpecRenderError);
+      try {
+        render(<UiSpecRenderer spec={spec} />);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UiSpecRenderError);
+        expect((error as UiSpecRenderError).report?.errors).toContainEqual(expect.objectContaining({ code: 'unknown-binding' }));
+      }
+      expect(screen.queryByRole('textbox', { name: 'Name' })).not.toBeInTheDocument();
     } finally {
       consoleError.mockRestore();
     }

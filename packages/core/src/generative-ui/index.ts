@@ -5,3 +5,4 @@ export * from './validator';
 export * from './repair';
 export * from './builtins';
 export * from './correction';
+export * from './input-behavior';

@@ -330,6 +330,11 @@ function validateState(spec: UiSpec, issues: UiValidationIssue[]): void {
       issues.push(issue('error', 'invalid-state', path, 'State definition must be an object.'));
       continue;
     }
+    for (const key of Object.keys(definition)) {
+      if (key !== 'schema' && key !== 'initial') {
+        issues.push(issue('error', 'unknown-state-property', `${path}/${key}`, `Unknown state property "${key}".`));
+      }
+    }
     if (definition.schema && definition.initial !== undefined) {
       issues.push(...validateSchema(definition.initial, definition.schema, `${path}/initial`));
     }
