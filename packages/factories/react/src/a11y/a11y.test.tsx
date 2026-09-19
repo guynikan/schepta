@@ -258,13 +258,17 @@ const layoutSchema: any = {
 
 describe('axe: no violations in default components', () => {
   it('FormFactory', async () => {
-    const { container } = render(<FormFactory schema={formSchema} onSubmit={() => {}} />);
+    const { container } = render(
+      <FormFactory schema={formSchema} onSubmit={() => {}} validateOnSubmit />
+    );
     await expectNoViolations(container);
   });
 
   it('FormFactory with validation errors shown', async () => {
     const user = userEvent.setup();
-    const { container } = render(<FormFactory schema={formSchema} onSubmit={() => {}} />);
+    const { container } = render(
+      <FormFactory schema={formSchema} onSubmit={() => {}} validateOnSubmit />
+    );
 
     await user.click(q('[data-test-id="submit-button"]')!);
     await waitFor(() => {
@@ -317,7 +321,7 @@ describe('axe: no violations in default components', () => {
 describe('form field accessibility', () => {
   it('associates label, hint and error without dangling references', async () => {
     const user = userEvent.setup();
-    render(<FormFactory schema={formSchema} onSubmit={() => {}} />);
+    render(<FormFactory schema={formSchema} onSubmit={() => {}} validateOnSubmit />);
 
     const input = q('input[type="text"], input:not([type])') as HTMLInputElement;
     expect(input.getAttribute('aria-required')).toBe('true');
@@ -353,7 +357,7 @@ describe('form field accessibility', () => {
   it('moves focus to the error summary on a failed submit', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
-    render(<FormFactory schema={formSchema} onSubmit={onSubmit} />);
+    render(<FormFactory schema={formSchema} onSubmit={onSubmit} validateOnSubmit />);
 
     await user.click(q('[data-test-id="submit-button"]')!);
 
@@ -365,7 +369,7 @@ describe('form field accessibility', () => {
 
   it('moves focus to the error summary on every failed submit attempt', async () => {
     const user = userEvent.setup();
-    render(<FormFactory schema={formSchema} onSubmit={() => {}} />);
+    render(<FormFactory schema={formSchema} onSubmit={() => {}} validateOnSubmit />);
     const submit = q('[data-test-id="submit-button"]')!;
 
     await user.click(submit);
@@ -381,6 +385,20 @@ describe('form field accessibility', () => {
     await waitFor(() => {
       expect(document.activeElement).toBe(q('[data-test-id="form-error-summary"]'));
     });
+  });
+
+  it('names and links each summarized field error', async () => {
+    const user = userEvent.setup();
+    render(<FormFactory schema={formSchema} onSubmit={() => {}} validateOnSubmit />);
+
+    await user.click(q('[data-test-id="submit-button"]')!);
+    await waitFor(() => {
+      expect(q('[data-test-id="form-error-summary"] a')).not.toBeNull();
+    });
+
+    const link = q('[data-test-id="form-error-summary"] a') as HTMLAnchorElement;
+    expect(link.textContent).toBe('account.email');
+    expect(link.hash).toBe(`#${q('input[name="account.email"]')?.id}`);
   });
 
   it('names each section from its heading', () => {

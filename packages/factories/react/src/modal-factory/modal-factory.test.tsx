@@ -139,6 +139,34 @@ describe('ModalFactory', () => {
     expect(document.body.querySelector('[data-schepta-modal="true"]')).toBeNull();
   });
 
+  it('closes only the topmost modal on ESC', () => {
+    const parentOnOpenChange = vi.fn();
+    const childOnOpenChange = vi.fn();
+    render(
+      <>
+        <ModalFactory
+          schema={confirmSchema}
+          defaultOpen
+          onOpenChange={parentOnOpenChange}
+        />
+        <ModalFactory
+          schema={confirmSchema}
+          defaultOpen
+          onOpenChange={childOnOpenChange}
+        />
+      </>
+    );
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(childOnOpenChange).toHaveBeenLastCalledWith(false);
+    expect(parentOnOpenChange).not.toHaveBeenCalled();
+    expect(document.body.querySelectorAll('[data-schepta-modal="true"]')).toHaveLength(1);
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(parentOnOpenChange).toHaveBeenLastCalledWith(false);
+    expect(document.body.querySelector('[data-schepta-modal="true"]')).toBeNull();
+  });
+
   it('closes when clicking the header close button', () => {
     const onOpenChange = vi.fn();
     render(

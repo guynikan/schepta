@@ -47,6 +47,8 @@ export interface UseScheptaOrchestratorInput {
   subscribe?: (onChange: () => void) => () => void;
   /** Optional state snapshot (must be paired with `subscribe`) */
   getSnapshot?: () => Record<string, any>;
+  /** Current setup state when no external snapshot function is provided */
+  state?: Record<string, any>;
 
   /** Extra middlewares from the factory's `useSetup` (prepended before user middlewares) */
   extraMiddlewares?: MiddlewareFn[];
@@ -80,9 +82,13 @@ export function useScheptaOrchestrator(
 
   const noopSubscribe = useCallback(() => () => {}, []);
   const emptySnapshot = useCallback(() => EMPTY_STATE, []);
+  const setupSnapshot = useCallback(
+    () => input.state ?? EMPTY_STATE,
+    [input.state]
+  );
 
   const subscribe = input.subscribe ?? noopSubscribe;
-  const getSnapshot = input.getSnapshot ?? emptySnapshot;
+  const getSnapshot = input.getSnapshot ?? (input.state ? setupSnapshot : emptySnapshot);
 
   const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 

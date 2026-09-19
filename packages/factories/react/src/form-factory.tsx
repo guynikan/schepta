@@ -50,8 +50,8 @@ export interface FormFactoryProps extends FactoryBaseProps {
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   /**
    * Validate values against the schema (AJV) before calling `onSubmit`.
-   * Defaults to true — this is what populates the errors that drive
-   * `aria-invalid` and the announced error messages.
+   * Defaults to false for backwards compatibility. Set it to true to block
+   * submits that fail AJV validation and populate `aria-invalid` errors.
    */
   validateOnSubmit?: boolean;
   debug?: boolean;
@@ -85,7 +85,7 @@ const useFormSetup: FactorySetupHook<
     initialValues,
     adapter: providedAdapter,
     onSubmit,
-    validateOnSubmit = true,
+    validateOnSubmit = false,
   } = props;
 
   const { formAdapter, reset } = useScheptaForm(schema, {

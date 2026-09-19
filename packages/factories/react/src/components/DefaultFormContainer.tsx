@@ -5,9 +5,13 @@
  * and renders a submit button. Can be overridden via createComponentSpec.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { useScheptaFormAdapter, useScheptaFormErrors } from '../context/schepta-form-context';
 import { DefaultSubmitButton, SubmitButtonComponentType } from './DefaultSubmitButton';
+import {
+  FieldA11yProvider,
+  useOptionalFieldA11yRegistry,
+} from './field-a11y';
 
 /**
  * Props for FormContainer component.
@@ -54,6 +58,8 @@ const ErrorSummary: React.FC<{
   submitAttempt: number;
 }> = ({ errors, submitAttempt }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const headingId = useId();
+  const registry = useOptionalFieldA11yRegistry();
   const entries = Object.entries(errors);
   const errorCount = entries.length;
 
@@ -68,20 +74,27 @@ const ErrorSummary: React.FC<{
   return (
     <div
       ref={ref}
-      role="alert"
       tabIndex={-1}
+      aria-labelledby={headingId}
       data-test-id="form-error-summary"
       style={summaryStyle}
     >
-      <p style={{ margin: '0 0 8px', fontWeight: 600 }}>
+      <h2 id={headingId} style={{ margin: '0 0 8px', fontSize: '1rem' }}>
         {errorCount === 1
           ? '1 field needs your attention'
           : `${errorCount} fields need your attention`}
-      </p>
+      </h2>
       <ul style={{ margin: 0, paddingLeft: '20px' }}>
-        {entries.map(([field, message]) => (
-          <li key={field}>{typeof message === 'string' ? message : String(message)}</li>
-        ))}
+        {entries.map(([field, message]) => {
+          const controlId = registry?.fields[field];
+          const fieldName = field === '_form' ? 'Form' : field;
+          const text = typeof message === 'string' ? message : String(message);
+          return (
+            <li key={field}>
+              {controlId ? <a href={`#${controlId}`}>{fieldName}</a> : fieldName}: {text}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -145,9 +158,11 @@ export const DefaultFormContainer: React.FC<FormContainerProps> = ({
       data-schepta-form="true"
       {...props}
     >
-      <ErrorSummary errors={errors} submitAttempt={submitAttempt} />
-      {children}
-      {onSubmit && <DefaultSubmitButton disabled={isSubmitting} />}
+      <FieldA11yProvider>
+        <ErrorSummary errors={errors} submitAttempt={submitAttempt} />
+        {children}
+        {onSubmit && <DefaultSubmitButton disabled={isSubmitting} />}
+      </FieldA11yProvider>
     </form>
   );
 };

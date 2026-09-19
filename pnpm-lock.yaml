@@ -308,12 +308,18 @@ importers:
       '@types/node':
         specifier: ^20.11.0
         version: 20.19.25
+      jsdom:
+        specifier: ^23.0.0
+        version: 23.2.0
       tsup:
         specifier: ^8.0.1
         version: 8.5.1(typescript@5.9.3)
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@20.19.25)(jsdom@23.2.0)
 
   packages/factories/vue:
     dependencies:
@@ -327,12 +333,18 @@ importers:
         specifier: workspace:*
         version: link:..
     devDependencies:
+      jsdom:
+        specifier: ^23.0.0
+        version: 23.2.0
       tsup:
         specifier: ^8.0.1
         version: 8.5.1(typescript@5.9.3)
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@20.19.25)(jsdom@23.2.0)
       vue:
         specifier: ^3.4.0
         version: 3.5.25(typescript@5.9.3)

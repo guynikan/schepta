@@ -9,7 +9,14 @@
  * meet the same contract without reimplementing it.
  */
 
-import React from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useA11yIds, composeDescribedBy, type A11yIds } from '../a11y';
 import { useOptionalScheptaFieldError } from '../context/schepta-form-context';
 
@@ -42,6 +49,55 @@ export interface UseFieldA11yResult {
   };
 }
 
+interface FieldA11yRegistry {
+  fields: Readonly<Record<string, string>>;
+  register: (name: string, controlId: string) => void;
+  unregister: (name: string, controlId: string) => void;
+}
+
+const FieldA11yRegistryContext = createContext<FieldA11yRegistry | null>(null);
+
+/**
+ * Registers the generated control ids used by the form error summary.
+ * Custom fields that do not use this hook remain usable; their summary item
+ * is rendered without a link because there is no safe target to reference.
+ */
+export const FieldA11yProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [fields, setFields] = useState<Record<string, string>>({});
+
+  const register = useCallback((name: string, controlId: string) => {
+    setFields((current) =>
+      current[name] === controlId ? current : { ...current, [name]: controlId }
+    );
+  }, []);
+
+  const unregister = useCallback((name: string, controlId: string) => {
+    setFields((current) => {
+      if (current[name] !== controlId) return current;
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
+  }, []);
+
+  const value = useMemo(
+    () => ({ fields, register, unregister }),
+    [fields, register, unregister]
+  );
+
+  return (
+    <FieldA11yRegistryContext.Provider value={value}>
+      {children}
+    </FieldA11yRegistryContext.Provider>
+  );
+};
+
+export function useOptionalFieldA11yRegistry(): FieldA11yRegistry | null {
+  return useContext(FieldA11yRegistryContext);
+}
+
 /**
  * Normalizes whatever the adapter stores as an error into display text.
  * Validators may produce a string, or an object with a `message`.
@@ -65,6 +121,15 @@ export function useFieldA11y({
 }: UseFieldA11yOptions): UseFieldA11yResult {
   const ids = useA11yIds(id);
   const errorText = toErrorText(useOptionalScheptaFieldError(name));
+  const registry = useOptionalFieldA11yRegistry();
+  const register = registry?.register;
+  const unregister = registry?.unregister;
+
+  useEffect(() => {
+    if (!register || !unregister) return undefined;
+    register(name, ids.controlId);
+    return () => unregister(name, ids.controlId);
+  }, [register, unregister, name, ids.controlId]);
 
   return {
     ids,
@@ -107,9 +172,9 @@ const errorStyle: React.CSSProperties = {
 /**
  * Renders the hint and error text a control's `aria-describedby` points at.
  *
- * The error carries `role="alert"` so it is announced the moment it appears —
- * a validation message that only renders visually is invisible to a screen
- * reader user, who has no reason to go re-read the field.
+ * Error text is referenced by the control's `aria-describedby`. The form
+ * summary owns submit-failure announcements and focus, avoiding one live
+ * region per field when several fields fail together.
  */
 export const FieldMessages: React.FC<FieldMessagesProps> = ({
   ids,
@@ -123,7 +188,7 @@ export const FieldMessages: React.FC<FieldMessagesProps> = ({
       </p>
     ) : null}
     {errorText ? (
-      <p id={ids.errorId} role="alert" style={errorStyle}>
+      <p id={ids.errorId} style={errorStyle}>
         {errorText}
       </p>
     ) : null}

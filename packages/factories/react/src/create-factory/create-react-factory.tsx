@@ -93,6 +93,7 @@ export function createReactFactory<
       rootComponentKey,
       subscribe: setup.subscribe,
       getSnapshot: setup.getSnapshot as (() => Record<string, any>) | undefined,
+      state: setup.state as Record<string, any> | undefined,
       extraMiddlewares: setup.middlewares,
       extraExternalContext: setup.externalContext,
       formAdapter: setup.formAdapter,

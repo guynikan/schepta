@@ -49,7 +49,10 @@ function parseAjvErrors(ajvErrors: ErrorObject[] | null | undefined): FormikVali
     
     // Convert JSON pointer path to dot notation: /personalInfo/firstName -> personalInfo.firstName
     const fieldPath = path.startsWith('/') ? path.substring(1) : path;
-    const normalizedPath = fieldPath.replace(/\//g, '.');
+    // AJV uses an empty instancePath for object-level constraints such as
+    // additionalProperties and minProperties. Keep those errors visible to
+    // callers instead of treating a failed validation as a successful submit.
+    const normalizedPath = fieldPath.replace(/\//g, '.') || '_form';
     
     // Only set if not already set (first error takes precedence)
     if (normalizedPath && !errors[normalizedPath] && error.message) {
