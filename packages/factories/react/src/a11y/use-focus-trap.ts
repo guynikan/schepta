@@ -142,7 +142,9 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>({
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
-      if (modalToken) detachModalContainer(modalToken, container);
+      const detached = modalToken
+        ? detachModalContainer(modalToken, container)
+        : false;
       if (lockScroll) {
         document.body.style.overflow = previousOverflow ?? '';
       }
@@ -153,7 +155,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>({
       // Exclude this entry while its container is detached. Otherwise a
       // same-commit nested close sees the closing modal as the topmost entry,
       // and focus restoration to the still-open parent is skipped.
-      focusTopmostModal(modalToken);
+      if (!modalToken || detached) focusTopmostModal(modalToken);
     };
   }, [active, lockScroll, modalToken, parentModalToken]);
 

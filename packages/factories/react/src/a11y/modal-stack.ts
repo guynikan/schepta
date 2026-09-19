@@ -72,9 +72,11 @@ export function attachModalContainer(
   }
 }
 
-export function detachModalContainer(token: object, container: HTMLElement): void {
+export function detachModalContainer(token: object, container: HTMLElement): boolean {
   const entry = modalStack.find((candidate) => candidate.token === token);
-  if (entry?.container === container) entry.container = null;
+  if (entry?.container !== container) return false;
+  entry.container = null;
+  return true;
 }
 
 /**
