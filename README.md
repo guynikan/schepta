@@ -19,6 +19,7 @@ Build dynamic forms and UIs from JSON schemas with full support for React, Vue, 
 - ⚡ **Reactive System**: Handle both declarative and imperative state management
 - 🎭 **Conditional Logic**: Show/hide fields based on form values using template expressions
 - 🛡️ **Type Safe**: Full TypeScript support with strict type checking
+- ♿ **Acessibilidade integrada**: suporte a landmarks, foco, teclado, diálogos e padrões a11y nos componentes padrão
 - 🧪 **Well Tested**: Comprehensive E2E test suite with Playwright
 
 ## 🏗️ Architecture
@@ -256,11 +257,17 @@ Framework-specific runtime implementations:
 
 ### Factories
 
-Complete form solutions:
+Factories built-in:
 
-- **@schepta/factory-react**: React form factory with default components
-- **@schepta/factory-vue**: Vue form factory with default components
-- **@schepta/factory-vanilla**: Vanilla JS form factory with default components
+- **FormFactory**: forms schema-driven for React, Vue and Vanilla JS
+- **MenuFactory**: navigation menus with selection and active-item state
+- **TableFactory**: sortable, selectable data tables
+- **TabsFactory**: tabbed interfaces with badges and disabled tabs
+- **ModalFactory**: accessible dialogs with focus trapping and imperative controls
+- **LayoutFactory**: application shells with header, sidebar, main and footer slots
+
+The framework-specific packages remain available as **@schepta/factory-react**,
+**@schepta/factory-vue** and **@schepta/factory-vanilla**.
 
 ## 🎪 Live Examples
 
@@ -356,9 +363,9 @@ schepta/
 │   │   ├── vue/                # Vue adapter
 │   │   └── vanilla/            # Vanilla JS adapter
 │   └── factories/
-│       ├── react/              # React form factory
-│       ├── vue/                # Vue form factory
-│       └── vanilla/            # Vanilla JS form factory
+│       ├── react/              # React factories (Form, Menu, Table, Tabs, Modal, Layout)
+│       ├── vue/                # Vue factory primitives and form factory
+│       └── vanilla/            # Vanilla JS factory primitives and form factory
 ├── tests/                      # E2E tests with Playwright
 │   ├── e2e/                   # Test specs
 │   └── playwright.config.ts   # Playwright configuration

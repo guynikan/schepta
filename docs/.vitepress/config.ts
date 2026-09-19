@@ -83,6 +83,8 @@ export default defineConfig({
                 { text: 'Menu', link: '/en-US/showcases/menu' },
                 { text: 'Table', link: '/en-US/showcases/table' },
                 { text: 'Tabs', link: '/en-US/showcases/tabs' },
+                { text: 'Modal', link: '/en-US/showcases/modal' },
+                { text: 'Layout', link: '/en-US/showcases/layout' },
               ],
             },
           ],
@@ -156,6 +158,8 @@ export default defineConfig({
                 { text: 'Menu', link: '/pt-BR/showcases/menu' },
                 { text: 'Tabela', link: '/pt-BR/showcases/table' },
                 { text: 'Tabs', link: '/pt-BR/showcases/tabs' },
+                { text: 'Modal', link: '/pt-BR/showcases/modal' },
+                { text: 'Layout', link: '/pt-BR/showcases/layout' },
               ],
             },
           ],
@@ -229,6 +233,8 @@ export default defineConfig({
                 { text: 'Menu', link: '/es-ES/showcases/menu' },
                 { text: 'Tabla', link: '/es-ES/showcases/table' },
                 { text: 'Tabs', link: '/es-ES/showcases/tabs' },
+                { text: 'Modal', link: '/es-ES/showcases/modal' },
+                { text: 'Layout', link: '/es-ES/showcases/layout' },
               ],
             },
           ],
@@ -275,4 +281,3 @@ export default defineConfig({
     },
   },
 });
-

@@ -74,6 +74,22 @@ export default defineConfig({
       },
     },
     {
+      name: 'modal',
+      testMatch: '**/*modal.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5174/en-US/showcases/modal',
+      },
+    },
+    {
+      name: 'layout',
+      testMatch: '**/*layout.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5174/en-US/showcases/layout',
+      },
+    },
+    {
       // The a11y suite navigates across several showcases, so its baseURL is
       // the docs root rather than a single showcase page.
       name: 'a11y',
@@ -85,4 +101,3 @@ export default defineConfig({
     },
   ],
 });
-
