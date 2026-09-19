@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { useFieldA11y, FieldMessages } from './field-a11y';
 
 /**
  * Props passed to the InputNumber component.
@@ -21,6 +22,8 @@ export interface InputNumberProps
   value?: number | string;
   onChange?: (value: number | string) => void;
   label?: string;
+  /** Helper text rendered below the input and linked via aria-describedby */
+  description?: string;
   min?: number;
   max?: number;
   step?: number | string;
@@ -54,18 +57,45 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  * Default number input component.
  */
 export const DefaultInputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
-  ({ label, name, value, onChange, placeholder, min, max, step, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
+  (
+    {
+      label,
+      name,
+      value,
+      onChange,
+      placeholder,
+      description,
+      required,
+      id,
+      min,
+      max,
+      step,
+      'aria-describedby': ariaDescribedBy,
+      externalContext,
+      "x-component-props": xComponentProps,
+      "x-ui": xUi,
+      ...rest
+    },
+    ref
+  ) => {
+    const { ids, errorText, labelProps, controlProps } = useFieldA11y({
+      name,
+      id,
+      description,
+      required,
+      ariaDescribedBy,
+    });
+
     return (
       <div style={wrapperStyle}>
         {label && (
-          <label htmlFor={name} style={labelStyle}>
+          <label {...labelProps} style={labelStyle}>
             {label}
           </label>
         )}
         <input
           ref={ref}
           type="number"
-          id={name}
           name={name}
           value={value ?? ''}
           placeholder={placeholder}
@@ -76,9 +106,11 @@ export const DefaultInputNumber = React.forwardRef<HTMLInputElement, InputNumber
             onChange?.(e.target.value ? Number(e.target.value) : '')
           }
           style={inputStyle}
+          {...controlProps}
           {...xComponentProps}
           {...rest}
         />
+        <FieldMessages ids={ids} description={description} errorText={errorText} />
       </div>
     );
   }

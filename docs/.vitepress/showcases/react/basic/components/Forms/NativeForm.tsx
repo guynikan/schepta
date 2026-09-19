@@ -33,6 +33,7 @@ export const NativeForm = ({ schema, initialValues: externalInitialValues }: For
           schema={schema}
           initialValues={initialValues}
           onSubmit={handleSubmit}
+          validateOnSubmit
           debug={true}
         />
       </div>

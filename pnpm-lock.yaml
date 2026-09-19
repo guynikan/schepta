@@ -268,6 +268,9 @@ importers:
       '@testing-library/react':
         specifier: ^14.0.0
         version: 14.3.1(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)
+      '@testing-library/user-event':
+        specifier: ^14.6.3
+        version: 14.6.3(@testing-library/dom@9.3.4)
       '@types/react':
         specifier: ^18.2.47
         version: 18.3.27
@@ -286,6 +289,9 @@ importers:
       vitest:
         specifier: ^1.0.0
         version: 1.6.1(@types/node@20.19.25)(jsdom@23.2.0)
+      vitest-axe:
+        specifier: ^0.1.0
+        version: 0.1.0(vitest@1.6.1)
 
   packages/factories/vanilla:
     dependencies:
@@ -302,12 +308,18 @@ importers:
       '@types/node':
         specifier: ^20.11.0
         version: 20.19.25
+      jsdom:
+        specifier: ^23.0.0
+        version: 23.2.0
       tsup:
         specifier: ^8.0.1
         version: 8.5.1(typescript@5.9.3)
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@20.19.25)(jsdom@23.2.0)
 
   packages/factories/vue:
     dependencies:
@@ -321,18 +333,27 @@ importers:
         specifier: workspace:*
         version: link:..
     devDependencies:
+      jsdom:
+        specifier: ^23.0.0
+        version: 23.2.0
       tsup:
         specifier: ^8.0.1
         version: 8.5.1(typescript@5.9.3)
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@20.19.25)(jsdom@23.2.0)
       vue:
         specifier: ^3.4.0
         version: 3.5.25(typescript@5.9.3)
 
   tests:
     devDependencies:
+      '@axe-core/playwright':
+        specifier: ^4.12.1
+        version: 4.12.1(playwright-core@1.57.0)
       '@playwright/test':
         specifier: ^1.57.0
         version: 1.57.0
@@ -535,6 +556,15 @@ packages:
       bidi-js: 1.0.3
       css-tree: 2.3.1
       is-potential-custom-element-name: 1.0.1
+    dev: true
+
+  /@axe-core/playwright@4.12.1(playwright-core@1.57.0):
+    resolution: {integrity: sha512-rMd7xriptqKpP+w5265i4Hdkv2X5kbu6uiBi/B2I7uf3hieRBM3qDCfaKPtxfiYb2mKXfF+yLODJwIx+Jv1GDw==}
+    peerDependencies:
+      playwright-core: '>= 1.0.0'
+    dependencies:
+      axe-core: 4.12.1
+      playwright-core: 1.57.0
     dev: true
 
   /@babel/code-frame@7.27.1:
@@ -2016,6 +2046,15 @@ packages:
       - '@types/react'
     dev: true
 
+  /@testing-library/user-event@14.6.3(@testing-library/dom@9.3.4):
+    resolution: {integrity: sha512-6dBq67jT8lE+JTE8Exm02Kt6ze43hz1jdiSpSJwtTZiT1xQQ6b7nZYTTQ9njdArdU8XklOwaDp/AbT/eYSKF4g==}
+    engines: {node: '>=12', npm: '>=6'}
+    peerDependencies:
+      '@testing-library/dom': '>=7.21.4'
+    dependencies:
+      '@testing-library/dom': 9.3.4
+    dev: true
+
   /@testing-library/vue@8.1.0(vue@3.5.25):
     resolution: {integrity: sha512-ls4RiHO1ta4mxqqajWRh8158uFObVrrtAPoxk7cIp4HrnQUj/ScKzqz53HxYpG3X6Zb7H2v+0eTGLSoy8HQ2nA==}
     engines: {node: '>=14'}
@@ -2624,6 +2663,11 @@ packages:
       possible-typed-array-names: 1.1.0
     dev: true
 
+  /axe-core@4.12.1:
+    resolution: {integrity: sha512-s7iGf5GaVMxEG0ENN9x+xTr7GFZCb1ZP/1uATUpCEK2X78nDB3RwbtFCo9pGAf9ru+VwoQ464DkaLEeRM08wJA==}
+    engines: {node: '>=4'}
+    dev: true
+
   /babel-plugin-macros@3.1.0:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
     engines: {node: '>=10', npm: '>=6'}
@@ -2767,6 +2811,11 @@ packages:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
+    dev: true
+
+  /chalk@5.6.2:
+    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
     dev: true
 
   /character-entities-html4@2.1.0:
@@ -3956,7 +4005,6 @@ packages:
 
   /lodash-es@4.17.23:
     resolution: {integrity: sha512-kVI48u3PZr38HdYz98UmfPnXl2DXrpdctLrFLCd3kOx1xUkOmpFPx7gCWWM5MPkL/fD8zb+Ph0QzjGFs4+hHWg==}
-    dev: false
 
   /lodash.mergewith@4.6.2:
     resolution: {integrity: sha512-GK3g5RPZWTRSeLSpgP8Xhra+pnjBC56q9FZYe1d5RN3TJ35dbkGy3YqBSMbyCrlbi+CM9Z3Jk5yTL7RCsqboyQ==}
@@ -5596,6 +5644,20 @@ packages:
       - terser
       - typescript
       - universal-cookie
+    dev: true
+
+  /vitest-axe@0.1.0(vitest@1.6.1):
+    resolution: {integrity: sha512-jvtXxeQPg8R/2ANTY8QicA5pvvdRP4F0FsVUAHANJ46YCDASie/cuhlSzu0DGcLmZvGBSBNsNuK3HqfaeknyvA==}
+    peerDependencies:
+      vitest: '>=0.16.0'
+    dependencies:
+      aria-query: 5.3.2
+      axe-core: 4.12.1
+      chalk: 5.6.2
+      dom-accessibility-api: 0.5.16
+      lodash-es: 4.17.23
+      redent: 3.0.0
+      vitest: 1.6.1(@types/node@20.19.25)(jsdom@23.2.0)
     dev: true
 
   /vitest@1.6.1(@types/node@20.19.25)(jsdom@23.2.0):

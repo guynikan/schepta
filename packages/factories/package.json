@@ -7,6 +7,11 @@
   ],
   "exports": {
     "./schemas/form-schema.json": "./schemas/form-schema.json",
+    "./schemas/menu-schema.json": "./schemas/menu-schema.json",
+    "./schemas/table-schema.json": "./schemas/table-schema.json",
+    "./schemas/layout-schema.json": "./schemas/layout-schema.json",
+    "./schemas/tabs-schema.json": "./schemas/tabs-schema.json",
+    "./schemas/modal-schema.json": "./schemas/modal-schema.json",
     "./schemas": "./schemas/form-schema.json"
   },
   "repository": {

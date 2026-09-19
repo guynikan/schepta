@@ -1,0 +1,107 @@
+{
+  "$id": "table-schema",
+  "type": "object",
+  "title": "TableSchema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Table schema definition",
+  "$defs": {
+    "TableColumn": {
+      "title": "TableColumn",
+      "type": "object",
+      "required": ["type", "x-component", "x-component-props"],
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "x-component": {
+          "const": "TableColumn"
+        },
+        "x-ui": {
+          "type": "object",
+          "properties": {
+            "order": {
+              "type": "integer",
+              "description": "Display order of the column (lower values appear first)"
+            },
+            "visible": {
+              "type": "string",
+              "description": "Expression to determine if the column should be visible"
+            }
+          },
+          "additionalProperties": false
+        },
+        "x-component-props": {
+          "type": "object",
+          "required": ["label", "field"],
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Header label for the column"
+            },
+            "field": {
+              "type": "string",
+              "description": "Dot-path used to read the cell value from each row (e.g. 'user.email')"
+            },
+            "sortable": {
+              "type": "boolean",
+              "description": "Whether the column can be sorted"
+            },
+            "width": {
+              "type": ["string", "number"],
+              "description": "Optional CSS width for the column"
+            },
+            "align": {
+              "type": "string",
+              "enum": ["left", "center", "right"],
+              "description": "Text alignment for header and cells"
+            },
+            "format": {
+              "type": "string",
+              "description": "Optional template string applied to the raw cell value. Supports the '{{ value }}' token."
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["type", "x-component", "properties"],
+  "properties": {
+    "type": {
+      "const": "object"
+    },
+    "x-component": {
+      "const": "TableContainer"
+    },
+    "x-component-props": {
+      "type": "object",
+      "properties": {
+        "ariaLabel": {
+          "type": "string",
+          "description": "Accessible label for the table"
+        },
+        "caption": {
+          "type": "string",
+          "description": "Optional caption rendered above the table"
+        },
+        "rowKey": {
+          "type": "string",
+          "description": "Default dot-path to read the unique row key (props.rowKey overrides this)"
+        }
+      },
+      "additionalProperties": true
+    },
+    "properties": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+          "$ref": "#/$defs/TableColumn"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

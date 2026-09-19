@@ -44,6 +44,16 @@ export type ComponentFactory = (
 ) => RenderResult;
 
 /**
+ * Renderer function - wraps component rendering with additional logic
+ */
+export type RendererFn = (
+  componentSpec: ComponentSpec,
+  props: Record<string, any>,
+  runtime: RuntimeAdapter,
+  children?: any[]
+) => any;
+
+/**
  * Element specification for rendering
  */
 export interface ElementSpec {
@@ -109,14 +119,22 @@ export interface Context<T> {
 /**
  * Component types supported by the system
  */
-export type ComponentType = 
-  | 'field' 
+export type ComponentType =
+  | 'field'
   | 'button'
-  | 'container' 
-  | 'content' 
-  | 'addon' 
-  | 'menu-item' 
-  | 'menu-container';
+  | 'container'
+  | 'content'
+  | 'addon'
+  | 'menu-item'
+  | 'menu-container'
+  | 'table-container'
+  | 'table-column'
+  | 'layout-container'
+  | 'layout-slot'
+  | 'tabs-container'
+  | 'tabs-panel'
+  | 'modal-container'
+  | 'modal-slot';
 
 /**
  * Debug configuration

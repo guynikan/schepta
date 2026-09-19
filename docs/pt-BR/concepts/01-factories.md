@@ -10,8 +10,13 @@
 
 | **Input**      | **Factory**        | **Output**       | **Resultado**          | **Status** |
 | -------------- | ------------------ | ---------------- | ---------------------- | ------------ |
-| Form JSON      | `FormFactory`      | React/Vue Form   | Interface funcionando  | Pronto
-| Menu JSON      | `MenuFactory`      | React/Vue Navigation | Navegação completa     | Em desenvolvimento
+| Form JSON      | `FormFactory`      | React/Vue/Vanilla Form   | Interface funcionando  | Pronto
+| Menu JSON      | `MenuFactory`      | React Navigation | Navegação completa     | Pronto (React)
+| Table JSON     | `TableFactory`     | React Data Table | Linhas ordenáveis e selecionáveis | Pronto (React)
+| Layout JSON    | `LayoutFactory`    | React App Shell  | Header / Sidebar / Main / Footer | Pronto (React)
+| Tabs JSON      | `TabsFactory`      | React Tabs       | Estado da aba ativa + ref API | Pronto (React)
+| Modal JSON     | `ModalFactory`     | React Dialog     | Open/close/ESC/backdrop + ref API | Pronto (React)
+| JSON customizado | `createReactFactory` / `createVueFactory` / `createVanillaFactory` | Qualquer árvore de UI | Factory definida pelo usuário | Pronto
 
 ### Como Funciona:
 
@@ -89,6 +94,10 @@ Elementos React/Vue
 **Cada Factory tem lógica específica para seu domínio:**
 - **FormFactory:** Injeta contexto do adapter de formulário, aplica validações, gerencia estado
 - **MenuFactory:** Gerencia navegação, estados ativos, hierarquia de menu
+- **TableFactory:** Extrai colunas do schema, ordena linhas no cliente, rastreia seleção (single/multiple) e expõe ref API imperativa
+- **LayoutFactory:** Compõe o shell da aplicação a partir de slots nomeados (header / sidebar / main / footer), com variantes (`default`, `with-sidebar`, `stacked`) e ref API que lista os slots declarados
+- **TabsFactory:** Renderiza gatilhos de aba a partir do schema (label / ícone / badge / disabled), gerencia a aba ativa via React context dedicado e expõe ref API imperativa (`setActiveTab`, `getTabs`)
+- **ModalFactory:** Renderiza um diálogo com slots header / body / footer, suporta modos controlado e não controlado, dismissal via ESC e clique no backdrop, e ref API (`open`, `close`, `toggle`, `isOpen`)
 
 **Pontos de extensão:** `components` e `customComponents` do Provider, props da Factory para overrides locais, Middleware Pipeline (ex.: array `middlewares`), `externalContext` para estado compartilhado.
 
@@ -115,3 +124,4 @@ Elementos React/Vue
 | **Motor de renderização** | [05. Renderer](./05-renderer.md) | Sistema usado pelas factories |
 | **Transformação de props** | [06. Middleware](./06-middleware.md) | Pipeline aplicado pelas factories |
 | **Configuração global** | [03. Provider](./03-provider.md) | Como configurar as factories |
+| **Criar sua própria factory** | [08. Criando uma Factory](./08-create-factory.md) | Construa factories customizadas sobre o primitivo |

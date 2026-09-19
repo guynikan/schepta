@@ -7,6 +7,10 @@
 export * from './DefaultFormContainer';
 export * from './DefaultSubmitButton';
 
+// Field accessibility contract (shared by defaults, reusable by custom inputs)
+export * from './field-a11y';
+export * from './form-section-context';
+
 // Input components
 export * from './DefaultInputText';
 export * from './DefaultInputSelect';

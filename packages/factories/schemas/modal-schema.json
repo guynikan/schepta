@@ -1,0 +1,106 @@
+{
+  "$id": "modal-schema",
+  "type": "object",
+  "title": "ModalSchema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Modal / dialog schema (header / body / footer slots).",
+  "$defs": {
+    "ModalSlot": {
+      "title": "ModalSlot",
+      "type": "object",
+      "required": ["type", "x-component"],
+      "properties": {
+        "type": {
+          "const": "object"
+        },
+        "x-component": {
+          "enum": ["ModalHeader", "ModalBody", "ModalFooter"]
+        },
+        "x-ui": {
+          "type": "object",
+          "properties": {
+            "order": {
+              "type": "integer"
+            },
+            "visible": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "x-component-props": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Title displayed in the header"
+            },
+            "description": {
+              "type": "string",
+              "description": "Secondary description text (header or body)"
+            },
+            "showCloseButton": {
+              "type": "boolean",
+              "description": "Whether the header renders a close (×) button"
+            },
+            "align": {
+              "type": "string",
+              "enum": ["start", "center", "end"],
+              "description": "Alignment of footer content"
+            }
+          },
+          "additionalProperties": true
+        },
+        "x-content": {
+          "type": "string",
+          "description": "Optional plain-text content rendered inside the slot"
+        },
+        "properties": {
+          "type": "object",
+          "description": "Nested schema children rendered inside the slot",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["type", "x-component", "properties"],
+  "properties": {
+    "type": {
+      "const": "object"
+    },
+    "x-component": {
+      "const": "ModalContainer"
+    },
+    "x-component-props": {
+      "type": "object",
+      "properties": {
+        "ariaLabel": {
+          "type": "string",
+          "description": "Accessible label for the dialog"
+        },
+        "size": {
+          "type": "string",
+          "enum": ["sm", "md", "lg", "xl", "full"],
+          "description": "Visual size of the dialog"
+        },
+        "dismissible": {
+          "type": "boolean",
+          "description": "Whether the dialog can be dismissed via backdrop click or ESC"
+        }
+      },
+      "additionalProperties": true
+    },
+    "properties": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+          "$ref": "#/$defs/ModalSlot"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

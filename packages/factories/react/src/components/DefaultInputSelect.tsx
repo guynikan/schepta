@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { useFieldA11y, FieldMessages } from './field-a11y';
 
 export interface InputSelectOption {
   value: string;
@@ -26,6 +27,8 @@ export interface InputSelectProps
   value?: string;
   onChange?: (value: string) => void;
   label?: string;
+  /** Helper text rendered below the select and linked via aria-describedby */
+  description?: string;
   placeholder?: string;
   options?: InputSelectOption[];
   children?: React.ReactNode;
@@ -67,6 +70,10 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
       onChange,
       options = [],
       placeholder = 'Select...',
+      description,
+      required,
+      id,
+      'aria-describedby': ariaDescribedBy,
       children,
       externalContext,
       "x-component-props": xComponentProps,
@@ -75,30 +82,46 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
     },
     ref
   ) => {
+    const { ids, errorText, labelProps, controlProps } = useFieldA11y({
+      name,
+      id,
+      description,
+      required,
+      ariaDescribedBy,
+    });
+
     return (
       <div style={wrapperStyle}>
         {label && (
-          <label htmlFor={name} style={labelStyle}>
+          <label {...labelProps} style={labelStyle}>
             {label}
           </label>
         )}
         <select
           ref={ref}
-          id={name}
           name={name}
           value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
+          {...controlProps}
           {...xComponentProps}
           {...rest}
         >
-          <option value="">{placeholder}</option>
+          {/*
+            On a required select the placeholder must not be a selectable
+            answer — `disabled` keeps it visible as the initial state while
+            forcing a real choice.
+          */}
+          <option value="" disabled={required}>
+            {placeholder}
+          </option>
           {options.map((opt: InputSelectOption) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}
         </select>
+        <FieldMessages ids={ids} description={description} errorText={errorText} />
         {children}
       </div>
     );

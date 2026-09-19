@@ -1,40 +1,33 @@
 /**
  * React Form Factory
  *
- * Factory component for rendering forms from JSON schemas.
+ * Renders forms from JSON schemas.
+ *
+ * The public API (`FormFactoryProps`, `FormFactoryRef`) is preserved for
+ * backwards compatibility. Internally the factory is composed on top of the
+ * generic `createReactFactory` primitive — all form-specific concerns live in
+ * the `useFormSetup` hook below.
  */
 
-import { useMemo, useRef, useSyncExternalStore, useCallback, forwardRef, useImperativeHandle } from "react";
+import React, { useCallback, useMemo } from 'react';
 import type {
   FormSchema,
   ComponentSpec,
   MiddlewareFn,
   FormAdapter,
-} from "@schepta/core";
-import { createReactRuntimeAdapter } from "@schepta/adapter-react";
+} from '@schepta/core';
+import { hasFormValueTemplates, createFormikValidator } from '@schepta/core';
+import { NativeReactFormAdapter } from '@schepta/adapter-react';
+import formSchemaDefinition from '@schepta/factories/schemas/form-schema.json';
+import { ScheptaFormProvider } from './context/schepta-form-context';
+import { defaultComponents } from './defaults/register-default-components';
+import { defaultRenderers } from './defaults/register-default-renderers';
+import { useScheptaForm } from './hooks/use-schepta-form';
 import {
-  createComponentOrchestrator,
-  type FactorySetupResult,
-  setFactoryDefaultComponents,
-  setFactoryDefaultRenderers,
-  hasFormValueTemplates,
-} from "@schepta/core";
-import { NativeReactFormAdapter } from "@schepta/adapter-react";
-import { createTemplateExpressionMiddleware } from "@schepta/core";
-import { FormRenderer } from "./form-renderer";
-import { useMergedScheptaConfig } from "./hooks/use-merged-config";
-import { useScheptaForm } from "./hooks/use-schepta-form";
-import { useSchemaValidation } from "./hooks/use-schema-validation";
-import { createDebugContext } from "./utils/debug";
-import formSchemaDefinition from "@schepta/factories/schemas/form-schema.json";
-import { ScheptaFormProvider } from "./context/schepta-form-context";
-import { defaultComponents } from "./defaults/register-default-components";
-import { defaultRenderers } from "./defaults/register-default-renderers";
-import { injectScheptaTokens } from "./schepta-tokens";
-
-injectScheptaTokens();
-setFactoryDefaultComponents(defaultComponents);
-setFactoryDefaultRenderers(defaultRenderers);
+  createReactFactory,
+  type FactoryBaseProps,
+  type FactorySetupHook,
+} from './create-factory';
 
 /**
  * Ref interface for external form control
@@ -45,7 +38,7 @@ export interface FormFactoryRef {
   getValues: () => Record<string, any>;
 }
 
-export interface FormFactoryProps {
+export interface FormFactoryProps extends FactoryBaseProps {
   schema: FormSchema;
   components?: Record<string, ComponentSpec>;
   customComponents?: Record<string, ComponentSpec>;
@@ -55,184 +48,143 @@ export interface FormFactoryProps {
   adapter?: FormAdapter;
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
+  /**
+   * Validate values against the schema (AJV) before calling `onSubmit`.
+   * Defaults to false for backwards compatibility. Set it to true to block
+   * submits that fail AJV validation and populate `aria-invalid` errors.
+   */
+  validateOnSubmit?: boolean;
   debug?: boolean;
 }
 
-export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
-  function FormFactory(
-    {
-      schema,
-      components,
-      customComponents,
-      renderers,
-      externalContext,
-      middlewares,
-      adapter: providedAdapter,
-      initialValues,
-      onSubmit,
-      debug = false,
-    }: FormFactoryProps,
-    ref
-  ) {
-    const validation = useSchemaValidation(schema, {
-      formSchema: formSchemaDefinition,
-    });
-
-    const mergedConfig = useMergedScheptaConfig({
-      components,
-      customComponents,
-      renderers,
-      externalContext,
-      middlewares,
-      debug,
-    });
-
-    const { formAdapter, reset } = useScheptaForm(schema, {
-      initialValues,
-      adapter: providedAdapter,
-    });
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        submit: (submitFn) => formAdapter.handleSubmit(submitFn)(),
-        reset: (values) => reset(values),
-        getValues: () => formAdapter.getValues(),
-      }),
-      [formAdapter, reset]
-    );
-
-    const runtime = useMemo(() => createReactRuntimeAdapter(), []);
-
-    // Determine once (per schema change) whether template resolution needs
-    // form values at all. If not, FormFactory never re-renders on user input.
-    const needsFormValueRerender = useMemo(
-      () => hasFormValueTemplates(schema),
-      [schema]
-    );
-
-    // Stable ref for onSubmit so the orchestrator closure never goes stale
-    const onSubmitRef = useRef(onSubmit);
-    onSubmitRef.current = onSubmit;
-
-    // Subscribe to adapter value changes ONLY when the schema has {{ $formValues.* }}
-    // templates. This is the sole trigger that causes FormFactory to re-render
-    // (for cross-field template resolution). For plain forms, this is a no-op.
-    const subscribeToAdapter = useCallback(
-      (onStoreChange: () => void) => {
-        if (needsFormValueRerender && formAdapter instanceof NativeReactFormAdapter) {
-          return formAdapter.subscribeAll(onStoreChange);
-        }
-        return () => {};
-      },
-      [needsFormValueRerender, formAdapter]
-    );
-    const getAdapterSnapshot = useCallback(
-      () => {
-        if (formAdapter instanceof NativeReactFormAdapter) {
-          return formAdapter.getValuesSnapshot();
-        }
-        return formAdapter.getValues();
-      },
-      [formAdapter]
-    );
-    // formValues is only used by the orchestrator below; it only changes when
-    // needsFormValueRerender is true (otherwise subscribeToAdapter is a no-op
-    // and this snapshot never triggers a re-render).
-    const formValues = useSyncExternalStore(
-      subscribeToAdapter,
-      getAdapterSnapshot,
-      getAdapterSnapshot
-    );
-
-    // Keep a mutable ref so the orchestrator closure always reads the freshest
-    // values without needing to be recreated on every render
-    const formValuesRef = useRef(formValues);
-    formValuesRef.current = formValues;
-
-    // Stable orchestrator — recreated only when config/adapter/runtime changes,
-    // NOT when form values change (that's handled via formValuesRef above).
-    const renderer = useMemo(() => {
-      const getFactorySetup = (): FactorySetupResult => {
-        const currentValues = formValuesRef.current;
-        const debugContext = createDebugContext(mergedConfig.debug);
-
-        const templateMiddleware = createTemplateExpressionMiddleware({
-          externalContext: mergedConfig.externalContext,
-          formValues: currentValues,
-          debug: debugContext,
-        });
-
-        const updatedMiddlewares = [
-          templateMiddleware,
-          ...mergedConfig.baseMiddlewares,
-        ];
-
-        return {
-          components: mergedConfig.components,
-          customComponents: mergedConfig.customComponents,
-          renderers: mergedConfig.renderers,
-          externalContext: {
-            ...mergedConfig.externalContext,
-          },
-          state: currentValues,
-          middlewares: updatedMiddlewares,
-          onSubmit: onSubmitRef.current,
-          debug: debugContext,
-          formAdapter,
-        };
-      };
-
-      return createComponentOrchestrator(getFactorySetup, runtime);
-    }, [
-      mergedConfig.components,
-      mergedConfig.customComponents,
-      mergedConfig.renderers,
-      mergedConfig.externalContext,
-      mergedConfig.baseMiddlewares,
-      mergedConfig.debug,
-      formAdapter,
-      runtime,
-    ]);
-
-    if (!validation.valid) {
-      return (
-        <div
-          style={{
-            padding: "16px",
-            backgroundColor: "var(--schepta-error-bg)",
-            border: "1px solid var(--schepta-error-border)",
-            borderRadius: "4px",
-            fontFamily: "monospace",
-          }}
-        >
-          <h3 style={{ color: "var(--schepta-error-text)", margin: "0 0 12px 0" }}>
-            Schema Validation Error
-          </h3>
-          <pre
-            style={{
-              whiteSpace: "pre-wrap",
-              fontSize: "12px",
-              margin: 0,
-              color: "var(--schepta-error-text-muted)",
-            }}
-          >
-            {validation.formattedErrors}
-          </pre>
-        </div>
-      );
-    }
-
-    const rootComponentKey = (schema as any)["x-component"] || "FormContainer";
-
-    return (
-      <ScheptaFormProvider adapter={formAdapter}>
-        <FormRenderer
-          componentKey={rootComponentKey}
-          schema={schema}
-          renderer={renderer}
-        />
-      </ScheptaFormProvider>
-    );
+/**
+ * Writes a validator's error map into the adapter in one commit.
+ *
+ * `NativeReactFormAdapter` exposes `setErrorsMap` so the whole map lands in a
+ * single notification; other adapters only have the per-field
+ * `FormAdapter` API, so we fall back to clearing and setting field by field.
+ */
+function commitErrors(adapter: FormAdapter, errors: Record<string, string>): void {
+  if (adapter instanceof NativeReactFormAdapter) {
+    adapter.setErrorsMap(errors);
+    return;
   }
-);
+  adapter.clearErrors();
+  for (const [field, message] of Object.entries(errors)) {
+    adapter.setError(field, message);
+  }
+}
+
+const useFormSetup: FactorySetupHook<
+  FormFactoryProps,
+  FormFactoryRef,
+  Record<string, any>
+> = ({ props }) => {
+  const {
+    schema,
+    initialValues,
+    adapter: providedAdapter,
+    onSubmit,
+    validateOnSubmit = false,
+  } = props;
+
+  const { formAdapter, reset } = useScheptaForm(schema, {
+    initialValues,
+    adapter: providedAdapter,
+  });
+
+  // ajv.compile is expensive — keep one compiled validator per schema.
+  const validate = useMemo(
+    () => (validateOnSubmit ? createFormikValidator(schema) : null),
+    [schema, validateOnSubmit]
+  );
+
+  /**
+   * Runs schema validation, publishes the errors, and only then hands the
+   * values to the consumer's `onSubmit`.
+   *
+   * Errors are committed even on success (as an empty map) so a field that
+   * was previously invalid clears its `aria-invalid` and drops its alert.
+   */
+  const submitWithValidation = useCallback(
+    (submitFn: (values: Record<string, any>) => void | Promise<void>) =>
+      (values: Record<string, any>) => {
+        if (!validate) return submitFn(values);
+
+        const errors = validate(values);
+        commitErrors(formAdapter, errors);
+
+        if (Object.keys(errors).length > 0) return;
+        return submitFn(values);
+      },
+    [validate, formAdapter]
+  );
+
+  const handleSubmit = useMemo(
+    () => (onSubmit ? submitWithValidation(onSubmit) : undefined),
+    [onSubmit, submitWithValidation]
+  );
+
+  // Only subscribe when the schema actually depends on form values for
+  // template resolution. Static schemas never re-render on input.
+  const needsFormValueRerender = useMemo(
+    () => hasFormValueTemplates(schema),
+    [schema]
+  );
+
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      if (needsFormValueRerender && formAdapter instanceof NativeReactFormAdapter) {
+        return formAdapter.subscribeAll(onStoreChange);
+      }
+      return () => {};
+    },
+    [needsFormValueRerender, formAdapter]
+  );
+
+  const getSnapshot = useCallback(() => {
+    if (formAdapter instanceof NativeReactFormAdapter) {
+      return formAdapter.getValuesSnapshot();
+    }
+    return formAdapter.getValues();
+  }, [formAdapter]);
+
+  const refApi = useMemo<FormFactoryRef>(
+    () => ({
+      // Imperative submits go through the same validation path as the
+      // built-in submit button, so an external button cannot bypass it.
+      submit: (submitFn) =>
+        formAdapter.handleSubmit(submitWithValidation(submitFn))(),
+      reset: (values) => reset(values),
+      getValues: () => formAdapter.getValues(),
+    }),
+    [formAdapter, reset, submitWithValidation]
+  );
+
+  const wrap = useCallback(
+    (children: React.ReactNode) => (
+      <ScheptaFormProvider adapter={formAdapter}>
+        {children}
+      </ScheptaFormProvider>
+    ),
+    [formAdapter]
+  );
+
+  return {
+    formAdapter,
+    onSubmit: handleSubmit,
+    subscribe,
+    getSnapshot,
+    refApi,
+    wrap,
+  };
+};
+
+export const FormFactory = createReactFactory<FormFactoryProps, FormFactoryRef>({
+  displayName: 'FormFactory',
+  schemaDefinition: formSchemaDefinition,
+  rootComponentKey: 'FormContainer',
+  defaultComponents,
+  defaultRenderers,
+  useSetup: useFormSetup,
+});

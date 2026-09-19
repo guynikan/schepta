@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { useFieldA11y, FieldMessages } from './field-a11y';
 
 /**
  * Props passed to the InputCheckbox component.
@@ -21,6 +22,8 @@ export interface InputCheckboxProps
   value?: boolean;
   onChange?: (value: boolean) => void;
   label?: string;
+  /** Helper text rendered below the checkbox and linked via aria-describedby */
+  description?: string;
   children?: React.ReactNode;
   externalContext?: Record<string, any>;
   "x-component-props"?: Record<string, any>;
@@ -45,21 +48,53 @@ const labelStyle: React.CSSProperties = {
  * Default checkbox input component.
  */
 export const DefaultInputCheckbox = React.forwardRef<HTMLInputElement, InputCheckboxProps>(
-  ({ label, name, value, onChange, children, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
+  (
+    {
+      label,
+      name,
+      value,
+      onChange,
+      description,
+      required,
+      id,
+      'aria-describedby': ariaDescribedBy,
+      children,
+      externalContext,
+      "x-component-props": xComponentProps,
+      "x-ui": xUi,
+      ...rest
+    },
+    ref
+  ) => {
+    const { ids, errorText, labelProps, controlProps } = useFieldA11y({
+      name,
+      id,
+      description,
+      required,
+      ariaDescribedBy,
+    });
+
     return (
       <div style={wrapperStyle}>
-        <label style={labelStyle}>
+        {/*
+          Explicit htmlFor/id association rather than relying on the label
+          wrapping the input: the implicit form breaks as soon as a consumer
+          restyles this component and moves the input out of the label.
+        */}
+        <label {...labelProps} style={labelStyle}>
           <input
             ref={ref}
             type="checkbox"
             name={name}
             checked={value ?? false}
             onChange={(e) => onChange?.(e.target.checked)}
+            {...controlProps}
             {...xComponentProps}
             {...rest}
           />
           {label}
         </label>
+        <FieldMessages ids={ids} description={description} errorText={errorText} />
         {children}
       </div>
     );

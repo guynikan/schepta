@@ -1,8 +1,9 @@
 /**
  * Component Registry
- * 
- * Framework-agnostic component registration and resolution system.
- * Maintains hierarchical priority: local > global > default
+ *
+ * Framework-agnostic component registration helpers.
+ * Factories declare their own defaults locally and pass them to the
+ * factory primitive — there is no module-level global state here.
  */
 
 import type { ComponentSpec, ComponentType } from '../runtime/types';
@@ -18,36 +19,14 @@ export const defaultTypeProps: Record<ComponentType, Record<string, any>> = {
   addon: {},
   'menu-item': {},
   'menu-container': {},
-};
-
-/**
- * Factory default components
- * 
- * Each factory (React, Vue, Vanilla) sets its built-in components here.
- */
-let factoryDefaultComponents: Record<string, ComponentSpec> = {};
-
-/**
- * Set factory default components
- * 
- * Called by each factory to register its built-in components.
- * 
- * @example
- * ```ts
- * setFactoryDefaultComponents({
- *   FormContainer: createComponentSpec({ ... }),
- *   SubmitButton: createComponentSpec({ ... }),
- * });
- * ```
- */
-export function setFactoryDefaultComponents(
-  components: Record<string, ComponentSpec>
-): void {
-  factoryDefaultComponents = components;
-}
-
-export function getFactoryDefaultComponents(): Record<string, ComponentSpec> {
-  return factoryDefaultComponents;
+  'table-container': {},
+  'table-column': {},
+  'layout-container': {},
+  'layout-slot': {},
+  'tabs-container': {},
+  'tabs-panel': {},
+  'modal-container': {},
+  'modal-slot': {},
 };
 
 /**
@@ -68,4 +47,3 @@ export function createComponentSpec(config: {
     defaultProps: config.defaultProps || (config.type ? defaultTypeProps[config.type] : {}),
   };
 }
-

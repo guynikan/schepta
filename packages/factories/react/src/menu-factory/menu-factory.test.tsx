@@ -1,0 +1,147 @@
+/**
+ * MenuFactory smoke tests
+ *
+ * Validates a minimal two-level menu rendered from a JSON schema using the
+ * default menu components. Ensures `MenuFactory` coexists with `FormFactory`
+ * and that the generic factory primitive wires the right root component key.
+ */
+
+import React from 'react';
+import { describe, it, expect, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/react';
+import { MenuFactory } from './menu-factory';
+
+const twoLevelMenu = {
+  type: 'object',
+  'x-component': 'MenuContainer',
+  'x-component-props': { ariaLabel: 'Main navigation' },
+  properties: {
+    dashboard: {
+      type: 'object',
+      'x-component': 'MenuItem',
+      'x-ui': { order: 1 },
+      'x-component-props': {
+        label: 'Dashboard',
+        href: '/dashboard',
+      },
+    },
+    workspace: {
+      type: 'object',
+      'x-component': 'MenuGroup',
+      'x-ui': { order: 2 },
+      'x-component-props': { label: 'Workspace' },
+      properties: {
+        projects: {
+          type: 'object',
+          'x-component': 'MenuItem',
+          'x-ui': { order: 1 },
+          'x-component-props': {
+            label: 'Projects',
+            href: '/projects',
+          },
+        },
+        teams: {
+          type: 'object',
+          'x-component': 'MenuItem',
+          'x-ui': { order: 2 },
+          'x-component-props': {
+            label: 'Teams',
+            href: '/teams',
+          },
+        },
+      },
+    },
+    settings: {
+      type: 'object',
+      'x-component': 'MenuItem',
+      'x-ui': { order: 3 },
+      'x-component-props': {
+        label: 'Settings',
+        href: '/settings',
+      },
+    },
+  },
+};
+
+describe('MenuFactory', () => {
+  it('renders a two-level menu with the default components', () => {
+    const { container, getByText, getByLabelText } = render(
+      <MenuFactory schema={twoLevelMenu} />
+    );
+
+    expect(getByLabelText('Main navigation')).toBeInTheDocument();
+    expect(getByText('Dashboard')).toBeInTheDocument();
+    expect(getByText('Workspace')).toBeInTheDocument();
+    expect(getByText('Projects')).toBeInTheDocument();
+    expect(getByText('Teams')).toBeInTheDocument();
+    expect(getByText('Settings')).toBeInTheDocument();
+
+    const menuItems = container.querySelectorAll('[data-schepta-menu-item="true"]');
+    expect(menuItems.length).toBe(4);
+  });
+
+  it('renders links with hrefs for MenuItems declaring them', () => {
+    const { getByText } = render(<MenuFactory schema={twoLevelMenu} />);
+    const dashboardLink = getByText('Dashboard').closest('a');
+    expect(dashboardLink).not.toBeNull();
+    expect(dashboardLink?.getAttribute('href')).toBe('/dashboard');
+  });
+
+  it('updates aria-current to follow the selected item', () => {
+    const { getByText } = render(<MenuFactory schema={twoLevelMenu} />);
+    const dashboard = getByText('Dashboard').closest('a')!;
+    const settings = getByText('Settings').closest('a')!;
+
+    expect(dashboard).not.toHaveAttribute('aria-current');
+    fireEvent.click(dashboard);
+    expect(dashboard).toHaveAttribute('aria-current', 'page');
+
+    fireEvent.click(settings);
+    expect(dashboard).not.toHaveAttribute('aria-current');
+    expect(settings).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('uses a schema-declared active item as the initial selection', () => {
+    const schema = {
+      ...twoLevelMenu,
+      properties: {
+        ...twoLevelMenu.properties,
+        dashboard: {
+          ...twoLevelMenu.properties.dashboard,
+          'x-component-props': {
+            ...twoLevelMenu.properties.dashboard['x-component-props'],
+            active: true,
+          },
+        },
+      },
+    };
+    const { getByText } = render(<MenuFactory schema={schema} />);
+    const dashboard = getByText('Dashboard').closest('a')!;
+    const settings = getByText('Settings').closest('a')!;
+
+    expect(dashboard).toHaveAttribute('aria-current', 'page');
+    expect(settings).not.toHaveAttribute('aria-current');
+
+    fireEvent.click(settings);
+    expect(dashboard).not.toHaveAttribute('aria-current');
+    expect(settings).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('calls the latest onSelect after a rerender', () => {
+    const firstOnSelect = vi.fn();
+    const secondOnSelect = vi.fn();
+    const { rerender, getByText } = render(
+      <MenuFactory schema={twoLevelMenu} onSelect={firstOnSelect} />
+    );
+
+    rerender(<MenuFactory schema={twoLevelMenu} onSelect={secondOnSelect} />);
+    fireEvent.click(getByText('Dashboard'));
+
+    expect(firstOnSelect).not.toHaveBeenCalled();
+    expect(secondOnSelect).toHaveBeenCalledWith({
+      key: 'dashboard',
+      label: 'Dashboard',
+      href: '/dashboard',
+    });
+  });
+});

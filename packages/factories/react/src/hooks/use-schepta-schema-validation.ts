@@ -1,61 +1,58 @@
 /**
- * useSchemaValidation Hook
- * 
- * Validates form schema instances before rendering.
+ * useScheptaSchemaValidation Hook
+ *
+ * Validates a schema instance against a supplied JSON Schema. Framework-
+ * agnostic by design — works for any Schepta factory (form, menu, stepper).
  */
 
 import { useMemo } from 'react';
-import type { FormSchema } from '@schepta/core';
 import {
   createSchemaValidator,
   formatValidationErrors,
   type ValidationResult,
 } from '@schepta/core';
 
-export interface SchemaValidationOptions {
-  /** The JSON Schema to validate against */
-  formSchema: object;
+export interface ScheptaSchemaValidationOptions {
+  /** The JSON Schema definition to validate against (AJV-compatible) */
+  schemaDefinition: object;
   /** Whether to throw an error on validation failure */
   throwOnError?: boolean;
 }
 
-export interface SchemaValidationResult extends ValidationResult {
+export interface ScheptaSchemaValidationResult extends ValidationResult {
   /** Formatted error message for logging */
   formattedErrors: string;
 }
 
 /**
- * Hook to validate a form instance against a schema
- * 
- * @param instance - The form instance to validate
+ * Validates an arbitrary schema instance against a JSON Schema definition.
+ *
+ * @param instance - The schema instance to validate
  * @param options - Validation options
  * @returns Validation result with errors if any
- * 
+ *
  * @example
  * ```tsx
- * const { valid, errors, formattedErrors } = useSchemaValidation(schema, {
- *   formSchema: formSchemaDefinition,
- *   enabled: process.env.NODE_ENV === 'development',
+ * const { valid, errors, formattedErrors } = useScheptaSchemaValidation(schema, {
+ *   schemaDefinition: formSchemaDefinition,
  * });
- * 
+ *
  * if (!valid) {
  *   console.error('Schema validation failed:', formattedErrors);
  * }
  * ```
  */
-export function useSchemaValidation(
-  instance: FormSchema,
-  options: SchemaValidationOptions
-): SchemaValidationResult {
-  const { formSchema, throwOnError = false } = options;
+export function useScheptaSchemaValidation(
+  instance: unknown,
+  options: ScheptaSchemaValidationOptions
+): ScheptaSchemaValidationResult {
+  const { schemaDefinition, throwOnError = false } = options;
 
   return useMemo(() => {
-
     try {
-      const validator = createSchemaValidator(formSchema, { throwOnError });
-      const result = validator(instance);
+      const validator = createSchemaValidator(schemaDefinition, { throwOnError });
+      const result = validator(instance as any);
 
-      // Log errors in development
       if (!result.valid && typeof window !== 'undefined') {
         const formattedErrors = formatValidationErrors(result.errors);
         console.error(
@@ -70,7 +67,6 @@ export function useSchemaValidation(
         formattedErrors: result.valid ? '' : formatValidationErrors(result.errors),
       };
     } catch (error) {
-      // If schema compilation fails, return that error
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       return {
         valid: false,
@@ -85,6 +81,5 @@ export function useSchemaValidation(
         formattedErrors: `Schema compilation error: ${errorMessage}`,
       };
     }
-  }, [instance, formSchema, throwOnError]);
+  }, [instance, schemaDefinition, throwOnError]);
 }
-

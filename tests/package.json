@@ -11,6 +11,7 @@
     "inspect:vue-vuetify": "tsx inspect-vue-vuetify-forms.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.57.0",
     "@types/node": "^20.19.25",
     "tsx": "^4.21.0"
