@@ -24,7 +24,7 @@ export interface DecisionResponse {
   usage?: UiGenerationUsage;
 }
 
-/** Provider-neutral decision boundary. JEV is one implementation, not a core dependency. */
+/** Provider-neutral decision boundary. TypeSafe System One is one implementation, not a core dependency. */
 export interface DecisionProvider {
   readonly name: string;
   decide(request: DecisionRequest): Promise<DecisionResponse>;
@@ -74,7 +74,7 @@ export interface TypeSafeJevDecisionProviderOptions {
 }
 
 /**
- * Experimental TypeSafe Jev adapter. It is intentionally fetch-based so the
+ * Experimental TypeSafe System One adapter. It is intentionally fetch-based so the
  * package stays dependency-free and tests can inject a fake fetch function.
  */
 export function createTypeSafeJevDecisionProvider(options: TypeSafeJevDecisionProviderOptions = {}): DecisionProvider {
@@ -87,26 +87,30 @@ export function createTypeSafeJevDecisionProvider(options: TypeSafeJevDecisionPr
   const provider: DecisionProvider = {
     name: 'typesafe-jev',
     async decide(request): Promise<DecisionResponse> {
-      if (!apiKey) throw new DecisionProviderError('missing-api-key', 'TypeSafe Jev requires TYPESAFE_API_KEY.', false);
-      if (!fetchImpl) throw new DecisionProviderError('fetch-unavailable', 'A fetch implementation is required for TypeSafe Jev.', false);
+      if (!apiKey) throw new DecisionProviderError('missing-api-key', 'TypeSafe System One requires TYPESAFE_API_KEY.', false);
+      if (!fetchImpl) throw new DecisionProviderError('fetch-unavailable', 'A fetch implementation is required for TypeSafe System One.', false);
       const startedMs = Date.now();
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
-        const response = await fetchImpl(`${baseUrl}/v1/decisions`, {
+        const response = await fetchImpl(`${baseUrl}/v1/systemone`, {
           method: 'POST',
           headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
           body: JSON.stringify({
             model,
-            question: request.question,
-            context: request.context,
-            candidates: request.candidates.map((candidate) => ({ id: candidate.id, label: candidate.label ?? candidate.id })),
+            state: request.context,
+            questions: {
+              ui_candidate: {
+                type: 'choice',
+                instructions: request.question,
+                criteria: Object.fromEntries(request.candidates.map((candidate) => [candidate.id, candidate.label ?? candidate.id])),
+              },
+            },
           }),
           signal: controller.signal,
         });
-        const body = await response.json() as unknown;
-        if (!response.ok) throw new DecisionProviderError('provider-http-error', `TypeSafe Jev returned HTTP ${response.status}.`, response.status >= 500 || response.status === 429);
-        const parsed = parseJevResponse(body);
+        if (!response.ok) throw new DecisionProviderError('provider-http-error', `TypeSafe System One returned HTTP ${response.status}.`, response.status >= 500 || response.status === 429);
+        const parsed = parseSystemOneResponse(await response.json() as unknown);
         return {
           provider: provider.name,
           selectedCandidateId: parsed.selectedCandidateId,
@@ -118,7 +122,11 @@ export function createTypeSafeJevDecisionProvider(options: TypeSafeJevDecisionPr
         };
       } catch (error) {
         if (error instanceof DecisionProviderError) throw error;
-        throw new DecisionProviderError(error instanceof DOMException && error.name === 'AbortError' ? 'timeout' : 'provider-failure', error instanceof Error ? error.message : String(error), true);
+        const isAbortError = error instanceof DOMException && error.name === 'AbortError'
+          || error instanceof Error && error.name === 'AbortError';
+        const message = error instanceof Error ? error.message : String(error);
+        const safeMessage = apiKey ? message.split(apiKey).join('[redacted]') : message;
+        throw new DecisionProviderError(isAbortError ? 'timeout' : 'provider-failure', safeMessage, true);
       } finally {
         clearTimeout(timer);
       }
@@ -130,7 +138,7 @@ export function createTypeSafeJevDecisionProvider(options: TypeSafeJevDecisionPr
   return provider;
 }
 
-interface ParsedJevResponse {
+interface ParsedSystemOneResponse {
   selectedCandidateId: string;
   confidence?: number;
   probabilities?: Record<string, number>;
@@ -138,13 +146,16 @@ interface ParsedJevResponse {
   usage?: UiGenerationUsage;
 }
 
-function parseJevResponse(input: unknown): ParsedJevResponse {
-  if (!input || typeof input !== 'object') throw new DecisionProviderError('invalid-response', 'TypeSafe Jev returned a non-object response.');
+function parseSystemOneResponse(input: unknown): ParsedSystemOneResponse {
+  if (!input || typeof input !== 'object') throw new DecisionProviderError('invalid-response', 'TypeSafe System One returned a non-object response.');
   const record = input as Record<string, unknown>;
-  const answer = record.answer && typeof record.answer === 'object' ? record.answer as Record<string, unknown> : record;
-  const selected = answer.selectedCandidateId ?? answer.selected_candidate_id ?? answer.choice ?? answer.value;
-  if (typeof selected !== 'string' || selected.length === 0) throw new DecisionProviderError('invalid-response', 'TypeSafe Jev response did not contain a candidate selection.');
-  const probabilities = answer.probabilities && typeof answer.probabilities === 'object' && !Array.isArray(answer.probabilities)
+  const answers = record.answers && typeof record.answers === 'object' ? record.answers as Record<string, unknown> : undefined;
+  const answer = answers?.ui_candidate && typeof answers.ui_candidate === 'object'
+    ? answers.ui_candidate as Record<string, unknown>
+    : undefined;
+  const selected = answer?.choice;
+  if (typeof selected !== 'string' || selected.length === 0) throw new DecisionProviderError('invalid-response', 'TypeSafe System One response did not contain a candidate selection.');
+  const probabilities = answer?.probabilities && typeof answer.probabilities === 'object' && !Array.isArray(answer.probabilities)
     ? Object.fromEntries(Object.entries(answer.probabilities).filter((entry): entry is [string, number] => typeof entry[1] === 'number'))
     : undefined;
   const usageRecord = record.usage && typeof record.usage === 'object' ? record.usage as Record<string, unknown> : undefined;
@@ -155,9 +166,9 @@ function parseJevResponse(input: unknown): ParsedJevResponse {
   } : undefined;
   return {
     selectedCandidateId: selected,
-    ...(typeof answer.confidence === 'number' ? { confidence: answer.confidence } : {}),
+    ...(typeof answer?.confidence === 'number' ? { confidence: answer.confidence } : {}),
     ...(probabilities && Object.keys(probabilities).length > 0 ? { probabilities } : {}),
-    ...(typeof answer.reason === 'string' ? { reason: answer.reason } : {}),
+    ...(typeof answer?.reason === 'string' ? { reason: answer.reason } : {}),
     ...(usage && Object.keys(usage).length > 0 ? { usage } : {}),
   };
 }

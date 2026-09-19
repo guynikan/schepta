@@ -83,7 +83,7 @@ if (!result.accepted) console.error(result.report.errors);
 
 `acceptUiSpec` rejects non-JSON values, unsupported versions, unknown catalog entries, invalid props/action inputs and missing renderer capabilities. `canonicalizeUiSpec` and `stringifyCanonicalUiSpec` provide stable keys for hashing and caching. `repairUiSpec` only performs explicitly requested bounded repairs (`canonicalize` and/or `removeUnknownProperties`); it never executes expressions or invents semantic values.
 
-## Model generation and experimental JEV decisions
+## Model generation and experimental TypeSafe System One decisions
 
 Model generation is exposed through a provider-neutral adapter contract. Adapters return structured JSON candidates and never return JSX, Vue templates or renderer-library code:
 
@@ -100,7 +100,7 @@ const result = await generateUi('Create an onboarding screen', {}, catalog, {
 });
 ```
 
-The OpenAI-compatible adapter reads `OPENAI_API_KEY` and defaults to `gpt-4o-mini`; the experimental TypeSafe Jev adapter reads `TYPESAFE_API_KEY`. Neither key is stored in the repository or in generation traces. If a key is unavailable, the adapter returns a structured failure and the generation layer can use a bounded deterministic fallback. Tests can use `createOnboardingFixtureProvider` and `createDeterministicDecisionProvider` without network access.
+The OpenAI-compatible adapter reads `OPENAI_API_KEY` and defaults to `gpt-4o-mini`; the experimental TypeSafe System One adapter reads `TYPESAFE_API_KEY` and sends typed Choice questions to `https://api.typesafe.ai/v1/systemone`. It uses the decision context as `state`, asks one `ui_candidate` question, and maps candidate IDs to their labels in the Choice criteria. Neither key is stored in the repository or in generation traces. If a key is unavailable, the adapter returns a structured failure and the generation layer can use a bounded deterministic fallback. Tests can use `createOnboardingFixtureProvider` and `createDeterministicDecisionProvider` without network access.
 
 ## License
 
