@@ -12,7 +12,15 @@
  * while the dialog still reacts to open / close.
  */
 
-import React, { useCallback, useId, useMemo, useState, type ReactNode } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import type { ComponentSpec, MiddlewareFn } from '@schepta/core';
 import modalSchemaDefinition from '@schepta/factories/schemas/modal-schema.json';
 import {
@@ -23,9 +31,15 @@ import {
 import { defaultModalComponents } from './defaults';
 import {
   ModalProvider,
+  useOptionalModalContext,
   type ModalContextValue,
   type ModalSize,
 } from './context';
+import {
+  getTopmostModal,
+  hasModalContainer,
+  registerModal,
+} from '../a11y/modal-stack';
 
 export type { ModalSize };
 
@@ -78,6 +92,11 @@ const useModalSetup: FactorySetupHook<ModalFactoryProps, ModalFactoryRef> = ({
   const [internalOpen, setInternalOpen] = useState<boolean>(defaultOpen);
   const isOpen = isControlled ? !!controlledOpen : internalOpen;
 
+  const stackTokenRef = useRef<object>();
+  if (!stackTokenRef.current) stackTokenRef.current = {};
+  const parentModalContext = useOptionalModalContext();
+  const parentStackToken = parentModalContext?.stackToken;
+
   const applyOpen = useCallback(
     (next: boolean) => {
       if (!isControlled) {
@@ -87,6 +106,45 @@ const useModalSetup: FactorySetupHook<ModalFactoryProps, ModalFactoryRef> = ({
     },
     [isControlled, onOpenChange]
   );
+
+  const applyOpenRef = useRef(applyOpen);
+  const dismissibleRef = useRef(dismissible);
+  applyOpenRef.current = applyOpen;
+  dismissibleRef.current = dismissible;
+
+  // Register every open modal, including custom ModalContainers. The default
+  // container attaches its DOM node to this same entry for focus-aware stack
+  // ordering; custom containers still retain Escape dismissal via this hook.
+  useEffect(() => {
+    if (!isOpen) return;
+    const token = stackTokenRef.current!;
+    return registerModal(
+      token,
+      () => {
+        if (dismissibleRef.current) applyOpenRef.current(false);
+      },
+      parentStackToken
+    );
+  }, [isOpen, parentStackToken]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const token = stackTokenRef.current!;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // The default container handles Escape on its dialog so React can stop
+      // the event before it reaches another modal. This listener is the
+      // fallback for custom containers, which do not render that handler.
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      const topmost = getTopmostModal();
+      if (hasModalContainer(token)) return;
+      if (!topmost || topmost.token !== token) return;
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      topmost.onEscape();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   const close = useCallback(() => {
     if (!isOpen) return;
@@ -116,6 +174,8 @@ const useModalSetup: FactorySetupHook<ModalFactoryProps, ModalFactoryRef> = ({
       close,
       titleId: `${baseId}-title`,
       descriptionId: `${baseId}-description`,
+      stackToken: stackTokenRef.current!,
+      parentStackToken,
     }),
     [isOpen, dismissible, size, close, baseId]
   );

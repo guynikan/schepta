@@ -15,6 +15,9 @@ export interface ModalContextValue {
   titleId: string;
   /** id the header's description must carry, for `aria-describedby`. */
   descriptionId: string;
+  /** Shared identity used by focus traps to coordinate nested modals. */
+  stackToken: object;
+  parentStackToken?: object;
 }
 
 const ModalContext = createContext<ModalContextValue | null>(null);

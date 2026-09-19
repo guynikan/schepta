@@ -52,7 +52,7 @@ Las pestañas deshabilitadas usan `aria-disabled`, no el atributo nativo `disabl
 ### ModalFactory
 
 - El foco entra en el diálogo al abrirse y **vuelve al elemento que lo abrió** al cerrarse.
-- `Tab` y `Shift+Tab` circulan dentro del diálogo; `Escape` lo cierra desde cualquier lugar.
+- `Tab` y `Shift+Tab` circulan dentro del diálogo; `Escape` cierra el diálogo enfocado.
 - Se renderiza mediante un portal a `document.body`, así que nunca hereda el `aria-hidden` ni el contexto de apilamiento de un ancestro.
 - Se nombra a sí mismo desde el título del `ModalHeader` (`aria-labelledby`) y su descripción (`aria-describedby`), con `ariaLabel` como respaldo.
 - El scroll del body queda bloqueado mientras está abierto.

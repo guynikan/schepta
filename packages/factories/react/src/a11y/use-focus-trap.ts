@@ -10,6 +10,12 @@
  */
 
 import { useEffect, useRef } from 'react';
+import {
+  attachModalContainer,
+  detachModalContainer,
+  getTopmostModal,
+  isTopmostModal,
+} from './modal-stack';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -31,6 +37,10 @@ export interface UseFocusTrapOptions {
   onEscape?: () => void;
   /** Lock scrolling of the document body while active */
   lockScroll?: boolean;
+  /** Shared modal identity used to coordinate nested traps. */
+  modalToken?: object;
+  /** Parent modal identity, when this trap is rendered inside another modal. */
+  parentModalToken?: object;
 }
 
 function getFocusable(container: HTMLElement): HTMLElement[] {
@@ -51,6 +61,8 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>({
   active,
   onEscape,
   lockScroll = true,
+  modalToken,
+  parentModalToken,
 }: UseFocusTrapOptions) {
   const containerRef = useRef<T>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
@@ -65,15 +77,23 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>({
     const container = containerRef.current;
     if (!container) return;
 
+    if (modalToken) attachModalContainer(modalToken, container, parentModalToken);
+
     previouslyFocusedRef.current =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
     // Move focus inside: the first focusable child, or the container itself
     // (it carries tabIndex={-1} for exactly this case).
-    const focusables = getFocusable(container);
-    (focusables[0] ?? container).focus();
+    // A nested modal may already have focused itself in an earlier effect from
+    // the same commit. In that case the parent must leave focus untouched.
+    if (!modalToken || isTopmostModal(modalToken)) {
+      const focusables = getFocusable(container);
+      (focusables[0] ?? container).focus();
+    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (modalToken && !isTopmostModal(modalToken)) return;
+
       if (event.key === 'Escape') {
         onEscapeRef.current?.();
         return;
@@ -115,12 +135,22 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>({
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
+      if (modalToken) detachModalContainer(modalToken, container);
       if (lockScroll) {
         document.body.style.overflow = previousOverflow ?? '';
       }
       // Restoring focus is what lets a keyboard user continue from where they
       // were instead of being dropped at the top of the document.
       previouslyFocusedRef.current?.focus?.();
+
+      // If this was a nested modal opened in the same commit, the previous
+      // focus may be outside the parent because the parent deliberately did
+      // not steal focus. Restore focus to the remaining topmost dialog.
+      const topmost = modalToken ? getTopmostModal() : undefined;
+      if (topmost?.container && !topmost.container.contains(document.activeElement)) {
+        const focusables = getFocusable(topmost.container);
+        (focusables[0] ?? topmost.container).focus();
+      }
     };
   }, [active, lockScroll]);
 

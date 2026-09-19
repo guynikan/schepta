@@ -52,7 +52,7 @@ Abas desabilitadas usam `aria-disabled`, não o atributo nativo `disabled` — u
 ### ModalFactory
 
 - O foco entra no diálogo na abertura e **volta para o elemento que o abriu** no fechamento.
-- `Tab` e `Shift+Tab` circulam dentro do diálogo; `Escape` fecha de qualquer lugar.
+- `Tab` e `Shift+Tab` circulam dentro do diálogo; `Escape` fecha o diálogo focado.
 - Renderizado via portal para o `document.body`, então nunca herda `aria-hidden` nem contexto de empilhamento de um ancestral.
 - Nomeia-se pelo título do `ModalHeader` (`aria-labelledby`) e pela descrição (`aria-describedby`), com fallback para `ariaLabel`.
 - O scroll do body fica travado enquanto aberto.

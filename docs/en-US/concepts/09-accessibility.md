@@ -52,7 +52,7 @@ Disabled tabs use `aria-disabled`, not the native `disabled` attribute — a nat
 ### ModalFactory
 
 - Focus moves into the dialog on open and **returns to the element that opened it** on close.
-- `Tab` and `Shift+Tab` cycle inside the dialog; `Escape` closes it from anywhere.
+- `Tab` and `Shift+Tab` cycle inside the dialog; `Escape` closes the focused dialog.
 - Rendered through a portal to `document.body`, so it never inherits an ancestor's `aria-hidden` or stacking context.
 - Names itself from the `ModalHeader` title (`aria-labelledby`) and its description (`aria-describedby`), falling back to `ariaLabel`.
 - Body scroll is locked while open.

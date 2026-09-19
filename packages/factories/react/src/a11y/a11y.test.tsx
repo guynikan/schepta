@@ -13,9 +13,10 @@
 
 import React from 'react';
 import { describe, it, expect } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'vitest-axe';
+import { NativeReactFormAdapter } from '@schepta/adapter-react';
 
 import { FormFactory } from '../form-factory';
 import { MenuFactory } from '../menu-factory';
@@ -390,13 +391,10 @@ describe('form field accessibility', () => {
 
   it('does not steal focus when a field error changes after a failed submit', async () => {
     const user = userEvent.setup();
-    render(
-      <FormFactory
-        schema={formSchema}
-        onSubmit={() => {}}
-        validateOnSubmit
-      />
-    );
+    const adapter = new NativeReactFormAdapter({});
+    adapter.register('account.email', { validate: (value) => value ? true : 'Required' });
+    adapter.register('account.role', { validate: (value) => value ? true : 'Required' });
+    render(<FormFactory schema={formSchema} onSubmit={() => {}} adapter={adapter} />);
 
     await user.click(q('[data-test-id="submit-button"]')!);
     await waitFor(() => {
@@ -404,10 +402,22 @@ describe('form field accessibility', () => {
     });
 
     const first = q('input[name="account.email"]') as HTMLInputElement;
-    await user.type(first, 'value');
+    first.focus();
+
+    // A field-level update changes the error count without starting a new
+    // submit attempt. The summary must not reclaim focus in response.
+    act(() => adapter.clearErrors('account.email'));
 
     await waitFor(() => {
+      expect(q('[data-test-id="form-error-summary"] h2')?.textContent).toBe(
+        '1 field needs your attention'
+      );
       expect(document.activeElement).toBe(first);
+    });
+
+    await user.click(q('[data-test-id="submit-button"]')!);
+    await waitFor(() => {
+      expect(document.activeElement).toBe(q('[data-test-id="form-error-summary"]'));
     });
   });
 

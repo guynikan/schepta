@@ -10,7 +10,8 @@
 
 import React, { createRef } from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { createComponentSpec } from '@schepta/core';
 import { ModalFactory, type ModalFactoryRef } from './modal-factory';
 
 const confirmSchema = {
@@ -142,37 +143,69 @@ describe('ModalFactory', () => {
     expect(document.body.querySelector('[data-schepta-modal="true"]')).toBeNull();
   });
 
-  it('closes only the topmost modal on ESC', () => {
-    const parentOnOpenChange = vi.fn();
-    const childOnOpenChange = vi.fn();
+  it('closes custom modal containers on ESC', () => {
+    const onOpenChange = vi.fn();
+    const CustomModalContainer = ({ children }: { children?: React.ReactNode }) => (
+      <div role="dialog">{children}</div>
+    );
+    const customContainer = createComponentSpec({
+      id: 'custom-modal-container',
+      type: 'modal-container',
+      component: () => CustomModalContainer,
+    });
+
     render(
-      <>
-        <ModalFactory
-          schema={confirmSchema}
-          defaultOpen
-          onOpenChange={parentOnOpenChange}
-        />
-        <ModalFactory
-          schema={confirmSchema}
-          defaultOpen
-          onOpenChange={childOnOpenChange}
-        />
-      </>
+      <ModalFactory
+        schema={confirmSchema}
+        defaultOpen
+        onOpenChange={onOpenChange}
+        components={{ ModalContainer: customContainer }}
+      />
     );
 
-    const dialogs = document.body.querySelectorAll('[data-schepta-modal="true"]');
-    const childDialog = dialogs[1] as HTMLElement;
-    fireEvent.keyDown(childDialog, { key: 'Escape' });
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it('closes only the topmost nested modal on ESC', async () => {
+    const parentOnOpenChange = vi.fn();
+    const childOnOpenChange = vi.fn();
+
+    const NestedModalFooter = () => (
+      <ModalFactory
+        schema={confirmSchema}
+        defaultOpen
+        onOpenChange={childOnOpenChange}
+      />
+    );
+
+    const nestedFooter = createComponentSpec({
+      id: 'nested-modal-footer',
+      type: 'modal-slot',
+      component: () => NestedModalFooter,
+    });
+
+    render(
+      <ModalFactory
+        schema={confirmSchema}
+        defaultOpen
+        onOpenChange={parentOnOpenChange}
+        components={{ ModalFooter: nestedFooter }}
+      />
+    );
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-schepta-modal="true"]')).toHaveLength(2);
+      const dialogs = document.body.querySelectorAll('[data-schepta-modal="true"]');
+      expect(
+        dialogs[0]?.contains(document.activeElement)
+      ).toBe(true);
+    });
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
     expect(childOnOpenChange).toHaveBeenLastCalledWith(false);
     expect(parentOnOpenChange).not.toHaveBeenCalled();
     expect(document.body.querySelectorAll('[data-schepta-modal="true"]')).toHaveLength(1);
-
-    const parentDialog = document.body.querySelector(
-      '[data-schepta-modal="true"]'
-    ) as HTMLElement;
-    fireEvent.keyDown(parentDialog, { key: 'Escape' });
-    expect(parentOnOpenChange).toHaveBeenLastCalledWith(false);
-    expect(document.body.querySelector('[data-schepta-modal="true"]')).toBeNull();
   });
 
   it('closes when clicking the header close button', () => {

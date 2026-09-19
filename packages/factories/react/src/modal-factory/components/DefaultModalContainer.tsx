@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useOptionalModalContext, type ModalSize } from '../context';
 import { useFocusTrap } from '../../a11y';
+import { isTopmostModal } from '../../a11y/modal-stack';
 
 export interface DefaultModalContainerProps {
   ariaLabel?: string;
@@ -77,7 +78,11 @@ export function DefaultModalContainer({
   const isOpen = ctx?.isOpen ?? false;
 
   // Hooks run unconditionally; the trap is inert while `active` is false.
-  const dialogRef = useFocusTrap<HTMLDivElement>({ active: isOpen });
+  const dialogRef = useFocusTrap<HTMLDivElement>({
+    active: isOpen,
+    modalToken: ctx?.stackToken,
+    parentModalToken: ctx?.parentStackToken,
+  });
 
   if (!ctx) {
     return (
@@ -110,6 +115,9 @@ export function DefaultModalContainer({
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'Escape') return;
+    const topmost = isTopmostModal(ctx.stackToken);
+    if (!topmost) return;
+    event.preventDefault();
     event.stopPropagation();
     if (dismissible) close();
   };
