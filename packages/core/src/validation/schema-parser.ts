@@ -11,19 +11,13 @@ import {
   buildInitialValues,
   type FieldNode 
 } from './schema-traversal';
+import {
+  DEFAULT_VALIDATION_MESSAGES,
+  interpolateValidationMessage,
+  type ValidationMessages,
+} from './messages';
 
-/**
- * Validation messages for a single field
- */
-export interface ValidationMessages {
-  required?: string;
-  minLength?: string;
-  maxLength?: string;
-  pattern?: string;
-  minimum?: string;
-  maximum?: string;
-  format?: string;
-}
+export { type ValidationMessages } from './messages';
 
 /**
  * Result of parsing a FormSchema
@@ -47,32 +41,6 @@ export interface SchemaParserOptions {
   locale?: string;
   /** Whether to allow additional properties in the JSON Schema */
   additionalProperties?: boolean;
-}
-
-/**
- * Default validation messages with interpolation placeholders
- */
-const DEFAULT_MESSAGES: ValidationMessages = {
-  required: '{{label}} is required',
-  minLength: '{{label}} must be at least {{minLength}} characters',
-  maxLength: '{{label}} must be at most {{maxLength}} characters',
-  pattern: '{{label}} format is invalid',
-  minimum: '{{label}} must be at least {{min}}',
-  maximum: '{{label}} must be at most {{max}}',
-  format: '{{label}} format is invalid',
-};
-
-/**
- * Interpolate message template with field data
- * 
- * @param template - Message template with {{placeholders}}
- * @param data - Data object with values to interpolate
- * @returns Interpolated message
- */
-function interpolateMessage(template: string, data: Record<string, any>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => {
-    return data[key] !== undefined ? String(data[key]) : `{{${key}}}`;
-  });
 }
 
 /**
@@ -101,32 +69,32 @@ function buildErrorMessages(
   
   // Required validation - AJV uses minLength:1 for strings
   if (props.required && messages.required) {
-    errorMessage.minLength = interpolateMessage(messages.required, data);
+    errorMessage.minLength = interpolateValidationMessage(messages.required, data);
   }
   
   // MinLength validation (when not just for required)
   if (props.minLength !== undefined && props.minLength > 1 && messages.minLength) {
-    errorMessage.minLength = interpolateMessage(messages.minLength, data);
+    errorMessage.minLength = interpolateValidationMessage(messages.minLength, data);
   }
   
   // MaxLength validation
   if (props.maxLength !== undefined && messages.maxLength) {
-    errorMessage.maxLength = interpolateMessage(messages.maxLength, data);
+    errorMessage.maxLength = interpolateValidationMessage(messages.maxLength, data);
   }
   
   // Pattern validation
   if (props.pattern && messages.pattern) {
-    errorMessage.pattern = interpolateMessage(messages.pattern, data);
+    errorMessage.pattern = interpolateValidationMessage(messages.pattern, data);
   }
   
   // Minimum validation (for numbers)
   if (props.min !== undefined && messages.minimum) {
-    errorMessage.minimum = interpolateMessage(messages.minimum, data);
+    errorMessage.minimum = interpolateValidationMessage(messages.minimum, data);
   }
   
   // Maximum validation (for numbers)
   if (props.max !== undefined && messages.maximum) {
-    errorMessage.maximum = interpolateMessage(messages.maximum, data);
+    errorMessage.maximum = interpolateValidationMessage(messages.maximum, data);
   }
   
   return Object.keys(errorMessage).length > 0 ? errorMessage : undefined;
@@ -283,8 +251,8 @@ export function generateValidationSchema(
   } = options;
   
   // Get messages for the specified locale, falling back to defaults
-  const localeMessages = messages[locale] || DEFAULT_MESSAGES;
-  const mergedMessages = { ...DEFAULT_MESSAGES, ...localeMessages };
+  const localeMessages = messages[locale] || DEFAULT_VALIDATION_MESSAGES;
+  const mergedMessages = { ...DEFAULT_VALIDATION_MESSAGES, ...localeMessages };
   
   // Extract fields from schema
   const fieldNodes = extractFieldsFromSchema(schema);

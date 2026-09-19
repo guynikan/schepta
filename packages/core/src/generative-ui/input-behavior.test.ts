@@ -14,17 +14,24 @@ describe('semantic input behavior', () => {
     expect(isUiElementVisible(props, { ...state, enabled: false })).toBe(false);
   });
 
-  it('formats required, length, pattern, and numeric errors consistently', () => {
-    expect(validateUiInputBehavior('', { required: true }).errors).toEqual(['This field is required.']);
-    expect(validateUiInputBehavior('a', { minLength: 2 }).errors).toEqual(['Enter at least 2 characters.']);
-    expect(validateUiInputBehavior('abcd', { maxLength: 3 }).errors).toEqual(['Enter no more than 3 characters.']);
-    expect(validateUiInputBehavior('bad', { pattern: '^ok$' }).errors).toEqual(['Enter a valid value.']);
-    expect(validateUiInputBehavior(2, { min: 3, max: 5 }).errors).toEqual(['Enter a value of at least 3.']);
-    expect(validateUiInputBehavior(6, { min: 3, max: 5 }).errors).toEqual(['Enter a value of no more than 5.']);
+  it('uses the original Schepta message templates and interpolation placeholders', () => {
+    expect(validateUiInputBehavior('', { label: 'Name', required: true }).errors).toEqual(['Name is required']);
+    expect(validateUiInputBehavior('a', { label: 'Name', minLength: 2 }).errors).toEqual(['Name must be at least 2 characters']);
+    expect(validateUiInputBehavior('abcd', { label: 'Name', maxLength: 3 }).errors).toEqual(['Name must be at most 3 characters']);
+    expect(validateUiInputBehavior('bad', { label: 'Email', pattern: '^ok$' }).errors).toEqual(['Email format is invalid']);
+    expect(validateUiInputBehavior(2, { label: 'Seats', min: 3, max: 5 }).errors).toEqual(['Seats must be at least 3']);
+    expect(validateUiInputBehavior(6, { label: 'Seats', min: 3, max: 5 }).errors).toEqual(['Seats must be at most 5']);
+    expect(validateUiInputBehavior('', { label: 'Name', validation: { required: true, requiredMessage: '{{label}} cannot be blank' } }).errors).toEqual(['Name cannot be blank']);
   });
 
-  it('honors semantic validation overrides and reports invalid regular expressions', () => {
-    expect(validateUiInputBehavior('', { validation: { required: true, requiredMessage: 'Name is mandatory.' } }).errors).toEqual(['Name is mandatory.']);
-    expect(validateUiInputBehavior('Ada', { pattern: '[' }).errors).toEqual(['This field has an invalid validation pattern.']);
+  it('requires checked checkboxes and non-empty selections', () => {
+    expect(validateUiInputBehavior(false, { label: 'Terms', required: true }, { component: 'Checkbox' }).errors).toEqual(['Terms is required']);
+    expect(validateUiInputBehavior(true, { label: 'Terms', required: true }, { component: 'Checkbox' }).valid).toBe(true);
+    expect(validateUiInputBehavior('', { label: 'Plan', required: true }, { component: 'ChoiceGroup' }).errors).toEqual(['Plan is required']);
+    expect(validateUiInputBehavior([], { label: 'Plan', required: true }, { component: 'ChoiceGroup' }).errors).toEqual(['Plan is required']);
+  });
+
+  it('honors semantic validation overrides and maps invalid patterns to the standard contract', () => {
+    expect(validateUiInputBehavior('Ada', { label: 'Name', pattern: '[' }).errors).toEqual(['Name format is invalid']);
   });
 });

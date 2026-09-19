@@ -105,7 +105,7 @@ describe('Vue + Vuetify UiSpec renderer', () => {
 
     expect((wrapper.vm as any).validate()).toBe(false);
     await nextTick();
-    expect(wrapper.text()).toContain('This field is required.');
+    expect(wrapper.text()).toContain('Name is required');
 
     await wrapper.find('[data-ui-id="name"] input').setValue('Ada');
     await wrapper.find('[data-ui-id="name"] input').trigger('blur');
@@ -113,9 +113,23 @@ describe('Vue + Vuetify UiSpec renderer', () => {
     await nextTick();
 
     await wrapper.find('[data-ui-id="submit"]').trigger('click');
+    expect(handler).not.toHaveBeenCalled();
+    await wrapper.find('[data-ui-id="terms"] input').setValue(true);
+    await wrapper.find('[data-ui-id="submit"]').trigger('click');
     expect(handler).toHaveBeenCalledTimes(1);
     expect(received[0].action).toBe('save-profile');
     expect(received[0].state.name).toBe('Ada');
+  });
+
+  it('resolves JEXL visibility and hides conditional inputs', async () => {
+    const spec = onboardingSpec();
+    spec.elements.terms.props = { ...spec.elements.terms.props, visible: "{{ $formValues.role === 'builder' }}" };
+    const wrapper = mountRenderer(spec);
+
+    expect(wrapper.find('[data-ui-id="terms"]').exists()).toBe(false);
+    (wrapper.vm as any).state.role = 'builder';
+    await nextTick();
+    expect(wrapper.find('[data-ui-id="terms"]').exists()).toBe(true);
   });
 
   it('supports renderer status messages and input messages', () => {

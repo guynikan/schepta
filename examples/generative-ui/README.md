@@ -16,7 +16,6 @@ Abra <http://127.0.0.1:4173>. O caminho de prompt real é um worker Codex com a 
 ```bash
 pnpm demo:build
 pnpm demo:type-check
-pnpm demo:e2e
 ```
 
-Os E2E originais são somente referência de comportamento; o SDK não os executa ao gerar a UiSpec.
+O runtime não depende de E2E: o fluxo real é o worker Codex usando a Skill para consultar o catálogo, produzir o artefato UiSpec e validar as correções estruturadas.

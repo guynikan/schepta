@@ -63,7 +63,7 @@ describe('UiSpecRenderer', () => {
     render(<UiSpecRenderer spec={onboardingSpec} onAction={onAction} />);
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onAction).not.toHaveBeenCalled();
-    expect(screen.getByText('This field is required.')).toBeInTheDocument();
+    expect(screen.getByText('Name is required')).toBeInTheDocument();
   });
 
   it('renders status and input messages using semantic props', () => {
@@ -93,7 +93,25 @@ describe('UiSpecRenderer', () => {
     fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Al' } });
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onAction).not.toHaveBeenCalled();
-    expect(screen.getByText('Enter at least 3 characters.')).toBeInTheDocument();
+    expect(screen.getByText('Name must be at least 3 characters')).toBeInTheDocument();
+  });
+
+  it('blocks submission for an unchecked required checkbox and an empty required choice', () => {
+    const onAction = vi.fn();
+    const spec: UiSpec = {
+      ...onboardingSpec,
+      elements: {
+        ...onboardingSpec.elements,
+        role: { component: 'ChoiceGroup', props: { label: 'Plan', required: true, options: [{ value: 'team', label: 'Team' }] }, bindings: { value: 'role' } },
+        terms: { component: 'Checkbox', props: { label: 'Accept terms', required: true }, bindings: { checked: 'terms' } },
+      },
+    };
+    render(<UiSpecRenderer spec={spec} onAction={onAction} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(onAction).not.toHaveBeenCalled();
+    expect(screen.getByText('Plan is required')).toBeInTheDocument();
+    expect(screen.getByText('Accept terms is required')).toBeInTheDocument();
   });
 
   it('renders the remaining semantic choice and alert components', () => {

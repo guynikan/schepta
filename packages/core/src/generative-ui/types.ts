@@ -188,6 +188,8 @@ export interface UiRepairResult {
 
 export interface UiInputValidationOptions {
   path?: string;
+  /** Semantic component name, used for component-specific required behavior. */
+  component?: string;
 }
 
 /** Result of applying the semantic input rules carried by a UiSpec element. */

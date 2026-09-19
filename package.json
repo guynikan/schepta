@@ -9,7 +9,6 @@
     "demo:dev": "pnpm --filter @schepta/generative-ui-demo... build && pnpm --filter @schepta/generative-ui-demo dev",
     "demo:build": "pnpm --filter @schepta/generative-ui-demo... build",
     "demo:type-check": "pnpm --filter @schepta/generative-ui-demo type-check",
-    "demo:e2e": "pnpm --filter @schepta/generative-ui-demo... build && pnpm --filter @schepta/generative-ui-demo e2e",
     "test": "turbo test --filter='./packages/*'",
     "test:e2e": "playwright test --config=tests/playwright.config.ts",
     "test:e2e:ui": "playwright test --ui --config=tests/playwright.config.ts",

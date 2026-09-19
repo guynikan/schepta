@@ -20,6 +20,9 @@ import {
   VTextField,
 } from 'vuetify/components';
 import {
+  isUiElementVisible,
+  resolveUiInputProps,
+  validateUiInputBehavior,
   validateUiSpec,
   type JsonValue,
   type UiAction,
@@ -102,17 +105,9 @@ function writePath(target: Record<string, unknown>, path: string, nextValue: unk
   current[parts[parts.length - 1]] = nextValue;
 }
 
-function elementProps(element: UiElement): Record<string, any> {
-  return (element.props ?? {}) as Record<string, any>;
-}
-
 function messageArray(value: UiStatusMessage): string[] {
   if (Array.isArray(value)) return value.filter((item): item is string => typeof item === 'string');
   return typeof value === 'string' && value.length > 0 ? [value] : [];
-}
-
-function isEmpty(value: unknown): boolean {
-  return value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0);
 }
 
 function asOptions(value: unknown): Array<{ title: string; value: unknown }> {
@@ -185,6 +180,10 @@ export function createVueVuetifyRenderer(): Component {
       const dismissedAlerts = reactive<Record<string, boolean>>({});
       const runtimeError = ref<string | null>(null);
 
+      function elementProps(element: UiElement): Record<string, any> {
+        return resolveUiInputProps(element.props, state as Record<string, JsonValue>) as Record<string, any>;
+      }
+
       function initializeState(spec: UiSpec): void {
         for (const key of Object.keys(state)) delete state[key];
         for (const [key, definition] of Object.entries(spec.state ?? {})) {
@@ -230,31 +229,14 @@ export function createVueVuetifyRenderer(): Component {
         validateInput(elementId, element, value);
       }
 
-      function validationFor(element: UiElement): Record<string, any> {
-        const values = elementProps(element);
-        return (values.validation ?? {}) as Record<string, any>;
-      }
-
       function validateInput(elementId: string, element: UiElement, value = valueFor(elementId, element)): boolean {
         if (!inputComponents.has(element.component)) return true;
         const values = elementProps(element);
-        const rules = validationFor(element);
-        const messages: string[] = [];
-        const required = values.required === true || rules.required === true;
-        if (required && isEmpty(value)) messages.push(String(rules.requiredMessage ?? values.requiredMessage ?? 'This field is required.'));
-        const stringValue = typeof value === 'string' ? value : '';
-        const minLength = rules.minLength ?? values.minLength;
-        const maxLength = rules.maxLength ?? values.maxLength;
-        if (!isEmpty(value) && typeof minLength === 'number' && stringValue.length < minLength) messages.push(String(rules.minLengthMessage ?? `Enter at least ${minLength} characters.`));
-        if (!isEmpty(value) && typeof maxLength === 'number' && stringValue.length > maxLength) messages.push(String(rules.maxLengthMessage ?? `Enter no more than ${maxLength} characters.`));
-        const pattern = rules.pattern ?? values.pattern;
-        if (!isEmpty(value) && typeof pattern === 'string') {
-          try {
-            if (!new RegExp(pattern).test(stringValue)) messages.push(String(rules.patternMessage ?? values.patternMessage ?? 'Enter a valid value.'));
-          } catch {
-            messages.push('This field has an invalid validation pattern.');
-          }
-        }
+        if (!isUiElementVisible(element.props, state as Record<string, JsonValue>)) return true;
+        const messages = validateUiInputBehavior(value as JsonValue | undefined, values, {
+          component: element.component,
+          path: elementId,
+        }).errors;
         inputErrors[elementId] = messages;
         return messages.length === 0;
       }
@@ -305,6 +287,7 @@ export function createVueVuetifyRenderer(): Component {
         if (!invocation) return;
         const action = invocation.action ?? invocation.name;
         if (!action) return;
+        if ((event === 'press' || event === 'submit') && !validateAll()) return;
         const context: UiActionContext = {
           action,
           invocation,
@@ -367,6 +350,7 @@ export function createVueVuetifyRenderer(): Component {
         const element = props.spec.elements[id];
         if (!element) return null;
         if (stack.has(id)) throw new UiSpecRenderError(`Cyclic semantic element tree at "${id}".`);
+        if (!isUiElementVisible(element.props, state as Record<string, JsonValue>)) return null;
         const nextStack = new Set(stack).add(id);
         const values = elementProps(element);
         const children = childIds(element).map((childId) => renderElement(childId, nextStack));
@@ -393,7 +377,7 @@ export function createVueVuetifyRenderer(): Component {
               ...attrs,
               onSubmit: (event: Event) => {
                 event.preventDefault();
-                if (validateAll()) invokeAction(id, element, 'submit', event);
+                invokeAction(id, element, 'submit', event);
               },
               disabled: isLoading(id, element),
             }, { default: () => [...status, ...children] });
@@ -503,7 +487,7 @@ export function createVueVuetifyRenderer(): Component {
               variant,
               disabled: values.disabled === true,
               loading: isLoading(id, element),
-              onClick: (event: MouseEvent) => invokeAction(id, element, 'click', event),
+              onClick: (event: MouseEvent) => invokeAction(id, element, 'press', event),
             }, { default: () => String(values.label ?? values.text ?? '') });
           }
           case 'Alert': {

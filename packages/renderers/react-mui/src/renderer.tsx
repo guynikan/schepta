@@ -120,7 +120,7 @@ function validateElementValue(id: string, element: UiElement, spec: UiSpec, stat
   const bindingName = element.bindings?.value ?? element.bindings?.checked;
   const declaration = bindingName ? spec.bindings?.[bindingName] : undefined;
   const value = declaration ? readPath(state, declaration.path) : undefined;
-  return validateUiInputBehavior(value, props).errors[0];
+  return validateUiInputBehavior(value, props, { component: element.component, path: id }).errors[0];
 }
 
 function semanticTextVariant(value: unknown): 'h1' | 'h2' | 'h3' | 'h4' | 'body1' | 'body2' | 'caption' {

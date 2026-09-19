@@ -9,13 +9,16 @@ const inputValidation: JsonSchema = {
   properties: {
     required: { type: 'boolean' }, minLength: { type: 'integer', minimum: 0 }, maxLength: { type: 'integer', minimum: 0 },
     pattern: string, minimum: { type: 'number' }, maximum: { type: 'number' }, min: { type: 'number' }, max: { type: 'number' },
-    requiredMessage: string, minLengthMessage: string, maxLengthMessage: string, patternMessage: string, minMessage: string, maxMessage: string,
+    requiredMessage: string, minLengthMessage: string, maxLengthMessage: string, patternMessage: string,
+    minimumMessage: string, maximumMessage: string, minMessage: string, maxMessage: string,
   },
   additionalProperties: false,
 };
 const commonInputProps: Record<string, JsonSchema> = {
   placeholder: string, required: booleanOrExpression, minLength: { type: 'integer', minimum: 0 }, maxLength: { type: 'integer', minimum: 0 },
   pattern: string, minimum: { type: 'number' }, maximum: { type: 'number' }, min: { type: 'number' }, max: { type: 'number' },
+  requiredMessage: string, minLengthMessage: string, maxLengthMessage: string, patternMessage: string,
+  minimumMessage: string, maximumMessage: string, minMessage: string, maxMessage: string,
   visible: booleanOrExpression, disabled: booleanOrExpression, validation: inputValidation,
 };
 
