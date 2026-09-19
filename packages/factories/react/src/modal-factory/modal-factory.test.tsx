@@ -134,7 +134,10 @@ describe('ModalFactory', () => {
     render(
       <ModalFactory schema={confirmSchema} defaultOpen onOpenChange={onOpenChange} />
     );
-    fireEvent.keyDown(window, { key: 'Escape' });
+    const dialog = document.body.querySelector(
+      '[data-schepta-modal="true"]'
+    ) as HTMLElement;
+    fireEvent.keyDown(dialog, { key: 'Escape' });
     expect(onOpenChange).toHaveBeenLastCalledWith(false);
     expect(document.body.querySelector('[data-schepta-modal="true"]')).toBeNull();
   });
@@ -157,12 +160,17 @@ describe('ModalFactory', () => {
       </>
     );
 
-    fireEvent.keyDown(window, { key: 'Escape' });
+    const dialogs = document.body.querySelectorAll('[data-schepta-modal="true"]');
+    const childDialog = dialogs[1] as HTMLElement;
+    fireEvent.keyDown(childDialog, { key: 'Escape' });
     expect(childOnOpenChange).toHaveBeenLastCalledWith(false);
     expect(parentOnOpenChange).not.toHaveBeenCalled();
     expect(document.body.querySelectorAll('[data-schepta-modal="true"]')).toHaveLength(1);
 
-    fireEvent.keyDown(window, { key: 'Escape' });
+    const parentDialog = document.body.querySelector(
+      '[data-schepta-modal="true"]'
+    ) as HTMLElement;
+    fireEvent.keyDown(parentDialog, { key: 'Escape' });
     expect(parentOnOpenChange).toHaveBeenLastCalledWith(false);
     expect(document.body.querySelector('[data-schepta-modal="true"]')).toBeNull();
   });

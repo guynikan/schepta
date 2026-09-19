@@ -93,10 +93,10 @@ export function LayoutShowcase({ isDark = false }: LayoutShowcaseProps) {
         </pre>
       </section>
 
-      <p style={{ fontSize: '13px', opacity: 0.7, margin: 0 }}>
-        This showcase is powered by <code>LayoutFactory</code>. The schema composes
+      <p style={{ fontSize: '13px', margin: 0 }}>
+        This showcase is powered by <code style={{ color: 'inherit' }}>LayoutFactory</code>. The schema composes
         header, sidebar, main and footer slots from
-        <code> instances/layout/app-shell.json</code>.
+        <code style={{ color: 'inherit' }}> instances/layout/app-shell.json</code>.
       </p>
     </div>
   );

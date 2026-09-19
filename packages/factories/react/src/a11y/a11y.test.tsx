@@ -86,6 +86,7 @@ const formSchema: any = {
                       'x-component': 'InputSelect',
                       'x-component-props': {
                         label: 'Role',
+                        required: true,
                         options: [
                           { value: 'admin', label: 'Admin' },
                           { value: 'viewer', label: 'Viewer' },
@@ -384,6 +385,29 @@ describe('form field accessibility', () => {
     await user.click(submit);
     await waitFor(() => {
       expect(document.activeElement).toBe(q('[data-test-id="form-error-summary"]'));
+    });
+  });
+
+  it('does not steal focus when a field error changes after a failed submit', async () => {
+    const user = userEvent.setup();
+    render(
+      <FormFactory
+        schema={formSchema}
+        onSubmit={() => {}}
+        validateOnSubmit
+      />
+    );
+
+    await user.click(q('[data-test-id="submit-button"]')!);
+    await waitFor(() => {
+      expect(document.activeElement).toBe(q('[data-test-id="form-error-summary"]'));
+    });
+
+    const first = q('input[name="account.email"]') as HTMLInputElement;
+    await user.type(first, 'value');
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(first);
     });
   });
 

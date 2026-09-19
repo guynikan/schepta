@@ -18,6 +18,8 @@ const SHOWCASES = [
   { name: 'menu', path: '/en-US/showcases/menu', root: '[data-schepta-menu="true"]' },
   { name: 'table', path: '/en-US/showcases/table', root: '[data-schepta-table="true"]' },
   { name: 'tabs', path: '/en-US/showcases/tabs', root: '[data-schepta-tabs="true"]' },
+  { name: 'modal', path: '/en-US/showcases/modal', root: '[data-test-id="modal-showcase"]' },
+  { name: 'layout', path: '/en-US/showcases/layout', root: '[data-test-id="layout-showcase"]' },
 ] as const;
 
 for (const showcase of SHOWCASES) {
@@ -92,16 +94,18 @@ test.describe('keyboard navigation', () => {
     await page.waitForSelector('form', { timeout: 15000 });
 
     const submit = page.locator('[data-test-id="submit-button"]').first();
-    test.skip((await submit.count()) === 0, 'showcase form has no submit button');
+    await expect(submit).toHaveCount(1);
 
     await submit.click();
 
     const summary = page.locator('[data-test-id="form-error-summary"]').first();
-    if ((await summary.count()) === 0) {
-      test.skip(true, 'showcase form has no required fields to fail validation');
-    }
-
-    await expect(summary).toHaveAttribute('role', 'alert');
+    await expect(summary).toBeVisible();
+    await expect(summary).toHaveAttribute('aria-labelledby', /.+/);
+    const headingId = await summary.getAttribute('aria-labelledby');
+    expect(headingId).toBeTruthy();
+    await expect(summary.locator('h2')).toHaveText(/field.*attention/);
+    await expect(page.locator(`[id="${headingId}"]`)).toHaveCount(1);
+    await expect(summary).not.toHaveAttribute('role', 'alert');
     await expect(summary).toBeFocused();
 
     // Each invalid field must point at an error element that is really there.

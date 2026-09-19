@@ -118,9 +118,9 @@ export function ModalShowcase({ isDark = false }: ModalShowcaseProps) {
         </pre>
       </section>
 
-      <p style={{ fontSize: '13px', opacity: 0.7, margin: 0 }}>
-        This showcase is powered by <code>ModalFactory</code>. The schema lives in
-        <code> instances/modal/confirm-dialog.json</code>; open state is controlled
+      <p style={{ fontSize: '13px', margin: 0 }}>
+        This showcase is powered by <code style={{ color: 'inherit' }}>ModalFactory</code>. The schema lives in
+        <code style={{ color: 'inherit' }}> instances/modal/confirm-dialog.json</code>; open state is controlled
         through callbacks and the imperative ref API.
       </p>
 

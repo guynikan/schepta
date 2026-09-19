@@ -101,6 +101,32 @@ describe('MenuFactory', () => {
     expect(settings).toHaveAttribute('aria-current', 'page');
   });
 
+  it('uses a schema-declared active item as the initial selection', () => {
+    const schema = {
+      ...twoLevelMenu,
+      properties: {
+        ...twoLevelMenu.properties,
+        dashboard: {
+          ...twoLevelMenu.properties.dashboard,
+          'x-component-props': {
+            ...twoLevelMenu.properties.dashboard['x-component-props'],
+            active: true,
+          },
+        },
+      },
+    };
+    const { getByText } = render(<MenuFactory schema={schema} />);
+    const dashboard = getByText('Dashboard').closest('a')!;
+    const settings = getByText('Settings').closest('a')!;
+
+    expect(dashboard).toHaveAttribute('aria-current', 'page');
+    expect(settings).not.toHaveAttribute('aria-current');
+
+    fireEvent.click(settings);
+    expect(dashboard).not.toHaveAttribute('aria-current');
+    expect(settings).toHaveAttribute('aria-current', 'page');
+  });
+
   it('calls the latest onSelect after a rerender', () => {
     const firstOnSelect = vi.fn();
     const secondOnSelect = vi.fn();

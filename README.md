@@ -6,7 +6,7 @@ Build dynamic forms and UIs from JSON schemas with full support for React, Vue, 
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
 [![License: SNCL](https://img.shields.io/badge/License-Non--Commercial-orange.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-26%20passing-brightgreen)](./tests)
+[![Tests](https://img.shields.io/badge/tests-189%20passing-brightgreen)](./tests)
 
 ## ✨ Features
 
@@ -19,7 +19,7 @@ Build dynamic forms and UIs from JSON schemas with full support for React, Vue, 
 - ⚡ **Reactive System**: Handle both declarative and imperative state management
 - 🎭 **Conditional Logic**: Show/hide fields based on form values using template expressions
 - 🛡️ **Type Safe**: Full TypeScript support with strict type checking
-- ♿ **Acessibilidade integrada**: suporte a landmarks, foco, teclado, diálogos e padrões a11y nos componentes padrão
+- ♿ **Built-in Accessibility**: Landmarks, focus management, keyboard navigation, dialogs, and ARIA patterns in the default components
 - 🧪 **Well Tested**: Comprehensive E2E test suite with Playwright
 
 ## 🏗️ Architecture
@@ -257,14 +257,14 @@ Framework-specific runtime implementations:
 
 ### Factories
 
-Factories built-in:
+Built-in factories:
 
-- **FormFactory**: forms schema-driven for React, Vue and Vanilla JS
-- **MenuFactory**: navigation menus with selection and active-item state
-- **TableFactory**: sortable, selectable data tables
-- **TabsFactory**: tabbed interfaces with badges and disabled tabs
-- **ModalFactory**: accessible dialogs with focus trapping and imperative controls
-- **LayoutFactory**: application shells with header, sidebar, main and footer slots
+- **FormFactory**: schema-driven forms for React, Vue, and Vanilla JS
+- **MenuFactory**: navigation menus with selection and active-item state (React only)
+- **TableFactory**: sortable, selectable data tables (React only)
+- **TabsFactory**: tabbed interfaces with badges and disabled tabs (React only)
+- **ModalFactory**: accessible dialogs with focus trapping and imperative controls (React only)
+- **LayoutFactory**: application shells with header, sidebar, main, and footer slots (React only)
 
 The framework-specific packages remain available as **@schepta/factory-react**,
 **@schepta/factory-vue** and **@schepta/factory-vanilla**.
@@ -287,7 +287,7 @@ Visit **[schepta.org](https://schepta.org)** to see Schepta in action with live,
 Comprehensive E2E test suite using Playwright:
 
 ```bash
-# Run all E2E tests (26 tests)
+# Run all E2E tests (69 tests)
 pnpm test:e2e
 
 # Run specific framework tests

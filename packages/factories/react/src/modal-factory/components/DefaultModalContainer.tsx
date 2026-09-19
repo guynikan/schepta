@@ -64,7 +64,8 @@ function readHeaderContent(schema?: Record<string, any>): {
  *
  * Dismissal:
  *  - Clicking the backdrop (when `dismissible`) calls `close`.
- *  - `Escape` is handled globally by ModalFactory.
+ *  - `Escape` is handled by the dialog so nested modals stop propagation at
+ *    the inner dialog and never close an outer modal in the same event.
  */
 export function DefaultModalContainer({
   ariaLabel,
@@ -105,6 +106,12 @@ export function DefaultModalContainer({
     if (event.target === event.currentTarget) {
       close();
     }
+  };
+
+  const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Escape') return;
+    event.stopPropagation();
+    if (dismissible) close();
   };
 
   const backdropStyle: React.CSSProperties = {
@@ -157,6 +164,7 @@ export function DefaultModalContainer({
         tabIndex={-1}
         style={dialogStyle}
         onClick={(event) => event.stopPropagation()}
+        onKeyDown={handleDialogKeyDown}
       >
         {children}
       </div>

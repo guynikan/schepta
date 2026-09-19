@@ -26,7 +26,7 @@ export function DefaultMenuItem({
   'data-test-id': dataTestId,
 }: DefaultMenuItemProps) {
   const menuContext = useOptionalMenuContext();
-  const isActive = active ?? menuContext?.activeItem === dataTestId;
+  const isActive = menuContext ? menuContext.activeItem === dataTestId : active === true;
 
   const handleClick = (event: React.MouseEvent) => {
     if (disabled) {

@@ -12,7 +12,7 @@
  * while the dialog still reacts to open / close.
  */
 
-import React, { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import React, { useCallback, useId, useMemo, useState, type ReactNode } from 'react';
 import type { ComponentSpec, MiddlewareFn } from '@schepta/core';
 import modalSchemaDefinition from '@schepta/factories/schemas/modal-schema.json';
 import {
@@ -59,10 +59,6 @@ export interface ModalFactoryProps extends FactoryBaseProps {
   debug?: boolean;
 }
 
-// Tokens are ordered by the moment each modal opens, so an Escape key closes
-// only the topmost open modal even when effects re-run after a parent render.
-const openModalStack: object[] = [];
-
 const useModalSetup: FactorySetupHook<ModalFactoryProps, ModalFactoryRef> = ({
   props,
 }) => {
@@ -92,13 +88,6 @@ const useModalSetup: FactorySetupHook<ModalFactoryProps, ModalFactoryRef> = ({
     [isControlled, onOpenChange]
   );
 
-  const modalTokenRef = useRef<object>();
-  if (!modalTokenRef.current) modalTokenRef.current = {};
-  const applyOpenRef = useRef(applyOpen);
-  applyOpenRef.current = applyOpen;
-  const dismissibleRef = useRef(dismissible);
-  dismissibleRef.current = dismissible;
-
   const close = useCallback(() => {
     if (!isOpen) return;
     applyOpen(false);
@@ -116,28 +105,6 @@ const useModalSetup: FactorySetupHook<ModalFactoryProps, ModalFactoryRef> = ({
   // Initial focus, Tab cycling and focus restoration are owned by the
   // `useFocusTrap` hook in DefaultModalContainer, which focuses the first
   // focusable child rather than the dialog itself.
-
-  // Global ESC handler — complements the one on the backdrop so consumers
-  // who render the modal at the top of the tree don't need the backdrop
-  // to have focus. Every open modal registers a token; only the last token
-  // handles Escape, which keeps nested modals from closing as a group.
-  useEffect(() => {
-    if (!isOpen) return;
-    const token = modalTokenRef.current!;
-    openModalStack.push(token);
-    const handler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && openModalStack[openModalStack.length - 1] === token) {
-        event.stopPropagation();
-        if (dismissibleRef.current) applyOpenRef.current(false);
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => {
-      window.removeEventListener('keydown', handler);
-      const index = openModalStack.indexOf(token);
-      if (index >= 0) openModalStack.splice(index, 1);
-    };
-  }, [isOpen]);
 
   const baseId = useId();
 

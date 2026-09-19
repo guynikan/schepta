@@ -21,13 +21,13 @@ As duas regras de estilo ficam na camada CSS `schepta-defaults`, injetada pelo `
 | Associação de label | `<label for>` ligado a um id de controle gerado |
 | Campos obrigatórios | `required` + `aria-required` a partir de `x-component-props.required` |
 | Campos inválidos | `aria-invalid` assim que o campo falha na validação |
-| Mensagens de erro | Renderizadas em `role="alert"`, ligadas via `aria-describedby` |
+| Mensagens de erro | Renderizadas junto ao controle, ligadas via `aria-describedby` |
 | Texto de apoio | `x-component-props.description`, ligado via `aria-describedby` |
 | Resumo de erros | Recebe foco automaticamente num submit inválido, listando todos os erros |
 | Seções | `<section aria-labelledby>` nomeada pelo seu `FormSectionTitle` |
 | Validação nativa | Desligada (`noValidate`) para que as mensagens anunciadas pelo Schepta não sejam atropeladas pelos balões do navegador |
 
-A validação roda contra o schema (AJV) no submit e popula os erros dos campos. Para desligar, use `validateOnSubmit={false}`.
+A validação roda contra o schema (AJV) no submit quando `validateOnSubmit` está habilitado. Ela é opcional e o padrão é `false`.
 
 ```json
 {

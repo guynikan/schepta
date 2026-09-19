@@ -62,12 +62,14 @@ const ErrorSummary: React.FC<{
   const registry = useOptionalFieldA11yRegistry();
   const entries = Object.entries(errors);
   const errorCount = entries.length;
+  const errorCountRef = useRef(errorCount);
+  errorCountRef.current = errorCount;
 
   useEffect(() => {
-    if (errorCount > 0 && submitAttempt > 0) {
+    if (errorCountRef.current > 0 && submitAttempt > 0) {
       ref.current?.focus();
     }
-  }, [errorCount, submitAttempt]);
+  }, [submitAttempt]);
 
   if (errorCount === 0) return null;
 

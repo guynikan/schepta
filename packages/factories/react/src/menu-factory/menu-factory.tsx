@@ -50,11 +50,31 @@ interface MenuState extends Record<string, any> {
   activeItem: string | null;
 }
 
+function findDeclaredActiveItem(schema: any): string | null {
+  if (!schema || typeof schema !== 'object') return null;
+
+  for (const [key, child] of Object.entries(schema.properties ?? {})) {
+    if (
+      (child as any)?.['x-component'] === 'MenuItem' &&
+      (child as any)?.['x-component-props']?.active === true
+    ) {
+      return key;
+    }
+
+    const nested = findDeclaredActiveItem(child);
+    if (nested) return nested;
+  }
+
+  return null;
+}
+
 const useMenuSetup: FactorySetupHook<MenuFactoryProps, MenuFactoryRef, MenuState> = ({
   props,
 }) => {
   const [activeItem, setActiveItem] = useState<string | null>(
-    props.initialActiveItem ?? null
+    props.initialActiveItem !== undefined
+      ? props.initialActiveItem
+      : findDeclaredActiveItem(props.schema)
   );
 
   const state = useMemo<MenuState>(

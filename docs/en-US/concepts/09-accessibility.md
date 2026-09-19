@@ -21,13 +21,13 @@ Both style rules ship in the `schepta-defaults` CSS layer, injected by `createRe
 | Label association | `<label for>` bound to a generated control id |
 | Required fields | `required` + `aria-required` from `x-component-props.required` |
 | Invalid fields | `aria-invalid` once the field fails validation |
-| Error messages | Rendered in `role="alert"`, linked via `aria-describedby` |
+| Error messages | Rendered alongside the control and linked via `aria-describedby` |
 | Hint text | `x-component-props.description`, linked via `aria-describedby` |
 | Error summary | Focused automatically on a failed submit, listing every error |
 | Sections | `<section aria-labelledby>` naming itself from its `FormSectionTitle` |
 | Native validation | Disabled (`noValidate`) so Schepta's announced messages are not pre-empted by browser bubbles |
 
-Validation runs against the schema (AJV) on submit and populates the field errors. Opt out with `validateOnSubmit={false}`.
+Validation runs against the schema (AJV) on submit when `validateOnSubmit` is enabled. It is opt-in and defaults to `false`.
 
 ```json
 {
