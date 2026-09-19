@@ -64,7 +64,7 @@ export function DefaultModalHeader({
         ) : null}
         {children}
       </div>
-      {showCloseButton && ctx ? (
+      {showCloseButton && ctx?.dismissible ? (
         <button
           type="button"
           aria-label="Close dialog"

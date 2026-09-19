@@ -1,4 +1,5 @@
 import React from 'react';
+import { useOptionalMenuContext } from '../context';
 
 export interface DefaultMenuItemProps {
   label: string;
@@ -24,6 +25,9 @@ export function DefaultMenuItem({
   onSelect,
   'data-test-id': dataTestId,
 }: DefaultMenuItemProps) {
+  const menuContext = useOptionalMenuContext();
+  const isActive = active ?? menuContext?.activeItem === dataTestId;
+
   const handleClick = (event: React.MouseEvent) => {
     if (disabled) {
       event.preventDefault();
@@ -75,7 +79,7 @@ export function DefaultMenuItem({
           href={href}
           onClick={handleClick}
           aria-disabled={disabled || undefined}
-          aria-current={active ? 'page' : undefined}
+          aria-current={isActive ? 'page' : undefined}
           // `pointer-events: none` alone stops the mouse but leaves the link
           // in the tab order, so a keyboard user could still focus and
           // activate a disabled item.
@@ -94,7 +98,7 @@ export function DefaultMenuItem({
           type="button"
           onClick={handleClick}
           disabled={disabled}
-          aria-current={active ? 'page' : undefined}
+          aria-current={isActive ? 'page' : undefined}
           data-test-id={dataTestId}
           style={style}
         >

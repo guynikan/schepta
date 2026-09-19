@@ -236,6 +236,22 @@ const useTableSetup: FactorySetupHook<
     [rowKey, debug]
   );
 
+  // Compute fallback keys from the original row order once. The rendered rows
+  // may be sorted, but selection must continue to identify the same object.
+  const rowKeys = useMemo(() => {
+    const keys = new WeakMap<Record<string, any>, string>();
+    rows.forEach((row, index) => {
+      keys.set(row, getRowKey(row, index));
+    });
+    return keys;
+  }, [rows, getRowKey]);
+
+  const getStableRowKey = useCallback(
+    (row: Record<string, any>, index: number) =>
+      rowKeys.get(row) ?? getRowKey(row, index),
+    [rowKeys, getRowKey]
+  );
+
   const sortedRows = useMemo(() => {
     if (sortMode === 'client') {
       return sortRows(rows, columns, sort);
@@ -250,7 +266,7 @@ const useTableSetup: FactorySetupHook<
         const selectedRows: Array<Record<string, any>> = [];
         const indexByKey = new Map<string, Record<string, any>>();
         rows.forEach((row, index) => {
-          indexByKey.set(getRowKey(row, index), row);
+          indexByKey.set(getStableRowKey(row, index), row);
         });
         for (const key of nextKeys) {
           const row = indexByKey.get(key);
@@ -259,7 +275,7 @@ const useTableSetup: FactorySetupHook<
         onSelectionChange({ keys: nextKeys, rows: selectedRows });
       }
     },
-    [rows, getRowKey, onSelectionChange]
+    [rows, getStableRowKey, onSelectionChange]
   );
 
   const applySort = useCallback(
@@ -317,7 +333,7 @@ const useTableSetup: FactorySetupHook<
       selectionMode,
       loading,
       emptyState,
-      getRowKey,
+      getRowKey: getStableRowKey,
       onToggleSort,
       onToggleRow,
     }),
@@ -329,7 +345,7 @@ const useTableSetup: FactorySetupHook<
       selectionMode,
       loading,
       emptyState,
-      getRowKey,
+      getStableRowKey,
       onToggleSort,
       onToggleRow,
     ]

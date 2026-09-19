@@ -49,20 +49,19 @@ const summaryStyle: React.CSSProperties = {
  * user that the submit did not go through — without it the page appears
  * unchanged and silent.
  */
-const ErrorSummary: React.FC<{ errors: Record<string, any> }> = ({ errors }) => {
+const ErrorSummary: React.FC<{
+  errors: Record<string, any>;
+  submitAttempt: number;
+}> = ({ errors, submitAttempt }) => {
   const ref = useRef<HTMLDivElement>(null);
   const entries = Object.entries(errors);
   const errorCount = entries.length;
-  // Focus only on the transition from valid to invalid. Re-focusing on every
-  // render would yank focus away while the user is fixing the fields.
-  const hadErrorsRef = useRef(false);
 
   useEffect(() => {
-    if (errorCount > 0 && !hadErrorsRef.current) {
+    if (errorCount > 0 && submitAttempt > 0) {
       ref.current?.focus();
     }
-    hadErrorsRef.current = errorCount > 0;
-  }, [errorCount]);
+  }, [errorCount, submitAttempt]);
 
   if (errorCount === 0) return null;
 
@@ -118,6 +117,7 @@ export const DefaultFormContainer: React.FC<FormContainerProps> = ({
   const adapter = useScheptaFormAdapter();
   const errors = useScheptaFormErrors();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitAttempt, setSubmitAttempt] = useState(0);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,6 +125,9 @@ export const DefaultFormContainer: React.FC<FormContainerProps> = ({
     setIsSubmitting(true);
     try {
       await adapter.handleSubmit(onSubmit)();
+      if (Object.keys(adapter.getErrors()).length > 0) {
+        setSubmitAttempt((attempt) => attempt + 1);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -142,7 +145,7 @@ export const DefaultFormContainer: React.FC<FormContainerProps> = ({
       data-schepta-form="true"
       {...props}
     >
-      <ErrorSummary errors={errors} />
+      <ErrorSummary errors={errors} submitAttempt={submitAttempt} />
       {children}
       {onSubmit && <DefaultSubmitButton disabled={isSubmitting} />}
     </form>

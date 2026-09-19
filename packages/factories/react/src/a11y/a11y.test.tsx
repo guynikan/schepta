@@ -363,6 +363,26 @@ describe('form field accessibility', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it('moves focus to the error summary on every failed submit attempt', async () => {
+    const user = userEvent.setup();
+    render(<FormFactory schema={formSchema} onSubmit={() => {}} />);
+    const submit = q('[data-test-id="submit-button"]')!;
+
+    await user.click(submit);
+    await waitFor(() => {
+      expect(document.activeElement).toBe(q('[data-test-id="form-error-summary"]'));
+    });
+
+    const input = q('input[type="text"], input:not([type])') as HTMLElement;
+    input.focus();
+    expect(document.activeElement).toBe(input);
+
+    await user.click(submit);
+    await waitFor(() => {
+      expect(document.activeElement).toBe(q('[data-test-id="form-error-summary"]'));
+    });
+  });
+
   it('names each section from its heading', () => {
     render(<FormFactory schema={formSchema} />);
     const section = q('section[aria-labelledby]')!;

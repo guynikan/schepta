@@ -216,4 +216,16 @@ describe('ModalFactory', () => {
     );
     expect(document.body.querySelector('[data-test-id="modal-close"]')).toBeNull();
   });
+
+  it('hides the close button when the modal is not dismissible', () => {
+    const schema = {
+      ...confirmSchema,
+      'x-component-props': {
+        ...confirmSchema['x-component-props'],
+        dismissible: false,
+      },
+    };
+    render(<ModalFactory schema={schema} defaultOpen />);
+    expect(document.body.querySelector('[data-test-id="modal-close"]')).toBeNull();
+  });
 });

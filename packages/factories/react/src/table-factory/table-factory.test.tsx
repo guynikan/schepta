@@ -75,6 +75,7 @@ describe('TableFactory', () => {
 
     expect(getRowOrder(container)).toEqual(['u1', 'u2', 'u3']);
     expect(container.querySelectorAll('tbody tr[data-row-key]')).toHaveLength(3);
+    expect(container.querySelector('table')?.getAttribute('aria-rowcount')).toBe('4');
   });
 
   it('applies format templates to cells', () => {
@@ -284,6 +285,31 @@ describe('TableFactory', () => {
       'person:alice',
       'person:bob',
     ]);
+  });
+
+  it('keeps selection attached to rows without ids after sorting', () => {
+    const onSelectionChange = vi.fn();
+    const rowsWithoutIds = [
+      { name: 'Bravo', role: 'Admin', seats: 2 },
+      { name: 'Alice', role: 'Editor', seats: 4 },
+    ];
+    const { container, getByRole, getByText } = render(
+      <TableFactory
+        schema={teamSchema}
+        rows={rowsWithoutIds}
+        selectionMode="single"
+        onSelectionChange={onSelectionChange}
+      />
+    );
+
+    fireEvent.click(getByRole('button', { name: /name/i }));
+    fireEvent.click(getByText('Alice').closest('tr')!);
+
+    expect(container.querySelector('[data-row-selected="true"]')).toHaveTextContent('Alice');
+    expect(onSelectionChange).toHaveBeenLastCalledWith({
+      keys: ['__row_1'],
+      rows: [rowsWithoutIds[1]],
+    });
   });
 
   it('renders cell text using the field dot-path', () => {

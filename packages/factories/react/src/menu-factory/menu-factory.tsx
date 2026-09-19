@@ -6,7 +6,7 @@
  * second built-in factory coexisting with `FormFactory`.
  */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { ComponentSpec, MiddlewareFn, MiddlewareContext } from '@schepta/core';
 import menuSchemaDefinition from '@schepta/factories/schemas/menu-schema.json';
 import {
@@ -15,6 +15,7 @@ import {
   type FactorySetupHook,
 } from '../create-factory';
 import { defaultMenuComponents } from './defaults';
+import { MenuProvider, type MenuContextValue } from './context';
 
 export interface MenuFactoryRef {
   /** Currently active (selected) item key, or `null` */
@@ -61,16 +62,22 @@ const useMenuSetup: FactorySetupHook<MenuFactoryProps, MenuFactoryRef, MenuState
     [activeItem]
   );
 
-  const onSelectRef = props.onSelect;
+  const onSelectRef = useRef(props.onSelect);
+  onSelectRef.current = props.onSelect;
 
   const onSelect = useCallback(
     (payload: { href?: string; label: string }, key: string) => {
       setActiveItem(key);
-      if (onSelectRef) {
-        onSelectRef({ key, label: payload.label, href: payload.href });
+      if (onSelectRef.current) {
+        onSelectRef.current({ key, label: payload.label, href: payload.href });
       }
     },
-    [onSelectRef]
+    []
+  );
+
+  const menuContext = useMemo<MenuContextValue>(
+    () => ({ activeItem }),
+    [activeItem]
   );
 
   // Expose onSelect through externalContext so userland MenuItem components
@@ -122,6 +129,13 @@ const useMenuSetup: FactorySetupHook<MenuFactoryProps, MenuFactoryRef, MenuState
     [menuItemWiring]
   );
 
+  const wrap = useCallback(
+    (children: ReactNode) => (
+      <MenuProvider value={menuContext}>{children}</MenuProvider>
+    ),
+    [menuContext]
+  );
+
   const refApi = useMemo<MenuFactoryRef>(
     () => ({
       getActiveItem: () => activeItem,
@@ -134,6 +148,7 @@ const useMenuSetup: FactorySetupHook<MenuFactoryProps, MenuFactoryRef, MenuState
     state,
     externalContext,
     middlewares,
+    wrap,
     refApi,
   };
 };

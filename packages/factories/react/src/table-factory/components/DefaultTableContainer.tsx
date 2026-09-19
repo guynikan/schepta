@@ -153,7 +153,7 @@ export function DefaultTableContainer({
         aria-multiselectable={selectionMode === 'multiple' || undefined}
         aria-label={ariaLabel || 'Table'}
         aria-busy={loading || undefined}
-        aria-rowcount={hasRows ? rows.length : undefined}
+        aria-rowcount={hasRows ? rows.length + 1 : undefined}
         style={tableStyle}
       >
         {caption ? (

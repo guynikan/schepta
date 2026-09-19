@@ -7,8 +7,8 @@
  */
 
 import React from 'react';
-import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/react';
 import { MenuFactory } from './menu-factory';
 
 const twoLevelMenu = {
@@ -85,5 +85,37 @@ describe('MenuFactory', () => {
     const dashboardLink = getByText('Dashboard').closest('a');
     expect(dashboardLink).not.toBeNull();
     expect(dashboardLink?.getAttribute('href')).toBe('/dashboard');
+  });
+
+  it('updates aria-current to follow the selected item', () => {
+    const { getByText } = render(<MenuFactory schema={twoLevelMenu} />);
+    const dashboard = getByText('Dashboard').closest('a')!;
+    const settings = getByText('Settings').closest('a')!;
+
+    expect(dashboard).not.toHaveAttribute('aria-current');
+    fireEvent.click(dashboard);
+    expect(dashboard).toHaveAttribute('aria-current', 'page');
+
+    fireEvent.click(settings);
+    expect(dashboard).not.toHaveAttribute('aria-current');
+    expect(settings).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('calls the latest onSelect after a rerender', () => {
+    const firstOnSelect = vi.fn();
+    const secondOnSelect = vi.fn();
+    const { rerender, getByText } = render(
+      <MenuFactory schema={twoLevelMenu} onSelect={firstOnSelect} />
+    );
+
+    rerender(<MenuFactory schema={twoLevelMenu} onSelect={secondOnSelect} />);
+    fireEvent.click(getByText('Dashboard'));
+
+    expect(firstOnSelect).not.toHaveBeenCalled();
+    expect(secondOnSelect).toHaveBeenCalledWith({
+      key: 'dashboard',
+      label: 'Dashboard',
+      href: '/dashboard',
+    });
   });
 });

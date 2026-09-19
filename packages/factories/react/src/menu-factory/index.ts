@@ -15,3 +15,10 @@ export {
 } from './components';
 
 export { defaultMenuComponents } from './defaults';
+
+export {
+  MenuProvider,
+  useMenuContext,
+  useOptionalMenuContext,
+  type MenuContextValue,
+} from './context';
