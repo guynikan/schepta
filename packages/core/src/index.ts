@@ -40,3 +40,5 @@ export * from './utils/jexl-config';
 // Validation
 export * from './validation';
 
+// Semantic Generative UI core
+export * from './generative-ui';
