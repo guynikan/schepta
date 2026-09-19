@@ -24,6 +24,7 @@ import {
   resolveUiInputProps,
   validateUiInputBehavior,
   validateUiSpec,
+  semanticUiCatalog,
   type JsonValue,
   type UiAction,
   type UiElement,
@@ -146,7 +147,8 @@ export function assertRenderableUiSpec(spec: UiSpec): void {
     }
   }
   const report = validateUiSpec(spec, {
-    rendererCapabilities: { components: VUE_VUETIFY_COMPONENTS },
+    catalog: semanticUiCatalog,
+    rendererCapabilities: { components: VUE_VUETIFY_COMPONENTS, actions: ['submit', 'change'] },
   });
   if (!report.valid) {
     throw new UiSpecRenderError(
@@ -359,7 +361,7 @@ export function createVueVuetifyRenderer(): Component {
         switch (element.component as VueVuetifyComponent) {
           case 'Page': {
             const title = values.title ? h('h1', { class: 'ui-page__title' }, String(values.title)) : null;
-            const subtitle = values.subtitle ? h('p', { class: 'ui-page__subtitle' }, String(values.subtitle)) : null;
+            const subtitle = values.description ? h('p', { class: 'ui-page__subtitle' }, String(values.description)) : null;
             return h(VContainer, { ...attrs, class: 'ui-page', fluid: values.fluid === true }, {
               default: () => [title, subtitle, ...children],
             });
@@ -383,7 +385,7 @@ export function createVueVuetifyRenderer(): Component {
             }, { default: () => [...status, ...children] });
           }
           case 'Stack': {
-            const direction = values.direction === 'horizontal' ? 'row' : 'column';
+            const direction = values.orientation === 'horizontal' ? 'row' : 'column';
             return h(VContainer, {
               ...attrs,
               class: ['ui-stack', `ui-stack--${direction}`],
@@ -408,10 +410,10 @@ export function createVueVuetifyRenderer(): Component {
               name: values.name ?? id,
               label: values.label,
               placeholder: values.placeholder,
-              type: values.type ?? 'text',
+              type: values.inputType ?? 'text',
               modelValue: valueFor(id, element),
               disabled: values.disabled === true,
-              readonly: values.readonly === true,
+              readonly: values.readOnly === true,
               required: values.required === true,
               hint: values.helpText,
               persistentHint: Boolean(values.helpText),
@@ -431,7 +433,7 @@ export function createVueVuetifyRenderer(): Component {
               items: options,
               modelValue: valueFor(id, element),
               disabled: values.disabled === true,
-              readonly: values.readonly === true,
+              readonly: values.readOnly === true,
               required: values.required === true,
               hint: values.helpText,
               persistentHint: Boolean(values.helpText),
@@ -454,7 +456,7 @@ export function createVueVuetifyRenderer(): Component {
               label: values.label,
               modelValue: valueFor(id, element),
               disabled: values.disabled === true,
-              readonly: values.readonly === true,
+              readonly: values.readOnly === true,
               errorMessages: inputMessagesFor(id, element),
               hint: values.helpText,
               persistentHint: Boolean(values.helpText),
@@ -479,11 +481,11 @@ export function createVueVuetifyRenderer(): Component {
             });
           }
           case 'Button': {
-            const variant = values.variant === 'primary' || values.variant === undefined ? 'elevated' : values.variant === 'danger' ? 'flat' : values.variant;
+            const variant = values.kind === 'primary' || values.kind === undefined ? 'elevated' : values.kind === 'danger' ? 'flat' : 'outlined';
             return h(VBtn, {
               ...attrs,
-              type: values.type ?? 'button',
-              color: values.variant === 'danger' ? 'error' : values.variant === 'primary' ? 'primary' : undefined,
+              type: values.submit === true ? 'submit' : 'button',
+              color: values.kind === 'danger' ? 'error' : values.kind === 'primary' ? 'primary' : undefined,
               variant,
               disabled: values.disabled === true,
               loading: isLoading(id, element),
@@ -492,7 +494,7 @@ export function createVueVuetifyRenderer(): Component {
           }
           case 'Alert': {
             if (dismissedAlerts[id]) return null;
-            const tone = ['info', 'success', 'warning', 'error'].includes(String(values.tone)) ? String(values.tone) : 'info';
+            const tone = ['info', 'success', 'warning', 'error'].includes(String(values.severity)) ? String(values.severity) : 'info';
             return h(VAlert as any, {
               ...attrs,
               type: tone,

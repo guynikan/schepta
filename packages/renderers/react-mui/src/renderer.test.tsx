@@ -140,6 +140,11 @@ describe('UiSpecRenderer', () => {
     }
   });
 
+  it('rejects props outside the shared semantic contract before rendering', () => {
+    const spec = { ...onboardingSpec, elements: { ...onboardingSpec.elements, name: { ...onboardingSpec.elements.name, props: { label: 'Name', variant: 'outlined' } } } };
+    expect(() => render(<UiSpecRenderer spec={spec} />)).toThrow(UiSpecRenderError);
+  });
+
   it('exposes the structured validation report and does not render invalid bindings', () => {
     const spec = { ...onboardingSpec, elements: { ...onboardingSpec.elements, name: { ...onboardingSpec.elements.name, bindings: { value: 'missing' } } } };
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);

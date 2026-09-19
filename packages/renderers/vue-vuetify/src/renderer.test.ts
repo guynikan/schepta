@@ -45,10 +45,10 @@ function onboardingSpec(): UiSpec {
         props: { label: 'Accept terms', required: true },
         bindings: { checked: 'termsValue' },
       },
-      status: { component: 'Alert', props: { message: 'Your profile is private.', tone: 'info' } },
+      status: { component: 'Alert', props: { message: 'Your profile is private.', severity: 'info' } },
       submit: {
         component: 'Button',
-        props: { label: 'Continue', variant: 'primary' },
+        props: { label: 'Continue', kind: 'primary' },
         actions: { press: 'saveProfile' },
       },
     },
@@ -65,7 +65,7 @@ function onboardingSpec(): UiSpec {
       termsValue: { path: 'state.terms', mode: 'twoWay' },
     },
     actions: {
-      saveProfile: { action: 'save-profile' },
+      saveProfile: { action: 'submit' },
     },
   };
 }
@@ -100,7 +100,7 @@ describe('Vue + Vuetify UiSpec renderer', () => {
     const received: UiActionContext[] = [];
     const handler = vi.fn((context: UiActionContext) => received.push(context));
     const wrapper = mountRenderer(onboardingSpec(), {
-      actionHandlers: { 'save-profile': handler },
+      actionHandlers: { submit: handler },
     });
 
     expect((wrapper.vm as any).validate()).toBe(false);
@@ -117,7 +117,7 @@ describe('Vue + Vuetify UiSpec renderer', () => {
     await wrapper.find('[data-ui-id="terms"] input').setValue(true);
     await wrapper.find('[data-ui-id="submit"]').trigger('click');
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(received[0].action).toBe('save-profile');
+    expect(received[0].action).toBe('submit');
     expect(received[0].state.name).toBe('Ada');
   });
 
@@ -149,5 +149,11 @@ describe('Vue + Vuetify UiSpec renderer', () => {
     const spec = onboardingSpec();
     spec.elements.page.component = 'VCard';
     expect(() => mountRenderer(spec)).toThrow('Unknown semantic component "VCard"');
+  });
+
+  it('rejects props outside the shared semantic contract before rendering', () => {
+    const spec = onboardingSpec();
+    spec.elements.name.props = { label: 'Name', variant: 'outlined' };
+    expect(() => mountRenderer(spec)).toThrow('UiSpec rejected');
   });
 });

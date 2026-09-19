@@ -23,6 +23,7 @@ export const REACT_MUI_COMPONENTS = [
 export type ReactMuiComponent = (typeof REACT_MUI_COMPONENTS)[number];
 export const REACT_MUI_RENDERER_CAPABILITIES: RendererCapabilities = {
   components: REACT_MUI_COMPONENTS,
+  actions: ['submit', 'change'],
 };
 export type UiState = Record<string, JsonValue>;
 export type InputMessage = string | { message: string; severity?: 'error' | 'warning' | 'info' };
@@ -40,7 +41,7 @@ export type UiActionHandler = (context: UiActionContext) => void | Promise<void>
 
 export interface UiSpecRendererProps {
   spec: UiSpec;
-  /** Optional catalog used to validate the semantic spec before rendering. */
+  /** Optional additional catalog that may restrict, but never extend, the shared semantic contract. */
   catalog?: SemanticCatalog;
   /** Handlers keyed by either an action invocation id or semantic action id. */
   actions?: Record<string, UiActionHandler>;

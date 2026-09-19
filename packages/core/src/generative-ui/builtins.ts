@@ -23,11 +23,11 @@ const commonInputProps: Record<string, JsonSchema> = {
 };
 
 /**
- * The only vocabulary shipped by the React/MUI harness. It is intentionally
+ * The one vocabulary shipped by the Generative UI runtime. It is intentionally
  * semantic: renderer names and framework props never cross this boundary.
  */
-export const reactMuiCatalog: SemanticCatalog = createSemanticCatalog({
-  version: 'react-mui-1',
+export const semanticUiCatalog: SemanticCatalog = createSemanticCatalog({
+  version: '1.0',
   components: {
     Page: { propsSchema: { type: 'object', properties: { title: string, description: string }, additionalProperties: false }, slots: children },
     Form: { propsSchema: { type: 'object', properties: { title: string, description: string }, additionalProperties: false }, slots: children, actions: { submit: 'submit' } },
@@ -45,3 +45,6 @@ export const reactMuiCatalog: SemanticCatalog = createSemanticCatalog({
     change: { argsSchema: { type: 'object', additionalProperties: false } },
   },
 });
+
+/** @deprecated Use semanticUiCatalog. Kept as a compatibility alias. */
+export const reactMuiCatalog = semanticUiCatalog;

@@ -97,7 +97,7 @@ node packages/core/dist/ui-spec.mjs validate path/to/ui.json
 node packages/core/dist/ui-spec.mjs normalize path/to/ui.json
 ```
 
-`reactMuiCatalog` is the built-in vocabulary used by the harness. It preserves
+`semanticUiCatalog` is the built-in vocabulary used by both renderer adapters. It preserves
 the validation constraints represented by the MUI renderer (required,
 placeholder, min/max length, pattern, standardized input messages, state,
 bindings and declarative actions). FormSchema remains the separate original

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises';
-import { reactMuiCatalog } from './builtins';
+import { semanticUiCatalog } from './builtins';
 import { acceptUiSpec } from './repair';
 import { stringifyCanonicalUiSpec } from './canonicalize';
 import { validateUiSpec } from './validator';
@@ -17,17 +17,17 @@ async function readJson(file: string | undefined): Promise<unknown> {
 
 async function main(): Promise<void> {
   const [command, file] = process.argv.slice(2);
-  if (command === 'catalog') return void process.stdout.write(`${JSON.stringify(reactMuiCatalog, null, 2)}\n`);
-  if (command === 'schema') return void process.stdout.write(`${JSON.stringify({ version: '1.0', catalog: reactMuiCatalog, required: ['version', 'root', 'elements'] }, null, 2)}\n`);
+  if (command === 'catalog') return void process.stdout.write(`${JSON.stringify(semanticUiCatalog, null, 2)}\n`);
+  if (command === 'schema') return void process.stdout.write(`${JSON.stringify({ version: '1.0', catalog: semanticUiCatalog, required: ['version', 'root', 'elements'] }, null, 2)}\n`);
   const input = await readJson(file);
   if (command === 'validate') {
-    const report = validateUiSpec(input, { catalog: reactMuiCatalog });
+    const report = validateUiSpec(input, { catalog: semanticUiCatalog });
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     process.exitCode = report.valid ? 0 : 1;
     return;
   }
   if (command === 'normalize') {
-    const result = acceptUiSpec(input, { catalog: reactMuiCatalog });
+    const result = acceptUiSpec(input, { catalog: semanticUiCatalog });
     process.stdout.write(result.accepted && result.spec ? `${stringifyCanonicalUiSpec(result.spec)}\n` : `${JSON.stringify(result.report, null, 2)}\n`);
     process.exitCode = result.accepted ? 0 : 1;
     return;

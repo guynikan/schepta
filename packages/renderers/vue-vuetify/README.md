@@ -1,7 +1,7 @@
 # `@schepta/renderer-vue-vuetify`
 
-Vue + Vuetify renderer for Schepta's semantic `UiSpec` contract. The renderer
-accepts only the initial catalog components and keeps the generative contract
+Vue + Vuetify renderer for Schepta's shared semantic `UiSpec` contract. The renderer
+validates against `semanticUiCatalog` before mounting and keeps the generative contract
 independent of Vuetify-specific props.
 
 ```ts

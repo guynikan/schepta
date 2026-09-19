@@ -18,4 +18,4 @@ pnpm demo:build
 pnpm demo:type-check
 ```
 
-O runtime não depende de E2E: o fluxo real é o worker Codex usando a Skill para consultar o catálogo, produzir o artefato UiSpec e validar as correções estruturadas.
+O fluxo real é o worker Codex usando a Skill para consultar o catálogo, produzir o artefato UiSpec e validar as correções estruturadas.

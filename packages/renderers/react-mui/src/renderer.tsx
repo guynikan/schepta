@@ -18,8 +18,8 @@ import StackControl from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import type { JsonObject, JsonValue, UiAction, UiElement, UiSpec, UiValidationReport } from '@schepta/core';
-import { isUiElementVisible, reactMuiCatalog, resolveUiInputProps, validateUiInputBehavior, validateUiSpec } from '@schepta/core';
-import { REACT_MUI_COMPONENTS, type InputMessage, type ReactMuiComponent, type UiActionContext, type UiSpecRendererProps, type UiState } from './types';
+import { isUiElementVisible, resolveUiInputProps, semanticUiCatalog, validateUiInputBehavior, validateUiSpec } from '@schepta/core';
+import { REACT_MUI_COMPONENTS, REACT_MUI_RENDERER_CAPABILITIES, type InputMessage, type ReactMuiComponent, type UiActionContext, type UiSpecRendererProps, type UiState } from './types';
 
 const supportedComponents = new Set<string>(REACT_MUI_COMPONENTS);
 
@@ -157,8 +157,8 @@ function optionEntries(value: unknown): Array<{ value: string; label: string }> 
   });
 }
 
-function validateForRenderer(spec: UiSpec, catalog: UiSpecRendererProps['catalog'] = reactMuiCatalog): void {
-  const report = validateUiSpec(spec, { catalog });
+function validateForRenderer(spec: UiSpec, catalog?: UiSpecRendererProps['catalog']): void {
+  const report = validateUiSpec(spec, { catalog: semanticUiCatalog, rendererCapabilities: REACT_MUI_RENDERER_CAPABILITIES });
   if (!report.valid) {
     const unknownComponent = report.errors.find((error) => error.code === 'unknown-component');
     if (unknownComponent) {
@@ -167,6 +167,12 @@ function validateForRenderer(spec: UiSpec, catalog: UiSpecRendererProps['catalog
       throw new UiSpecRenderError(`Unknown UiSpec component "${component}" at element "${element}".`, report);
     }
     throw new UiSpecRenderError(`UiSpec is invalid: ${report.errors.map((error) => `${error.path} ${error.message}`).join('; ')}`, report);
+  }
+  if (catalog && catalog !== semanticUiCatalog) {
+    const additionalReport = validateUiSpec(spec, { catalog, rendererCapabilities: REACT_MUI_RENDERER_CAPABILITIES });
+    if (!additionalReport.valid) {
+      throw new UiSpecRenderError(`UiSpec is invalid: ${additionalReport.errors.map((error) => `${error.path} ${error.message}`).join('; ')}`, additionalReport);
+    }
   }
   for (const [id, element] of Object.entries(spec.elements)) {
     if (!supportedComponents.has(element.component)) {
