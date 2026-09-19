@@ -333,6 +333,9 @@ importers:
 
   packages/renderers/react-mui:
     dependencies:
+      '@schepta/core':
+        specifier: workspace:*
+        version: link:../../core
       '@emotion/react':
         specifier: ^11.11.0
         version: 11.14.0(@types/react@18.3.27)(react@18.3.1)
