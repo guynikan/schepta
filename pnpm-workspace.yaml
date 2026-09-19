@@ -1,5 +1,5 @@
 packages:
   - 'packages/**'
+  - 'examples/generative-ui'
   - 'tests'
   - 'docs'
-
