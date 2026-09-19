@@ -3,3 +3,7 @@ export * from './catalog';
 export * from './canonicalize';
 export * from './validator';
 export * from './repair';
+export * from './generation';
+export * from './model-provider';
+export * from './decision';
+export * from './fixtures';
