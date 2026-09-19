@@ -97,20 +97,53 @@ describe('model-backed semantic UI generation', () => {
   });
 
   it('keeps the TypeSafe key out of traces and supports injected fetch', async () => {
+    let requestUrl: string | undefined;
+    let requestBody: unknown;
     const provider = createTypeSafeJevDecisionProvider({
       apiKey: 'secret-key',
       fetch: async (_input, init) => {
         expect((init?.headers as Record<string, string>).authorization).toBe('Bearer secret-key');
-        return new Response(JSON.stringify({ answer: { selectedCandidateId: 'model', confidence: 0.91 } }), { status: 200 });
+        requestUrl = String(_input);
+        requestBody = JSON.parse(String(init?.body));
+        return new Response(JSON.stringify({
+          model: 'jev-latest',
+          answers: {
+            ui_candidate: {
+              type: 'choice',
+              choice: 'model',
+              probabilities: { model: 0.91, fallback: 0.09 },
+              confidence: 0.91,
+            },
+          },
+          usage: { input_tokens: 12, output_tokens: 0 },
+        }), { status: 200 });
       },
     });
     const decision = await provider.decide({
       question: 'Choose the valid UI',
-      context: {},
-      candidates: [{ id: 'model', spec: onboardingSpec }],
+      context: { surface: 'onboarding' },
+      candidates: [
+        { id: 'model', label: 'Model candidate', spec: onboardingSpec },
+        { id: 'fallback', label: 'Fallback candidate', spec: onboardingSpec },
+      ],
     });
 
+    expect(requestUrl).toBe('https://api.typesafe.ai/v1/systemone');
+    expect(requestBody).toEqual({
+      model: 'jev-latest',
+      state: { surface: 'onboarding' },
+      questions: {
+        ui_candidate: {
+          type: 'choice',
+          instructions: 'Choose the valid UI',
+          criteria: { model: 'Model candidate', fallback: 'Fallback candidate' },
+        },
+      },
+    });
     expect(decision.selectedCandidateId).toBe('model');
+    expect(decision.probabilities).toEqual({ model: 0.91, fallback: 0.09 });
+    expect(decision.confidence).toBe(0.91);
+    expect(decision.usage).toEqual({ inputTokens: 12, outputTokens: 0 });
     expect(JSON.stringify(decision)).not.toContain('secret-key');
   });
 });
