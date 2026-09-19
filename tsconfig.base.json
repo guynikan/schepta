@@ -23,8 +23,9 @@
       "@schepta/adapter-vue": ["./packages/adapters/vue/src"],
       "@schepta/factory-vanilla": ["./packages/factories/vanilla/src"],
       "@schepta/factory-react": ["./packages/factories/react/src"],
-      "@schepta/factory-vue": ["./packages/factories/vue/src"]
+      "@schepta/factory-vue": ["./packages/factories/vue/src"],
+      "@schepta/renderer-react-mui": ["./packages/renderers/react-mui/src"],
+      "@schepta/renderer-vue-vuetify": ["./packages/renderers/vue-vuetify/src"]
     }
   }
 }
-
