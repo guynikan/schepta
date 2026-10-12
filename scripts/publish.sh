@@ -42,7 +42,7 @@ else
   echo "🧪 Running required unit tests before publishing..."
   pnpm test
   echo "🧪 Running required E2E tests before publishing..."
-  pnpm test:e2e
+  CI=1 pnpm test:e2e
   echo "✅ Unit and E2E publish gates passed."
 fi
 echo ""

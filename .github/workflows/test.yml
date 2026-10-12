@@ -90,6 +90,6 @@ jobs:
         with:
           name: playwright-${{ matrix.project }}
           path: |
-            playwright-report/
+            tests/playwright-report/
             test-results/
           retention-days: 7
