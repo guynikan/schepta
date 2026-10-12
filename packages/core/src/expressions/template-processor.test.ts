@@ -2,14 +2,27 @@
  * Template Processor Tests
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import jexl from 'jexl';
 import {
   processTemplateString,
   processTemplateExpression,
   processValue,
   needsProcessing,
 } from './template-processor';
-import { createDefaultResolver, type ResolverContext } from './variable-resolver';
+import { createCustomResolver, createDefaultResolver, type ResolverContext } from './variable-resolver';
+import {
+  createExpressionDiagnostics,
+  ScheptaExpressionError,
+  type ExpressionDiagnosticDetails,
+} from './diagnostics';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+// Form inputs produce strings, so this transform throws a TypeError for them.
+jexl.addTransform('money', (value: number) => value.toFixed(2));
 
 describe('Template Processor', () => {
   const context: ResolverContext = {
@@ -417,5 +430,632 @@ describe('Template Processor', () => {
       expect(result).toBe(false);
     });
   });
-});
 
+  describe('expression diagnostics', () => {
+    function diagnosticContext(
+      diagnostics: ExpressionDiagnosticDetails[],
+      strict = false,
+    ): ResolverContext {
+      return {
+        externalContext: {},
+        formValues: {},
+        declaredFormPaths: new Set(['email']),
+        diagnostics: createExpressionDiagnostics({
+          onError: strict ? 'throw' : 'warn',
+          onExpressionError: error => diagnostics.push({
+            code: error.code,
+            expression: error.expression,
+            path: error.path,
+            missingPath: error.missingPath,
+          }),
+        }),
+      };
+    }
+
+    it('reports syntax errors once with their expression and schema usage path', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+      const value = { 'x-ui': { visible: '{{ 1 === }}' } };
+
+      expect(processValue(value, diagnosticResolver, diagnosticContextValue)).toEqual({
+        'x-ui': { visible: undefined },
+      });
+      expect(diagnostics).toEqual([expect.objectContaining({
+        code: 'EXPRESSION_EVALUATION_ERROR',
+        expression: '1 ===',
+        path: 'x-ui.visible',
+      })]);
+    });
+
+    it('reports unknown roots and missing paths without changing default resolution', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+
+      expect(processValue({ unknown: '{{ $typo.value }}', missing: '{{ $formValues.emial }}' }, diagnosticResolver, diagnosticContextValue)).toEqual({
+        unknown: undefined,
+        missing: undefined,
+      });
+      expect(diagnostics).toEqual([
+        expect.objectContaining({
+          code: 'UNKNOWN_EXPRESSION_VARIABLE', expression: '$typo.value', path: 'unknown',
+        }),
+        expect.objectContaining({
+          code: 'EXPRESSION_PATH_NOT_FOUND', expression: '$formValues.emial', path: 'missing', missingPath: '$formValues.emial',
+        }),
+      ]);
+    });
+
+    it('checks references inside comparisons and keeps strict error details', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const context = diagnosticContext(diagnostics, true);
+      const resolver = createDefaultResolver(context);
+
+      expect(() => processValue("{{ $formValues.emial === 'a' }}", resolver, context, 'x-ui.visible')).toThrow(
+        expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.emial' }),
+      );
+      expect(diagnostics).toEqual([expect.objectContaining({
+        code: 'EXPRESSION_PATH_NOT_FOUND', path: 'x-ui.visible', missingPath: '$formValues.emial',
+      })]);
+    });
+
+    it('keeps declared but empty fields quiet and preserves undefined behavior', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+
+      expect(processValue('{{ $formValues.email }}', diagnosticResolver, diagnosticContextValue, 'x-ui.label')).toBeUndefined();
+      expect(diagnostics).toEqual([]);
+    });
+
+    it('deduplicates repeated diagnostics and throws typed errors only in strict mode', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+      const value = '{{ $formValues.emial }}';
+
+      processValue(value, diagnosticResolver, diagnosticContextValue, 'x-ui.disabled');
+      processValue(value, diagnosticResolver, diagnosticContextValue, 'x-ui.disabled');
+      expect(diagnostics).toHaveLength(1);
+
+      const strictDiagnostics: ExpressionDiagnosticDetails[] = [];
+      const strictContext = diagnosticContext(strictDiagnostics, true);
+      expect(() => processValue(value, createDefaultResolver(strictContext), strictContext, 'x-ui.required')).toThrow(ScheptaExpressionError);
+      expect(strictDiagnostics[0]).toMatchObject({
+        code: 'EXPRESSION_PATH_NOT_FOUND', expression: '$formValues.emial', path: 'x-ui.required',
+      });
+
+      expect(() => processValue(value, createDefaultResolver(strictContext), strictContext, 'x-ui.required')).toThrow(ScheptaExpressionError);
+      expect(() => processValue(value, createDefaultResolver(strictContext), strictContext, 'x-ui.required')).toThrow(ScheptaExpressionError);
+    });
+
+    it('keeps the value main produced for invalid conditions and reports each location', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+      const value = {
+        'x-ui': {
+          visible: '{{ $formValues.emial }}',
+          disabled: '{{ $formValues.emial }}',
+          required: '{{ $formValues.emial }}',
+        },
+      };
+
+      expect(processValue(value, diagnosticResolver, diagnosticContextValue)).toEqual({
+        'x-ui': { visible: undefined, disabled: undefined, required: undefined },
+      });
+      expect(diagnostics.map(error => error.path)).toEqual([
+        'x-ui.visible', 'x-ui.disabled', 'x-ui.required',
+      ]);
+    });
+
+    it('does not diagnose missing references hidden by a fallback or string literal', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+
+      expect(processValue("{{ $externalContext.locale || 'en' }}", diagnosticResolver, diagnosticContextValue)).toBe('en');
+      expect(processValue("{{ '$USD' }}", diagnosticResolver, diagnosticContextValue)).toBe('$USD');
+      expect(diagnostics).toEqual([]);
+    });
+
+    it('classifies invalid non-comparison syntax as an evaluation error', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+
+      expect(processValue('{{ $formValues.email + }}', createDefaultResolver(diagnosticContextValue), diagnosticContextValue)).toBeUndefined();
+      expect(diagnostics).toEqual([expect.objectContaining({
+        code: 'EXPRESSION_EVALUATION_ERROR', expression: '$formValues.email +',
+      })]);
+    });
+
+    it('blocks prototype-chain segments before JEXL can expose constructors', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const context = diagnosticContext(diagnostics);
+
+      expect(processValue(
+        '{{ $formValues.constructor.constructor }}',
+        createDefaultResolver(context),
+        context,
+        'x-ui.visible',
+      )).toBeUndefined();
+      expect(diagnostics).toEqual([expect.objectContaining({
+        code: 'EXPRESSION_PATH_NOT_FOUND',
+        missingPath: '$formValues.constructor.constructor',
+        path: 'x-ui.visible',
+      })]);
+    });
+
+    it('preserves custom resolver context while processValue supplies runtime values', () => {
+      const customResolver = createCustomResolver(
+        { externalContext: {}, formValues: {}, i18n: { title: 'T' } },
+        { '$i18n': (path, resolverContext) => resolverContext.i18n[path] },
+      );
+
+      expect(processValue('{{ $i18n.title }}', customResolver, { externalContext: {}, formValues: {} })).toBe('T');
+    });
+  });
+  describe('diagnostics as a side channel', () => {
+    type Seen = Pick<ExpressionDiagnosticDetails, 'code' | 'missingPath'>;
+
+    function setup(overrides: Partial<ResolverContext> = {}, strict = false) {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const seen: Seen[] = [];
+      const context: ResolverContext = {
+        externalContext: { user: { name: 'x', profile: null } },
+        formValues: {},
+        declaredFormPaths: new Set(['email', 'items']),
+        ...overrides,
+        diagnostics: createExpressionDiagnostics({
+          onError: strict ? 'throw' : 'warn',
+          onExpressionError: error => seen.push({
+            code: error.code,
+            ...(error.missingPath ? { missingPath: error.missingPath } : {}),
+          }),
+        }),
+      };
+      const run = (value: unknown, resolver = createDefaultResolver(context)) => processValue(value, resolver, context);
+      return { context, run, seen };
+    }
+
+    const missing = (missingPath: string): Seen => ({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath });
+    const unknown: Seen = { code: 'UNKNOWN_EXPRESSION_VARIABLE' };
+
+    it('warns about optional $externalContext keys without changing the condition', () => {
+      const { run, seen } = setup();
+
+      expect(run('{{ $externalContext.user.isAdmin == true }}')).toBe(false);
+      expect(run("{{ $externalContext.user.role != 'admin' }}")).toBe(true);
+      expect(run("{{ $externalContext.user.nickname != 'x' }}")).toBe(true);
+      expect(seen).toEqual([
+        missing('$externalContext.user.isAdmin'),
+        missing('$externalContext.user.role'),
+        missing('$externalContext.user.nickname'),
+      ]);
+    });
+
+    it('accepts a null guard over an optional $externalContext key', () => {
+      const { run, seen } = setup();
+
+      expect(run('{{ $externalContext.user.profile && $externalContext.user.profile.bio }}')).toBeNull();
+      expect(run("{{ $externalContext.user.profile ? $externalContext.user.profile.bio : '' }}")).toBe('');
+      expect(seen).toEqual([]);
+    });
+
+    it('never throws for a missing path below an existing $externalContext key', () => {
+      const { run, seen } = setup({}, true);
+
+      expect(run('{{ $externalContext.user.isAdmin == true }}')).toBe(false);
+      expect(run('{{ $externalContext.user.isAdmin }}')).toBeUndefined();
+      expect(seen).toEqual([missing('$externalContext.user.isAdmin'), missing('$externalContext.user.isAdmin')]);
+      expect(() => run('{{ $externalContext.session.id }}')).toThrow(
+        expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$externalContext.session.id' }),
+      );
+      expect(() => run('{{ $externalContext.session.id == 1 }}')).toThrow(ScheptaExpressionError);
+    });
+
+    it('reports typos and unknown roots anywhere in a ternary', () => {
+      const { run, seen } = setup();
+
+      expect(run("{{ $formValues.emial ? 'a' : 'b' }}")).toBe('b');
+      expect(run("{{ $session.admin ? 'a' : 'b' }}")).toBe('b');
+      expect(run("{{ $formValues.emial === 'x' ? 'a' : 'b' }}")).toBe('b');
+      expect(run("{{ $formValues.email == 'x' ? $formValues.nmae : $session.id }}")).toBeUndefined();
+      expect(seen).toEqual([
+        missing('$formValues.emial'), unknown, missing('$formValues.emial'), missing('$formValues.nmae'), unknown,
+      ]);
+    });
+
+    it('throws for ternary and bracket typos in strict mode with the diagnostic details', () => {
+      const { run, seen } = setup({}, true);
+
+      for (const expression of [
+        "{{ $formValues.emial ? 'a' : 'b' }}",
+        "{{ $formValues.emial === 'x' ? 'a' : 'b' }}",
+        "{{ $formValues['emial'] == 1 }}",
+        "{{ $formValues['emial'] }}",
+      ]) {
+        expect(() => run(expression)).toThrow(
+          expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.emial' }),
+        );
+        // Strict mode throws every time, not only on the first report.
+        expect(() => run(expression)).toThrow(ScheptaExpressionError);
+      }
+      expect(() => run("{{ $session.admin ? 'a' : 'b' }}")).toThrow(
+        expect.objectContaining({ code: 'UNKNOWN_EXPRESSION_VARIABLE' }),
+      );
+      expect(seen).toHaveLength(5);
+    });
+
+    it('guards only the left operand of || and &&, and explicit null comparisons', () => {
+      const { run, seen } = setup();
+
+      expect(run("{{ $formValues.emial || 'fallback' }}")).toBe('fallback');
+      expect(run('{{ $formValues.emial && $formValues.emial.length > 2 }}')).toBeUndefined();
+      expect(run('{{ $formValues.emial == null }}')).toBe(true);
+      expect(run('{{ $formValues.emial != undefined }}')).toBe(false);
+      expect(seen).toEqual([]);
+
+      expect(run("{{ 'fallback' || $formValues.emial }}")).toBe('fallback');
+      expect(run('{{ !$formValues.emial }}')).toBe(true);
+      expect(seen).toEqual([missing('$formValues.emial'), missing('$formValues.emial')]);
+    });
+
+    it('never lets a guard excuse an unknown root', () => {
+      const { run, seen } = setup();
+
+      expect(run("{{ $session.locale || 'en' }}")).toBe('en');
+      expect(run('{{ $session.user && $session.user.id }}')).toBeUndefined();
+      expect(run('{{ $session.user == null }}')).toBe(true);
+      expect(run("{{ $formValues.email == admin }}")).toBe(true);
+      expect(seen).toEqual([unknown, unknown, unknown, unknown]);
+    });
+
+    it('keeps resolving keys that contain operator characters, quietly', () => {
+      const { run, seen } = setup({
+        externalContext: { 'a/b': 7, 'x+y': 8, 'api-url': 'https://api' },
+        formValues: { 'a-b': 5 },
+        declaredFormPaths: new Set(['a-b', 'c-d']),
+      }, true);
+
+      expect(run('{{ $externalContext.a/b }}')).toBe(7);
+      expect(run('{{ $externalContext.x+y }}')).toBe(8);
+      expect(run('{{ $externalContext.api-url }}')).toBe('https://api');
+      expect(run('URL: {{ $externalContext.api-url }}/v1')).toBe('URL: https://api/v1');
+      expect(run('{{ $formValues.a-b }}')).toBe(5);
+      // Declared, still empty, and never mistaken for a subtraction.
+      expect(run('{{ $formValues.c-d }}')).toBeUndefined();
+      expect(seen).toEqual([]);
+    });
+
+    it('does not turn a missing operator-character key into NaN', () => {
+      const { run, seen } = setup({ externalContext: { a: 4 } });
+
+      expect(run('{{ $externalContext.a/b }}')).toBeUndefined();
+      expect(run('Rate: {{ $externalContext.a/b }}')).toBe('Rate: ');
+      // `b` is not a variable; the same problem at the same place is reported once.
+      expect(seen).toEqual([unknown]);
+    });
+
+    it('works with createCustomResolver roots', () => {
+      const { context, run, seen } = setup({}, true);
+      const resolver = createCustomResolver(context, {
+        $i18n: path => `T(${path})`,
+        $now: () => 'NOW',
+        $optional: () => undefined,
+      });
+
+      expect(run('{{ $i18n.hello }}', resolver)).toBe('T(hello)');
+      expect(run('Hi {{ $i18n.hello }} {{ $now }}', resolver)).toBe('Hi T(hello) NOW');
+      expect(run('{{ $optional.anything }}', resolver)).toBeUndefined();
+      // JEXL never saw custom roots, so the comparison keeps its historical value.
+      expect(run("{{ $i18n.hello == 'T(hello)' }}", resolver)).toBe(false);
+      expect(seen).toEqual([]);
+
+      expect(() => run('{{ $i18n.hello }}')).toThrow(expect.objectContaining({ code: 'UNKNOWN_EXPRESSION_VARIABLE' }));
+      expect(() => run('{{ $typo.hello }}', resolver)).toThrow(ScheptaExpressionError);
+    });
+
+    it('accepts array index and filter access in both spellings', () => {
+      const { run, seen } = setup({ formValues: { items: [{ name: 'x', price: 2 }] } }, true);
+
+      expect(run('{{ $formValues.items[0].name }}')).toBe('x');
+      expect(run("{{ $formValues.items[0].name == 'x' }}")).toBe(true);
+      expect(run('{{ $formValues.items[.price > 1][0].name }}')).toBe('x');
+      expect(run('{{ $formValues.items[.price > 1] }}')).toEqual([{ name: 'x', price: 2 }]);
+      expect(seen).toEqual([]);
+    });
+
+    it('stays quiet for an index into a declared array that is still empty', () => {
+      const { run, seen } = setup({}, true);
+
+      expect(run('{{ $formValues.items[0].name }}')).toBeUndefined();
+      expect(run("{{ $formValues.items[0].name == 'x' }}")).toBeUndefined();
+      expect(seen).toEqual([]);
+      expect(() => run('{{ $formValues.itms[0].name }}')).toThrow(
+        expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.itms' }),
+      );
+    });
+
+    it('reads get-only Proxy and class-instance contexts', () => {
+      class Account {
+        get fullName() { return 'Ada Lovelace'; }
+      }
+      const proxy = new Proxy({}, { get: (_, key) => `P:${String(key)}` });
+      const { run, seen } = setup({ externalContext: { proxy, account: new Account() } }, true);
+
+      expect(run('{{ $externalContext.proxy.anything }}')).toBe('P:anything');
+      expect(run("{{ $externalContext.proxy.anything == 'P:anything' }}")).toBe(true);
+      expect(run('{{ $externalContext.account.fullName }}')).toBe('Ada Lovelace');
+      expect(run("{{ $externalContext.account.fullName == 'Ada Lovelace' }}")).toBe(true);
+      expect(seen).toEqual([]);
+    });
+
+    it('accepts a group that contains declared fields', () => {
+      const { run, seen } = setup({ declaredFormPaths: new Set(['userInfo.firstName']) }, true);
+
+      expect(run('{{ $formValues.userInfo }}')).toBeUndefined();
+      expect(run('{{ $formValues.userInfo.firstName.length > 2 }}')).toBe(false);
+      expect(seen).toEqual([]);
+    });
+
+    it('forces undefined only for forbidden segments', () => {
+      const { run, seen } = setup({ formValues: { email: 'a@b.c' } });
+
+      expect(run('{{ $formValues.constructor.name }}')).toBeUndefined();
+      expect(run("{{ $formValues['constructor'] }}")).toBeUndefined();
+      expect(run("{{ $formValues.email.prototype || 'x' }}")).toBeUndefined();
+      expect(seen).toEqual([
+        missing('$formValues.constructor.name'),
+        missing('$formValues.constructor'),
+        missing('$formValues.email.prototype'),
+      ]);
+    });
+
+    describe.each([
+      ['warn', false],
+      ['strict', true],
+    ] as const)('empty values behind an index (%s mode)', (_mode, strict) => {
+      const evaluationError: Seen = { code: 'EXPRESSION_EVALUATION_ERROR' };
+
+      it('only warns when an existing $externalContext key is null', () => {
+        const { run, seen } = setup({ externalContext: { products: null } }, strict);
+
+        expect(run('{{ $externalContext.products[0].name }}')).toBeUndefined();
+        expect(run('First: {{ $externalContext.products[0].name }}')).toBe('First: ');
+        expect(run("{{ $externalContext.products[0].name == 'x' }}")).toBeUndefined();
+        // The same expression at the same place is reported once.
+        expect(seen).toEqual([missing('$externalContext.products'), missing('$externalContext.products')]);
+      });
+
+      it('stays quiet for a declared field that is null', () => {
+        const { run, seen } = setup({
+          formValues: { profile: { nickname: null }, items: null },
+          declaredFormPaths: new Set(['profile.nickname', 'items']),
+        }, strict);
+
+        expect(run('{{ $formValues.profile.nickname[0] }}')).toBeUndefined();
+        expect(run('Hi {{ $formValues.profile.nickname[0] }}')).toBe('Hi ');
+        expect(run('{{ $formValues.items[0].name }}')).toBeUndefined();
+        expect(run("{{ $formValues.items[0].name == 'x' }}")).toBeUndefined();
+        expect(seen).toEqual([]);
+      });
+
+      it('treats null exactly like undefined', () => {
+        for (const empty of [null, undefined]) {
+          const { run, seen } = setup({
+            externalContext: { products: empty, user: { orders: empty } },
+            formValues: { items: empty, other: empty },
+          }, strict);
+
+          expect(run('{{ $formValues.items[0].name }}')).toBeUndefined();
+          expect(run("{{ $externalContext.user.orders[0].id == 1 }}")).toBeUndefined();
+          expect(seen).toEqual([missing('$externalContext.user.orders')]);
+
+          // Not declared, so an index into it is a hard problem either way.
+          const undeclared = () => run('{{ $formValues.other[0] }}');
+          if (strict) {
+            expect(undeclared).toThrow(expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.other' }));
+          } else {
+            expect(undeclared()).toBeUndefined();
+            expect(seen).toContainEqual(missing('$formValues.other'));
+          }
+        }
+      });
+
+      it('does not blame the expression for an empty value deeper in the data', () => {
+        const { run, seen } = setup({
+          externalContext: { list: [{ name: 'x' }] },
+          formValues: { items: [{ name: 'x' }] },
+        }, strict);
+
+        expect(run('{{ $formValues.items[0].tags[1] }}')).toBeUndefined();
+        expect(run("{{ $formValues.items[0].tags[1] == 'a' }}")).toBeUndefined();
+        expect(seen).toEqual([]);
+        // A filter reads each item; an index that finds nothing in one of them is empty data too.
+        expect(run("{{ $formValues.items[.tags[0] == 'a'] }}")).toBeUndefined();
+        expect(seen).toEqual([]);
+        // The value that is empty is reported, not the root that is there.
+        expect(run('{{ $externalContext.list[0].tags[1] }}')).toBeUndefined();
+        expect(run("{{ $externalContext.list[0].tags[1] == 'a' }}")).toBeUndefined();
+        expect(seen).toEqual([missing('$externalContext.list[0].tags'), missing('$externalContext.list[0].tags')]);
+      });
+
+      it.each([
+        ['a declared field', '$formValues.items[0].price|money'],
+        ['external data', '$externalContext.products[0].price|money'],
+        ['a comparison', "$formValues.items[0].price|money == '10.00'"],
+        ['a filter', "$formValues.items[.price|money == '10.00'][0].price"],
+        ['an index expression', '$formValues.items[$formValues.items[0].price|money]'],
+        ['the branch a ternary takes', "$formValues.items[0].price ? $formValues.items[0].price|money : $formValues.items[0].none[0]"],
+        ['a value next to an empty index', "$formValues.items[0].price|money || $formValues.items[0].none[0]"],
+      ])('reports a transform that throws behind an index in %s as an evaluation error', (_label, expression) => {
+        const { run, seen } = setup({
+          externalContext: { products: [{ price: '10' }] },
+          formValues: { items: [{ price: '10' }] },
+        }, strict);
+        const evaluate = () => run(`{{ ${expression} }}`);
+
+        if (strict) {
+          expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+        } else {
+          expect(evaluate()).toBeUndefined();
+          expect(run(`Total: {{ ${expression} }}`)).toBe('Total: ');
+        }
+        expect(seen).toEqual([evaluationError]);
+      });
+
+      it('reports a TypeError that is not an empty index as an evaluation error', () => {
+        const row = { get price(): number { throw new TypeError('price is broken'); } };
+        const { run, seen } = setup({ externalContext: { products: [row] }, formValues: { items: [row] } }, strict);
+
+        for (const expression of ['$formValues.items[0].price', '$externalContext.products[0].price == 1']) {
+          const evaluate = () => run(`{{ ${expression} }}`);
+          if (strict) {
+            expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+          } else {
+            expect(evaluate()).toBeUndefined();
+          }
+        }
+        expect(seen).toEqual([evaluationError, evaluationError]);
+      });
+
+      it('evaluates a transform behind an index when it does not throw', () => {
+        const { run, seen } = setup({ formValues: { items: [{ price: 10 }] } }, strict);
+
+        expect(run('{{ $formValues.items[0].price|money }}')).toBe('10.00');
+        expect(seen).toEqual([]);
+      });
+
+      it('evaluates an index below a declared field the same with and without declared paths', () => {
+        const formValues = { deep: { list: [{ v: 1 }, { v: 2 }] } };
+        const declared = setup({ formValues, declaredFormPaths: new Set(['deep']) }, strict);
+        const undeclared = setup({ formValues, declaredFormPaths: undefined }, strict);
+
+        for (const { run } of [declared, undeclared]) {
+          expect(run('{{ $formValues.deep.list[1].v }}')).toBe(2);
+          expect(run('{{ $formValues.deep.list[1].v*2 }}')).toBe(4);
+        }
+        // Nothing there yet: an empty key of the declared field, and quiet.
+        expect(declared.run('{{ $formValues.deep.list[5].v }}')).toBeUndefined();
+        expect(declared.run('{{ $formValues.deep.other[1].v }}')).toBeUndefined();
+        expect(declared.seen).toEqual([]);
+        expect(undeclared.seen).toEqual([]);
+      });
+
+      it('warns when a guard cannot protect an index into null external data', () => {
+        const { run, seen } = setup({ externalContext: { products: null } }, strict);
+
+        expect(run("{{ $externalContext.products[0].name || 'none' }}")).toBeUndefined();
+        expect(seen).toEqual([missing('$externalContext.products')]);
+      });
+
+      it.each([
+        ['a method on a declared field with a value', '$formValues.email.toUpperCase()'],
+        ['a method on a declared field that is empty', '$formValues.items.join()'],
+        ['a method on a typo', '$formValues.emial.trim()'],
+        ['a function from $externalContext', '$externalContext.fn()'],
+        ['a method on a nested $externalContext value', '$externalContext.user.name.trim()'],
+        ['a method inside a comparison', "$formValues.email.toUpperCase() == 'A@B.C'"],
+        ['a method with arguments', "$formValues.email.replace('a', 'b')"],
+      ])('reports %s as an evaluation error', (_label, expression) => {
+        const { run, seen } = setup({
+          externalContext: { fn: () => 1, user: { name: ' x ' } },
+          formValues: { email: 'a@b.c' },
+        }, strict);
+        const evaluate = () => run(`{{ ${expression} }}`);
+
+        if (strict) {
+          expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+          expect(evaluate).toThrow(/JEXL does not support calling JavaScript methods.*transform/);
+        } else {
+          expect(evaluate()).toBeUndefined();
+          expect(run(`Value: {{ ${expression} }}`)).toBe('Value: ');
+        }
+        expect(seen).toEqual([evaluationError]);
+      });
+
+      it.each([
+        ['text after a declared field that is not JEXL', '$formValues.email.!!!'],
+        ['an unfinished call', '$formValues.email.trim('],
+        ['an undefined transform on an empty declared field', '$formValues.items|first'],
+        ['an undefined transform on a value', '$formValues.email|upper'],
+      ])('reports %s as an evaluation error', (_label, expression) => {
+        const { run, seen } = setup({ formValues: { email: 'a@b.c' } }, strict);
+        const evaluate = () => run(`{{ ${expression} }}`);
+
+        if (strict) {
+          expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+        } else {
+          expect(evaluate()).toBeUndefined();
+        }
+        expect(seen).toEqual([evaluationError]);
+      });
+
+      it('still reads text JEXL cannot parse as a key when it is written like one', () => {
+        const { run, seen } = setup({
+          formValues: { '2fa': 'on', email: 'a@b.c' },
+          declaredFormPaths: new Set(['email', '名前', 'total(net)']),
+        }, strict);
+
+        expect(run('{{ $formValues.2fa }}')).toBe('on');
+        expect(run('{{ $formValues.名前 }}')).toBeUndefined();
+        // Declared under exactly this name, so it is an empty field and not a call.
+        expect(run('{{ $formValues.total(net) }}')).toBeUndefined();
+        expect(seen).toEqual([]);
+      });
+
+      it('reports a forbidden segment with the same code in every spelling', () => {
+        const { run, seen } = setup({ formValues: { email: 'constructor' } }, strict);
+        const forbidden = expect.objectContaining({
+          code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.constructor',
+        });
+
+        if (strict) {
+          expect(() => run('{{ $formValues.constructor }}')).toThrow(forbidden);
+          expect(() => run('{{ $formValues.constructor == 1 }}')).toThrow(forbidden);
+        } else {
+          expect(run('{{ $formValues.constructor }}')).toBeUndefined();
+          expect(run('{{ $formValues.constructor == 1 }}')).toBeUndefined();
+          expect(seen).toEqual([missing('$formValues.constructor'), missing('$formValues.constructor')]);
+        }
+        // The word inside a string literal is only text.
+        expect(run("{{ $formValues.email == 'constructor' }}")).toBe(true);
+      });
+    });
+
+    it('warns on the console when no diagnostics are configured, as before', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const context: ResolverContext = { externalContext: {}, formValues: {} };
+
+      expect(processValue('{{ 1 === }}', createDefaultResolver(context), context)).toBeUndefined();
+      expect(warn).toHaveBeenCalledWith('Error evaluating expression "1 ===":', expect.anything());
+    });
+
+    it('warns on the console about a transform that throws behind an index, as before', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const context: ResolverContext = { externalContext: {}, formValues: { items: [{ price: '10' }], none: null } };
+      const run = (value: string) => processValue(value, createDefaultResolver(context), context);
+
+      expect(run("{{ $formValues.items[0].price|money == '10.00' }}")).toBeUndefined();
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith(
+        'Error evaluating expression "$formValues.items[0].price|money == \'10.00\'":',
+        expect.objectContaining({ message: expect.stringContaining('toFixed is not a function') }),
+      );
+      // An index into an empty value is not an error.
+      expect(run("{{ $formValues.none[0].price == 1 }}")).toBeUndefined();
+      expect(warn).toHaveBeenCalledTimes(1);
+    });
+  });
+});

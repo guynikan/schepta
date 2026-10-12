@@ -26,6 +26,8 @@ export function createTemplateExpressionMiddleware(
   const resolver = createDefaultResolver({
     externalContext: context.externalContext || {},
     formValues: context.formValues || {},
+    declaredFormPaths: context.declaredFormPaths,
+    diagnostics: context.expressionDiagnostics,
   });
 
   return (props: Record<string, any>, schema: any, middlewareContext: MiddlewareContext): Record<string, any> => {
@@ -38,6 +40,8 @@ export function createTemplateExpressionMiddleware(
     return processValue(props, resolver, {
       externalContext: middlewareContext.externalContext || {},
       formValues: middlewareContext.formValues || {},
+      declaredFormPaths: middlewareContext.declaredFormPaths,
+      diagnostics: middlewareContext.expressionDiagnostics,
     }) as Record<string, any>;
   };
 }

@@ -6,6 +6,7 @@
 
 import type { FormAdapter } from '../forms/types';
 import type { DebugContextValue } from '../runtime/types';
+import type { ExpressionConfig, ExpressionDiagnostics } from '../expressions/diagnostics';
 
 /**
  * Runtime reaction context
@@ -23,6 +24,16 @@ export interface RuntimeReactionContext {
   setFieldProps: (fieldKey: string, props: Record<string, any>) => void;
   /** Debug utilities */
   debug?: DebugContextValue;
+  /** Expression diagnostics and strict-mode configuration. */
+  expressions?: ExpressionConfig;
+  /** Diagnostic sink shared with the form; one is kept per form adapter when omitted. */
+  expressionDiagnostics?: ExpressionDiagnostics;
+  /**
+   * Form paths declared by the schema (see `collectDeclaredFormPaths`). With
+   * them, a `$form` path that is neither present nor declared is an error;
+   * without them a missing `$form` path can only be warned about.
+   */
+  declaredFormPaths?: ReadonlySet<string>;
 }
 
 /**

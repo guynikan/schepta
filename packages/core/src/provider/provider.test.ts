@@ -54,6 +54,14 @@ describe('Provider Utilities', () => {
       expect(merged.middlewares?.[1]).toBe(localMiddleware);
     });
 
+    it('adds an expressions key only when one was provided', () => {
+      expect('expressions' in mergeProviderConfigs({}, {})).toBe(false);
+
+      const onExpressionError = () => undefined;
+      const merged = mergeProviderConfigs({ expressions: { onError: 'throw' } }, { expressions: { onExpressionError } });
+      expect(merged.expressions).toEqual({ onError: 'throw', onExpressionError });
+    });
+
     it('should merge externalContext with local overriding global', () => {
       const global: ProviderConfig = {
         externalContext: {

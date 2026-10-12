@@ -5,6 +5,8 @@
  * Extensible for future use with JEXL and other expression engines
  */
 
+import type { ExpressionDiagnostics } from './diagnostics';
+
 /**
  * Context for variable resolution
  */
@@ -13,6 +15,11 @@ export interface ResolverContext {
   externalContext: Record<string, any>;
   /** Form values (current form values) */
   formValues: Record<string, any>;
+  /** Schema-declared form paths. Undefined values at these paths are valid. */
+  declaredFormPaths?: ReadonlySet<string>;
+  /** Location of the schema value currently being resolved. */
+  expressionPath?: string;
+  diagnostics?: ExpressionDiagnostics;
   /** Additional context variables (extensible) */
   [key: string]: any;
 }
@@ -26,7 +33,17 @@ export interface ResolverContext {
  * 
  * Note: The context is captured in the closure when creating the resolver
  */
-export type VariableResolver = (expression: string) => any;
+export interface VariableResolver {
+  (expression: string): any;
+  /**
+   * Tells diagnostics that a custom handler owns this expression or root
+   * variable, so it is neither unknown nor checked against the form schema.
+   */
+  handles?: (expression: string) => boolean;
+}
+
+/** Property names which must never be followed from a schema expression. */
+export const UNSAFE_PATH_SEGMENTS: ReadonlySet<string> = new Set(['__proto__', 'prototype', 'constructor']);
 
 /**
  * Resolve a nested property path (e.g., "user.name" -> context.user.name)
@@ -47,6 +64,10 @@ function resolveNestedPath(path: string, obj: any): any {
     if (current === null || current === undefined) {
       return undefined;
     }
+    if (UNSAFE_PATH_SEGMENTS.has(part)) {
+      return undefined;
+    }
+    // Plain read: getters, class instances and get-only Proxies must keep working.
     current = current[part];
   }
 
@@ -126,8 +147,9 @@ export function createCustomResolver(
   customHandlers: Record<string, (path: string, ctx: ResolverContext) => any>
 ): VariableResolver {
   const defaultResolver = createDefaultResolver(context);
+  const prefixes = Object.keys(customHandlers);
 
-  return (expression: string): any => {
+  const resolver: VariableResolver = (expression: string): any => {
     if (!expression || typeof expression !== 'string') {
       return undefined;
     }
@@ -147,5 +169,7 @@ export function createCustomResolver(
     // Fall back to default resolver
     return defaultResolver(expression);
   };
-}
+  resolver.handles = expression => prefixes.some(prefix => expression.trim().startsWith(prefix));
 
+  return resolver;
+}

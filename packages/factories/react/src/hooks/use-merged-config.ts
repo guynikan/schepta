@@ -6,7 +6,7 @@
  */
 
 import { useMemo } from 'react';
-import { defaultRenderers, getFactoryDefaultComponents, getFactoryDefaultRenderers, type ComponentSpec, type MiddlewareFn } from '@schepta/core';
+import { defaultRenderers, getFactoryDefaultComponents, getFactoryDefaultRenderers, type ComponentSpec, type MiddlewareFn, type ExpressionConfig } from '@schepta/core';
 import { useScheptaContext } from '@schepta/adapter-react';
 
 export interface MergedConfigInput {
@@ -16,6 +16,7 @@ export interface MergedConfigInput {
   externalContext?: Record<string, any>;
   middlewares?: MiddlewareFn[];
   debug?: boolean;
+  expressions?: ExpressionConfig;
 }
 
 export interface MergedConfig {
@@ -25,6 +26,7 @@ export interface MergedConfig {
   externalContext: Record<string, any>;
   baseMiddlewares: MiddlewareFn[];
   debug: boolean;
+  expressions?: ExpressionConfig;
 }
 
 /**
@@ -37,7 +39,7 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
   const providerConfig = useScheptaContext();
 
   // local > provider > default
-  return useMemo(() => ({
+  const config = useMemo(() => ({
     components: {
       ...getFactoryDefaultComponents(),
       ...(providerConfig?.components || {}),
@@ -78,5 +80,16 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
     props.middlewares,
     props.debug,
   ]);
+
+  // Kept out of the memo above: an inline `expressions` object or handler is a
+  // new reference on every render and must not rebuild the rest of the config.
+  const onError = props.expressions?.onError ?? providerConfig?.expressions?.onError;
+  const onExpressionError = props.expressions?.onExpressionError ?? providerConfig?.expressions?.onExpressionError;
+  const expressions = useMemo<ExpressionConfig | undefined>(
+    () => (onError || onExpressionError ? { onError, onExpressionError } : undefined),
+    [onError, onExpressionError],
+  );
+
+  return useMemo(() => ({ ...config, expressions }), [config, expressions]);
 }
 

@@ -11,6 +11,7 @@ import type {
   ComponentSpec,
   MiddlewareFn,
   FormAdapter,
+  ExpressionConfig,
 } from '@schepta/core';
 import { createVueRuntimeAdapter } from '@schepta/adapter-vue';
 import { createVueFormAdapter } from '@schepta/adapter-vue';
@@ -27,6 +28,7 @@ import {
   buildInitialValues,
   createSchemaValidator,
   formatValidationErrors,
+  createExpressionDiagnostics,
 } from '@schepta/core';
 import formSchemaDefinition from '@schepta/factories/schemas/form-schema.json';
 import { FormRenderer } from './form-renderer';
@@ -59,6 +61,7 @@ export interface FormFactoryProps {
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   debug?: boolean;
+  expressions?: ExpressionConfig;
 }
 
 function createDebugContext(enabled: boolean) {
@@ -85,6 +88,7 @@ export const FormFactory = defineComponent({
     initialValues: { type: Object, default: undefined },
     onSubmit: { type: Function as PropType<(values: Record<string, any>) => void | Promise<void>>, default: undefined },
     debug: { type: Boolean, default: false },
+    expressions: { type: Object as PropType<ExpressionConfig>, default: undefined },
   },
   setup(props, { expose }) {
     const providerConfig = useScheptaContext();
@@ -179,6 +183,13 @@ export const FormFactory = defineComponent({
     } as FormFactoryRef);
 
     const runtime = ref(createVueRuntimeAdapter());
+    // One diagnostics sink for the lifetime of the form. It reads the latest
+    // configuration when it reports, so an inline `expressions` object or
+    // handler neither resets de-duplication nor rebuilds the renderer.
+    const expressionDiagnostics = createExpressionDiagnostics(
+      () => ({ ...providerConfig?.expressions, ...props.expressions }),
+      () => createDebugContext(mergedConfig.value.debug),
+    );
 
     const rootComponentKey = computed(
       () => (props.schema as any)['x-component'] || 'FormContainer'
@@ -193,6 +204,7 @@ export const FormFactory = defineComponent({
           externalContext: { ...config.externalContext, onSubmit: props.onSubmit },
           formValues: formValues.value,
           debug: debugContext,
+          expressionDiagnostics,
         });
 
         const updatedMiddlewares = [templateMiddleware, ...config.baseMiddlewares];
@@ -207,6 +219,7 @@ export const FormFactory = defineComponent({
           middlewares: updatedMiddlewares,
           onSubmit: props.onSubmit,
           debug: debugContext,
+          expressionDiagnostics,
           formAdapter: formAdapter.value,
         };
       };

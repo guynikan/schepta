@@ -5,7 +5,7 @@
  */
 
 import { provide, inject, defineComponent, h } from 'vue';
-import type { ComponentSpec, ComponentType, DebugConfig } from '@schepta/core';
+import type { ComponentSpec, ComponentType, DebugConfig, ExpressionConfig } from '@schepta/core';
 import type { FormSchema } from '@schepta/core';
 import type { MiddlewareFn } from '@schepta/core';
 import type { RendererFn } from '@schepta/core';
@@ -20,6 +20,7 @@ export interface ScheptaProviderProps {
   renderers?: Partial<Record<ComponentType, RendererFn>>;
   middlewares?: MiddlewareFn[];
   debug?: DebugConfig;
+  expressions?: ExpressionConfig;
   schema?: FormSchema;
   externalContext?: Record<string, any>;
 }
@@ -33,6 +34,7 @@ export interface ScheptaContextType {
   renderers: Record<ComponentType, RendererFn>;
   middlewares: MiddlewareFn[];
   debug: DebugConfig;
+  expressions?: ExpressionConfig;
   schema?: FormSchema;
   externalContext: Record<string, any>;
 }
@@ -70,6 +72,10 @@ export function createScheptaProvider(props: ScheptaProviderProps = {}) {
         type: Object,
         default: () => props.debug || defaultDebugConfig,
       },
+      expressions: {
+        type: Object,
+        default: () => props.expressions,
+      },
       schema: {
         type: Object,
         default: () => props.schema,
@@ -97,6 +103,7 @@ export function createScheptaProvider(props: ScheptaProviderProps = {}) {
             renderers: mergedRenderers,
             middlewares: [...parentContext.middlewares, ...localMiddlewares],
             debug: { ...parentContext.debug, ...componentProps.debug },
+            expressions: { ...parentContext.expressions, ...(componentProps.expressions as ExpressionConfig | undefined) },
             schema: (componentProps.schema as FormSchema | undefined) || parentContext.schema,
             externalContext: { ...parentContext.externalContext, ...componentProps.externalContext },
           };
@@ -111,6 +118,7 @@ export function createScheptaProvider(props: ScheptaProviderProps = {}) {
           renderers: componentProps.renderers,
           middlewares: localMiddlewares,
           debug: mergedDebug,
+          expressions: componentProps.expressions as ExpressionConfig | undefined,
           schema: componentProps.schema as FormSchema | undefined,
           externalContext: componentProps.externalContext || {},
         };

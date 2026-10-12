@@ -34,6 +34,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -45,8 +46,12 @@
     "vue": ">=3.0.0"
   },
   "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "jsdom": "^23.0.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
+    "vitest": "^1.0.0",
     "vue": "^3.4.0"
   }
 }

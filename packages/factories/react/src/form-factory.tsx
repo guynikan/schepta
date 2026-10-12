@@ -10,6 +10,8 @@ import type {
   ComponentSpec,
   MiddlewareFn,
   FormAdapter,
+  ExpressionConfig,
+  ExpressionDiagnostics,
 } from "@schepta/core";
 import { createReactRuntimeAdapter } from "@schepta/adapter-react";
 import {
@@ -20,7 +22,7 @@ import {
   hasFormValueTemplates,
 } from "@schepta/core";
 import { NativeReactFormAdapter } from "@schepta/adapter-react";
-import { createTemplateExpressionMiddleware } from "@schepta/core";
+import { createExpressionDiagnostics, createTemplateExpressionMiddleware } from "@schepta/core";
 import { FormRenderer } from "./form-renderer";
 import { useMergedScheptaConfig } from "./hooks/use-merged-config";
 import { useScheptaForm } from "./hooks/use-schepta-form";
@@ -56,6 +58,7 @@ export interface FormFactoryProps {
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   debug?: boolean;
+  expressions?: ExpressionConfig;
 }
 
 export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
@@ -71,6 +74,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
       initialValues,
       onSubmit,
       debug = false,
+      expressions,
     }: FormFactoryProps,
     ref
   ) {
@@ -85,6 +89,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
       externalContext,
       middlewares,
       debug,
+      expressions,
     });
 
     const { formAdapter, reset } = useScheptaForm(schema, {
@@ -150,17 +155,35 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
     const formValuesRef = useRef(formValues);
     formValuesRef.current = formValues;
 
+    // One diagnostics sink for the lifetime of the form. It reads the latest
+    // configuration through refs, so an inline `expressions` object or handler
+    // neither resets de-duplication nor rebuilds the renderer.
+    const expressionsRef = useRef(mergedConfig.expressions);
+    expressionsRef.current = mergedConfig.expressions;
+    const debugEnabledRef = useRef(mergedConfig.debug);
+    debugEnabledRef.current = mergedConfig.debug;
+    const diagnosticsRef = useRef<ExpressionDiagnostics>();
+    if (!diagnosticsRef.current) {
+      diagnosticsRef.current = createExpressionDiagnostics(
+        () => expressionsRef.current,
+        () => createDebugContext(debugEnabledRef.current),
+      );
+    }
+
     // Stable orchestrator — recreated only when config/adapter/runtime changes,
     // NOT when form values change (that's handled via formValuesRef above).
     const renderer = useMemo(() => {
+      const debugContext = createDebugContext(mergedConfig.debug);
+      const expressionDiagnostics = diagnosticsRef.current!;
       const getFactorySetup = (): FactorySetupResult => {
         const currentValues = formValuesRef.current;
-        const debugContext = createDebugContext(mergedConfig.debug);
 
         const templateMiddleware = createTemplateExpressionMiddleware({
           externalContext: mergedConfig.externalContext,
           formValues: currentValues,
           debug: debugContext,
+          expressions: expressionsRef.current,
+          expressionDiagnostics,
         });
 
         const updatedMiddlewares = [
@@ -179,6 +202,8 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
           middlewares: updatedMiddlewares,
           onSubmit: onSubmitRef.current,
           debug: debugContext,
+          expressions: expressionsRef.current,
+          expressionDiagnostics,
           formAdapter,
         };
       };

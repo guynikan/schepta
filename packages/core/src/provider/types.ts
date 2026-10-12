@@ -8,6 +8,7 @@ import type { ComponentSpec, ComponentType, DebugConfig } from '../runtime/types
 import type { FormSchema } from '../schema/schema-types';
 import type { MiddlewareFn } from '../middleware/types';
 import { RendererFn } from '../defaults/register-default-renderers';
+import type { ExpressionConfig } from '../expressions/diagnostics';
 
 /**
  * Provider configuration
@@ -29,6 +30,8 @@ export interface ProviderConfig {
   
   /** Debug configuration */
   debug?: DebugConfig;
+  /** Expression diagnostics and strict-mode configuration. */
+  expressions?: ExpressionConfig;
   
   /** Form schema (for reactions and context access) */
   schema?: FormSchema;

@@ -3,7 +3,7 @@
  */
 
 import { defineComponent } from 'vue';
-import type { FormSchema } from '@schepta/core';
+import { ScheptaExpressionError, type FormSchema } from '@schepta/core';
 
 export interface FormRendererProps {
   componentKey: string;
@@ -38,6 +38,8 @@ export const FormRenderer = defineComponent({
         // Return the VNode directly
         return result;
       } catch (error) {
+        // Strict expression handling must fail fast, not render an empty form.
+        if (error instanceof ScheptaExpressionError) throw error;
         console.error('[FormRenderer] Error rendering:', error);
         return null;
       }

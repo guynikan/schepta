@@ -2,7 +2,7 @@
  * Variable Resolver Tests
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   createDefaultResolver,
   createCustomResolver,
@@ -211,6 +211,51 @@ describe('Variable Resolver', () => {
       expect(emptyResolver('$externalContext.user.name')).toBeUndefined();
       expect(emptyResolver('$formValues.firstName')).toBeUndefined();
     });
+
+    it('preserves inherited values from external context', () => {
+      class User {
+        get fullName() { return 'Ada Lovelace'; }
+      }
+      const resolver = createDefaultResolver({ externalContext: { user: new User() }, formValues: {} });
+
+      expect(resolver('$externalContext.user.fullName')).toBe('Ada Lovelace');
+    });
+
+    it('blocks prototype-chain segments', () => {
+      const resolver = createDefaultResolver({ externalContext: { user: {} }, formValues: {} });
+
+      expect(resolver('$formValues.constructor.constructor')).toBeUndefined();
+      expect(resolver('$externalContext.user.__proto__')).toBeUndefined();
+      expect(resolver('$externalContext.user.constructor.prototype')).toBeUndefined();
+    });
+
+    it('reads get-only Proxy contexts with a plain property read', () => {
+      const proxy = new Proxy({}, { get: (_, key) => `P:${String(key)}` });
+      const resolver = createDefaultResolver({ externalContext: { proxy }, formValues: {} });
+
+      expect(resolver('$externalContext.proxy.anything')).toBe('P:anything');
+    });
+
+    it('resolves keys that contain operator characters', () => {
+      const resolver = createDefaultResolver({
+        externalContext: { 'a/b': 7, 'x+y': 8, 'api-url': 'https://api' },
+        formValues: { 'a-b': 5 },
+      });
+
+      expect(resolver('$externalContext.a/b')).toBe(7);
+      expect(resolver('$externalContext.x+y')).toBe(8);
+      expect(resolver('$externalContext.api-url')).toBe('https://api');
+      expect(resolver('$formValues.a-b')).toBe(5);
+    });
+
+    it('never reports: diagnostics belong to the template processor', () => {
+      const report = vi.fn();
+      const resolver = createDefaultResolver({ externalContext: {}, formValues: {}, diagnostics: { report } });
+
+      expect(resolver('$formValues.emial')).toBeUndefined();
+      expect(resolver('$typo.value')).toBeUndefined();
+      expect(report).not.toHaveBeenCalled();
+    });
   });
 
   describe('createCustomResolver', () => {
@@ -251,6 +296,14 @@ describe('Variable Resolver', () => {
 
       expect(resolver('$test.value')).toBe('test-value');
     });
+
+    it('tells diagnostics which expressions its handlers own', () => {
+      const resolver = createCustomResolver(context, { '$i18n': path => path });
+
+      expect(resolver.handles?.('$i18n.title')).toBe(true);
+      expect(resolver.handles?.('$i18n')).toBe(true);
+      expect(resolver.handles?.('$formValues.firstName')).toBe(false);
+      expect(createDefaultResolver(context).handles).toBeUndefined();
+    });
   });
 });
-
