@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const port = 4173;
+const baseURL = `http://127.0.0.1:${port}`;
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -19,9 +22,9 @@ export default defineConfig({
   outputDir: '../test-results',
   snapshotDir: '../test-screenshots',
   webServer: {
-    command: 'cd ../docs && pnpm dev',
-    port: 5173,
-    reuseExistingServer: true,
+    command: `pnpm --filter docs exec vitepress preview --host 127.0.0.1 --port ${port}`,
+    url: baseURL,
+    reuseExistingServer: !process.env.CI,
   },
   projects: [
     {
@@ -29,7 +32,7 @@ export default defineConfig({
       testMatch: '**/*react.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:5174/en-US/showcases/react',
+        baseURL: `${baseURL}/en-US/showcases/react`,
       },
     },
     {
@@ -37,7 +40,7 @@ export default defineConfig({
       testMatch: '**/*vue.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:5174/en-US/showcases/vue',
+        baseURL: `${baseURL}/en-US/showcases/vue`,
       },
     },
     {
@@ -45,7 +48,7 @@ export default defineConfig({
       testMatch: '**/*vanilla.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:5174/en-US/showcases/vanilla',
+        baseURL: `${baseURL}/en-US/showcases/vanilla`,
       },
     },
   ],

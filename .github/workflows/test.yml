@@ -1,6 +1,8 @@
 name: Test
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: ['**']
     types: [opened, synchronize, reopened]
@@ -40,18 +42,54 @@ jobs:
       - name: Run unit tests
         run: pnpm test
 
-      # E2E tests temporarily disabled - they were timing out in CI
-      # TODO: Re-enable after optimizing test suite
-      # - name: Install Playwright browsers
-      #   run: npx playwright install --with-deps
+  e2e:
+    name: E2E (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [react, vue, vanilla]
 
-      # - name: Run E2E tests
-      #   run: pnpm test:e2e
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # - name: Upload Playwright report
-      #   uses: actions/upload-artifact@v4
-      #   if: failure()
-      #   with:
-      #     name: playwright-report
-      #     path: playwright-report/
-      #     retention-days: 7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: pnpm
+
+      - name: Restore Playwright browser cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages and documentation site
+        run: pnpm build
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm exec playwright test --config=tests/playwright.config.ts --project=${{ matrix.project }}
+
+      - name: Upload Playwright artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-${{ matrix.project }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
