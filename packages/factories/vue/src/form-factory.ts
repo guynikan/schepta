@@ -5,7 +5,7 @@
  * API aligned with React FormFactory.
  */
 
-import { defineComponent, ref, computed, watch, reactive, h, type PropType } from 'vue';
+import { defineComponent, ref, shallowRef, computed, watch, reactive, h, type PropType } from 'vue';
 import type {
   FormSchema,
   ComponentSpec,
@@ -184,6 +184,23 @@ export const FormFactory = defineComponent({
     } as FormFactoryRef);
 
     const runtime = ref(createVueRuntimeAdapter());
+    // Keep diagnostics per form instance. Parent renders commonly create an
+    // inline expressions object, which must not reset diagnostic de-duplication.
+    const expressionDiagnostics = shallowRef(
+      createExpressionDiagnostics(mergedConfig.value.expressions, createDebugContext(mergedConfig.value.debug)),
+    );
+    let diagnosticOnError = mergedConfig.value.expressions?.onError;
+    let diagnosticHandler = mergedConfig.value.expressions?.onExpressionError;
+    watch(
+      () => [mergedConfig.value.expressions?.onError, mergedConfig.value.expressions?.onExpressionError] as const,
+      ([onError, onExpressionError]) => {
+        if (onError !== diagnosticOnError || onExpressionError !== diagnosticHandler) {
+          diagnosticOnError = onError;
+          diagnosticHandler = onExpressionError;
+          expressionDiagnostics.value = createExpressionDiagnostics(mergedConfig.value.expressions, createDebugContext(mergedConfig.value.debug));
+        }
+      },
+    );
 
     const rootComponentKey = computed(
       () => (props.schema as any)['x-component'] || 'FormContainer'
@@ -192,7 +209,7 @@ export const FormFactory = defineComponent({
     const renderer = computed(() => {
       const config = mergedConfig.value;
       const debugContext = createDebugContext(config.debug);
-      const expressionDiagnostics = createExpressionDiagnostics(config.expressions, debugContext);
+      const diagnostics = expressionDiagnostics.value;
 
       const getFactorySetup = (): FactorySetupResult => {
         const templateMiddleware = createTemplateExpressionMiddleware({
@@ -200,7 +217,7 @@ export const FormFactory = defineComponent({
           formValues: formValues.value,
           debug: debugContext,
           expressions: config.expressions,
-          expressionDiagnostics,
+          expressionDiagnostics: diagnostics,
         });
 
         const updatedMiddlewares = [templateMiddleware, ...config.baseMiddlewares];
@@ -216,7 +233,7 @@ export const FormFactory = defineComponent({
           onSubmit: props.onSubmit,
           debug: debugContext,
           expressions: config.expressions,
-          expressionDiagnostics,
+          expressionDiagnostics: diagnostics,
           formAdapter: formAdapter.value,
         };
       };
