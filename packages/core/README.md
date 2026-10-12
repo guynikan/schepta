@@ -49,8 +49,8 @@ What is reported:
 
 | Problem | Code | Strict mode |
 | --- | --- | --- |
-| Syntax or evaluation error | `EXPRESSION_EVALUATION_ERROR` | throws |
-| Unknown root variable, such as `$session` or a bare word | `UNKNOWN_EXPRESSION_VARIABLE` | throws |
+| Syntax or evaluation error, including a method or function call | `EXPRESSION_EVALUATION_ERROR` | throws |
+| Unknown root variable, such as `$session` or a bare word (`{{ name }}`) | `UNKNOWN_EXPRESSION_VARIABLE` | throws |
 | `$formValues` path that has no value and is not declared by the schema | `EXPRESSION_PATH_NOT_FOUND` | throws |
 | `$externalContext` path whose first-level key is missing | `EXPRESSION_PATH_NOT_FOUND` | throws |
 | Missing path below an existing `$externalContext` key | `EXPRESSION_PATH_NOT_FOUND` | warns only |
@@ -64,6 +64,27 @@ when `user` is there) is treated as optional or still-loading data: it warns
 and never throws. Roots handled by `createCustomResolver` (`$i18n`, `$now`) are
 known. Forbidden segments are the one case where the value is forced to
 `undefined`.
+
+`null` is a value: `{{ $formValues.note == 'x' }}` is quiet when `note` is
+`null`. An index is the exception, because JEXL cannot read `[0]` from `null`
+or from `undefined`. There `null` counts as empty, exactly like `undefined`:
+`{{ $formValues.items[0].name }}` is quiet while the declared `items` field is
+empty, and `{{ $externalContext.products[0].name }}` only warns while
+`products` is `null` or an index deeper in that data finds nothing. A guard
+does not help an index (`products[0].name || 'none'` is still `undefined`), so
+that case warns as well.
+
+JEXL has no method calls. `{{ $formValues.email.toUpperCase() }}` and
+`{{ $externalContext.format() }}` resolve to `undefined`, as they always did,
+and are reported as `EXPRESSION_EVALUATION_ERROR` with a message that says so.
+Use a transform instead, registered on the `jexl` instance this package uses:
+
+```ts
+import jexl from 'jexl';
+
+jexl.addTransform('upper', (value?: string) => (value ?? '').toUpperCase());
+// {{ $formValues.email|upper }}
+```
 
 A missing value is expected, and not reported, on the left of `||` or `&&` and
 in a comparison with `null` or `undefined`. `a && a.b` also covers `a.b`. A
@@ -89,6 +110,9 @@ Strict mode throws `ScheptaExpressionError` every time a non-warning problem is
 met. Its `code`, `expression`, `path` and optional `missingPath` match what
 `onExpressionError` receives. The handler can be an inline function: the form
 keeps its record of what it already reported across re-renders.
+`onExpressionError` runs during render in React and Vue, so a handler must not
+set state synchronously; collect the error and update state in an effect or a
+microtask.
 
 ### Expressions that are now evaluated
 
@@ -111,6 +135,32 @@ Arithmetic on a value that is missing yields `NaN`, as in JavaScript. An
 expression without whitespace that could be a key (`$externalContext.a/b`) is
 only evaluated when every reference in it has a value, so a missing key never
 becomes `NaN`.
+
+### Known limits and behavior changes
+
+- **Empty declared fields in arithmetic and concatenation.** These expressions
+  rendered nothing before and are now evaluated with JavaScript semantics, also
+  on the first render of a form whose fields are declared but still empty, and
+  without a diagnostic. `Total: {{ $formValues.price * 2 }}` renders
+  `Total: NaN` and `{{ $formValues.firstName + ' ' + $formValues.lastName }}`
+  renders `undefined undefined` until the fields have a value. Give the operand
+  a default: `{{ ($formValues.price || 0) * 2 }}`,
+  `{{ ($formValues.firstName || '') + ' ' + ($formValues.lastName || '') }}`.
+- **The spelling without whitespace differs.** `{{ $formValues.price*2 }}`
+  could be a key named `price*2`, so it stays `undefined` until `price` has a
+  value, while `{{ $formValues.price * 2 }}` is `NaN`.
+- **Bare identifiers are unknown variables.** `{{ name }}` never resolved to
+  anything; it is now reported as `UNKNOWN_EXPRESSION_VARIABLE`, and throws in
+  strict mode. This includes mustache-style text that was not meant for
+  Schepta, such as `Hello {{ name }}`.
+- **Method and function calls are not supported**, as described above. A call
+  to a function registered with `jexl.addFunction` is not reported.
+- **An unclosed parenthesis is accepted by JEXL.** `{{ ($formValues.email }}`
+  evaluates like `{{ $formValues.email }}` and is not reported.
+- **Keys JEXL cannot parse are still keys.** `{{ $formValues.名前 }}` or
+  `{{ $formValues.2fa }}` are read as paths. Text that is neither a readable
+  path nor valid JEXL and contains expression characters, such as
+  `{{ $formValues.email.!!! }}`, is an `EXPRESSION_EVALUATION_ERROR`.
 
 ### Reactions
 

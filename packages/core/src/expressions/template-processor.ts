@@ -12,8 +12,11 @@ import { UNSAFE_PATH_SEGMENTS } from './variable-resolver';
 import {
   allReferencesResolve,
   analyzeExpression,
+  getCallHint,
+  getEmptyIndexProblems,
   getMissingPathProblem,
   getReferenceProblem,
+  isEmptyIndexFailure,
   type AnalyzedExpression,
   type ReferenceProblem,
 } from './expression-analysis';
@@ -37,13 +40,33 @@ function isComplexExpression(expr: string): boolean {
 /** `$root.key.key` with no whitespace: the shape the resolver reads as a path. */
 const PATH_LIKE = /^(\$[\w$]*)((?:\.[^\s.]+)*)$/;
 
-type Report = (problem: ReferenceProblem | { code: 'EXPRESSION_EVALUATION_ERROR'; cause: unknown }) => void;
+/** Characters that make a path segment read as an expression rather than a key. */
+const NOT_A_KEY = /[()[\]{}!=<>&|?:,'"`*/+%^~;\\]/;
 
-function reportEvaluationError(expression: string, context: ResolverContext, report: Report, cause: unknown): void {
+type Report = (
+  problem: ReferenceProblem | { code: 'EXPRESSION_EVALUATION_ERROR'; cause: unknown; hint?: string },
+) => void;
+
+function reportEvaluationError(
+  expression: string,
+  analysis: AnalyzedExpression,
+  context: ResolverContext,
+  report: Report,
+  cause: unknown,
+): void {
   if (context.diagnostics) {
-    report({ code: 'EXPRESSION_EVALUATION_ERROR', cause });
+    report({ code: 'EXPRESSION_EVALUATION_ERROR', cause, hint: getCallHint(analysis) });
   } else {
     console.warn(`Error evaluating expression "${expression}":`, cause);
+  }
+}
+
+/** A syntax error, unless the text walks a forbidden segment JEXL cannot tokenize. */
+function reportUnparsable(expression: string, analysis: AnalyzedExpression, context: ResolverContext, report: Report): void {
+  if (analysis.forbiddenPath && context.diagnostics) {
+    report({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: analysis.forbiddenPath, strict: true });
+  } else {
+    reportEvaluationError(expression, analysis, context, report, analysis.error);
   }
 }
 
@@ -78,16 +101,18 @@ function evaluateParsed(
     }
   }
 
-  // JEXL throws when it indexes a missing value (`items[0]` with no `items`).
+  // JEXL throws when it indexes an empty value (`items[0]` with no `items`).
   // That is a missing reference, reported below, not a broken expression.
-  if (failure && (analysis.references.length === 0 || allReferencesResolve(analysis, context))) {
-    reportEvaluationError(expression, context, report, failure.cause);
+  const emptyIndex = failure !== undefined && isEmptyIndexFailure(analysis, failure.cause);
+  if (failure && !emptyIndex) {
+    reportEvaluationError(expression, analysis, context, report, failure.cause);
   }
   if (context.diagnostics) {
-    for (const reference of analysis.references) {
-      const problem = getReferenceProblem(reference, context, resolver.handles);
-      if (problem) report(problem);
-    }
+    const problems = analysis.references
+      .map(reference => getReferenceProblem(reference, context, resolver.handles))
+      .filter((problem): problem is ReferenceProblem => problem !== undefined);
+    if (emptyIndex && problems.length === 0) problems.push(...getEmptyIndexProblems(analysis));
+    problems.forEach(report);
   }
   return value;
 }
@@ -115,7 +140,7 @@ function evaluateExpression(expression: string, context: ResolverContext, resolv
   if (isComplexExpression(expression)) {
     const analysis = analyzeExpression(expression);
     if (analysis.error) {
-      reportEvaluationError(expression, context, report, analysis.error);
+      reportUnparsable(expression, analysis, context, report);
       return undefined;
     }
     return evaluateParsed(expression, analysis, context, resolver, report);
@@ -130,7 +155,7 @@ function evaluateExpression(expression: string, context: ResolverContext, resolv
   const pathLike = PATH_LIKE.exec(expression);
   if (!pathLike) {
     if (analysis.error) {
-      reportEvaluationError(expression, context, report, analysis.error);
+      reportUnparsable(expression, analysis, context, report);
       return undefined;
     }
     return evaluateParsed(expression, analysis, context, resolver, report);
@@ -148,21 +173,33 @@ function evaluateExpression(expression: string, context: ResolverContext, resolv
     return undefined;
   }
 
+  // A field declared under exactly this name is an empty field, whatever its name looks like.
+  const isDeclaredField = root === '$formValues' && Boolean(context.declaredFormPaths?.has(path.join('.')));
+  // Text JEXL cannot parse is still a key (`名前`, `2fa`) unless it is written like an expression.
   const isPlainPath = analysis.error !== undefined
-    || (analysis.chainText === expression && !analysis.isIndexedAccess);
+    ? isDeclaredField || !path.some(part => NOT_A_KEY.test(part))
+    : analysis.chainText === expression && !analysis.isIndexedAccess;
   if (isPlainPath) {
     const problem = getMissingPathProblem(root, path, context);
     if (problem) report(problem);
     return undefined;
   }
-  // Not a plain path after all (`items[0].name`, `price*2`). A declared field
-  // whose name contains operator characters stays a quiet, empty field.
-  if (root === '$formValues' && !getMissingPathProblem(root, path, context)) {
+  if (analysis.error !== undefined) {
+    // `$formValues.email.!!!`, `$formValues.name.trim(`: not a key, not JEXL.
+    reportEvaluationError(expression, analysis, context, report, analysis.error);
     return undefined;
   }
-  // Evaluate only when that cannot turn a missing key into NaN or a wrong value.
-  const evaluate = allReferencesResolve(analysis, context);
-  return evaluateParsed(expression, analysis, context, resolver, report, evaluate);
+  // Not a plain path after all (`items[0].name`, `price*2`, `name.trim()`). A
+  // declared field whose name contains operator characters stays a quiet, empty
+  // field; a call is never a field below a declared one.
+  if (isDeclaredField || (!analysis.hasCall && root === '$formValues' && !getMissingPathProblem(root, path, context))) {
+    return undefined;
+  }
+  // Keep the value only when that cannot turn a missing key into NaN or a wrong
+  // value. A call is still run, so that the error JEXL raises for it is reported.
+  const resolves = allReferencesResolve(analysis, context);
+  const value = evaluateParsed(expression, analysis, context, resolver, report, resolves || analysis.hasCall);
+  return resolves ? value : undefined;
 }
 
 /**

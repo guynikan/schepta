@@ -83,4 +83,80 @@ describe('executeDeclarativeReactions', () => {
     );
     expect(() => run({ disabled: '$form.firstName ==' }, strict)).toThrow(ScheptaExpressionError);
   });
+
+  describe.each([
+    ['warn', 'warn'],
+    ['strict', 'throw'],
+  ] as const)('empty values and calls (%s mode)', (_mode, onError) => {
+    const setup = (declared?: string[]) => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const report = vi.fn();
+      const context = {
+        ...(declared ? { declaredFormPaths: new Set(declared) } : {}),
+        expressions: { onError, onExpressionError: report },
+      };
+      const reportedCodes = () => report.mock.calls.map(([error]) => error.code);
+      return { context, report, reportedCodes };
+    };
+
+    it.each([[null], [undefined]])('stays quiet for an index into a declared field that is %s', empty => {
+      const { context, report } = setup(['items', 'profile.nickname']);
+      const values = { items: empty, profile: { nickname: empty } };
+
+      expect(run({ disabled: "$form.items[0].name == 'x'" }, context, values)).not.toHaveBeenCalled();
+      expect(run({ label: '$form.profile.nickname[0]' }, context, values)).not.toHaveBeenCalled();
+      expect(report).not.toHaveBeenCalled();
+    });
+
+    it.each([[null], [undefined]])('only warns about an index into a %s field when no paths are declared', empty => {
+      const { context, reportedCodes } = setup();
+
+      expect(() => run({ label: '$form.items[0].name' }, context, { items: empty })).not.toThrow();
+      expect(reportedCodes()).toEqual(['EXPRESSION_PATH_NOT_FOUND']);
+    });
+
+    it('treats an index into an undeclared null field as a missing path', () => {
+      const { context, reportedCodes } = setup(['items']);
+      const evaluate = () => run({ label: '$form.itms[0].name' }, context, { itms: null });
+
+      if (onError === 'throw') {
+        expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$form.itms' }));
+      } else {
+        expect(evaluate()).not.toHaveBeenCalled();
+      }
+      expect(reportedCodes()).toEqual(['EXPRESSION_PATH_NOT_FOUND']);
+    });
+
+    it.each([
+      ['$form.email.toUpperCase()'],
+      ["$form.email.toUpperCase() == 'A'"],
+      ['$form.emial.trim()'],
+    ])('reports the method call %s as an evaluation error', expression => {
+      const { context, reportedCodes } = setup(['email']);
+      const evaluate = () => run({ label: expression }, context, { email: 'a@b.c' });
+
+      if (onError === 'throw') {
+        expect(evaluate).toThrow(expect.objectContaining({
+          code: 'EXPRESSION_EVALUATION_ERROR',
+          expression,
+          message: expect.stringMatching(/JEXL does not support calling JavaScript methods.*transform/),
+        }));
+      } else {
+        expect(evaluate()).not.toHaveBeenCalled();
+      }
+      expect(reportedCodes()).toEqual(['EXPRESSION_EVALUATION_ERROR']);
+    });
+
+    it('reports a forbidden segment JEXL cannot tokenize as a forbidden path', () => {
+      const { context, reportedCodes } = setup(['email']);
+      const evaluate = () => run({ label: '$form.constructor == 1' }, context);
+
+      if (onError === 'throw') {
+        expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$form.constructor' }));
+      } else {
+        expect(evaluate()).not.toHaveBeenCalled();
+      }
+      expect(reportedCodes()).toEqual(['EXPRESSION_PATH_NOT_FOUND']);
+    });
+  });
 });

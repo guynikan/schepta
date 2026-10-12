@@ -30,6 +30,12 @@ export interface AnalyzedExpression {
   chainText?: string;
   /** The whole expression is an access chain that uses an index or filter. */
   isIndexedAccess: boolean;
+  /** Names of the functions the expression calls, as in `value.trim()` or `min(a, b)`. */
+  functionCalls: string[];
+  /** The expression calls a function or pipes a value through a transform. */
+  hasCall: boolean;
+  /** The expression reads `subject[index]`, which JEXL cannot do on an empty subject. */
+  hasIndexAccess: boolean;
 }
 
 export interface ReferenceProblem {
@@ -61,6 +67,9 @@ interface Chain {
 interface Collector {
   references: ExpressionReference[];
   forbiddenPath?: string;
+  functionCalls: string[];
+  hasCall: boolean;
+  hasIndexAccess: boolean;
 }
 
 function addKey(chain: Chain, key: string): Chain {
@@ -114,6 +123,11 @@ function referenceKey(reference: Pick<ExpressionReference, 'root' | 'path'>): st
 function collect(node: any, guarded: boolean, guardedPrefixes: readonly string[], out: Collector): void {
   if (!node || typeof node !== 'object') return;
 
+  if (node.type === 'FunctionCall') {
+    out.hasCall = true;
+    if (node.pool === 'functions') out.functionCalls.push(node.name);
+  }
+
   const chain = readChain(node, nested => collect(nested, false, guardedPrefixes, out));
   if (chain) {
     if (chain.forbidden) out.forbiddenPath ??= chain.text;
@@ -164,11 +178,29 @@ function collect(node: any, guarded: boolean, guardedPrefixes: readonly string[]
   }
 }
 
+/** `subject[index]` anywhere in the tree; `subject[.key > 1]` filters and never throws. */
+function readsByIndex(node: any): boolean {
+  if (!node || typeof node !== 'object') return false;
+  if (node.type === 'FilterExpression' && !node.relative) return true;
+  return Object.values(node).some(value => (Array.isArray(value) ? value.some(readsByIndex) : readsByIndex(value)));
+}
+
+const STRING_LITERAL = /'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g;
+const FORBIDDEN_CHAIN = /(?:^|[^\w$.])((?:[\w$]+\.)*(?:__proto__|prototype|constructor))(?![\w$])/;
+
+/**
+ * JEXL cannot even tokenize `constructor`, so an expression that walks a
+ * forbidden segment may never reach the AST. Find it in the source instead.
+ */
+function findForbiddenPath(expression: string): string | undefined {
+  return FORBIDDEN_CHAIN.exec(expression.replace(STRING_LITERAL, "''"))?.[1];
+}
+
 function analyze(expression: string): AnalyzedExpression {
   try {
     const compiled = Jexl.compile(convertToJexlOperators(expression));
     const ast = (compiled as any)._ast;
-    const out: Collector = { references: [] };
+    const out: Collector = { references: [], functionCalls: [], hasCall: false, hasIndexAccess: readsByIndex(ast) };
     collect(ast, false, [], out);
     const chain = readChain(ast, () => undefined);
     return {
@@ -177,10 +209,45 @@ function analyze(expression: string): AnalyzedExpression {
       forbiddenPath: out.forbiddenPath,
       chainText: chain?.text,
       isIndexedAccess: Boolean(chain?.indexed),
+      functionCalls: out.functionCalls,
+      hasCall: out.hasCall,
+      hasIndexAccess: out.hasIndexAccess,
     };
   } catch (error) {
-    return { references: [], error, isIndexedAccess: false };
+    return {
+      references: [],
+      error,
+      forbiddenPath: findForbiddenPath(expression),
+      isIndexedAccess: false,
+      functionCalls: [],
+      hasCall: /[\w$]\s*\(/.test(expression.replace(STRING_LITERAL, "''")),
+      hasIndexAccess: false,
+    };
   }
+}
+
+/**
+ * JEXL has no method calls: `value.trim()` is parsed as a call to a function
+ * named `trim`, and the value it was written on is dropped.
+ */
+export const CALL_HINT = 'JEXL does not support calling JavaScript methods or functions (`value.method()`). '
+  + 'Use a JEXL transform instead (`value|transform`).';
+
+/** Explain an evaluation or syntax error when the expression tries to call something. */
+export function getCallHint(analysis: AnalyzedExpression): string | undefined {
+  return analysis.functionCalls.length > 0 || (analysis.error !== undefined && analysis.hasCall) ? CALL_HINT : undefined;
+}
+
+/**
+ * True when JEXL threw only because the expression indexes an empty value
+ * (`items[0]` while `items` is null or undefined). That is data that is not
+ * there yet, which the references describe, not a broken expression. JEXL
+ * rethrows nested failures as a plain Error whose message starts with the
+ * original error name.
+ */
+export function isEmptyIndexFailure(analysis: AnalyzedExpression, cause: unknown): boolean {
+  if (!analysis.hasIndexAccess) return false;
+  return cause instanceof TypeError || (cause instanceof Error && cause.message.startsWith('TypeError:'));
 }
 
 /** Compile once and extract references from JEXL's parsed AST. */
@@ -279,8 +346,25 @@ export function getReferenceProblem(
     return isCustomRoot?.(reference.root) ? undefined : { code: 'UNKNOWN_EXPRESSION_VARIABLE', strict: true };
   }
   if (reference.guarded) return undefined;
-  if (readReference(rootSource(reference.root, context), reference.path) !== undefined) return undefined;
+  const value = readReference(rootSource(reference.root, context), reference.path);
+  // Null is a value, except for an index: `items[0]` reads nothing from null or undefined alike.
+  if (value !== undefined && !(value === null && reference.indexed)) return undefined;
   return getMissingPathProblem(reference.root, reference.path, context);
+}
+
+/**
+ * Describe an index that failed below a value the references could read
+ * (`list[0].tags[1]` with no `tags`), or behind a guard that cannot protect an
+ * index. Form data stays quiet; external data may still be loading, so it warns.
+ */
+export function getEmptyIndexProblems(analysis: AnalyzedExpression): ReferenceProblem[] {
+  return analysis.references
+    .filter(reference => reference.indexed && reference.root === '$externalContext')
+    .map(reference => ({
+      code: 'EXPRESSION_PATH_NOT_FOUND' as const,
+      missingPath: referenceKey(reference),
+      strict: false,
+    }));
 }
 
 /** True when every reference reads a value, so evaluating cannot surface a missing one. */

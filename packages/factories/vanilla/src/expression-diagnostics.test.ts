@@ -223,4 +223,64 @@ describe('createFormFactory expression diagnostics', () => {
     expect(report).toHaveBeenCalledTimes(1);
     expect(report).toHaveBeenCalledWith(thrown);
   });
+
+  it('mounts in strict mode while an indexed $externalContext value is still null', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const report = vi.fn();
+    const first = field('first');
+    (first.properties.first as any)['x-component-props'].label = 'First: {{ $externalContext.products[0].name }}';
+    const initial = field('initial');
+    (initial.properties.initial as any)['x-component-props'].label = 'Initial: {{ $formValues.profile.nickname[0] }}';
+
+    const { container, factory: form } = mount({
+      schema: createSchema({ nickname: field('nickname'), first, initial }),
+      externalContext: { products: null },
+      initialValues: { profile: { nickname: null } },
+      expressions: { onError: 'throw', onExpressionError: report },
+    });
+
+    expect(input(container, 'first')).not.toBeNull();
+    expect(container.textContent).toContain('First: ');
+    expect(container.textContent).toContain('Initial: ');
+
+    // Clearing a mounted field to null re-renders without throwing either.
+    form.formAdapter.setValue('profile.nickname', 'abc');
+    await nextRender();
+    expect(container.textContent).toContain('Initial: a');
+    form.formAdapter.setValue('profile.nickname', null);
+    await nextRender();
+    expect(container.textContent).not.toContain('Initial: a');
+
+    // External data that is not loaded yet warns once; the declared field is quiet.
+    expect(report.mock.calls.map(([error]) => [error.code, error.missingPath])).toEqual([
+      ['EXPRESSION_PATH_NOT_FOUND', '$externalContext.products'],
+    ]);
+    expect(warn).toHaveBeenCalledTimes(1);
+  });
+
+  it('throws in strict mode for a JavaScript method call, which JEXL does not support', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const expression = '$formValues.profile.nickname.toUpperCase()';
+    const shout = field('shout');
+    (shout.properties.shout as any)['x-component-props'].label = `{{ ${expression} }}`;
+    const schema = createSchema({ nickname: field('nickname'), shout });
+
+    expect(() => createFormFactory({
+      container: document.createElement('div'),
+      schema,
+      initialValues: { profile: { nickname: 'abc' } },
+      expressions: { onError: 'throw' },
+    })).toThrow(expect.objectContaining({
+      code: 'EXPRESSION_EVALUATION_ERROR',
+      expression,
+      message: expect.stringMatching(/JEXL does not support calling JavaScript methods.*transform/),
+    }));
+
+    // Default mode keeps rendering, with the value the expression always had.
+    const report = vi.fn();
+    const { container } = mount({ schema, expressions: { onExpressionError: report } });
+    expect(input(container, 'shout')).not.toBeNull();
+    expect(report.mock.calls.map(([error]) => error.code)).toEqual(['EXPRESSION_EVALUATION_ERROR']);
+  });
 });

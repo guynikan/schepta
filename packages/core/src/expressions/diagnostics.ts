@@ -21,6 +21,8 @@ export interface ExpressionDiagnosticDetails {
   path: string;
   missingPath?: string;
   cause?: unknown;
+  /** Extra guidance appended to the error message. */
+  hint?: string;
   /** Internal: false marks a soft problem, which warns but never throws. */
   strict?: boolean;
 }
@@ -34,7 +36,8 @@ export class ScheptaExpressionError extends Error {
 
   constructor(details: ExpressionDiagnosticDetails) {
     const missing = details.missingPath ? ` Missing path: "${details.missingPath}".` : '';
-    super(`Invalid expression "${details.expression}" at "${details.path}": ${details.code}.${missing}`);
+    const hint = details.hint ? ` ${details.hint}` : '';
+    super(`Invalid expression "${details.expression}" at "${details.path}": ${details.code}.${missing}${hint}`);
     this.name = 'ScheptaExpressionError';
     this.code = details.code;
     this.expression = details.expression;

@@ -52,6 +52,8 @@ const full = (): ResolverContext => ({
     'a/b': 7,
     'x+y': 8,
     'api-url': 'https://api',
+    products: null,
+    fn: () => 'called',
   },
 });
 
@@ -214,7 +216,27 @@ const rows: Row[] = [
   { value: '{{ $formValues.firstName + }}', main: undefined },
   { value: '{{ $formValues.firstName|upper }}', main: undefined },
 
+  // Method and function calls, which JEXL does not have
+  { value: '{{ $formValues.firstName.toUpperCase() }}', main: undefined },
+  { value: '{{ $formValues.emial.trim() }}', main: undefined },
+  { value: '{{ $externalContext.fn() }}', main: undefined },
+  { value: '{{ $externalContext.user.name.trim() }}', main: undefined },
+  { value: "{{ $formValues.firstName.toUpperCase() == 'ANA' }}", main: undefined },
+  { value: 'Name: {{ $formValues.firstName.toUpperCase() }}', main: 'Name: ' },
+  { value: '{{ $formValues.firstName.!!! }}', main: undefined },
+  { value: '{{ $formValues.firstName.trim( }}', main: undefined },
+
+  // Index into a null value
+  { value: '{{ $externalContext.products[0].name }}', main: undefined },
+  { value: 'First: {{ $externalContext.products[0].name }}', main: 'First: ' },
+  { value: "{{ $externalContext.products[0].name == 'x' }}", main: undefined },
+  { value: '{{ $formValues.nothing[0] }}', main: undefined },
+  { value: "{{ $formValues.nothing[0].name == 'x' }}", main: undefined },
+  { value: '{{ $formValues.address.zip[0] }}', main: undefined },
+  { value: '{{ $externalContext.user.profile[0].bio }}', main: undefined },
+
   // Forbidden segments
+  { value: '{{ $formValues.constructor == 1 }}', main: undefined },
   { value: '{{ $formValues.constructor.name }}', main: 'Object', pr: undefined, why: 'forbidden' },
   { value: "{{ $formValues.constructor.name == 'Object' }}", main: undefined },
 ];

@@ -7,7 +7,12 @@
 import type { RuntimeReactionContext, DefaultReaction } from './types';
 import { getAllReactions } from './types';
 import { createExpressionDiagnostics, type ExpressionDiagnostics } from '../expressions/diagnostics';
-import { allReferencesResolve, analyzeExpression, getReferenceProblem } from '../expressions/expression-analysis';
+import {
+  analyzeExpression,
+  getCallHint,
+  getReferenceProblem,
+  isEmptyIndexFailure,
+} from '../expressions/expression-analysis';
 
 /**
  * Clean JEXL expression - removes template syntax if needed
@@ -80,8 +85,11 @@ export function executeDeclarativeReactions(
       const cleanExpression = cleanJexlExpression(rawExpression);
       const path = `${context.fieldKey}.x-reactions.${prop}`;
       const analysis = analyzeExpression(cleanExpression);
+      const hint = getCallHint(analysis);
       if (analysis.error) {
-        diagnostics.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression: cleanExpression, path, cause: analysis.error });
+        diagnostics.report(analysis.forbiddenPath
+          ? { code: 'EXPRESSION_PATH_NOT_FOUND', expression: cleanExpression, path, missingPath: analysis.forbiddenPath }
+          : { code: 'EXPRESSION_EVALUATION_ERROR', expression: cleanExpression, path, cause: analysis.error, hint });
         continue;
       }
 
@@ -114,9 +122,9 @@ export function executeDeclarativeReactions(
         ...reference,
         root: reference.root === '$form' ? '$formValues' : `reaction:${reference.root}`,
       }));
-      // JEXL throws when it indexes a missing value; that is a missing reference.
-      if (failure && (references.length === 0 || allReferencesResolve({ ...analysis, references }, analysisContext))) {
-        diagnostics.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression: cleanExpression, path, cause: failure.cause });
+      // JEXL throws when it indexes an empty value; that is a missing reference, reported below.
+      if (failure && !isEmptyIndexFailure(analysis, failure.cause)) {
+        diagnostics.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression: cleanExpression, path, cause: failure.cause, hint });
       }
       if (analysis.forbiddenPath) {
         diagnostics.report({ code: 'EXPRESSION_PATH_NOT_FOUND', expression: cleanExpression, path, missingPath: analysis.forbiddenPath });

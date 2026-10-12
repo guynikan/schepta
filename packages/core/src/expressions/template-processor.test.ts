@@ -818,6 +818,151 @@ describe('Template Processor', () => {
       ]);
     });
 
+    describe.each([
+      ['warn', false],
+      ['strict', true],
+    ] as const)('empty values behind an index (%s mode)', (_mode, strict) => {
+      const evaluationError: Seen = { code: 'EXPRESSION_EVALUATION_ERROR' };
+
+      it('only warns when an existing $externalContext key is null', () => {
+        const { run, seen } = setup({ externalContext: { products: null } }, strict);
+
+        expect(run('{{ $externalContext.products[0].name }}')).toBeUndefined();
+        expect(run('First: {{ $externalContext.products[0].name }}')).toBe('First: ');
+        expect(run("{{ $externalContext.products[0].name == 'x' }}")).toBeUndefined();
+        // The same expression at the same place is reported once.
+        expect(seen).toEqual([missing('$externalContext.products'), missing('$externalContext.products')]);
+      });
+
+      it('stays quiet for a declared field that is null', () => {
+        const { run, seen } = setup({
+          formValues: { profile: { nickname: null }, items: null },
+          declaredFormPaths: new Set(['profile.nickname', 'items']),
+        }, strict);
+
+        expect(run('{{ $formValues.profile.nickname[0] }}')).toBeUndefined();
+        expect(run('Hi {{ $formValues.profile.nickname[0] }}')).toBe('Hi ');
+        expect(run('{{ $formValues.items[0].name }}')).toBeUndefined();
+        expect(run("{{ $formValues.items[0].name == 'x' }}")).toBeUndefined();
+        expect(seen).toEqual([]);
+      });
+
+      it('treats null exactly like undefined', () => {
+        for (const empty of [null, undefined]) {
+          const { run, seen } = setup({
+            externalContext: { products: empty, user: { orders: empty } },
+            formValues: { items: empty, other: empty },
+          }, strict);
+
+          expect(run('{{ $formValues.items[0].name }}')).toBeUndefined();
+          expect(run("{{ $externalContext.user.orders[0].id == 1 }}")).toBeUndefined();
+          expect(seen).toEqual([missing('$externalContext.user.orders')]);
+
+          // Not declared, so an index into it is a hard problem either way.
+          const undeclared = () => run('{{ $formValues.other[0] }}');
+          if (strict) {
+            expect(undeclared).toThrow(expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.other' }));
+          } else {
+            expect(undeclared()).toBeUndefined();
+            expect(seen).toContainEqual(missing('$formValues.other'));
+          }
+        }
+      });
+
+      it('does not blame the expression for an empty value deeper in the data', () => {
+        const { run, seen } = setup({
+          externalContext: { list: [{ name: 'x' }] },
+          formValues: { items: [{ name: 'x' }] },
+        }, strict);
+
+        expect(run('{{ $formValues.items[0].tags[1] }}')).toBeUndefined();
+        expect(run("{{ $formValues.items[0].tags[1] == 'a' }}")).toBeUndefined();
+        expect(seen).toEqual([]);
+        expect(run('{{ $externalContext.list[0].tags[1] }}')).toBeUndefined();
+        expect(seen).toEqual([missing('$externalContext.list')]);
+      });
+
+      it('warns when a guard cannot protect an index into null external data', () => {
+        const { run, seen } = setup({ externalContext: { products: null } }, strict);
+
+        expect(run("{{ $externalContext.products[0].name || 'none' }}")).toBeUndefined();
+        expect(seen).toEqual([missing('$externalContext.products')]);
+      });
+
+      it.each([
+        ['a method on a declared field with a value', '$formValues.email.toUpperCase()'],
+        ['a method on a declared field that is empty', '$formValues.items.join()'],
+        ['a method on a typo', '$formValues.emial.trim()'],
+        ['a function from $externalContext', '$externalContext.fn()'],
+        ['a method on a nested $externalContext value', '$externalContext.user.name.trim()'],
+        ['a method inside a comparison', "$formValues.email.toUpperCase() == 'A@B.C'"],
+        ['a method with arguments', "$formValues.email.replace('a', 'b')"],
+      ])('reports %s as an evaluation error', (_label, expression) => {
+        const { run, seen } = setup({
+          externalContext: { fn: () => 1, user: { name: ' x ' } },
+          formValues: { email: 'a@b.c' },
+        }, strict);
+        const evaluate = () => run(`{{ ${expression} }}`);
+
+        if (strict) {
+          expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+          expect(evaluate).toThrow(/JEXL does not support calling JavaScript methods.*transform/);
+        } else {
+          expect(evaluate()).toBeUndefined();
+          expect(run(`Value: {{ ${expression} }}`)).toBe('Value: ');
+        }
+        expect(seen).toEqual([evaluationError]);
+      });
+
+      it.each([
+        ['text after a declared field that is not JEXL', '$formValues.email.!!!'],
+        ['an unfinished call', '$formValues.email.trim('],
+        ['an undefined transform on an empty declared field', '$formValues.items|first'],
+        ['an undefined transform on a value', '$formValues.email|upper'],
+      ])('reports %s as an evaluation error', (_label, expression) => {
+        const { run, seen } = setup({ formValues: { email: 'a@b.c' } }, strict);
+        const evaluate = () => run(`{{ ${expression} }}`);
+
+        if (strict) {
+          expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+        } else {
+          expect(evaluate()).toBeUndefined();
+        }
+        expect(seen).toEqual([evaluationError]);
+      });
+
+      it('still reads text JEXL cannot parse as a key when it is written like one', () => {
+        const { run, seen } = setup({
+          formValues: { '2fa': 'on', email: 'a@b.c' },
+          declaredFormPaths: new Set(['email', '名前', 'total(net)']),
+        }, strict);
+
+        expect(run('{{ $formValues.2fa }}')).toBe('on');
+        expect(run('{{ $formValues.名前 }}')).toBeUndefined();
+        // Declared under exactly this name, so it is an empty field and not a call.
+        expect(run('{{ $formValues.total(net) }}')).toBeUndefined();
+        expect(seen).toEqual([]);
+      });
+
+      it('reports a forbidden segment with the same code in every spelling', () => {
+        const { run, seen } = setup({ formValues: { email: 'constructor' } }, strict);
+        const forbidden = expect.objectContaining({
+          code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.constructor',
+        });
+
+        if (strict) {
+          expect(() => run('{{ $formValues.constructor }}')).toThrow(forbidden);
+          expect(() => run('{{ $formValues.constructor == 1 }}')).toThrow(forbidden);
+        } else {
+          expect(run('{{ $formValues.constructor }}')).toBeUndefined();
+          expect(run('{{ $formValues.constructor == 1 }}')).toBeUndefined();
+          expect(seen).toEqual([missing('$formValues.constructor'), missing('$formValues.constructor')]);
+        }
+        // The word inside a string literal is only text.
+        expect(run("{{ $formValues.email == 'constructor' }}")).toBe(true);
+      });
+    });
+
     it('warns on the console when no diagnostics are configured, as before', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       const context: ResolverContext = { externalContext: {}, formValues: {} };
