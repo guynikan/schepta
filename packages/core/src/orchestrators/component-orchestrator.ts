@@ -121,7 +121,7 @@ export function createComponentOrchestrator(
         formValues: setup.state,
         declaredFormPaths: collectDeclaredFormPaths(schema, (node, key) => {
           const resolved = resolveSpec(node, key, setup.components, setup.customComponents, setup.renderers);
-          return resolved?.componentSpec.type === 'field';
+          return resolved ? resolved.componentSpec.type === 'field' : undefined;
         }),
         diagnostics,
       };

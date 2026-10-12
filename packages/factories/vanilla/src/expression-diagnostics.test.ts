@@ -150,14 +150,40 @@ describe('createFormFactory expression diagnostics', () => {
     expect(report).toHaveBeenCalledTimes(3);
   });
 
-  it('keeps fields with an invalid visibility condition visible', () => {
+  it('keeps the visibility an invalid condition had before diagnostics existed', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const { container } = mount();
 
-    expect(input(container, 'typo')).not.toBeNull();
-    expect(input(container, 'unknownRoot')).not.toBeNull();
+    // A comparison with a missing operand is false, so the field stays hidden.
+    expect(input(container, 'typo')).toBeNull();
+    expect(input(container, 'unknownRoot')).toBeNull();
+    // A condition that cannot be evaluated is undefined, so the field renders.
     expect(input(container, 'syntax')).not.toBeNull();
     expect(input(container, 'conditional')).toBeNull();
+  });
+
+  it('keeps conditions over optional $externalContext keys hidden and disabled', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const report = vi.fn();
+    const locked = field('locked');
+    (locked.properties.locked as any)['x-component-props'].disabled = "{{ $externalContext.user.role != 'admin' }}";
+    const { container } = mount({
+      schema: createSchema({
+        nickname: field('nickname'),
+        adminOnly: field('adminOnly', '$externalContext.user.isAdmin == true'),
+        locked,
+      }),
+      externalContext: { user: { name: 'x' } },
+      // Strict mode on purpose: optional external keys only warn.
+      expressions: { onError: 'throw', onExpressionError: report },
+    });
+
+    expect(input(container, 'adminOnly')).toBeNull();
+    expect(input(container, 'locked')?.disabled).toBe(true);
+    expect(report.mock.calls.map(([error]) => error.missingPath)).toEqual([
+      '$externalContext.user.isAdmin', '$externalContext.user.role',
+    ]);
+    expect(warn).toHaveBeenCalledTimes(2);
   });
 
   it('warns once per invalid expression by default', async () => {

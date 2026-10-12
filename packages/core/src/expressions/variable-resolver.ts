@@ -5,6 +5,8 @@
  * Extensible for future use with JEXL and other expression engines
  */
 
+import type { ExpressionDiagnostics } from './diagnostics';
+
 /**
  * Context for variable resolution
  */
@@ -31,10 +33,17 @@ export interface ResolverContext {
  * 
  * Note: The context is captured in the closure when creating the resolver
  */
-export type VariableResolver = (expression: string, context?: ResolverContext) => any;
+export interface VariableResolver {
+  (expression: string): any;
+  /**
+   * Tells diagnostics that a custom handler owns this expression or root
+   * variable, so it is neither unknown nor checked against the form schema.
+   */
+  handles?: (expression: string) => boolean;
+}
 
 /** Property names which must never be followed from a schema expression. */
-export const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+export const UNSAFE_PATH_SEGMENTS: ReadonlySet<string> = new Set(['__proto__', 'prototype', 'constructor']);
 
 /**
  * Resolve a nested property path (e.g., "user.name" -> context.user.name)
@@ -43,9 +52,9 @@ export const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'construc
  * @param obj Object to traverse
  * @returns Resolved value or undefined
  */
-function resolveNestedPath(path: string, obj: any): { found: boolean; value: any } {
+function resolveNestedPath(path: string, obj: any): any {
   if (!path || !obj) {
-    return { found: false, value: undefined };
+    return undefined;
   }
 
   const parts = path.split('.');
@@ -53,35 +62,16 @@ function resolveNestedPath(path: string, obj: any): { found: boolean; value: any
 
   for (const part of parts) {
     if (current === null || current === undefined) {
-      return { found: false, value: undefined };
+      return undefined;
     }
     if (UNSAFE_PATH_SEGMENTS.has(part)) {
-      return { found: false, value: undefined };
+      return undefined;
     }
-    if (!(part in Object(current))) {
-      return { found: false, value: undefined };
-    }
+    // Plain read: getters, class instances and get-only Proxies must keep working.
     current = current[part];
   }
 
-  return { found: true, value: current };
-}
-
-function reportUnknownRoot(expression: string, context: ResolverContext): void {
-  context.diagnostics?.report({
-    code: 'UNKNOWN_EXPRESSION_VARIABLE',
-    expression,
-    path: context.expressionPath || '<unknown>',
-  });
-}
-
-function reportMissingPath(expression: string, missingPath: string, context: ResolverContext): void {
-  context.diagnostics?.report({
-    code: 'EXPRESSION_PATH_NOT_FOUND',
-    expression,
-    path: context.expressionPath || '<unknown>',
-    missingPath,
-  });
+  return current;
 }
 
 /**
@@ -102,8 +92,7 @@ function reportMissingPath(expression: string, missingPath: string, context: Res
  * resolver("$formValues.email") // "john@example.com"
  */
 export function createDefaultResolver(context: ResolverContext): VariableResolver {
-  return (expression: string, overrideContext?: ResolverContext): any => {
-    const activeContext = overrideContext || context;
+  return (expression: string): any => {
     if (!expression || typeof expression !== 'string') {
       return undefined;
     }
@@ -113,37 +102,28 @@ export function createDefaultResolver(context: ResolverContext): VariableResolve
     // Handle $externalContext.*
     if (trimmed.startsWith('$externalContext.')) {
       const path = trimmed.substring('$externalContext.'.length);
-      const resolved = resolveNestedPath(path, activeContext.externalContext);
-      if (!resolved.found) reportMissingPath(trimmed, `$externalContext.${path}`, activeContext);
-      return resolved.value;
+      return resolveNestedPath(path, context.externalContext);
     }
 
     // Handle $formValues.*
     if (trimmed.startsWith('$formValues.')) {
       const path = trimmed.substring('$formValues.'.length);
-      const resolved = resolveNestedPath(path, activeContext.formValues);
-      const isDeclaredPath = [...(activeContext.declaredFormPaths ?? [])]
-        .some(declaredPath => path === declaredPath || path.startsWith(`${declaredPath}.`));
-      if (!resolved.found && !isDeclaredPath) {
-        reportMissingPath(trimmed, `$formValues.${path}`, activeContext);
-      }
-      return resolved.value;
+      return resolveNestedPath(path, context.formValues);
     }
 
     // Handle $externalContext (without path - returns entire object)
     if (trimmed === '$externalContext') {
-      return activeContext.externalContext;
+      return context.externalContext;
     }
 
     // Handle $formValues (without path - returns entire object)
     if (trimmed === '$formValues') {
-      return activeContext.formValues;
+      return context.formValues;
     }
 
     // Future: support other variables like $i18n, $now, etc.
     // This can be extended by custom resolvers
 
-    reportUnknownRoot(trimmed, activeContext);
     return undefined;
   };
 }
@@ -167,9 +147,9 @@ export function createCustomResolver(
   customHandlers: Record<string, (path: string, ctx: ResolverContext) => any>
 ): VariableResolver {
   const defaultResolver = createDefaultResolver(context);
+  const prefixes = Object.keys(customHandlers);
 
-  return (expression: string, overrideContext?: ResolverContext): any => {
-    const activeContext = overrideContext || context;
+  const resolver: VariableResolver = (expression: string): any => {
     if (!expression || typeof expression !== 'string') {
       return undefined;
     }
@@ -187,8 +167,9 @@ export function createCustomResolver(
     }
 
     // Fall back to default resolver
-    return defaultResolver(expression, activeContext);
+    return defaultResolver(expression);
   };
-}
+  resolver.handles = expression => prefixes.some(prefix => expression.trim().startsWith(prefix));
 
-import type { ExpressionDiagnostics } from './diagnostics';
+  return resolver;
+}

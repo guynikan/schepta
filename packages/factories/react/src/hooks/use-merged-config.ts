@@ -39,7 +39,7 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
   const providerConfig = useScheptaContext();
 
   // local > provider > default
-  return useMemo(() => ({
+  const config = useMemo(() => ({
     components: {
       ...getFactoryDefaultComponents(),
       ...(providerConfig?.components || {}),
@@ -66,7 +66,6 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
     debug: props.debug !== undefined
       ? props.debug
       : (providerConfig?.debug?.enabled || false),
-    expressions: { ...providerConfig?.expressions, ...props.expressions },
   }), [
     providerConfig?.components,
     providerConfig?.customComponents,
@@ -80,10 +79,17 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
     props.externalContext,
     props.middlewares,
     props.debug,
-    providerConfig?.expressions?.onError,
-    providerConfig?.expressions?.onExpressionError,
-    props.expressions?.onError,
-    props.expressions?.onExpressionError,
   ]);
+
+  // Kept out of the memo above: an inline `expressions` object or handler is a
+  // new reference on every render and must not rebuild the rest of the config.
+  const onError = props.expressions?.onError ?? providerConfig?.expressions?.onError;
+  const onExpressionError = props.expressions?.onExpressionError ?? providerConfig?.expressions?.onExpressionError;
+  const expressions = useMemo<ExpressionConfig | undefined>(
+    () => (onError || onExpressionError ? { onError, onExpressionError } : undefined),
+    [onError, onExpressionError],
+  );
+
+  return useMemo(() => ({ ...config, expressions }), [config, expressions]);
 }
 

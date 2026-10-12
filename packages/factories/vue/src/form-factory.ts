@@ -5,7 +5,7 @@
  * API aligned with React FormFactory.
  */
 
-import { defineComponent, ref, shallowRef, computed, watch, reactive, h, type PropType } from 'vue';
+import { defineComponent, ref, computed, watch, reactive, h, type PropType } from 'vue';
 import type {
   FormSchema,
   ComponentSpec,
@@ -121,7 +121,6 @@ export const FormFactory = defineComponent({
         props.debug !== undefined
           ? props.debug
           : (providerConfig?.debug?.enabled || false),
-      expressions: { ...providerConfig?.expressions, ...props.expressions },
     }));
 
     const validation = computed(() => {
@@ -184,22 +183,12 @@ export const FormFactory = defineComponent({
     } as FormFactoryRef);
 
     const runtime = ref(createVueRuntimeAdapter());
-    // Keep diagnostics per form instance. Parent renders commonly create an
-    // inline expressions object, which must not reset diagnostic de-duplication.
-    const expressionDiagnostics = shallowRef(
-      createExpressionDiagnostics(mergedConfig.value.expressions, createDebugContext(mergedConfig.value.debug)),
-    );
-    let diagnosticOnError = mergedConfig.value.expressions?.onError;
-    let diagnosticHandler = mergedConfig.value.expressions?.onExpressionError;
-    watch(
-      () => [mergedConfig.value.expressions?.onError, mergedConfig.value.expressions?.onExpressionError] as const,
-      ([onError, onExpressionError]) => {
-        if (onError !== diagnosticOnError || onExpressionError !== diagnosticHandler) {
-          diagnosticOnError = onError;
-          diagnosticHandler = onExpressionError;
-          expressionDiagnostics.value = createExpressionDiagnostics(mergedConfig.value.expressions, createDebugContext(mergedConfig.value.debug));
-        }
-      },
+    // One diagnostics sink for the lifetime of the form. It reads the latest
+    // configuration when it reports, so an inline `expressions` object or
+    // handler neither resets de-duplication nor rebuilds the renderer.
+    const expressionDiagnostics = createExpressionDiagnostics(
+      () => ({ ...providerConfig?.expressions, ...props.expressions }),
+      () => createDebugContext(mergedConfig.value.debug),
     );
 
     const rootComponentKey = computed(
@@ -209,15 +198,13 @@ export const FormFactory = defineComponent({
     const renderer = computed(() => {
       const config = mergedConfig.value;
       const debugContext = createDebugContext(config.debug);
-      const diagnostics = expressionDiagnostics.value;
 
       const getFactorySetup = (): FactorySetupResult => {
         const templateMiddleware = createTemplateExpressionMiddleware({
           externalContext: { ...config.externalContext, onSubmit: props.onSubmit },
           formValues: formValues.value,
           debug: debugContext,
-          expressions: config.expressions,
-          expressionDiagnostics: diagnostics,
+          expressionDiagnostics,
         });
 
         const updatedMiddlewares = [templateMiddleware, ...config.baseMiddlewares];
@@ -232,8 +219,7 @@ export const FormFactory = defineComponent({
           middlewares: updatedMiddlewares,
           onSubmit: props.onSubmit,
           debug: debugContext,
-          expressions: config.expressions,
-          expressionDiagnostics: diagnostics,
+          expressionDiagnostics,
           formAdapter: formAdapter.value,
         };
       };

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
-import { defineComponent, h, nextTick, ref } from 'vue';
+import { defineComponent, h, nextTick, ref, shallowRef } from 'vue';
 import { ScheptaExpressionError, type ExpressionConfig, type FormSchema } from '@schepta/core';
 import { createScheptaProvider } from '@schepta/adapter-vue';
 import { FormFactory } from './form-factory';
@@ -202,14 +202,69 @@ describe('FormFactory expression diagnostics', () => {
     expect(report).toHaveBeenCalledTimes(3);
   });
 
-  it('keeps fields with an invalid visibility condition visible', () => {
+  it('keeps the visibility an invalid condition had before diagnostics existed', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     wrapper = mount(FormFactory, { props: { schema: diagnosticsSchema() } });
 
-    expect(input('typo').exists()).toBe(true);
-    expect(input('unknownRoot').exists()).toBe(true);
+    // A comparison with a missing operand is false, so the field stays hidden.
+    expect(input('typo').exists()).toBe(false);
+    expect(input('unknownRoot').exists()).toBe(false);
+    // A condition that cannot be evaluated is undefined, so the field renders.
     expect(input('syntax').exists()).toBe(true);
     expect(input('conditional').exists()).toBe(false);
+  });
+
+  it('keeps conditions over optional $externalContext keys hidden without throwing', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const report = vi.fn();
+    wrapper = mount(FormFactory, {
+      props: {
+        schema: createSchema({
+          nickname: field('nickname'),
+          adminOnly: field('adminOnly', '$externalContext.user.isAdmin == true'),
+        }),
+        externalContext: { user: { name: 'x' } },
+        expressions: { onError: 'throw', onExpressionError: report },
+      },
+    });
+
+    expect(input('nickname').exists()).toBe(true);
+    expect(input('adminOnly').exists()).toBe(false);
+    expect(report).toHaveBeenCalledTimes(1);
+    expect(report).toHaveBeenCalledWith(expect.objectContaining({ missingPath: '$externalContext.user.isAdmin' }));
+  });
+
+  it('reports once and calls the latest handler when it is an inline closure', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const report = vi.fn();
+    const schema = shallowRef(diagnosticsSchema());
+    const renders = ref(0);
+    const handlers = new Set<unknown>();
+    const Parent = defineComponent({
+      setup: () => () => {
+        const generation = renders.value;
+        // A new function on every parent render, as in `@expression-error="e => log(e)"`.
+        const onExpressionError = (error: ScheptaExpressionError) => report(generation, error.code);
+        handlers.add(onExpressionError);
+        return h('div', { 'data-renders': generation }, [
+          h(FormFactory, { schema: schema.value, expressions: { onExpressionError } }),
+        ]);
+      },
+    });
+
+    wrapper = mount(Parent);
+    for (let index = 0; index < 4; index++) {
+      renders.value += 1;
+      await nextTick();
+    }
+    expect(handlers.size).toBe(5);
+    expect(report).toHaveBeenCalledTimes(3);
+
+    // A problem that first appears later goes to the handler of the latest render.
+    schema.value = createSchema({ late: field('late', "$formValues.profile.lat === 'x'") });
+    await nextTick();
+    expect(report).toHaveBeenCalledTimes(4);
+    expect(report).toHaveBeenLastCalledWith(4, 'EXPRESSION_PATH_NOT_FOUND');
   });
 
   it('warns once per invalid expression by default', async () => {

@@ -7,74 +7,162 @@
  */
 
 import { detectTemplateExpressions, hasTemplateExpressions } from './template-detector';
-import { type VariableResolver, type ResolverContext } from './variable-resolver';
-import { analyzeExpression, getReferenceProblem } from './expression-analysis';
+import type { VariableResolver, ResolverContext } from './variable-resolver';
+import { UNSAFE_PATH_SEGMENTS } from './variable-resolver';
+import {
+  allReferencesResolve,
+  analyzeExpression,
+  getMissingPathProblem,
+  getReferenceProblem,
+  type AnalyzedExpression,
+  type ReferenceProblem,
+} from './expression-analysis';
 
 /**
  * Check if an expression contains operators (is a complex expression)
  * Complex expressions need JEXL evaluation instead of simple variable resolution
+ *
+ * This is the historical classification and decides which path produces the
+ * value. Do not widen it: expressions it does not match go to the resolver
+ * first, which is what keeps keys such as `api-url` or `a/b` resolving.
  * 
  * @param expr Expression to check
  * @returns true if expression contains operators
  */
-function isSimplePathExpression(expr: string): boolean {
-  // Keep legacy support for external/form keys containing operator characters.
-  return /^\$[A-Za-z_]\w*(?:\.[^\s.]+)*$/.test(expr);
+function isComplexExpression(expr: string): boolean {
+  // Contains comparison or logical operators
+  return /===|!==|==|!=|>=|<=|>|<|&&|\|\|/.test(expr);
+}
+
+/** `$root.key.key` with no whitespace: the shape the resolver reads as a path. */
+const PATH_LIKE = /^(\$[\w$]*)((?:\.[^\s.]+)*)$/;
+
+type Report = (problem: ReferenceProblem | { code: 'EXPRESSION_EVALUATION_ERROR'; cause: unknown }) => void;
+
+function reportEvaluationError(expression: string, context: ResolverContext, report: Report, cause: unknown): void {
+  if (context.diagnostics) {
+    report({ code: 'EXPRESSION_EVALUATION_ERROR', cause });
+  } else {
+    console.warn(`Error evaluating expression "${expression}":`, cause);
+  }
 }
 
 /**
- * Convert JavaScript operators to JEXL operators
- * JEXL uses == instead of ===, and != instead of !==
- * 
- * @param expression Expression with JS operators
- * @returns Expression with JEXL operators
+ * Evaluate a parsed expression with JEXL and report what its references say.
+ * The value is computed first and is never replaced because of a diagnostic;
+ * the only exception is an expression that walks a forbidden segment.
  */
+function evaluateParsed(
+  expression: string,
+  analysis: AnalyzedExpression,
+  context: ResolverContext,
+  resolver: VariableResolver,
+  report: Report,
+  evaluate = true,
+): any {
+  if (analysis.forbiddenPath) {
+    report({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: analysis.forbiddenPath, strict: true });
+    return undefined;
+  }
+
+  let value: any;
+  let failure: { cause: unknown } | undefined;
+  if (evaluate) {
+    try {
+      value = analysis.compiled.evalSync({
+        $formValues: context.formValues,
+        $externalContext: context.externalContext,
+      });
+    } catch (cause) {
+      failure = { cause };
+    }
+  }
+
+  // JEXL throws when it indexes a missing value (`items[0]` with no `items`).
+  // That is a missing reference, reported below, not a broken expression.
+  if (failure && (analysis.references.length === 0 || allReferencesResolve(analysis, context))) {
+    reportEvaluationError(expression, context, report, failure.cause);
+  }
+  if (context.diagnostics) {
+    for (const reference of analysis.references) {
+      const problem = getReferenceProblem(reference, context, resolver.handles);
+      if (problem) report(problem);
+    }
+  }
+  return value;
+}
 
 /**
- * Evaluate a complex expression using JEXL
+ * Resolve one expression.
+ *
+ * The value comes from the same path as before diagnostics existed: JEXL for
+ * expressions with comparison/logical operators, the resolver for everything
+ * else. Analysis runs afterwards and only decides what to report. Expressions
+ * the resolver cannot read (`price * 2`, `!flag`, `a ? b : c`, `items[0].name`)
+ * used to resolve to undefined and are now evaluated with JEXL.
  * 
  * @param expression Expression to evaluate
  * @param context Resolver context with formValues and externalContext
  * @returns Evaluated result (boolean, number, string, etc.)
  */
-function evaluateExpression(expression: string, context: ResolverContext, resolver?: VariableResolver): any {
-  // Build JEXL context with form values and external context
-  const jexlContext = {
-    $formValues: context.formValues,
-    $externalContext: context.externalContext,
-  };
-  
-  const analysis = analyzeExpression(expression);
-  if (analysis.error) {
-    // Keep custom resolvers and legacy simple paths authoritative. In
-    // particular this lets the resolver reject unsafe path segments itself.
-    if (resolver && isSimplePathExpression(expression)) return resolver(expression, context);
-    context.diagnostics?.report({
-      code: 'EXPRESSION_EVALUATION_ERROR',
-      expression,
-      path: context.expressionPath || '<unknown>',
-      cause: analysis.error,
-    });
-    return undefined;
-  }
-  let hasInvalidReference = false;
-  for (const reference of analysis.references) {
-    const problem = getReferenceProblem(reference, context);
-    if (problem) {
-      hasInvalidReference = true;
-      context.diagnostics?.report({ ...problem, expression, path: context.expressionPath || '<unknown>' });
+function evaluateExpression(expression: string, context: ResolverContext, resolver: VariableResolver): any {
+  const report: Report = problem => context.diagnostics?.report({
+    ...problem,
+    expression,
+    path: context.expressionPath || '<unknown>',
+  });
+
+  if (isComplexExpression(expression)) {
+    const analysis = analyzeExpression(expression);
+    if (analysis.error) {
+      reportEvaluationError(expression, context, report, analysis.error);
+      return undefined;
     }
+    return evaluateParsed(expression, analysis, context, resolver, report);
   }
-  // Do not allow a comparison such as an unknown field === 'value' to turn
-  // into false: callers use undefined to apply their documented safe default.
-  if (hasInvalidReference && context.diagnostics) return undefined;
-  if (resolver && isSimplePathExpression(expression)) return resolver(expression, context);
-  try {
-    return analysis.compiled.evalSync(jexlContext);
-  } catch (error) {
-    context.diagnostics?.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression, path: context.expressionPath || '<unknown>', cause: error });
+
+  const resolved = resolver(expression);
+  if (resolved !== undefined || resolver.handles?.(expression)) {
+    return resolved;
+  }
+
+  const analysis = analyzeExpression(expression);
+  const pathLike = PATH_LIKE.exec(expression);
+  if (!pathLike) {
+    if (analysis.error) {
+      reportEvaluationError(expression, context, report, analysis.error);
+      return undefined;
+    }
+    return evaluateParsed(expression, analysis, context, resolver, report);
+  }
+
+  // The resolver read this as a path and found nothing.
+  const root = pathLike[1];
+  const path = pathLike[2] ? pathLike[2].substring(1).split('.') : [];
+  if (root !== '$formValues' && root !== '$externalContext') {
+    report({ code: 'UNKNOWN_EXPRESSION_VARIABLE', strict: true });
     return undefined;
   }
+  if (path.some(part => UNSAFE_PATH_SEGMENTS.has(part))) {
+    report({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: expression, strict: true });
+    return undefined;
+  }
+
+  const isPlainPath = analysis.error !== undefined
+    || (analysis.chainText === expression && !analysis.isIndexedAccess);
+  if (isPlainPath) {
+    const problem = getMissingPathProblem(root, path, context);
+    if (problem) report(problem);
+    return undefined;
+  }
+  // Not a plain path after all (`items[0].name`, `price*2`). A declared field
+  // whose name contains operator characters stays a quiet, empty field.
+  if (root === '$formValues' && !getMissingPathProblem(root, path, context)) {
+    return undefined;
+  }
+  // Evaluate only when that cannot turn a missing key into NaN or a wrong value.
+  const evaluate = allReferencesResolve(analysis, context);
+  return evaluateParsed(expression, analysis, context, resolver, report, evaluate);
 }
 
 /**
@@ -116,7 +204,7 @@ export function processTemplateString(
   const singleTemplateMatch = str.match(/^\{\{\s*([^}]+)\s*\}\}$/);
   if (singleTemplateMatch) {
     const expr = singleTemplateMatch[1].trim();
-    
+
     return evaluateExpression(expr, context, resolver);
   }
 
@@ -125,10 +213,9 @@ export function processTemplateString(
 
   for (const expression of expressions) {
     const template = `{{ ${expression} }}`;
-    let resolved: any;
-    
-    resolved = evaluateExpression(expression, context, resolver);
-    
+    const resolved = evaluateExpression(expression, context, resolver);
+
+
     // Convert to string for concatenation
     const replacement = resolved !== undefined && resolved !== null 
       ? String(resolved) 
@@ -155,9 +242,8 @@ export function processTemplateString(
 export function processTemplateExpression(
   expression: string,
   resolver: VariableResolver,
-  context?: ResolverContext,
 ): any {
-  return resolver(expression, context);
+  return resolver(expression);
 }
 
 /**

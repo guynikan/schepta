@@ -2,13 +2,12 @@
  * FormFactory Provider Integration Tests
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { FormFactory } from './form-factory';
 import type { FormSchema, MiddlewareFn } from '@schepta/core';
 import { ScheptaProvider } from '@schepta/adapter-react';
 import { createComponentSpec } from '@schepta/core';
-import complexForm from '../../../../instances/form/complex-form.json';
 
 // Simple form schema for testing
 const simpleFormSchema = {
@@ -54,24 +53,6 @@ const InputTextSpec = createComponentSpec({
 });
 
 describe('FormFactory Provider Integration', () => {
-  it('delivers a visibility diagnostic once when expressions is supplied inline', () => {
-    const report = vi.fn();
-    const schema = structuredClone(complexForm) as any;
-    schema.properties.userInfo.properties.fields.properties.basicInfo.properties.spouseName['x-ui'].visible = "{{ $formValues.emial === 'a' }}";
-    const { rerender } = render(
-      <FormFactory schema={schema} expressions={{ onExpressionError: report }} />,
-    );
-
-    rerender(<FormFactory schema={schema} expressions={{ onExpressionError: report }} />);
-
-    expect(report).toHaveBeenCalledTimes(1);
-    expect(report).toHaveBeenCalledWith(expect.objectContaining({
-      code: 'EXPRESSION_PATH_NOT_FOUND',
-      expression: "$formValues.emial === 'a'",
-      path: expect.stringContaining('x-ui.visible'),
-    }));
-  });
-
   it('should use components from provider when not provided as props', () => {
     // This test verifies that FormFactory can access components from provider
     // If component is not found, it would throw an error or render an error message

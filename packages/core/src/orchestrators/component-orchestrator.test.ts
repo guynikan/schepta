@@ -4,8 +4,8 @@ import { createComponentOrchestrator } from './component-orchestrator';
 import { createComponentSpec } from '../registries/component-registry';
 
 describe('createComponentOrchestrator', () => {
-  it('reports an undeclared reference inside a visibility comparison', () => {
-    const onExpressionError = vi.fn();
+  const unresolvable = (onExpressionError: (error: unknown) => void, schema: unknown) => {
+    // No component resolves: nothing renders, but the schema is still processed.
     const render = createComponentOrchestrator(
       () => ({
         components: {},
@@ -16,12 +16,27 @@ describe('createComponentOrchestrator', () => {
       }),
       {} as any,
     );
+    return render('form', schema);
+  };
 
-    expect(render('form', complexForm)).toBeNull();
+  it('treats schema fields as declared even when their component does not resolve', () => {
+    const onExpressionError = vi.fn();
+
+    expect(unresolvable(onExpressionError, complexForm)).toBeNull();
+    expect(onExpressionError).not.toHaveBeenCalled();
+  });
+
+  it('reports an undeclared reference inside a visibility comparison', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const onExpressionError = vi.fn();
+    const schema = JSON.parse(JSON.stringify(complexForm).replace('$formValues.userInfo.maritalStatus', '$formValues.userInfo.maritalStatuss'));
+
+    expect(unresolvable(onExpressionError, schema)).toBeNull();
     expect(onExpressionError).toHaveBeenCalledWith(expect.objectContaining({
       code: 'EXPRESSION_PATH_NOT_FOUND',
-      missingPath: '$formValues.userInfo.maritalStatus',
+      missingPath: '$formValues.userInfo.maritalStatuss',
     }));
+    vi.restoreAllMocks();
   });
 
   it('treats a registered custom field as declared before it has a value', () => {

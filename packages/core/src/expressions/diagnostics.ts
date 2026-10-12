@@ -1,5 +1,5 @@
 import type { DebugContextValue } from '../runtime/types';
-import { traverseFormSchema } from '../validation/schema-traversal';
+import { isInputComponent, traverseFormSchema } from '../validation/schema-traversal';
 
 export type ExpressionErrorCode =
   | 'EXPRESSION_EVALUATION_ERROR'
@@ -21,7 +21,7 @@ export interface ExpressionDiagnosticDetails {
   path: string;
   missingPath?: string;
   cause?: unknown;
-  /** Internal: optional external-context paths are warnings even in strict mode. */
+  /** Internal: false marks a soft problem, which warns but never throws. */
   strict?: boolean;
 }
 
@@ -47,19 +47,30 @@ export interface ExpressionDiagnostics {
   report(details: ExpressionDiagnosticDetails): void;
 }
 
-/** Return form-data paths using the same field-name rules as form adapters. */
+/**
+ * Return form-data paths using the same field-name rules as form adapters.
+ *
+ * `isFieldComponent` lets the caller answer from its component registry. It
+ * returns undefined when the component does not resolve; the schema itself
+ * then decides, because a field the schema declares is declared whether or
+ * not something is registered to render it.
+ */
 export function collectDeclaredFormPaths(
   schema: any,
-  isFieldComponent?: (node: any, key: string) => boolean,
+  isFieldComponent?: (node: any, key: string) => boolean | undefined,
 ): ReadonlySet<string> {
   const paths = new Set<string>();
-  if (!isFieldComponent) {
-    traverseFormSchema(schema, field => paths.add(field.path));
-    return paths;
-  }
+  traverseFormSchema(schema, field => paths.add(field.path));
+  if (!isFieldComponent) return paths;
+
+  const declaresField = (node: any): boolean => {
+    const component = node['x-component'];
+    if (typeof component === 'string' && isInputComponent(component)) return true;
+    return typeof node.type === 'string' && node.type !== 'object' && !node.properties;
+  };
   const visit = (node: any, key: string, parentName: string | undefined, isDirectRootProperty: boolean): void => {
     if (!node || typeof node !== 'object') return;
-    const isField = isFieldComponent(node, key);
+    const isField = isFieldComponent(node, key) ?? declaresField(node);
     const currentName = isField || isDirectRootProperty
       ? (parentName ? `${parentName}.${key}` : key)
       : parentName;
@@ -76,31 +87,44 @@ function isProduction(): boolean {
   return typeof process !== 'undefined' && process.env?.NODE_ENV === 'production';
 }
 
+type Lazy<T> = T | (() => T);
+
+function read<T>(value: Lazy<T>): T {
+  return typeof value === 'function' ? (value as () => T)() : value;
+}
+
 /**
  * Creates a per-form diagnostic sink. It de-duplicates identical errors so a
  * reactive render loop cannot repeatedly report the same schema mistake.
+ *
+ * Create it once per form and keep it. Pass getters when the configuration can
+ * change between renders (an inline `onExpressionError` closure, for example):
+ * the sink then always calls the latest handler without losing what it has
+ * already reported.
  */
 export function createExpressionDiagnostics(
-  config: ExpressionConfig | undefined,
-  debug?: DebugContextValue,
+  config?: Lazy<ExpressionConfig | undefined>,
+  debug?: Lazy<DebugContextValue | undefined>,
 ): ExpressionDiagnostics {
   const reported = new Set<string>();
 
   return {
     report(details) {
+      const currentConfig = read(config);
       const key = `${details.code}\u0000${details.expression}\u0000${details.path}\u0000${details.missingPath ?? ''}`;
       const error = new ScheptaExpressionError(details);
       if (!reported.has(key)) {
         reported.add(key);
-        config?.onExpressionError?.(error);
-        if (debug?.isEnabled) {
-          debug.log('expression', error.message, { error, ...details });
+        currentConfig?.onExpressionError?.(error);
+        const currentDebug = read(debug);
+        if (currentDebug?.isEnabled) {
+          currentDebug.log('expression', error.message, { error, ...details });
         }
         if (!isProduction()) {
           console.warn(error.message, details.cause);
         }
       }
-      if (config?.onError === 'throw' && details.strict !== false) {
+      if (currentConfig?.onError === 'throw' && details.strict !== false) {
         throw error;
       }
     },

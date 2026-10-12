@@ -6,9 +6,8 @@
 
 import type { RuntimeReactionContext, DefaultReaction } from './types';
 import { getAllReactions } from './types';
-import { Jexl } from '../utils/jexl-config';
-import { createExpressionDiagnostics } from '../expressions/diagnostics';
-import { analyzeExpression, getReferenceProblem } from '../expressions/expression-analysis';
+import { createExpressionDiagnostics, type ExpressionDiagnostics } from '../expressions/diagnostics';
+import { allReferencesResolve, analyzeExpression, getReferenceProblem } from '../expressions/expression-analysis';
 
 /**
  * Clean JEXL expression - removes template syntax if needed
@@ -37,6 +36,23 @@ export function runDefaultReactions(context: RuntimeReactionContext): void {
 }
 
 /**
+ * Reactions run many times per form. Without a sink supplied by the caller,
+ * keep one per form adapter so the same problem is reported once per form.
+ */
+const fallbackDiagnostics = new WeakMap<object, ExpressionDiagnostics>();
+
+function getDiagnostics(context: RuntimeReactionContext): ExpressionDiagnostics {
+  if (context.expressionDiagnostics) return context.expressionDiagnostics;
+  const owner: object | undefined = context.formAdapter;
+  let diagnostics = owner && fallbackDiagnostics.get(owner);
+  if (!diagnostics) {
+    diagnostics = createExpressionDiagnostics(context.expressions, context.debug);
+    if (owner) fallbackDiagnostics.set(owner, diagnostics);
+  }
+  return diagnostics;
+}
+
+/**
  * Execute declarative reactions from schema
  */
 export function executeDeclarativeReactions(
@@ -52,7 +68,12 @@ export function executeDeclarativeReactions(
   const formValues = context.formAdapter.getValues();
   const jexlContext = { $form: formValues };
   const dynamicProps: Record<string, any> = {};
-  const diagnostics = context.expressionDiagnostics || createExpressionDiagnostics(context.expressions, context.debug);
+  const diagnostics = getDiagnostics(context);
+  const analysisContext = {
+    formValues,
+    externalContext: {},
+    declaredFormPaths: context.declaredFormPaths,
+  };
 
   for (const [prop, rawExpression] of Object.entries(reactions)) {
     if (typeof rawExpression === 'string') {
@@ -63,16 +84,17 @@ export function executeDeclarativeReactions(
         diagnostics.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression: cleanExpression, path, cause: analysis.error });
         continue;
       }
-      for (const reference of analysis.references) {
-        // Declarative reactions historically expose form values as $form.
-        const normalized = reference.root === '$form'
-          ? { ...reference, root: '$formValues', expression: `$formValues${reference.path.length ? `.${reference.path.join('.')}` : ''}` }
-          : reference;
-        const problem = getReferenceProblem(normalized, { formValues, externalContext: {} });
-        if (problem) diagnostics.report({ ...problem, expression: cleanExpression, path });
+
+      let value: any;
+      let failure: { cause: unknown } | undefined;
+      if (!analysis.forbiddenPath) {
+        try {
+          value = analysis.compiled.evalSync(jexlContext);
+        } catch (cause) {
+          failure = { cause };
+        }
       }
-      try {
-        const value = analysis.compiled.evalSync(jexlContext);
+      if (!failure) {
         dynamicProps[prop] = value;
         context.setFieldProps(context.fieldKey, dynamicProps);
 
@@ -84,12 +106,31 @@ export function executeDeclarativeReactions(
             result: value,
           });
         }
-      } catch (err) {
+      }
+
+      // Diagnostics come after the prop update so they never change it.
+      // Declarative reactions expose form values as $form; it is their only root.
+      const references = analysis.references.map(reference => ({
+        ...reference,
+        root: reference.root === '$form' ? '$formValues' : `reaction:${reference.root}`,
+      }));
+      // JEXL throws when it indexes a missing value; that is a missing reference.
+      if (failure && (references.length === 0 || allReferencesResolve({ ...analysis, references }, analysisContext))) {
+        diagnostics.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression: cleanExpression, path, cause: failure.cause });
+      }
+      if (analysis.forbiddenPath) {
+        diagnostics.report({ code: 'EXPRESSION_PATH_NOT_FOUND', expression: cleanExpression, path, missingPath: analysis.forbiddenPath });
+      }
+      for (const reference of references) {
+        const problem = getReferenceProblem(reference, analysisContext);
+        if (!problem) continue;
         diagnostics.report({
-          code: 'EXPRESSION_EVALUATION_ERROR',
+          ...problem,
+          ...(problem.missingPath ? { missingPath: problem.missingPath.replace(/^\$formValues/, '$form') } : {}),
+          // Without declared paths an empty field cannot be told from a typo, so only warn.
+          strict: problem.code === 'UNKNOWN_EXPRESSION_VARIABLE' || Boolean(context.declaredFormPaths),
           expression: cleanExpression,
           path,
-          cause: err,
         });
       }
     }

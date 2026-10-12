@@ -531,7 +531,7 @@ describe('Template Processor', () => {
       expect(() => processValue(value, createDefaultResolver(strictContext), strictContext, 'x-ui.required')).toThrow(ScheptaExpressionError);
     });
 
-    it('leaves invalid conditions at their safe undefined defaults and reports each location', () => {
+    it('keeps the value main produced for invalid conditions and reports each location', () => {
       vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       const diagnostics: ExpressionDiagnosticDetails[] = [];
       const diagnosticContextValue = diagnosticContext(diagnostics);
@@ -601,5 +601,229 @@ describe('Template Processor', () => {
       expect(processValue('{{ $i18n.title }}', customResolver, { externalContext: {}, formValues: {} })).toBe('T');
     });
   });
-});
+  describe('diagnostics as a side channel', () => {
+    type Seen = Pick<ExpressionDiagnosticDetails, 'code' | 'missingPath'>;
 
+    function setup(overrides: Partial<ResolverContext> = {}, strict = false) {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const seen: Seen[] = [];
+      const context: ResolverContext = {
+        externalContext: { user: { name: 'x', profile: null } },
+        formValues: {},
+        declaredFormPaths: new Set(['email', 'items']),
+        ...overrides,
+        diagnostics: createExpressionDiagnostics({
+          onError: strict ? 'throw' : 'warn',
+          onExpressionError: error => seen.push({
+            code: error.code,
+            ...(error.missingPath ? { missingPath: error.missingPath } : {}),
+          }),
+        }),
+      };
+      const run = (value: unknown, resolver = createDefaultResolver(context)) => processValue(value, resolver, context);
+      return { context, run, seen };
+    }
+
+    const missing = (missingPath: string): Seen => ({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath });
+    const unknown: Seen = { code: 'UNKNOWN_EXPRESSION_VARIABLE' };
+
+    it('warns about optional $externalContext keys without changing the condition', () => {
+      const { run, seen } = setup();
+
+      expect(run('{{ $externalContext.user.isAdmin == true }}')).toBe(false);
+      expect(run("{{ $externalContext.user.role != 'admin' }}")).toBe(true);
+      expect(run("{{ $externalContext.user.nickname != 'x' }}")).toBe(true);
+      expect(seen).toEqual([
+        missing('$externalContext.user.isAdmin'),
+        missing('$externalContext.user.role'),
+        missing('$externalContext.user.nickname'),
+      ]);
+    });
+
+    it('accepts a null guard over an optional $externalContext key', () => {
+      const { run, seen } = setup();
+
+      expect(run('{{ $externalContext.user.profile && $externalContext.user.profile.bio }}')).toBeNull();
+      expect(run("{{ $externalContext.user.profile ? $externalContext.user.profile.bio : '' }}")).toBe('');
+      expect(seen).toEqual([]);
+    });
+
+    it('never throws for a missing path below an existing $externalContext key', () => {
+      const { run, seen } = setup({}, true);
+
+      expect(run('{{ $externalContext.user.isAdmin == true }}')).toBe(false);
+      expect(run('{{ $externalContext.user.isAdmin }}')).toBeUndefined();
+      expect(seen).toEqual([missing('$externalContext.user.isAdmin'), missing('$externalContext.user.isAdmin')]);
+      expect(() => run('{{ $externalContext.session.id }}')).toThrow(
+        expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$externalContext.session.id' }),
+      );
+      expect(() => run('{{ $externalContext.session.id == 1 }}')).toThrow(ScheptaExpressionError);
+    });
+
+    it('reports typos and unknown roots anywhere in a ternary', () => {
+      const { run, seen } = setup();
+
+      expect(run("{{ $formValues.emial ? 'a' : 'b' }}")).toBe('b');
+      expect(run("{{ $session.admin ? 'a' : 'b' }}")).toBe('b');
+      expect(run("{{ $formValues.emial === 'x' ? 'a' : 'b' }}")).toBe('b');
+      expect(run("{{ $formValues.email == 'x' ? $formValues.nmae : $session.id }}")).toBeUndefined();
+      expect(seen).toEqual([
+        missing('$formValues.emial'), unknown, missing('$formValues.emial'), missing('$formValues.nmae'), unknown,
+      ]);
+    });
+
+    it('throws for ternary and bracket typos in strict mode with the diagnostic details', () => {
+      const { run, seen } = setup({}, true);
+
+      for (const expression of [
+        "{{ $formValues.emial ? 'a' : 'b' }}",
+        "{{ $formValues.emial === 'x' ? 'a' : 'b' }}",
+        "{{ $formValues['emial'] == 1 }}",
+        "{{ $formValues['emial'] }}",
+      ]) {
+        expect(() => run(expression)).toThrow(
+          expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.emial' }),
+        );
+        // Strict mode throws every time, not only on the first report.
+        expect(() => run(expression)).toThrow(ScheptaExpressionError);
+      }
+      expect(() => run("{{ $session.admin ? 'a' : 'b' }}")).toThrow(
+        expect.objectContaining({ code: 'UNKNOWN_EXPRESSION_VARIABLE' }),
+      );
+      expect(seen).toHaveLength(5);
+    });
+
+    it('guards only the left operand of || and &&, and explicit null comparisons', () => {
+      const { run, seen } = setup();
+
+      expect(run("{{ $formValues.emial || 'fallback' }}")).toBe('fallback');
+      expect(run('{{ $formValues.emial && $formValues.emial.length > 2 }}')).toBeUndefined();
+      expect(run('{{ $formValues.emial == null }}')).toBe(true);
+      expect(run('{{ $formValues.emial != undefined }}')).toBe(false);
+      expect(seen).toEqual([]);
+
+      expect(run("{{ 'fallback' || $formValues.emial }}")).toBe('fallback');
+      expect(run('{{ !$formValues.emial }}')).toBe(true);
+      expect(seen).toEqual([missing('$formValues.emial'), missing('$formValues.emial')]);
+    });
+
+    it('never lets a guard excuse an unknown root', () => {
+      const { run, seen } = setup();
+
+      expect(run("{{ $session.locale || 'en' }}")).toBe('en');
+      expect(run('{{ $session.user && $session.user.id }}')).toBeUndefined();
+      expect(run('{{ $session.user == null }}')).toBe(true);
+      expect(run("{{ $formValues.email == admin }}")).toBe(true);
+      expect(seen).toEqual([unknown, unknown, unknown, unknown]);
+    });
+
+    it('keeps resolving keys that contain operator characters, quietly', () => {
+      const { run, seen } = setup({
+        externalContext: { 'a/b': 7, 'x+y': 8, 'api-url': 'https://api' },
+        formValues: { 'a-b': 5 },
+        declaredFormPaths: new Set(['a-b', 'c-d']),
+      }, true);
+
+      expect(run('{{ $externalContext.a/b }}')).toBe(7);
+      expect(run('{{ $externalContext.x+y }}')).toBe(8);
+      expect(run('{{ $externalContext.api-url }}')).toBe('https://api');
+      expect(run('URL: {{ $externalContext.api-url }}/v1')).toBe('URL: https://api/v1');
+      expect(run('{{ $formValues.a-b }}')).toBe(5);
+      // Declared, still empty, and never mistaken for a subtraction.
+      expect(run('{{ $formValues.c-d }}')).toBeUndefined();
+      expect(seen).toEqual([]);
+    });
+
+    it('does not turn a missing operator-character key into NaN', () => {
+      const { run, seen } = setup({ externalContext: { a: 4 } });
+
+      expect(run('{{ $externalContext.a/b }}')).toBeUndefined();
+      expect(run('Rate: {{ $externalContext.a/b }}')).toBe('Rate: ');
+      // `b` is not a variable; the same problem at the same place is reported once.
+      expect(seen).toEqual([unknown]);
+    });
+
+    it('works with createCustomResolver roots', () => {
+      const { context, run, seen } = setup({}, true);
+      const resolver = createCustomResolver(context, {
+        $i18n: path => `T(${path})`,
+        $now: () => 'NOW',
+        $optional: () => undefined,
+      });
+
+      expect(run('{{ $i18n.hello }}', resolver)).toBe('T(hello)');
+      expect(run('Hi {{ $i18n.hello }} {{ $now }}', resolver)).toBe('Hi T(hello) NOW');
+      expect(run('{{ $optional.anything }}', resolver)).toBeUndefined();
+      // JEXL never saw custom roots, so the comparison keeps its historical value.
+      expect(run("{{ $i18n.hello == 'T(hello)' }}", resolver)).toBe(false);
+      expect(seen).toEqual([]);
+
+      expect(() => run('{{ $i18n.hello }}')).toThrow(expect.objectContaining({ code: 'UNKNOWN_EXPRESSION_VARIABLE' }));
+      expect(() => run('{{ $typo.hello }}', resolver)).toThrow(ScheptaExpressionError);
+    });
+
+    it('accepts array index and filter access in both spellings', () => {
+      const { run, seen } = setup({ formValues: { items: [{ name: 'x', price: 2 }] } }, true);
+
+      expect(run('{{ $formValues.items[0].name }}')).toBe('x');
+      expect(run("{{ $formValues.items[0].name == 'x' }}")).toBe(true);
+      expect(run('{{ $formValues.items[.price > 1][0].name }}')).toBe('x');
+      expect(run('{{ $formValues.items[.price > 1] }}')).toEqual([{ name: 'x', price: 2 }]);
+      expect(seen).toEqual([]);
+    });
+
+    it('stays quiet for an index into a declared array that is still empty', () => {
+      const { run, seen } = setup({}, true);
+
+      expect(run('{{ $formValues.items[0].name }}')).toBeUndefined();
+      expect(run("{{ $formValues.items[0].name == 'x' }}")).toBeUndefined();
+      expect(seen).toEqual([]);
+      expect(() => run('{{ $formValues.itms[0].name }}')).toThrow(
+        expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.itms' }),
+      );
+    });
+
+    it('reads get-only Proxy and class-instance contexts', () => {
+      class Account {
+        get fullName() { return 'Ada Lovelace'; }
+      }
+      const proxy = new Proxy({}, { get: (_, key) => `P:${String(key)}` });
+      const { run, seen } = setup({ externalContext: { proxy, account: new Account() } }, true);
+
+      expect(run('{{ $externalContext.proxy.anything }}')).toBe('P:anything');
+      expect(run("{{ $externalContext.proxy.anything == 'P:anything' }}")).toBe(true);
+      expect(run('{{ $externalContext.account.fullName }}')).toBe('Ada Lovelace');
+      expect(run("{{ $externalContext.account.fullName == 'Ada Lovelace' }}")).toBe(true);
+      expect(seen).toEqual([]);
+    });
+
+    it('accepts a group that contains declared fields', () => {
+      const { run, seen } = setup({ declaredFormPaths: new Set(['userInfo.firstName']) }, true);
+
+      expect(run('{{ $formValues.userInfo }}')).toBeUndefined();
+      expect(run('{{ $formValues.userInfo.firstName.length > 2 }}')).toBe(false);
+      expect(seen).toEqual([]);
+    });
+
+    it('forces undefined only for forbidden segments', () => {
+      const { run, seen } = setup({ formValues: { email: 'a@b.c' } });
+
+      expect(run('{{ $formValues.constructor.name }}')).toBeUndefined();
+      expect(run("{{ $formValues['constructor'] }}")).toBeUndefined();
+      expect(run("{{ $formValues.email.prototype || 'x' }}")).toBeUndefined();
+      expect(seen).toEqual([
+        missing('$formValues.constructor.name'),
+        missing('$formValues.constructor'),
+        missing('$formValues.email.prototype'),
+      ]);
+    });
+
+    it('warns on the console when no diagnostics are configured, as before', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const context: ResolverContext = { externalContext: {}, formValues: {} };
+
+      expect(processValue('{{ 1 === }}', createDefaultResolver(context), context)).toBeUndefined();
+      expect(warn).toHaveBeenCalledWith('Error evaluating expression "1 ===":', expect.anything());
+    });
+  });
+});

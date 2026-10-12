@@ -11,6 +11,7 @@ import type {
   MiddlewareFn,
   FormAdapter,
   ExpressionConfig,
+  ExpressionDiagnostics,
 } from "@schepta/core";
 import { createReactRuntimeAdapter } from "@schepta/adapter-react";
 import {
@@ -154,17 +155,19 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
     const formValuesRef = useRef(formValues);
     formValuesRef.current = formValues;
 
-    // Keep diagnostics per form instance. An inline `expressions` object is
-    // recreated by parents on every render, but must not reset de-duplication.
-    const diagnosticsRef = useRef<ReturnType<typeof createExpressionDiagnostics>>();
-    const diagnosticsConfigRef = useRef<ExpressionConfig | undefined>();
-    const diagnosticsMode = mergedConfig.expressions?.onError;
-    const diagnosticsHandler = mergedConfig.expressions?.onExpressionError;
-    if (!diagnosticsRef.current
-      || diagnosticsConfigRef.current?.onError !== diagnosticsMode
-      || diagnosticsConfigRef.current?.onExpressionError !== diagnosticsHandler) {
-      diagnosticsConfigRef.current = mergedConfig.expressions;
-      diagnosticsRef.current = createExpressionDiagnostics(mergedConfig.expressions, createDebugContext(mergedConfig.debug));
+    // One diagnostics sink for the lifetime of the form. It reads the latest
+    // configuration through refs, so an inline `expressions` object or handler
+    // neither resets de-duplication nor rebuilds the renderer.
+    const expressionsRef = useRef(mergedConfig.expressions);
+    expressionsRef.current = mergedConfig.expressions;
+    const debugEnabledRef = useRef(mergedConfig.debug);
+    debugEnabledRef.current = mergedConfig.debug;
+    const diagnosticsRef = useRef<ExpressionDiagnostics>();
+    if (!diagnosticsRef.current) {
+      diagnosticsRef.current = createExpressionDiagnostics(
+        () => expressionsRef.current,
+        () => createDebugContext(debugEnabledRef.current),
+      );
     }
 
     // Stable orchestrator — recreated only when config/adapter/runtime changes,
@@ -179,7 +182,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
           externalContext: mergedConfig.externalContext,
           formValues: currentValues,
           debug: debugContext,
-          expressions: mergedConfig.expressions,
+          expressions: expressionsRef.current,
           expressionDiagnostics,
         });
 
@@ -199,7 +202,7 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
           middlewares: updatedMiddlewares,
           onSubmit: onSubmitRef.current,
           debug: debugContext,
-          expressions: mergedConfig.expressions,
+          expressions: expressionsRef.current,
           expressionDiagnostics,
           formAdapter,
         };
@@ -213,8 +216,6 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
       mergedConfig.externalContext,
       mergedConfig.baseMiddlewares,
       mergedConfig.debug,
-      diagnosticsMode,
-      diagnosticsHandler,
       formAdapter,
       runtime,
     ]);
