@@ -5,18 +5,19 @@
  */
 
 import React from 'react';
-import type { RuntimeAdapter, ComponentSpec, RenderResult, RendererSpec } from '@schepta/core';
+import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RenderResult, type RendererSpec } from '@schepta/core';
 
 /**
  * React runtime adapter implementation
  */
 export class ReactRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
+    const safeProps = sanitizeRuntimeProps(props);
     if (spec.component) {
-    const component = spec.component(props, this);
+    const component = spec.component(safeProps, this);
     // If factory returns a React component type, create element
     if (typeof component === 'function' || typeof component === 'object') {
-      return React.createElement(component as any, props);
+      return React.createElement(component as any, safeProps);
     }
     // If it's already an element, return it
     return component as RenderResult;
@@ -50,6 +51,17 @@ export class ReactRuntimeAdapter implements RuntimeAdapter {
       // This method exists for interface compatibility
     }
   }
+}
+
+function sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
+  const safeProps = sanitizeDOMProps(props);
+  for (const nestedPropName of ['componentProps', 'x-component-props']) {
+    const nestedProps = safeProps[nestedPropName];
+    if (nestedProps && typeof nestedProps === 'object' && !Array.isArray(nestedProps)) {
+      safeProps[nestedPropName] = sanitizeDOMProps(nestedProps);
+    }
+  }
+  return safeProps;
 }
 
 /**

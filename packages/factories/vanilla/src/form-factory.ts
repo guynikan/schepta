@@ -78,10 +78,14 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
     errorDiv.style.border = '1px solid var(--schepta-error-border)';
     errorDiv.style.borderRadius = '4px';
     errorDiv.style.marginBottom = '16px';
-    errorDiv.innerHTML = `
-      <h3 style="margin-top: 0;">Schema Validation Error</h3>
-      <pre style="white-space: pre-wrap; font-size: 13px;">${formatValidationErrors(validation.errors || [])}</pre>
-    `;
+    const heading = document.createElement('h3');
+    heading.style.marginTop = '0';
+    heading.textContent = 'Schema Validation Error';
+    const errors = document.createElement('pre');
+    errors.style.whiteSpace = 'pre-wrap';
+    errors.style.fontSize = '13px';
+    errors.textContent = formatValidationErrors(validation.errors || []);
+    errorDiv.append(heading, errors);
     options.container.appendChild(errorDiv);
 
     const emptyAdapter = createVanillaFormAdapter({});
@@ -90,7 +94,7 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
       submit: () => {},
       reset: () => {},
       getValues: () => ({}),
-      destroy: () => { options.container.innerHTML = ''; },
+      destroy: () => { options.container.replaceChildren(); },
     };
   }
 
@@ -271,7 +275,7 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
       unsubscribeChange();
       unsubscribeChange = null;
     }
-    options.container.innerHTML = '';
+    options.container.replaceChildren();
     currentFormElement = null;
   };
 

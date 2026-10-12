@@ -4,7 +4,7 @@
  * Implements RuntimeAdapter using DOM APIs
  */
 
-import type { RuntimeAdapter, ComponentSpec, RendererSpec, RenderResult } from '@schepta/core';
+import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RendererSpec, type RenderResult } from '@schepta/core';
 
 import type { DOMElement } from './types';
 
@@ -13,6 +13,7 @@ import type { DOMElement } from './types';
  */
 export class VanillaRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
+    const safeProps = this.sanitizeRuntimeProps(props);
     if (!spec) {
       console.error('[VanillaRuntime] Invalid spec:', spec);
       throw new Error(`Invalid spec: spec is null/undefined`);
@@ -20,9 +21,9 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
     
     // Handle RendererSpec (for field renderers, etc)
     if ('renderer' in spec && spec.renderer && typeof spec.renderer === 'function') {
-      const result = spec.renderer(props);
+      const result = spec.renderer(safeProps);
       if (result instanceof HTMLElement) {
-        return this.wrapElement(result, props);
+        return this.wrapElement(result, safeProps);
       }
       if (result && 'element' in result) {
         return result as DOMElement;
@@ -38,25 +39,25 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
     
     // Call component function - it returns the element or factory
     // Pass runtime adapter as second arg for compatibility with spec interface
-    const component = spec.component(props, this);
+    const component = spec.component(safeProps, this);
     
     // If component returns a DOM element directly
     if (component instanceof HTMLElement) {
-      return this.wrapElement(component, props);
+      return this.wrapElement(component, safeProps);
     }
     
     // If component returns a function that creates an element
     if (typeof component === 'function') {
-      const element = component(props);
+      const element = component(safeProps);
       if (element instanceof HTMLElement) {
-        return this.wrapElement(element, props);
+        return this.wrapElement(element, safeProps);
       }
     }
     
     // Create a div as fallback
     const div = document.createElement('div');
     div.setAttribute('data-component', spec.id);
-    return this.wrapElement(div, props);
+    return this.wrapElement(div, safeProps);
   }
 
   fragment(children: RenderResult[]): RenderResult {
@@ -97,11 +98,12 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
 
   setProps(element: RenderResult, props: Record<string, any>): void {
     if (this.isValidElement(element)) {
+      const safeProps = this.sanitizeRuntimeProps(props);
       const domElement = element instanceof HTMLElement 
-        ? this.wrapElement(element, props)
+        ? this.wrapElement(element, safeProps)
         : element as DOMElement;
       
-      Object.assign(domElement.props, props);
+      Object.assign(domElement.props, safeProps);
       
       // Apply props to actual DOM element
       const el = domElement.element instanceof DocumentFragment 
@@ -109,7 +111,7 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
         : domElement.element;
       
       if (el) {
-        for (const [key, value] of Object.entries(props)) {
+        for (const [key, value] of Object.entries(safeProps)) {
           if (key.startsWith('on') && typeof value === 'function') {
             const eventName = key.slice(2).toLowerCase();
             el.addEventListener(eventName, value);
@@ -133,6 +135,17 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
       children: [],
       props: { ...props },
     };
+  }
+
+  private sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
+    const safeProps = sanitizeDOMProps(props);
+    for (const nestedPropName of ['componentProps', 'x-component-props']) {
+      const nestedProps = safeProps[nestedPropName];
+      if (nestedProps && typeof nestedProps === 'object' && !Array.isArray(nestedProps)) {
+        safeProps[nestedPropName] = sanitizeDOMProps(nestedProps);
+      }
+    }
+    return safeProps;
   }
 }
 

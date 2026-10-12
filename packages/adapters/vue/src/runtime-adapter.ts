@@ -5,20 +5,21 @@
  */
 
 import { h, Fragment, VNode } from 'vue';
-import type { RuntimeAdapter, ComponentSpec, RenderResult, RendererSpec } from '@schepta/core';
+import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RenderResult, type RendererSpec } from '@schepta/core';
 
 /**
  * Vue runtime adapter implementation
  */
 export class VueRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
+    const safeProps = sanitizeRuntimeProps(props);
     if (!spec.component) {
       throw new Error(`Component ${(spec as any).id} is not a function`);
     }
-    const component = spec.component(props, this) as any;
+    const component = spec.component(safeProps, this) as any;
     
     // Extract children from props if present (Vue passes children as third argument to h())
-    const { children, ...restProps } = props;
+    const { children, ...restProps } = safeProps;
     
     // If children are provided, pass them as third argument to h()
     // Vue prefers function slots for better performance when using defineComponent with slots
@@ -52,10 +53,21 @@ export class VueRuntimeAdapter implements RuntimeAdapter {
     if (this.isValidElement(element)) {
       const vnode = element as VNode;
       if (vnode.props) {
-        Object.assign(vnode.props, props);
+        Object.assign(vnode.props, sanitizeRuntimeProps(props));
       }
     }
   }
+}
+
+function sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
+  const safeProps = sanitizeDOMProps(props);
+  for (const nestedPropName of ['componentProps', 'x-component-props']) {
+    const nestedProps = safeProps[nestedPropName];
+    if (nestedProps && typeof nestedProps === 'object' && !Array.isArray(nestedProps)) {
+      safeProps[nestedPropName] = sanitizeDOMProps(nestedProps);
+    }
+  }
+  return safeProps;
 }
 
 /**
