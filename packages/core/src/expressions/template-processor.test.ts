@@ -574,6 +574,24 @@ describe('Template Processor', () => {
       })]);
     });
 
+    it('blocks prototype-chain segments before JEXL can expose constructors', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const context = diagnosticContext(diagnostics);
+
+      expect(processValue(
+        '{{ $formValues.constructor.constructor }}',
+        createDefaultResolver(context),
+        context,
+        'x-ui.visible',
+      )).toBeUndefined();
+      expect(diagnostics).toEqual([expect.objectContaining({
+        code: 'EXPRESSION_PATH_NOT_FOUND',
+        missingPath: '$formValues.constructor.constructor',
+        path: 'x-ui.visible',
+      })]);
+    });
+
     it('preserves custom resolver context while processValue supplies runtime values', () => {
       const customResolver = createCustomResolver(
         { externalContext: {}, formValues: {}, i18n: { title: 'T' } },

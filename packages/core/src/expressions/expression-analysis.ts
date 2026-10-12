@@ -1,5 +1,5 @@
 import { Jexl } from '../utils/jexl-config';
-import type { ResolverContext } from './variable-resolver';
+import { UNSAFE_PATH_SEGMENTS, type ResolverContext } from './variable-resolver';
 
 export interface ExpressionReference {
   expression: string;
@@ -77,6 +77,7 @@ export function analyzeExpression(expression: string): CompiledExpression {
 function resolvePath(value: any, path: string[]): { found: boolean; value: any } {
   let current = value;
   for (const part of path) {
+    if (UNSAFE_PATH_SEGMENTS.has(part)) return { found: false, value: undefined };
     if (current === null || current === undefined || !(part in Object(current))) return { found: false, value: undefined };
     // Always read the property: get-only Proxy contexts must preserve main's value semantics.
     current = current[part];

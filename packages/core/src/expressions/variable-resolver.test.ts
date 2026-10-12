@@ -221,6 +221,17 @@ describe('Variable Resolver', () => {
       expect(resolver('$externalContext.user.fullName')).toBe('Ada Lovelace');
     });
 
+    it('blocks prototype-chain segments without blocking inherited getters', () => {
+      const report = vi.fn();
+      const resolver = createDefaultResolver({ externalContext: {}, formValues: {}, diagnostics: { report } });
+
+      expect(resolver('$formValues.constructor.constructor')).toBeUndefined();
+      expect(report).toHaveBeenCalledWith(expect.objectContaining({
+        code: 'EXPRESSION_PATH_NOT_FOUND',
+        missingPath: '$formValues.constructor.constructor',
+      }));
+    });
+
     it('accepts sub-properties of declared but empty fields', () => {
       const report = vi.fn();
       const resolver = createDefaultResolver({

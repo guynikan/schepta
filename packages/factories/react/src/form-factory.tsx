@@ -154,11 +154,24 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
     const formValuesRef = useRef(formValues);
     formValuesRef.current = formValues;
 
+    // Keep diagnostics per form instance. An inline `expressions` object is
+    // recreated by parents on every render, but must not reset de-duplication.
+    const diagnosticsRef = useRef<ReturnType<typeof createExpressionDiagnostics>>();
+    const diagnosticsConfigRef = useRef<ExpressionConfig | undefined>();
+    const diagnosticsMode = mergedConfig.expressions?.onError;
+    const diagnosticsHandler = mergedConfig.expressions?.onExpressionError;
+    if (!diagnosticsRef.current
+      || diagnosticsConfigRef.current?.onError !== diagnosticsMode
+      || diagnosticsConfigRef.current?.onExpressionError !== diagnosticsHandler) {
+      diagnosticsConfigRef.current = mergedConfig.expressions;
+      diagnosticsRef.current = createExpressionDiagnostics(mergedConfig.expressions, createDebugContext(mergedConfig.debug));
+    }
+
     // Stable orchestrator — recreated only when config/adapter/runtime changes,
     // NOT when form values change (that's handled via formValuesRef above).
     const renderer = useMemo(() => {
       const debugContext = createDebugContext(mergedConfig.debug);
-      const expressionDiagnostics = createExpressionDiagnostics(mergedConfig.expressions, debugContext);
+      const expressionDiagnostics = diagnosticsRef.current!;
       const getFactorySetup = (): FactorySetupResult => {
         const currentValues = formValuesRef.current;
 
@@ -200,7 +213,8 @@ export const FormFactory = forwardRef<FormFactoryRef, FormFactoryProps>(
       mergedConfig.externalContext,
       mergedConfig.baseMiddlewares,
       mergedConfig.debug,
-      mergedConfig.expressions,
+      diagnosticsMode,
+      diagnosticsHandler,
       formAdapter,
       runtime,
     ]);

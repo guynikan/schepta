@@ -33,6 +33,9 @@ export interface ResolverContext {
  */
 export type VariableResolver = (expression: string, context?: ResolverContext) => any;
 
+/** Property names which must never be followed from a schema expression. */
+export const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+
 /**
  * Resolve a nested property path (e.g., "user.name" -> context.user.name)
  * 
@@ -50,6 +53,9 @@ function resolveNestedPath(path: string, obj: any): { found: boolean; value: any
 
   for (const part of parts) {
     if (current === null || current === undefined) {
+      return { found: false, value: undefined };
+    }
+    if (UNSAFE_PATH_SEGMENTS.has(part)) {
       return { found: false, value: undefined };
     }
     if (!(part in Object(current))) {

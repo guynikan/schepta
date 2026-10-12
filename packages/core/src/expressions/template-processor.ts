@@ -46,6 +46,9 @@ function evaluateExpression(expression: string, context: ResolverContext, resolv
   
   const analysis = analyzeExpression(expression);
   if (analysis.error) {
+    // Keep custom resolvers and legacy simple paths authoritative. In
+    // particular this lets the resolver reject unsafe path segments itself.
+    if (resolver && isSimplePathExpression(expression)) return resolver(expression, context);
     context.diagnostics?.report({
       code: 'EXPRESSION_EVALUATION_ERROR',
       expression,
@@ -54,10 +57,17 @@ function evaluateExpression(expression: string, context: ResolverContext, resolv
     });
     return undefined;
   }
+  let hasInvalidReference = false;
   for (const reference of analysis.references) {
     const problem = getReferenceProblem(reference, context);
-    if (problem) context.diagnostics?.report({ ...problem, expression, path: context.expressionPath || '<unknown>' });
+    if (problem) {
+      hasInvalidReference = true;
+      context.diagnostics?.report({ ...problem, expression, path: context.expressionPath || '<unknown>' });
+    }
   }
+  // Do not allow a comparison such as an unknown field === 'value' to turn
+  // into false: callers use undefined to apply their documented safe default.
+  if (hasInvalidReference && context.diagnostics) return undefined;
   if (resolver && isSimplePathExpression(expression)) return resolver(expression, context);
   try {
     return analysis.compiled.evalSync(jexlContext);
