@@ -4,7 +4,8 @@
  * Built-in submit button for forms. Uses type="submit" to trigger form submission.
  */
 
-import { defineComponent, h, type PropType, type Component } from 'vue';
+import { defineComponent, h, mergeProps, type PropType, type Component } from 'vue';
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props for SubmitButton component.
@@ -26,9 +27,10 @@ export type SubmitButtonComponentType = Component<SubmitButtonProps>;
  */
 export const DefaultSubmitButton = defineComponent({
   name: 'DefaultSubmitButton',
-  setup() {
+  inheritAttrs: false,
+  setup(_props, { attrs }) {
     return () =>
-      h('div', { style: { marginTop: '24px', textAlign: 'right' } }, [
+      h('div', mergeProps({ style: { marginTop: '24px', textAlign: 'right' } }, sanitizeDOMProps(attrs, 'div')), [
         h('button', {
           type: 'submit',
           'data-test-id': 'submit-button',

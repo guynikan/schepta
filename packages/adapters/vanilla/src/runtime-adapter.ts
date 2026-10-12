@@ -4,9 +4,13 @@
  * Implements RuntimeAdapter using DOM APIs
  */
 
-import type { RuntimeAdapter, ComponentSpec, RendererSpec, RenderResult } from '@schepta/core';
+import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RendererSpec, type RenderResult } from '@schepta/core';
 
 import type { DOMElement } from './types';
+
+// Allowlisted props with no writable DOM property of the same name (`list` is
+// read-only, the others are spelled differently), so they are set as attributes.
+const ATTRIBUTE_ONLY_PROPS = new Set(['list', 'spellcheck', 'autocapitalize', 'enterkeyhint']);
 
 /**
  * Vanilla JS runtime adapter implementation
@@ -97,11 +101,15 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
 
   setProps(element: RenderResult, props: Record<string, any>): void {
     if (this.isValidElement(element)) {
+      const target = element instanceof HTMLElement ? element : (element as DOMElement).element;
+      // Props are applied to a native element here, so this is where the
+      // allowlist runs; create() hands props to components untouched.
+      const safeProps = sanitizeDOMProps(props, target instanceof HTMLElement ? target.tagName : undefined);
       const domElement = element instanceof HTMLElement 
-        ? this.wrapElement(element, props)
+        ? this.wrapElement(element, safeProps)
         : element as DOMElement;
       
-      Object.assign(domElement.props, props);
+      Object.assign(domElement.props, safeProps);
       
       // Apply props to actual DOM element
       const el = domElement.element instanceof DocumentFragment 
@@ -109,7 +117,7 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
         : domElement.element;
       
       if (el) {
-        for (const [key, value] of Object.entries(props)) {
+        for (const [key, value] of Object.entries(safeProps)) {
           if (key.startsWith('on') && typeof value === 'function') {
             const eventName = key.slice(2).toLowerCase();
             el.addEventListener(eventName, value);
@@ -119,8 +127,16 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
             Object.assign(el.style, value);
           } else if (key.startsWith('data-')) {
             el.setAttribute(key, String(value));
+          } else if (key.startsWith('aria-')) {
+            el.setAttribute(key, String(value));
+          } else if (ATTRIBUTE_ONLY_PROPS.has(key.toLowerCase())) {
+            el.setAttribute(key.toLowerCase(), String(value));
           } else {
-            (el as any)[key] = value;
+            try {
+              (el as any)[key] = value;
+            } catch {
+              console.warn(`[Schepta] Dropped DOM prop "${key}": it could not be applied to this element.`);
+            }
           }
         }
       }

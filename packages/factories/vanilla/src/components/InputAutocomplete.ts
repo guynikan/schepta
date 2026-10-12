@@ -2,6 +2,8 @@
  * Vanilla InputAutocomplete Component
  */
 
+import { toSafeText } from '@schepta/core';
+
 export interface InputAutocompleteOption {
   value: string;
   label?: string;
@@ -36,9 +38,10 @@ export function createInputAutocomplete(props: InputAutocompleteProps): HTMLElem
   const listId = `${props.name}-datalist`;
   const normalizedOptions = normalizeOptions(props.options || []);
   
-  if (props.label) {
+  const labelText = toSafeText(props.label);
+  if (labelText) {
     const label = document.createElement('label');
-    label.textContent = props.label;
+    label.textContent = labelText;
     label.htmlFor = props.name;
     label.style.display = 'block';
     label.style.marginBottom = '4px';
@@ -72,7 +75,7 @@ export function createInputAutocomplete(props: InputAutocompleteProps): HTMLElem
   normalizedOptions.forEach(opt => {
     const option = document.createElement('option');
     option.value = opt.value;
-    option.textContent = opt.label;
+    option.textContent = toSafeText(opt.label);
     datalist.appendChild(option);
   });
   

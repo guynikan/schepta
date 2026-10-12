@@ -4,7 +4,8 @@
  * Built-in select input for forms.
  */
 
-import { defineComponent, h, type PropType } from 'vue';
+import { defineComponent, h, mergeProps, type PropType } from 'vue';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 export interface InputSelectOption {
   value: string;
@@ -28,6 +29,7 @@ const wrapperStyle = { marginBottom: '16px' };
 
 export const DefaultInputSelect = defineComponent({
   name: 'DefaultInputSelect',
+  inheritAttrs: false,
   props: {
     name: { type: String, required: true },
     value: { type: [String, Number] as PropType<string | number>, default: '' },
@@ -40,12 +42,13 @@ export const DefaultInputSelect = defineComponent({
     disabled: { type: Boolean, default: false },
   },
   emits: ['update:modelValue'],
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     return () => {
       const value = props.value ?? '';
-      return h('div', { style: wrapperStyle }, [
-        props.label &&
-          h('label', { for: props.name, style: labelStyle }, props.label),
+      const label = toSafeText(props.label);
+      return h('div', mergeProps({ style: wrapperStyle }, sanitizeDOMProps(attrs, 'div')), [
+        label &&
+          h('label', { for: props.name, style: labelStyle }, label),
         h(
           'select',
           {
@@ -63,9 +66,9 @@ export const DefaultInputSelect = defineComponent({
             },
           },
           [
-            h('option', { value: '' }, props.placeholder),
+            h('option', { value: '' }, toSafeText(props.placeholder)),
             ...(props.options || []).map((opt) =>
-              h('option', { key: opt.value, value: opt.value }, opt.label)
+              h('option', { key: opt.value, value: opt.value }, toSafeText(opt.label))
             ),
           ]
         ),

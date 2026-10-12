@@ -4,11 +4,13 @@
  * Container for FormSectionGroup(s).
  */
 
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, mergeProps } from 'vue';
+import { sanitizeDOMProps } from '@schepta/core';
 
 export const DefaultFormSectionGroupContainer = defineComponent({
   name: 'DefaultFormSectionGroupContainer',
-  setup(props, { slots }) {
-    return () => h('div', null, slots.default?.());
+  inheritAttrs: false,
+  setup(props, { slots, attrs }) {
+    return () => h('div', sanitizeDOMProps(attrs, 'div'), slots.default?.());
   },
 });

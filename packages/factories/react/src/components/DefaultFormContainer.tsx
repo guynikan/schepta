@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 import { useScheptaFormAdapter } from '../context/schepta-form-context';
 import { DefaultSubmitButton, SubmitButtonComponentType } from './DefaultSubmitButton';
 
@@ -53,6 +54,7 @@ export const DefaultFormContainer: React.FC<FormContainerProps> = ({
   children,
   onSubmit,
   externalContext,
+  SubmitButtonComponent,
   ...props
 }) => {
   const adapter = useScheptaFormAdapter();
@@ -65,7 +67,7 @@ export const DefaultFormContainer: React.FC<FormContainerProps> = ({
   };
 
   return (
-    <form onSubmit={handleFormSubmit} {...props}>
+    <form onSubmit={handleFormSubmit} {...sanitizeDOMProps(props, 'form')}>
       {children}
       {onSubmit && <DefaultSubmitButton />}
     </form>

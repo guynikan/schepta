@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 /**
  * Props passed to the InputCheckbox component.
@@ -55,10 +56,9 @@ export const DefaultInputCheckbox = React.forwardRef<HTMLInputElement, InputChec
             name={name}
             checked={value ?? false}
             onChange={(e) => onChange?.(e.target.checked)}
-            {...xComponentProps}
-            {...rest}
+            {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'input')}
           />
-          {label}
+          {toSafeText(label)}
         </label>
         {children}
       </div>

@@ -16,7 +16,10 @@ export class ReactRuntimeAdapter implements RuntimeAdapter {
     const component = spec.component(props, this);
     // If factory returns a React component type, create element
     if (typeof component === 'function' || typeof component === 'object') {
-      return React.createElement(component as any, props);
+      // React consumes `key` and `ref` itself, so they never reach the component,
+      // and a string `ref` coming from a schema would crash the render.
+      const { key, ref, ...componentProps } = props;
+      return React.createElement(component as any, componentProps);
     }
     // If it's already an element, return it
     return component as RenderResult;

@@ -36,6 +36,8 @@ export * from './provider';
 
 // Utils
 export * from './utils/jexl-config';
+export * from './utils/dom-props';
+export * from './utils/safe-text';
 
 // Validation
 export * from './validation';

@@ -4,7 +4,8 @@
  * Built-in autocomplete input for forms (uses native datalist).
  */
 
-import { defineComponent, h, type PropType } from 'vue';
+import { defineComponent, h, mergeProps, type PropType } from 'vue';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 export interface InputAutocompleteOption {
   value: string;
@@ -38,6 +39,7 @@ function normalizeOptions(
 
 export const DefaultInputAutocomplete = defineComponent({
   name: 'DefaultInputAutocomplete',
+  inheritAttrs: false,
   props: {
     name: { type: String, required: true },
     value: { type: [String, Number] as PropType<string | number>, default: '' },
@@ -53,14 +55,15 @@ export const DefaultInputAutocomplete = defineComponent({
     disabled: { type: Boolean, default: false },
   },
   emits: ['update:modelValue'],
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     return () => {
       const listId = `${props.name}-datalist`;
       const normalizedOptions = normalizeOptions(props.options || []);
       const value = props.value ?? '';
-      return h('div', { style: wrapperStyle }, [
-        props.label &&
-          h('label', { for: props.name, style: labelStyle }, props.label),
+      const label = toSafeText(props.label);
+      return h('div', mergeProps({ style: wrapperStyle }, sanitizeDOMProps(attrs, 'div')), [
+        label &&
+          h('label', { for: props.name, style: labelStyle }, label),
         h('input', {
           id: props.name,
           name: props.name,
@@ -81,7 +84,7 @@ export const DefaultInputAutocomplete = defineComponent({
           'datalist',
           { id: listId },
           normalizedOptions.map((opt) =>
-            h('option', { key: opt.value, value: opt.value }, opt.label)
+            h('option', { key: opt.value, value: opt.value }, toSafeText(opt.label))
           )
         ),
       ]);

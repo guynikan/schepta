@@ -4,7 +4,8 @@
  * Built-in text input for forms.
  */
 
-import { defineComponent, h, type PropType } from 'vue';
+import { defineComponent, h, mergeProps, type PropType } from 'vue';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 const inputStyle = {
   width: '100%',
@@ -23,6 +24,7 @@ const wrapperStyle = { marginBottom: '16px' };
 
 export const DefaultInputText = defineComponent({
   name: 'DefaultInputText',
+  inheritAttrs: false,
   props: {
     name: { type: String, required: true },
     value: { type: [String, Number] as PropType<string | number>, default: '' },
@@ -35,12 +37,13 @@ export const DefaultInputText = defineComponent({
     disabled: { type: Boolean, default: false },
   },
   emits: ['update:modelValue'],
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     return () => {
       const value = props.value ?? '';
-      return h('div', { style: wrapperStyle }, [
-        props.label &&
-          h('label', { for: props.name, style: labelStyle }, props.label),
+      const label = toSafeText(props.label);
+      return h('div', mergeProps({ style: wrapperStyle }, sanitizeDOMProps(attrs, 'div')), [
+        label &&
+          h('label', { for: props.name, style: labelStyle }, label),
         h('input', {
           id: props.name,
           name: props.name,

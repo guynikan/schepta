@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 export interface InputAutocompleteOption {
   value: string;
@@ -73,11 +74,12 @@ export const DefaultInputAutocomplete = React.forwardRef<
   const listId = `${name}-datalist`;
   const normalizedOptions = normalizeOptions(options);
 
+  const labelText = toSafeText(label);
   return (
     <div style={wrapperStyle}>
-      {label && (
+      {labelText && (
         <label htmlFor={name} style={labelStyle}>
-          {label}
+          {labelText}
         </label>
       )}
       <input
@@ -89,13 +91,12 @@ export const DefaultInputAutocomplete = React.forwardRef<
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
         style={inputStyle}
-        {...xComponentProps}
-        {...rest}
+        {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'input')}
       />
       <datalist id={listId}>
         {normalizedOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>
-            {opt.label}
+            {toSafeText(opt.label)}
           </option>
         ))}
       </datalist>

@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 /**
  * Props passed to the InputText component.
@@ -52,11 +53,12 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  */
 export const DefaultInputText = React.forwardRef<HTMLInputElement, InputTextProps>(
   ({ label, name, value, onChange, placeholder, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
+    const labelText = toSafeText(label);
     return (
       <div style={wrapperStyle}>
-        {label && (
+        {labelText && (
           <label htmlFor={name} style={labelStyle}>
-            {label}
+            {labelText}
           </label>
         )}
         <input
@@ -67,8 +69,7 @@ export const DefaultInputText = React.forwardRef<HTMLInputElement, InputTextProp
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
-          {...xComponentProps}
-          {...rest}
+          {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'input')}
         />
       </div>
     );

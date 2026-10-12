@@ -4,17 +4,17 @@
  * Container for a form section (title + groups).
  */
 
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, mergeProps } from 'vue';
+import { sanitizeDOMProps } from '@schepta/core';
 
 export const DefaultFormSectionContainer = defineComponent({
   name: 'DefaultFormSectionContainer',
-  setup(props, { slots }) {
+  inheritAttrs: false,
+  setup(props, { slots, attrs }) {
     return () =>
       h(
         'div',
-        {
-          style: { marginBottom: '24px' },
-        },
+        mergeProps({ style: { marginBottom: '24px' } }, sanitizeDOMProps(attrs, 'div')),
         slots.default?.()
       );
   },

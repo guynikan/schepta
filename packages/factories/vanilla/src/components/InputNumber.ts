@@ -2,6 +2,8 @@
  * Vanilla InputNumber Component
  */
 
+import { toSafeText } from '@schepta/core';
+
 export interface InputNumberProps {
   name: string;
   value?: string | number;
@@ -20,9 +22,10 @@ export function createInputNumber(props: InputNumberProps): HTMLElement {
   const wrapper = document.createElement('div');
   wrapper.style.marginBottom = '16px';
   
-  if (props.label) {
+  const labelText = toSafeText(props.label);
+  if (labelText) {
     const label = document.createElement('label');
-    label.textContent = props.label;
+    label.textContent = labelText;
     label.htmlFor = props.name;
     label.style.display = 'block';
     label.style.marginBottom = '4px';
