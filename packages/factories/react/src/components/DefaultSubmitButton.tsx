@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props passed to the SubmitButton component by FormFactory.
@@ -69,7 +70,7 @@ export const DefaultSubmitButton: React.FC<SubmitButtonProps> = ({ onSubmit, "x-
           fontSize: '16px',
           fontWeight: '500',
         }}
-        {...xComponentProps}
+        {...sanitizeDOMProps(xComponentProps || {}, 'button')}
       >
         Submit
       </button>

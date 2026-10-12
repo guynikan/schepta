@@ -5,21 +5,25 @@
  */
 
 import { h, Fragment, VNode } from 'vue';
-import { sanitizeComponentProps, type RuntimeAdapter, type ComponentSpec, type RenderResult, type RendererSpec } from '@schepta/core';
+import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RenderResult, type RendererSpec } from '@schepta/core';
 
 /**
  * Vue runtime adapter implementation
  */
 export class VueRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
-    const safeProps = sanitizeRuntimeProps(props);
     if (!spec.component) {
       throw new Error(`Component ${(spec as any).id} is not a function`);
     }
-    const component = spec.component(safeProps, this) as any;
+    const component = spec.component(props, this) as any;
     
     // Extract children from props if present (Vue passes children as third argument to h())
-    const { children, ...restProps } = safeProps;
+    const { children, ...componentProps } = props;
+    // Components receive every prop untouched. A native tag has no code of its
+    // own to vet schema props, so the allowlist applies here.
+    const restProps = typeof component === 'string'
+      ? sanitizeDOMProps(componentProps, component)
+      : componentProps;
     
     // If children are provided, pass them as third argument to h()
     // Vue prefers function slots for better performance when using defineComponent with slots
@@ -53,30 +57,10 @@ export class VueRuntimeAdapter implements RuntimeAdapter {
     if (this.isValidElement(element)) {
       const vnode = element as VNode;
       if (vnode.props) {
-        Object.assign(vnode.props, sanitizeRuntimeProps(props));
+        Object.assign(vnode.props, typeof vnode.type === 'string' ? sanitizeDOMProps(props, vnode.type) : props);
       }
     }
   }
-}
-
-function sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
-  const {
-    children, component, componentProps, externalContext, schema, componentKey,
-    'x-component-props': xComponentProps, 'x-ui': xUi, onSubmit, ...schemaProps
-  } = props;
-  const safeProps = sanitizeComponentProps(schemaProps);
-  return {
-    ...safeProps,
-    ...(children !== undefined ? { children } : {}),
-    ...(component !== undefined ? { component } : {}),
-    ...(componentProps !== undefined ? { componentProps: sanitizeComponentProps(componentProps) } : {}),
-    ...(externalContext !== undefined ? { externalContext } : {}),
-    ...(schema !== undefined ? { schema } : {}),
-    ...(componentKey !== undefined ? { componentKey } : {}),
-    ...(xComponentProps !== undefined ? { 'x-component-props': sanitizeComponentProps(xComponentProps) } : {}),
-    ...(xUi !== undefined ? { 'x-ui': xUi } : {}),
-    ...(onSubmit !== undefined ? { onSubmit } : {}),
-  };
 }
 
 /**

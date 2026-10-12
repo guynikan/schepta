@@ -34,7 +34,7 @@ export type FormSectionGroupComponentType =
  */
 export const DefaultFormSectionGroup: React.FC<FormSectionGroupProps> = React.memo(
   function DefaultFormSectionGroup({ children, externalContext, 'x-component-props': xComponentProps, ...props }) {
-    const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props });
+    const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props }, 'div');
     return (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', ...safeProps.style }} {...safeProps}>
         {children}

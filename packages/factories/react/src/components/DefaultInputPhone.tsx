@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props passed to the InputPhone component.
@@ -69,8 +70,7 @@ export const DefaultInputPhone = React.forwardRef<HTMLInputElement, InputPhonePr
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
-          {...xComponentProps}
-          {...rest}
+          {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'input')}
         />
       </div>
     );

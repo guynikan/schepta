@@ -4,7 +4,8 @@
  * Built-in phone input for forms (type="tel").
  */
 
-import { defineComponent, h, type PropType } from 'vue';
+import { defineComponent, h, mergeProps, type PropType } from 'vue';
+import { sanitizeDOMProps } from '@schepta/core';
 
 const inputStyle = {
   width: '100%',
@@ -23,6 +24,7 @@ const wrapperStyle = { marginBottom: '16px' };
 
 export const DefaultInputPhone = defineComponent({
   name: 'DefaultInputPhone',
+  inheritAttrs: false,
   props: {
     name: { type: String, required: true },
     value: { type: [String, Number] as PropType<string | number>, default: '' },
@@ -34,10 +36,10 @@ export const DefaultInputPhone = defineComponent({
     disabled: { type: Boolean, default: false },
   },
   emits: ['update:modelValue'],
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     return () => {
       const value = props.value ?? '';
-      return h('div', { style: wrapperStyle }, [
+      return h('div', mergeProps({ style: wrapperStyle }, sanitizeDOMProps(attrs, 'div')), [
         props.label &&
           h('label', { for: props.name, style: labelStyle }, props.label),
         h('input', {

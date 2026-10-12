@@ -5,19 +5,21 @@
  */
 
 import React from 'react';
-import { sanitizeComponentProps, type RuntimeAdapter, type ComponentSpec, type RenderResult, type RendererSpec } from '@schepta/core';
+import type { RuntimeAdapter, ComponentSpec, RenderResult, RendererSpec } from '@schepta/core';
 
 /**
  * React runtime adapter implementation
  */
 export class ReactRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
-    const safeProps = sanitizeRuntimeProps(props);
     if (spec.component) {
-    const component = spec.component(safeProps, this);
+    const component = spec.component(props, this);
     // If factory returns a React component type, create element
     if (typeof component === 'function' || typeof component === 'object') {
-      return React.createElement(component as any, safeProps);
+      // React consumes `key` and `ref` itself, so they never reach the component,
+      // and a string `ref` coming from a schema would crash the render.
+      const { key, ref, ...componentProps } = props;
+      return React.createElement(component as any, componentProps);
     }
     // If it's already an element, return it
     return component as RenderResult;
@@ -51,26 +53,6 @@ export class ReactRuntimeAdapter implements RuntimeAdapter {
       // This method exists for interface compatibility
     }
   }
-}
-
-function sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
-  const {
-    children, component, componentProps, externalContext, schema, componentKey,
-    'x-component-props': xComponentProps, 'x-ui': xUi, onSubmit, ...schemaProps
-  } = props;
-  const safeProps = sanitizeComponentProps(schemaProps);
-  return {
-    ...safeProps,
-    ...(children !== undefined ? { children } : {}),
-    ...(component !== undefined ? { component } : {}),
-    ...(componentProps !== undefined ? { componentProps: sanitizeComponentProps(componentProps) } : {}),
-    ...(externalContext !== undefined ? { externalContext } : {}),
-    ...(schema !== undefined ? { schema } : {}),
-    ...(componentKey !== undefined ? { componentKey } : {}),
-    ...(xComponentProps !== undefined ? { 'x-component-props': sanitizeComponentProps(xComponentProps) } : {}),
-    ...(xUi !== undefined ? { 'x-ui': xUi } : {}),
-    ...(onSubmit !== undefined ? { onSubmit } : {}),
-  };
 }
 
 /**

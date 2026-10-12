@@ -5,7 +5,8 @@
  * and renders a submit button. Can be overridden via createComponentSpec.
  */
 
-import { defineComponent, h, type PropType } from 'vue';
+import { defineComponent, h, mergeProps, type PropType } from 'vue';
+import { sanitizeDOMProps } from '@schepta/core';
 import { DefaultSubmitButton } from './DefaultSubmitButton';
 import { useScheptaFormAdapter } from '../context/schepta-form-context';
 
@@ -28,13 +29,14 @@ export interface FormContainerProps {
  */
 export const DefaultFormContainer = defineComponent({
   name: 'DefaultFormContainer',
+  inheritAttrs: false,
   props: {
     onSubmit: {
       type: Function as PropType<(values: Record<string, any>) => void | Promise<void>>,
       required: false,
     },
   },
-  setup(props, { slots }) {
+  setup(props, { slots, attrs }) {
     const adapter = useScheptaFormAdapter();
     return () => {
       const handleSubmit = (e: Event) => {
@@ -45,10 +47,10 @@ export const DefaultFormContainer = defineComponent({
       };
       return h(
         'form',
-        {
-          'data-test-id': 'FormContainer',
-          onSubmit: handleSubmit,
-        },
+        mergeProps(
+          { 'data-test-id': 'FormContainer', onSubmit: handleSubmit },
+          sanitizeDOMProps(attrs, 'form')
+        ),
         [
           slots.default?.(),
           props.onSubmit && h(DefaultSubmitButton),

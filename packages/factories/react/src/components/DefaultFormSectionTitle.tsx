@@ -42,7 +42,7 @@ export const DefaultFormSectionTitle: React.FC<FormSectionTitleProps> = ({
   "x-ui": xUi,
   ...props
 }) => {
-  const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props });
+  const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props }, 'h2');
   return (
     <h2
       style={{

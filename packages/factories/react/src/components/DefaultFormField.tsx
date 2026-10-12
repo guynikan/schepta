@@ -32,7 +32,7 @@ export type FormFieldComponentType = React.ComponentType<FormFieldProps>;
  */
 export const DefaultFormField: React.FC<FormFieldProps> = React.memo(
   function DefaultFormField({ children, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...props }) {
-    const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props });
+    const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props }, 'div');
     return (
       <div
         {...safeProps}

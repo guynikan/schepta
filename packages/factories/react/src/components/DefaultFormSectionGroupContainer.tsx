@@ -34,7 +34,7 @@ export type FormSectionGroupContainerComponentType =
  */
 export const DefaultFormSectionGroupContainer: React.FC<FormSectionGroupContainerProps> = React.memo(
   function DefaultFormSectionGroupContainer({ children, externalContext, ...props }) {
-    const safeProps = sanitizeDOMProps(props);
+    const safeProps = sanitizeDOMProps(props, 'div');
     return (
       <div {...safeProps}>
         {children}

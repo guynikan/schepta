@@ -53,7 +53,6 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  */
 export const DefaultInputText = React.forwardRef<HTMLInputElement, InputTextProps>(
   ({ label, name, value, onChange, placeholder, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
-    const safeXComponentProps = sanitizeDOMProps(xComponentProps || {});
     return (
       <div style={wrapperStyle}>
         {label && (
@@ -69,8 +68,7 @@ export const DefaultInputText = React.forwardRef<HTMLInputElement, InputTextProp
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
-          {...safeXComponentProps}
-          {...rest}
+          {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'input')}
         />
       </div>
     );

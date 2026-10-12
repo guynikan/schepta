@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props passed to the InputTextarea component.
@@ -72,8 +73,7 @@ export const DefaultInputTextarea = React.forwardRef<
         rows={rows}
         onChange={(e) => onChange?.(e.target.value)}
         style={inputStyle}
-        {...xComponentProps}
-        {...rest}
+        {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'textarea')}
       />
     </div>
   );

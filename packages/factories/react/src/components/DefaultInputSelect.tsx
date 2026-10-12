@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 
 export interface InputSelectOption {
   value: string;
@@ -89,8 +90,7 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
           value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
-          {...xComponentProps}
-          {...rest}
+          {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'select')}
         >
           <option value="">{placeholder}</option>
           {options.map((opt: InputSelectOption) => (

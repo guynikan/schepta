@@ -4,7 +4,7 @@
  * Implements RuntimeAdapter using DOM APIs
  */
 
-import { sanitizeComponentProps, sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RendererSpec, type RenderResult } from '@schepta/core';
+import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RendererSpec, type RenderResult } from '@schepta/core';
 
 import type { DOMElement } from './types';
 
@@ -13,7 +13,6 @@ import type { DOMElement } from './types';
  */
 export class VanillaRuntimeAdapter implements RuntimeAdapter {
   create(spec: ComponentSpec | RendererSpec, props: Record<string, any>): RenderResult {
-    const safeProps = this.sanitizeRuntimeProps(props);
     if (!spec) {
       console.error('[VanillaRuntime] Invalid spec:', spec);
       throw new Error(`Invalid spec: spec is null/undefined`);
@@ -21,9 +20,9 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
     
     // Handle RendererSpec (for field renderers, etc)
     if ('renderer' in spec && spec.renderer && typeof spec.renderer === 'function') {
-      const result = spec.renderer(safeProps);
+      const result = spec.renderer(props);
       if (result instanceof HTMLElement) {
-        return this.wrapElement(result, safeProps);
+        return this.wrapElement(result, props);
       }
       if (result && 'element' in result) {
         return result as DOMElement;
@@ -39,25 +38,25 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
     
     // Call component function - it returns the element or factory
     // Pass runtime adapter as second arg for compatibility with spec interface
-    const component = spec.component(safeProps, this);
+    const component = spec.component(props, this);
     
     // If component returns a DOM element directly
     if (component instanceof HTMLElement) {
-      return this.wrapElement(component, safeProps);
+      return this.wrapElement(component, props);
     }
     
     // If component returns a function that creates an element
     if (typeof component === 'function') {
-      const element = component(safeProps);
+      const element = component(props);
       if (element instanceof HTMLElement) {
-        return this.wrapElement(element, safeProps);
+        return this.wrapElement(element, props);
       }
     }
     
     // Create a div as fallback
     const div = document.createElement('div');
     div.setAttribute('data-component', spec.id);
-    return this.wrapElement(div, safeProps);
+    return this.wrapElement(div, props);
   }
 
   fragment(children: RenderResult[]): RenderResult {
@@ -98,7 +97,10 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
 
   setProps(element: RenderResult, props: Record<string, any>): void {
     if (this.isValidElement(element)) {
-      const safeProps = sanitizeDOMProps(props);
+      const target = element instanceof HTMLElement ? element : (element as DOMElement).element;
+      // Props are applied to a native element here, so this is where the
+      // allowlist runs; create() hands props to components untouched.
+      const safeProps = sanitizeDOMProps(props, target instanceof HTMLElement ? target.tagName : undefined);
       const domElement = element instanceof HTMLElement 
         ? this.wrapElement(element, safeProps)
         : element as DOMElement;
@@ -140,26 +142,6 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
       element: element as HTMLElement,
       children: [],
       props: { ...props },
-    };
-  }
-
-  private sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
-    const {
-      children, component, componentProps, externalContext, schema, componentKey,
-      'x-component-props': xComponentProps, 'x-ui': xUi, onSubmit, ...schemaProps
-    } = props;
-    const safeProps = sanitizeComponentProps(schemaProps);
-    return {
-      ...safeProps,
-      ...(children !== undefined ? { children } : {}),
-      ...(component !== undefined ? { component } : {}),
-      ...(componentProps !== undefined ? { componentProps: sanitizeComponentProps(componentProps) } : {}),
-      ...(externalContext !== undefined ? { externalContext } : {}),
-      ...(schema !== undefined ? { schema } : {}),
-      ...(componentKey !== undefined ? { componentKey } : {}),
-      ...(xComponentProps !== undefined ? { 'x-component-props': sanitizeComponentProps(xComponentProps) } : {}),
-      ...(xUi !== undefined ? { 'x-ui': xUi } : {}),
-      ...(onSubmit !== undefined ? { onSubmit } : {}),
     };
   }
 }

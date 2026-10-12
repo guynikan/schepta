@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 
 export interface InputAutocompleteOption {
   value: string;
@@ -89,8 +90,7 @@ export const DefaultInputAutocomplete = React.forwardRef<
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
         style={inputStyle}
-        {...xComponentProps}
-        {...rest}
+        {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'input')}
       />
       <datalist id={listId}>
         {normalizedOptions.map((opt) => (

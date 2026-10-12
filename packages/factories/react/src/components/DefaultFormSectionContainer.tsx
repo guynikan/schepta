@@ -38,7 +38,7 @@ const PLACEHOLDER_HEIGHT = 120;
  */
 export const DefaultFormSectionContainer: React.FC<FormSectionContainerProps> = React.memo(
   function DefaultFormSectionContainer({ children, externalContext, 'x-ui': xUi, "x-component-props": xComponentProps, ...props }) {
-    const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props });
+    const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props }, 'div');
     const lazy = xUi?.lazy === true;
     const ref = useRef<HTMLDivElement>(null);
     const [isVisible, setIsVisible] = useState(!lazy);

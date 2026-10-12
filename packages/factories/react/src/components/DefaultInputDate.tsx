@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props passed to the InputDate component.
@@ -67,8 +68,7 @@ export const DefaultInputDate = React.forwardRef<HTMLInputElement, InputDateProp
           value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           style={inputStyle}
-          {...xComponentProps}
-          {...rest}
+          {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'input')}
         />
       </div>
     );

@@ -80,4 +80,72 @@ describe('VanillaRuntimeAdapter.setProps', () => {
 
     warn.mockRestore();
   });
+
+  it('passes component props through create() untouched', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const adapter = new VanillaRuntimeAdapter();
+    const received: Record<string, any>[] = [];
+    const props = {
+      'x-content': 'Title',
+      'x-component-props': { variant: 'outlined', helperText: 'help' },
+      externalContext: { user: 'u' },
+      schema: { type: 'string' },
+      variant: 'outlined',
+      columns: '1fr 1fr',
+    };
+
+    adapter.create({
+      id: 'host', type: 'content',
+      component: () => (componentProps: Record<string, any>) => {
+        received.push(componentProps);
+        return document.createElement('div');
+      },
+    } as any, props);
+
+    expect(received[0]).toBe(props);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('applies the tag-aware data URL, style and form-target rules', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const adapter = new VanillaRuntimeAdapter();
+    const svg = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" onload="alert(origin)"/>';
+    const png = 'data:image/png;base64,iVBORw0KGgo=';
+
+    for (const tagName of ['iframe', 'embed', 'img', 'input']) {
+      const element = document.createElement(tagName);
+      adapter.setProps(element, { src: svg });
+      expect(element.getAttribute('src')).toBeNull();
+    }
+    for (const tagName of ['iframe', 'embed']) {
+      const element = document.createElement(tagName);
+      adapter.setProps(element, { src: png });
+      expect(element.getAttribute('src')).toBeNull();
+    }
+    const image = document.createElement('img');
+    adapter.setProps(image, { src: png });
+    expect(image.getAttribute('src')).toBe(png);
+
+    for (const backgroundImage of [
+      'url(https://attacker.example/x.png)',
+      'image-set("https://attacker.example/x.png" 1x)',
+      '\\75rl(https://attacker.example/y.png)',
+    ]) {
+      const element = document.createElement('div');
+      adapter.setProps(element, { style: { backgroundImage, color: 'red' } });
+      expect(element.getAttribute('style')).toBeNull();
+    }
+
+    const form = document.createElement('form');
+    adapter.setProps(form, { action: 'https://attacker.example/steal' });
+    expect(form.getAttribute('action')).toBeNull();
+    adapter.setProps(form, { action: '/submit' });
+    expect(form.getAttribute('action')).toBe('/submit');
+
+    const button = document.createElement('button');
+    adapter.setProps(button, { type: 'submit', formAction: '//attacker.example/steal' });
+    expect(button.getAttribute('formaction')).toBeNull();
+    warn.mockRestore();
+  });
 });

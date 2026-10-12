@@ -4,7 +4,8 @@
  * Built-in checkbox input for forms.
  */
 
-import { defineComponent, h, type PropType } from 'vue';
+import { defineComponent, h, mergeProps, type PropType } from 'vue';
+import { sanitizeDOMProps } from '@schepta/core';
 
 const wrapperStyle = { marginBottom: '16px' };
 
@@ -16,6 +17,7 @@ const labelStyle = {
 
 export const DefaultInputCheckbox = defineComponent({
   name: 'DefaultInputCheckbox',
+  inheritAttrs: false,
   props: {
     name: { type: String, required: true },
     value: { type: [Boolean, String] as PropType<boolean | string>, default: false },
@@ -26,10 +28,10 @@ export const DefaultInputCheckbox = defineComponent({
     disabled: { type: Boolean, default: false },
   },
   emits: ['update:modelValue'],
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     return () => {
       const checked = props.value === true || props.value === 'true';
-      return h('div', { style: wrapperStyle }, [
+      return h('div', mergeProps({ style: wrapperStyle }, sanitizeDOMProps(attrs, 'div')), [
         h(
           'label',
           { style: labelStyle },

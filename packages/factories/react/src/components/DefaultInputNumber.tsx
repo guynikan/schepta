@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props passed to the InputNumber component.
@@ -76,8 +77,7 @@ export const DefaultInputNumber = React.forwardRef<HTMLInputElement, InputNumber
             onChange?.(e.target.value ? Number(e.target.value) : '')
           }
           style={inputStyle}
-          {...xComponentProps}
-          {...rest}
+          {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'input')}
         />
       </div>
     );
