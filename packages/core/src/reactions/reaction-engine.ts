@@ -10,8 +10,8 @@ import { createExpressionDiagnostics, type ExpressionDiagnostics } from '../expr
 import {
   analyzeExpression,
   getCallHint,
+  findEmptyIndex,
   getReferenceProblem,
-  isEmptyIndexFailure,
 } from '../expressions/expression-analysis';
 
 /**
@@ -123,7 +123,8 @@ export function executeDeclarativeReactions(
         root: reference.root === '$form' ? '$formValues' : `reaction:${reference.root}`,
       }));
       // JEXL throws when it indexes an empty value; that is a missing reference, reported below.
-      if (failure && !isEmptyIndexFailure(analysis, failure.cause)) {
+      // Anything else that throws is an evaluation error.
+      if (failure && !findEmptyIndex(analysis, jexlContext)) {
         diagnostics.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression: cleanExpression, path, cause: failure.cause, hint });
       }
       if (analysis.forbiddenPath) {

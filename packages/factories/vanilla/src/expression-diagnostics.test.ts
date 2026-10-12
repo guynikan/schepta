@@ -1,6 +1,13 @@
+import { createRequire } from 'node:module';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ScheptaExpressionError, type FormSchema } from '@schepta/core';
 import { createFormFactory, type FormFactoryResult } from './form-factory';
+
+// jexl is a dependency of @schepta/core, not of this package: load the instance core uses.
+const require = createRequire(import.meta.url);
+const jexl = createRequire(require.resolve('@schepta/core'))('jexl');
+// Form inputs produce strings, so this transform throws a TypeError for them.
+jexl.addTransform('money', (value: number) => value.toFixed(2));
 
 const TYPO = "$formValues.profile.nicknmae === 'show'";
 const UNKNOWN_ROOT = "$session.role === 'admin'";
@@ -256,6 +263,45 @@ describe('createFormFactory expression diagnostics', () => {
       ['EXPRESSION_PATH_NOT_FOUND', '$externalContext.products'],
     ]);
     expect(warn).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['a declared field', '$formValues.profile.items[0].price|money'],
+    ['external data', '$externalContext.products[0].price|money'],
+  ])('throws in strict mode for a transform that throws behind an index in %s', (_label, expression) => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const total = field('total');
+    (total.properties.total as any)['x-component-props'].label = `Total: {{ ${expression} }}`;
+    const options = {
+      schema: createSchema({ items: field('items'), total }),
+      externalContext: { products: [{ price: '10' }] },
+      initialValues: { profile: { items: [{ price: '10' }] } },
+    };
+
+    const strictContainer = document.createElement('div');
+    expect(() => createFormFactory({
+      ...options, container: strictContainer, expressions: { onError: 'throw' },
+    })).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+    expect(input(strictContainer, 'total')).toBeNull();
+
+    // Default mode keeps rendering and reports the error once, with no missing path.
+    const report = vi.fn();
+    const { container } = mount({ ...options, expressions: { onExpressionError: report } });
+    expect(input(container, 'total')).not.toBeNull();
+    expect(container.textContent).toContain('Total: ');
+    expect(report.mock.calls.map(([error]) => [error.code, error.missingPath])).toEqual([
+      ['EXPRESSION_EVALUATION_ERROR', undefined],
+    ]);
+
+    // The same transform over a number evaluates.
+    const loaded = mount({
+      ...options,
+      externalContext: { products: [{ price: 10 }] },
+      initialValues: { profile: { items: [{ price: 10 }] } },
+      expressions: { onError: 'throw' },
+    });
+    expect(loaded.container.textContent).toContain('Total: 10.00');
   });
 
   it('throws in strict mode for a JavaScript method call, which JEXL does not support', () => {

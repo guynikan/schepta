@@ -13,10 +13,10 @@ import {
   allReferencesResolve,
   analyzeExpression,
   getCallHint,
-  getEmptyIndexProblems,
+  findEmptyIndex,
+  getEmptyIndexProblem,
   getMissingPathProblem,
   getReferenceProblem,
-  isEmptyIndexFailure,
   type AnalyzedExpression,
   type ReferenceProblem,
 } from './expression-analysis';
@@ -88,14 +88,12 @@ function evaluateParsed(
     return undefined;
   }
 
+  const jexlContext = { $formValues: context.formValues, $externalContext: context.externalContext };
   let value: any;
   let failure: { cause: unknown } | undefined;
   if (evaluate) {
     try {
-      value = analysis.compiled.evalSync({
-        $formValues: context.formValues,
-        $externalContext: context.externalContext,
-      });
+      value = analysis.compiled.evalSync(jexlContext);
     } catch (cause) {
       failure = { cause };
     }
@@ -103,7 +101,8 @@ function evaluateParsed(
 
   // JEXL throws when it indexes an empty value (`items[0]` with no `items`).
   // That is a missing reference, reported below, not a broken expression.
-  const emptyIndex = failure !== undefined && isEmptyIndexFailure(analysis, failure.cause);
+  // Everything else that throws is an evaluation error.
+  const emptyIndex = failure && findEmptyIndex(analysis, jexlContext);
   if (failure && !emptyIndex) {
     reportEvaluationError(expression, analysis, context, report, failure.cause);
   }
@@ -111,7 +110,8 @@ function evaluateParsed(
     const problems = analysis.references
       .map(reference => getReferenceProblem(reference, context, resolver.handles))
       .filter((problem): problem is ReferenceProblem => problem !== undefined);
-    if (emptyIndex && problems.length === 0) problems.push(...getEmptyIndexProblems(analysis));
+    const emptyIndexProblem = emptyIndex && problems.length === 0 ? getEmptyIndexProblem(emptyIndex) : undefined;
+    if (emptyIndexProblem) problems.push(emptyIndexProblem);
     problems.forEach(report);
   }
   return value;
@@ -191,13 +191,16 @@ function evaluateExpression(expression: string, context: ResolverContext, resolv
   }
   // Not a plain path after all (`items[0].name`, `price*2`, `name.trim()`). A
   // declared field whose name contains operator characters stays a quiet, empty
-  // field; a call is never a field below a declared one.
-  if (isDeclaredField || (!analysis.hasCall && root === '$formValues' && !getMissingPathProblem(root, path, context))) {
-    return undefined;
-  }
+  // field.
+  if (isDeclaredField) return undefined;
   // Keep the value only when that cannot turn a missing key into NaN or a wrong
   // value. A call is still run, so that the error JEXL raises for it is reported.
   const resolves = allReferencesResolve(analysis, context);
+  // Text below a declared field that reads nothing is an empty key of that
+  // field, and quiet; a call is never a field below a declared one.
+  if (!resolves && !analysis.hasCall && root === '$formValues' && !getMissingPathProblem(root, path, context)) {
+    return undefined;
+  }
   const value = evaluateParsed(expression, analysis, context, resolver, report, resolves || analysis.hasCall);
   return resolves ? value : undefined;
 }

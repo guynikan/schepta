@@ -42,6 +42,7 @@ const full = (): ResolverContext => ({
     address: { city: 'Recife', zip: null },
     items: [{ name: 'x', price: 2 }, { name: 'y', price: 5 }],
     'a-b': 5,
+    deep: { list: [{ v: 1 }, { v: 2 }] },
   },
   externalContext: {
     user: { name: 'x', profile: null },
@@ -210,6 +211,12 @@ const rows: Row[] = [
   { value: '{{ $formValues.items[0].name }}', main: undefined, pr: 'x', why: 'evaluates' },
   { value: '{{ $externalContext.list[1] }}', main: undefined, pr: 2, why: 'evaluates' },
   { value: "{{ $formValues['firstName'] }}", main: undefined, pr: 'Ana', why: 'evaluates' },
+  // Below a declared field (`deep`), with and without declared paths
+  { value: '{{ $formValues.deep.list[1].v }}', main: undefined, pr: 2, why: 'evaluates' },
+  { value: 'V: {{ $formValues.deep.list[1].v }}', main: 'V: ', pr: 'V: 2', why: 'evaluates' },
+  { value: '{{ $formValues.deep.list[1].v == 2 }}', main: true },
+  { value: '{{ $formValues.deep.list[5].v }}', main: undefined },
+  { value: '{{ $formValues.deep.missing[1].v }}', main: undefined },
 
   // Syntax and evaluation errors
   { value: '{{ 1 === }}', main: undefined },
@@ -242,7 +249,7 @@ const rows: Row[] = [
 ];
 
 const declaredFormPaths = new Set([
-  'firstName', 'age', 'price', 'flag', 'empty', 'nothing', 'tags', 'address.city', 'address.zip', 'items', 'a-b',
+  'firstName', 'age', 'price', 'flag', 'empty', 'nothing', 'tags', 'address.city', 'address.zip', 'items', 'a-b', 'deep',
 ]);
 
 /** Each way diagnostics can be wired in default mode; none may change a value. */
@@ -271,7 +278,7 @@ describe('expression values match main (19b4abb)', () => {
     }
     // Apart from forbidden segments, a value only changes where main gave nothing.
     for (const row of rows.filter(candidate => candidate.why === 'evaluates')) {
-      expect([undefined, 'Total: ']).toContain(row.main);
+      expect([undefined, 'Total: ', 'V: ']).toContain(row.main);
     }
   });
 

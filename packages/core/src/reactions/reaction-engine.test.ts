@@ -1,8 +1,12 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
+import jexl from 'jexl';
 import { createExpressionDiagnostics, ScheptaExpressionError, type ExpressionDiagnosticDetails } from '../expressions/diagnostics';
 import { executeDeclarativeReactions } from './reaction-engine';
 
 afterEach(() => vi.restoreAllMocks());
+
+// Form inputs produce strings, so this transform throws a TypeError for them.
+jexl.addTransform('money', (value: number) => value.toFixed(2));
 
 describe('executeDeclarativeReactions', () => {
   it('diagnoses missing reactions and preserves the undefined prop update', () => {
@@ -113,6 +117,46 @@ describe('executeDeclarativeReactions', () => {
 
       expect(() => run({ label: '$form.items[0].name' }, context, { items: empty })).not.toThrow();
       expect(reportedCodes()).toEqual(['EXPRESSION_PATH_NOT_FOUND']);
+    });
+
+    it.each([
+      ['$form.items[0].price|money'],
+      ["$form.items[0].price|money == '10.00'"],
+      ["$form.items[.price|money == '10.00'][0].price"],
+    ])('reports the transform that throws in %s as an evaluation error', expression => {
+      for (const declared of [['items'], undefined]) {
+        const { context, reportedCodes } = setup(declared);
+        const evaluate = () => run({ label: expression }, context, { items: [{ price: '10' }] });
+
+        if (onError === 'throw') {
+          expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+        } else {
+          expect(evaluate()).not.toHaveBeenCalled();
+        }
+        expect(reportedCodes()).toEqual(['EXPRESSION_EVALUATION_ERROR']);
+      }
+    });
+
+    it('reports a TypeError that is not an empty index as an evaluation error', () => {
+      const { context, reportedCodes } = setup(['items']);
+      const row = { get price(): number { throw new TypeError('price is broken'); } };
+      const evaluate = () => run({ label: '$form.items[0].price' }, context, { items: [row] });
+
+      if (onError === 'throw') {
+        expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR' }));
+      } else {
+        expect(evaluate()).not.toHaveBeenCalled();
+      }
+      expect(reportedCodes()).toEqual(['EXPRESSION_EVALUATION_ERROR']);
+    });
+
+    it('stays quiet for an index that finds nothing deeper in a declared field', () => {
+      const { context, report } = setup(['items']);
+      const values = { items: [{ price: '10' }] };
+
+      expect(run({ label: '$form.items[0].tags[1]' }, context, values)).not.toHaveBeenCalled();
+      expect(run({ label: "$form.items[.tags[0] == 'a']" }, context, values)).not.toHaveBeenCalled();
+      expect(report).not.toHaveBeenCalled();
     });
 
     it('treats an index into an undeclared null field as a missing path', () => {

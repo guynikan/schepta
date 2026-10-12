@@ -70,9 +70,12 @@ known. Forbidden segments are the one case where the value is forced to
 or from `undefined`. There `null` counts as empty, exactly like `undefined`:
 `{{ $formValues.items[0].name }}` is quiet while the declared `items` field is
 empty, and `{{ $externalContext.products[0].name }}` only warns while
-`products` is `null` or an index deeper in that data finds nothing. A guard
-does not help an index (`products[0].name || 'none'` is still `undefined`), so
-that case warns as well.
+`products` is `null` or an index deeper in that data finds nothing, and names
+the value that is empty (`$externalContext.list[0].tags` for
+`list[0].tags[1]`). A guard does not help an index
+(`products[0].name || 'none'` is still `undefined`), so that case warns as
+well. Anything else that throws in such an expression, for example a transform,
+is an `EXPRESSION_EVALUATION_ERROR`.
 
 JEXL has no method calls. `{{ $formValues.email.toUpperCase() }}` and
 `{{ $externalContext.format() }}` resolve to `undefined`, as they always did,
@@ -85,6 +88,9 @@ import jexl from 'jexl';
 jexl.addTransform('upper', (value?: string) => (value ?? '').toUpperCase());
 // {{ $formValues.email|upper }}
 ```
+
+A transform receives `undefined` for an empty field, so it must be null-safe: a
+transform that throws is reported as `EXPRESSION_EVALUATION_ERROR`.
 
 A missing value is expected, and not reported, on the left of `||` or `&&` and
 in a comparison with `null` or `undefined`. `a && a.b` also covers `a.b`. A
@@ -160,7 +166,10 @@ becomes `NaN`.
 - **Keys JEXL cannot parse are still keys.** `{{ $formValues.名前 }}` or
   `{{ $formValues.2fa }}` are read as paths. Text that is neither a readable
   path nor valid JEXL and contains expression characters, such as
-  `{{ $formValues.email.!!! }}`, is an `EXPRESSION_EVALUATION_ERROR`.
+  `{{ $formValues.email.!!! }}`, is an `EXPRESSION_EVALUATION_ERROR`. A context
+  key that contains expression characters and is not loaded yet
+  (`{{ $externalContext.labels.total(%) }}` before `labels` has that key) is
+  reported as an evaluation error as well.
 
 ### Reactions
 

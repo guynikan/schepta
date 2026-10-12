@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import jexl from 'jexl';
 import {
   processTemplateString,
   processTemplateExpression,
@@ -19,6 +20,9 @@ import {
 afterEach(() => {
   vi.restoreAllMocks();
 });
+
+// Form inputs produce strings, so this transform throws a TypeError for them.
+jexl.addTransform('money', (value: number) => value.toFixed(2));
 
 describe('Template Processor', () => {
   const context: ResolverContext = {
@@ -878,8 +882,75 @@ describe('Template Processor', () => {
         expect(run('{{ $formValues.items[0].tags[1] }}')).toBeUndefined();
         expect(run("{{ $formValues.items[0].tags[1] == 'a' }}")).toBeUndefined();
         expect(seen).toEqual([]);
+        // A filter reads each item; an index that finds nothing in one of them is empty data too.
+        expect(run("{{ $formValues.items[.tags[0] == 'a'] }}")).toBeUndefined();
+        expect(seen).toEqual([]);
+        // The value that is empty is reported, not the root that is there.
         expect(run('{{ $externalContext.list[0].tags[1] }}')).toBeUndefined();
-        expect(seen).toEqual([missing('$externalContext.list')]);
+        expect(run("{{ $externalContext.list[0].tags[1] == 'a' }}")).toBeUndefined();
+        expect(seen).toEqual([missing('$externalContext.list[0].tags'), missing('$externalContext.list[0].tags')]);
+      });
+
+      it.each([
+        ['a declared field', '$formValues.items[0].price|money'],
+        ['external data', '$externalContext.products[0].price|money'],
+        ['a comparison', "$formValues.items[0].price|money == '10.00'"],
+        ['a filter', "$formValues.items[.price|money == '10.00'][0].price"],
+        ['an index expression', '$formValues.items[$formValues.items[0].price|money]'],
+        ['the branch a ternary takes', "$formValues.items[0].price ? $formValues.items[0].price|money : $formValues.items[0].none[0]"],
+        ['a value next to an empty index', "$formValues.items[0].price|money || $formValues.items[0].none[0]"],
+      ])('reports a transform that throws behind an index in %s as an evaluation error', (_label, expression) => {
+        const { run, seen } = setup({
+          externalContext: { products: [{ price: '10' }] },
+          formValues: { items: [{ price: '10' }] },
+        }, strict);
+        const evaluate = () => run(`{{ ${expression} }}`);
+
+        if (strict) {
+          expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+        } else {
+          expect(evaluate()).toBeUndefined();
+          expect(run(`Total: {{ ${expression} }}`)).toBe('Total: ');
+        }
+        expect(seen).toEqual([evaluationError]);
+      });
+
+      it('reports a TypeError that is not an empty index as an evaluation error', () => {
+        const row = { get price(): number { throw new TypeError('price is broken'); } };
+        const { run, seen } = setup({ externalContext: { products: [row] }, formValues: { items: [row] } }, strict);
+
+        for (const expression of ['$formValues.items[0].price', '$externalContext.products[0].price == 1']) {
+          const evaluate = () => run(`{{ ${expression} }}`);
+          if (strict) {
+            expect(evaluate).toThrow(expect.objectContaining({ code: 'EXPRESSION_EVALUATION_ERROR', expression }));
+          } else {
+            expect(evaluate()).toBeUndefined();
+          }
+        }
+        expect(seen).toEqual([evaluationError, evaluationError]);
+      });
+
+      it('evaluates a transform behind an index when it does not throw', () => {
+        const { run, seen } = setup({ formValues: { items: [{ price: 10 }] } }, strict);
+
+        expect(run('{{ $formValues.items[0].price|money }}')).toBe('10.00');
+        expect(seen).toEqual([]);
+      });
+
+      it('evaluates an index below a declared field the same with and without declared paths', () => {
+        const formValues = { deep: { list: [{ v: 1 }, { v: 2 }] } };
+        const declared = setup({ formValues, declaredFormPaths: new Set(['deep']) }, strict);
+        const undeclared = setup({ formValues, declaredFormPaths: undefined }, strict);
+
+        for (const { run } of [declared, undeclared]) {
+          expect(run('{{ $formValues.deep.list[1].v }}')).toBe(2);
+          expect(run('{{ $formValues.deep.list[1].v*2 }}')).toBe(4);
+        }
+        // Nothing there yet: an empty key of the declared field, and quiet.
+        expect(declared.run('{{ $formValues.deep.list[5].v }}')).toBeUndefined();
+        expect(declared.run('{{ $formValues.deep.other[1].v }}')).toBeUndefined();
+        expect(declared.seen).toEqual([]);
+        expect(undeclared.seen).toEqual([]);
       });
 
       it('warns when a guard cannot protect an index into null external data', () => {
@@ -969,6 +1040,22 @@ describe('Template Processor', () => {
 
       expect(processValue('{{ 1 === }}', createDefaultResolver(context), context)).toBeUndefined();
       expect(warn).toHaveBeenCalledWith('Error evaluating expression "1 ===":', expect.anything());
+    });
+
+    it('warns on the console about a transform that throws behind an index, as before', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const context: ResolverContext = { externalContext: {}, formValues: { items: [{ price: '10' }], none: null } };
+      const run = (value: string) => processValue(value, createDefaultResolver(context), context);
+
+      expect(run("{{ $formValues.items[0].price|money == '10.00' }}")).toBeUndefined();
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith(
+        'Error evaluating expression "$formValues.items[0].price|money == \'10.00\'":',
+        expect.objectContaining({ message: expect.stringContaining('toFixed is not a function') }),
+      );
+      // An index into an empty value is not an error.
+      expect(run("{{ $formValues.none[0].price == 1 }}")).toBeUndefined();
+      expect(warn).toHaveBeenCalledTimes(1);
     });
   });
 });
