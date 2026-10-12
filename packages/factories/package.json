@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Shared schemas and types for Schepta factories",
   "files": [
-    "schemas"
+    "schemas",
+    "LICENSE"
   ],
   "exports": {
     "./schemas/form-schema.json": "./schemas/form-schema.json",

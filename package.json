@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Framework-agnostic rendering engine for server-driven UI",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "build": "turbo build",
     "showcases:dev": "turbo --filter showcases dev",

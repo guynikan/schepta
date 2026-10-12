@@ -5,7 +5,7 @@
 Build dynamic forms and UIs from JSON schemas with full support for React, Vue, and Vanilla JavaScript. Schepta provides a powerful, type-safe foundation for creating flexible, schema-driven applications.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![License: SNCL](https://img.shields.io/badge/License-Non--Commercial-orange.svg)](./LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Tests](https://img.shields.io/badge/tests-26%20passing-brightgreen)](./tests)
 
 ## ✨ Features
@@ -427,18 +427,7 @@ Contributions are welcome! Please read our contributing guidelines before submit
 
 ## 📄 License
 
-**Schepta Non-Commercial License (SNCL)**
-
-Schepta is free to use for:
-- ✅ Personal projects
-- ✅ Educational purposes
-- ✅ Research and academic projects
-- ✅ Non-profit organizations
-- ✅ Open-source projects
-
-**Commercial use requires a separate license.** 
-
-For commercial licensing inquiries, please contact us at: https://github.com/guynikan/schepta
+This project is licensed under the [MIT License](./LICENSE).
 
 See [LICENSE](./LICENSE) for full terms.
 
