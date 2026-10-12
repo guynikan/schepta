@@ -5,6 +5,7 @@
  */
 
 import React from "react";
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props passed to the FormSectionTitle component.
@@ -41,6 +42,7 @@ export const DefaultFormSectionTitle: React.FC<FormSectionTitleProps> = ({
   "x-ui": xUi,
   ...props
 }) => {
+  const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props });
   return (
     <h2
       style={{
@@ -48,10 +50,9 @@ export const DefaultFormSectionTitle: React.FC<FormSectionTitleProps> = ({
         fontSize: "20px",
         fontWeight: "600",
         color: "var(--schepta-text-1)",
-        ...props.style,
+        ...safeProps.style,
       }}
-      {...xComponentProps}
-      {...props}
+      {...safeProps}
     >
       {content ?? children}
     </h2>

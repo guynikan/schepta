@@ -1,31 +1,14 @@
-const HTML_PARSING_PROPERTIES = new Set([
-  'dangerouslysetinnerhtml',
-  'innerhtml',
-  'outerhtml',
-  'srcdoc',
-  'insertadjacenthtml',
+const URL_PROPERTIES = new Set(['href', 'src', 'action', 'formaction', 'poster', 'srcset']);
+const ALLOWED_PROPERTIES = new Set([
+  'class', 'classname', 'id', 'name', 'type', 'value', 'defaultvalue',
+  'checked', 'defaultchecked', 'disabled', 'readonly', 'required',
+  'placeholder', 'title', 'role', 'tabindex', 'hidden', 'lang', 'dir',
+  'min', 'max', 'step', 'minlength', 'maxlength', 'pattern', 'multiple',
+  'rows', 'cols', 'autocomplete', 'autofocus', 'inputmode', 'htmlfor', 'for',
+  'label', 'selected', 'size', 'accept', 'alt', 'width', 'height', 'colspan',
+  'rowspan', 'style', ...URL_PROPERTIES,
 ]);
-
-const URL_PROPERTIES = new Set([
-  'href',
-  'src',
-  'action',
-  'formaction',
-  'xlink:href',
-  'xlinkhref',
-  'data',
-  'poster',
-  'background',
-  'srcset',
-  'ping',
-  'manifest',
-  'codebase',
-  'cite',
-  'longdesc',
-  'usemap',
-]);
-
-const NESTED_PROP_BAGS = new Set(['x-component-props', 'componentprops', 'attrs', 'domprops', 'props']);
+const COMPONENT_PROPERTIES = new Set(['label', 'options', 'description', 'columns']);
 const PROP_NAME = /^[A-Za-z][A-Za-z0-9:_-]*$/;
 
 function normalizeUrl(value: string): string {
@@ -55,9 +38,7 @@ function getUnsafeUrlReason(name: string, value: unknown): string | null {
   const valueAsString = String(value);
   const candidates = name === 'srcset'
     ? valueAsString.split(',').map((candidate) => candidate.trim().split(/\s+/, 1)[0]).filter(Boolean)
-    : name === 'ping'
-      ? valueAsString.trim().split(/\s+/).filter(Boolean)
-      : [valueAsString];
+    : [valueAsString];
 
   for (const candidate of candidates) {
     const normalizedUrl = normalizeUrl(candidate);
@@ -76,36 +57,36 @@ function getUnsafeUrlReason(name: string, value: unknown): string | null {
   return null;
 }
 
-/**
- * Returns a reason when a prop must not be passed to a DOM element.
- * Schema-controlled values are treated as untrusted by all runtime adapters.
- */
+function getUnsafeStyleReason(value: unknown): string | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return 'styles must be plain objects';
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) return 'styles must be plain objects';
+
+  for (const [property, cssValue] of Object.entries(value)) {
+    if (property.toLowerCase() === 'csstext' || !isPrimitive(cssValue)) return 'style values must be scalar values without cssText';
+    if (/url\(|expression\(|javascript:/i.test(String(cssValue))) return 'unsafe CSS value is not allowed';
+  }
+  return null;
+}
+
+/** Returns a reason when a prop must not be passed to a native DOM element. */
 export function getUnsafeDOMPropReason(name: string, value: unknown): string | null {
   const normalizedName = normalizePropName(name);
   if (!normalizedName) return 'prop name is not allowed';
   const lowerCaseName = normalizedName.toLowerCase();
 
-  if (HTML_PARSING_PROPERTIES.has(lowerCaseName)) {
-    return 'HTML parsing properties are not allowed';
-  }
-
-  if (lowerCaseName.startsWith('on') && typeof value !== 'function') {
-    return 'event handler props must be functions';
-  }
-
-  if (URL_PROPERTIES.has(lowerCaseName)) {
-    return getUnsafeUrlReason(lowerCaseName, value);
-  }
-
-  if (lowerCaseName === 'style' && (typeof value === 'string' || (value && typeof value === 'object' && 'cssText' in value))) {
-    return 'string styles and cssText are not allowed';
-  }
+  if (lowerCaseName.startsWith('on')) return typeof value === 'function' ? null : 'event handler props must be functions';
+  if (lowerCaseName.startsWith('data-') || lowerCaseName.startsWith('aria-')) return null;
+  if (!ALLOWED_PROPERTIES.has(lowerCaseName)) return 'prop is not in the native DOM allowlist';
+  if (URL_PROPERTIES.has(lowerCaseName)) return getUnsafeUrlReason(lowerCaseName, value);
+  if (lowerCaseName === 'style') return getUnsafeStyleReason(value);
 
   return null;
 }
 
 /**
- * Drops unsafe DOM props recursively and warns when a schema attempted to use one.
+ * Drops schema-controlled props that are not explicitly safe for a native DOM
+ * element. Component-only props must be consumed before a spread reaches DOM.
  */
 export function sanitizeDOMProps(props: Record<string, any>): Record<string, any> {
   const safeProps: Record<string, any> = {};
@@ -117,11 +98,30 @@ export function sanitizeDOMProps(props: Record<string, any>): Record<string, any
       console.warn(`[Schepta] Dropped unsafe DOM prop "${name}": ${reason}.`);
       continue;
     }
-    const lowerCaseName = normalizedName.toLowerCase();
-    safeProps[normalizedName] = NESTED_PROP_BAGS.has(lowerCaseName) && value && typeof value === 'object' && !Array.isArray(value)
-      ? sanitizeDOMProps(value)
-      : value;
+    safeProps[normalizedName] = value;
   }
 
+  return safeProps;
+}
+
+/**
+ * Keeps documented default-component props while applying the native allowlist
+ * to every prop that might otherwise be forwarded to DOM.
+ */
+export function sanitizeComponentProps(props: Record<string, any>): Record<string, any> {
+  const safeProps: Record<string, any> = {};
+  for (const [name, value] of Object.entries(props)) {
+    const normalizedName = normalizePropName(name);
+    if (normalizedName && COMPONENT_PROPERTIES.has(normalizedName.toLowerCase())) {
+      safeProps[normalizedName] = value;
+      continue;
+    }
+    const reason = getUnsafeDOMPropReason(name, value);
+    if (reason || !normalizedName) {
+      console.warn(`[Schepta] Dropped unsafe DOM prop "${name}": ${reason}.`);
+      continue;
+    }
+    safeProps[normalizedName] = value;
+  }
   return safeProps;
 }

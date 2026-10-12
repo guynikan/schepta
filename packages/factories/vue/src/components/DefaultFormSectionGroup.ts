@@ -5,6 +5,7 @@
  */
 
 import { defineComponent, h, type PropType } from 'vue';
+import { sanitizeDOMProps } from '@schepta/core';
 
 export const DefaultFormSectionGroup = defineComponent({
   name: 'DefaultFormSectionGroup',
@@ -14,7 +15,7 @@ export const DefaultFormSectionGroup = defineComponent({
   },
   setup(props, { slots }) {
     return () => {
-      const xProps = props['x-component-props'] || {};
+      const xProps = sanitizeDOMProps(props['x-component-props'] || {});
       const baseStyle = {
         display: 'grid',
         gridTemplateColumns: xProps.columns || 'repeat(auto-fit, minmax(200px, 1fr))',

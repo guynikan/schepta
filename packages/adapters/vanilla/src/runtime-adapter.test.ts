@@ -44,4 +44,40 @@ describe('VanillaRuntimeAdapter.setProps', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('href'));
     warn.mockRestore();
   });
+
+  it('does not allow URL decomposition properties to rewrite safe links', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const adapter = new VanillaRuntimeAdapter();
+
+    for (const tagName of ['a', 'area']) {
+      const element = document.createElement(tagName);
+      adapter.setProps(element, { href: 'mailto:alert(1)', protocol: 'javascript:' });
+      expect(element.outerHTML).not.toContain('javascript:');
+      expect(element.getAttribute('href')).toBe('mailto:alert(1)');
+    }
+
+    warn.mockRestore();
+  });
+
+  it('keeps arbitrary DOM properties from mutating markup', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const adapter = new VanillaRuntimeAdapter();
+
+    for (const tagName of ['a', 'form', 'iframe', 'input', 'img']) {
+      const element = document.createElement(tagName);
+      const propertyNames: string[] = [];
+      for (const key in element) propertyNames.push(key);
+
+      for (const key of propertyNames) {
+        adapter.setProps(element, { [key]: 'javascript:alert(1)' });
+        adapter.setProps(element, { [key]: '<img src=x onerror=alert(1)>' });
+      }
+
+      expect(element.outerHTML).not.toContain('javascript:');
+      expect(Array.from(element.attributes).some((attribute) => /^on/i.test(attribute.name))).toBe(false);
+      expect(element.querySelector('img')).toBeNull();
+    }
+
+    warn.mockRestore();
+  });
 });

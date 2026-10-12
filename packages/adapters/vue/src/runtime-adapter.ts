@@ -5,7 +5,7 @@
  */
 
 import { h, Fragment, VNode } from 'vue';
-import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RenderResult, type RendererSpec } from '@schepta/core';
+import { sanitizeComponentProps, type RuntimeAdapter, type ComponentSpec, type RenderResult, type RendererSpec } from '@schepta/core';
 
 /**
  * Vue runtime adapter implementation
@@ -60,7 +60,23 @@ export class VueRuntimeAdapter implements RuntimeAdapter {
 }
 
 function sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
-  return sanitizeDOMProps(props);
+  const {
+    children, component, componentProps, externalContext, schema, componentKey,
+    'x-component-props': xComponentProps, 'x-ui': xUi, onSubmit, ...schemaProps
+  } = props;
+  const safeProps = sanitizeComponentProps(schemaProps);
+  return {
+    ...safeProps,
+    ...(children !== undefined ? { children } : {}),
+    ...(component !== undefined ? { component } : {}),
+    ...(componentProps !== undefined ? { componentProps: sanitizeComponentProps(componentProps) } : {}),
+    ...(externalContext !== undefined ? { externalContext } : {}),
+    ...(schema !== undefined ? { schema } : {}),
+    ...(componentKey !== undefined ? { componentKey } : {}),
+    ...(xComponentProps !== undefined ? { 'x-component-props': sanitizeComponentProps(xComponentProps) } : {}),
+    ...(xUi !== undefined ? { 'x-ui': xUi } : {}),
+    ...(onSubmit !== undefined ? { onSubmit } : {}),
+  };
 }
 
 /**

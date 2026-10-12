@@ -4,7 +4,7 @@
  * Implements RuntimeAdapter using DOM APIs
  */
 
-import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RendererSpec, type RenderResult } from '@schepta/core';
+import { sanitizeComponentProps, sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type RendererSpec, type RenderResult } from '@schepta/core';
 
 import type { DOMElement } from './types';
 
@@ -98,7 +98,7 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
 
   setProps(element: RenderResult, props: Record<string, any>): void {
     if (this.isValidElement(element)) {
-      const safeProps = this.sanitizeRuntimeProps(props);
+      const safeProps = sanitizeDOMProps(props);
       const domElement = element instanceof HTMLElement 
         ? this.wrapElement(element, safeProps)
         : element as DOMElement;
@@ -121,8 +121,14 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
             Object.assign(el.style, value);
           } else if (key.startsWith('data-')) {
             el.setAttribute(key, String(value));
+          } else if (key.startsWith('aria-')) {
+            el.setAttribute(key, String(value));
           } else {
-            (el as any)[key] = value;
+            try {
+              (el as any)[key] = value;
+            } catch {
+              console.warn(`[Schepta] Dropped DOM prop "${key}": it could not be applied to this element.`);
+            }
           }
         }
       }
@@ -138,7 +144,23 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
   }
 
   private sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
-    return sanitizeDOMProps(props);
+    const {
+      children, component, componentProps, externalContext, schema, componentKey,
+      'x-component-props': xComponentProps, 'x-ui': xUi, onSubmit, ...schemaProps
+    } = props;
+    const safeProps = sanitizeComponentProps(schemaProps);
+    return {
+      ...safeProps,
+      ...(children !== undefined ? { children } : {}),
+      ...(component !== undefined ? { component } : {}),
+      ...(componentProps !== undefined ? { componentProps: sanitizeComponentProps(componentProps) } : {}),
+      ...(externalContext !== undefined ? { externalContext } : {}),
+      ...(schema !== undefined ? { schema } : {}),
+      ...(componentKey !== undefined ? { componentKey } : {}),
+      ...(xComponentProps !== undefined ? { 'x-component-props': sanitizeComponentProps(xComponentProps) } : {}),
+      ...(xUi !== undefined ? { 'x-ui': xUi } : {}),
+      ...(onSubmit !== undefined ? { onSubmit } : {}),
+    };
   }
 }
 

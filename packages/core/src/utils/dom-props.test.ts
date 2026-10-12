@@ -27,7 +27,6 @@ describe('sanitizeDOMProps', () => {
       src: 'HTTPS://example.com/image.png',
       action: 'mailto:security@example.com',
       formAction: 'tel:+5511999999999',
-      xlinkHref: 'data:image/png;base64,abc',
       className: 'button',
       style: { color: 'rebeccapurple' },
       'data-test-id': 'submit',
@@ -43,7 +42,6 @@ describe('sanitizeDOMProps', () => {
       src: 'HTTPS://example.com/image.png',
       action: 'mailto:security@example.com',
       formAction: 'tel:+5511999999999',
-      xlinkHref: 'data:image/png;base64,abc',
       className: 'button',
       style: { color: 'rebeccapurple' },
       'data-test-id': 'submit',
@@ -75,7 +73,7 @@ describe('sanitizeDOMProps', () => {
     warn.mockRestore();
   });
 
-  it('normalizes Vue modifiers and sanitizes nested prop bags', () => {
+  it('normalizes Vue modifiers and drops props outside the allowlist', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     expect(sanitizeDOMProps({
@@ -85,7 +83,7 @@ describe('sanitizeDOMProps', () => {
       'x-component-props': {
         'x-component-props': { type: 'submit', formAction: 'javascript:alert(1)' },
       },
-    })).toEqual({ 'x-component-props': { 'x-component-props': { type: 'submit' } } });
+    })).toEqual({});
 
     warn.mockRestore();
   });
@@ -98,7 +96,9 @@ describe('sanitizeDOMProps', () => {
     }
     expect(sanitizeDOMProps({ srcset: 'https://example.com/a.png 1x, javascript:alert(1) 2x' })).toEqual({});
     expect(sanitizeDOMProps({ style: 'color: red' })).toEqual({});
+    expect(sanitizeDOMProps({ style: ['color: red'] })).toEqual({});
     expect(sanitizeDOMProps({ style: { cssText: 'color: red' } })).toEqual({});
+    expect(sanitizeDOMProps({ style: { backgroundImage: 'url(javascript:alert(1))' } })).toEqual({});
 
     warn.mockRestore();
   });

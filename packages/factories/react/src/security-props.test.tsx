@@ -70,4 +70,10 @@ describe('schema DOM prop sanitization', () => {
 
     expect(container.querySelector('[data-test-id="safe-section"]')).toHaveAttribute('title', 'Safe title');
   });
+
+  it('drops schema ref and key props before React renders them', () => {
+    expect(() => render(
+      <FormFactory schema={formWithSection({ ref: 'schema-ref', key: 'schema-key' })} />
+    )).not.toThrow();
+  });
 });
