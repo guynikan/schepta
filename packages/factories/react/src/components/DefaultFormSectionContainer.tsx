@@ -7,6 +7,7 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props passed to the FormSectionContainer component.
@@ -37,6 +38,7 @@ const PLACEHOLDER_HEIGHT = 120;
  */
 export const DefaultFormSectionContainer: React.FC<FormSectionContainerProps> = React.memo(
   function DefaultFormSectionContainer({ children, externalContext, 'x-ui': xUi, "x-component-props": xComponentProps, ...props }) {
+    const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props });
     const lazy = xUi?.lazy === true;
     const ref = useRef<HTMLDivElement>(null);
     const [isVisible, setIsVisible] = useState(!lazy);
@@ -60,14 +62,14 @@ export const DefaultFormSectionContainer: React.FC<FormSectionContainerProps> = 
       return (
         <div
           ref={ref}
-          style={{ minHeight: PLACEHOLDER_HEIGHT, marginBottom: '24px', ...props.style }}
-          {...props}
+          style={{ minHeight: PLACEHOLDER_HEIGHT, marginBottom: '24px', ...safeProps.style }}
+          {...safeProps}
         />
       );
     }
 
     return (
-      <div ref={ref} style={{ marginBottom: '24px', ...props.style }} {...props}>
+      <div ref={ref} style={{ marginBottom: '24px', ...safeProps.style }} {...safeProps}>
         {children}
       </div>
     );

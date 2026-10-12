@@ -6,7 +6,7 @@
   "scripts": {
     "build": "turbo build",
     "showcases:dev": "turbo --filter showcases dev",
-    "test": "turbo test --filter='./packages/*'",
+    "test": "turbo test --filter='./packages/**'",
     "test:e2e": "playwright test --config=tests/playwright.config.ts",
     "test:e2e:ui": "playwright test --ui --config=tests/playwright.config.ts",
     "docs:dev": "pnpm --filter docs dev",

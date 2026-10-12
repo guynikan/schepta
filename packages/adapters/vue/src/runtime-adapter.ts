@@ -60,14 +60,7 @@ export class VueRuntimeAdapter implements RuntimeAdapter {
 }
 
 function sanitizeRuntimeProps(props: Record<string, any>): Record<string, any> {
-  const safeProps = sanitizeDOMProps(props);
-  for (const nestedPropName of ['componentProps', 'x-component-props']) {
-    const nestedProps = safeProps[nestedPropName];
-    if (nestedProps && typeof nestedProps === 'object' && !Array.isArray(nestedProps)) {
-      safeProps[nestedPropName] = sanitizeDOMProps(nestedProps);
-    }
-  }
-  return safeProps;
+  return sanitizeDOMProps(props);
 }
 
 /**

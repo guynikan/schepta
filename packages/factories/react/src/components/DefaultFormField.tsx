@@ -5,6 +5,7 @@
  */
 
 import React from "react";
+import { sanitizeDOMProps } from '@schepta/core';
 
 /**
  * Props passed to the FormField component.
@@ -31,10 +32,10 @@ export type FormFieldComponentType = React.ComponentType<FormFieldProps>;
  */
 export const DefaultFormField: React.FC<FormFieldProps> = React.memo(
   function DefaultFormField({ children, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...props }) {
+    const safeProps = sanitizeDOMProps({ ...xComponentProps, ...props });
     return (
       <div
-        {...xComponentProps}
-        {...props}
+        {...safeProps}
       >
         {children}
       </div>

@@ -74,4 +74,32 @@ describe('sanitizeDOMProps', () => {
     expect(sanitizeDOMProps({ src: 'data:text/html,<script>alert(1)</script>' })).toEqual({});
     warn.mockRestore();
   });
+
+  it('normalizes Vue modifiers and sanitizes nested prop bags', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    expect(sanitizeDOMProps({
+      dangerouslySetInnerHTML: { __html: '<img src=x onerror=alert(1)>' },
+      '.innerHTML': '<img src=x onerror=alert(1)>',
+      '^onclick': 'alert(1)',
+      'x-component-props': {
+        'x-component-props': { type: 'submit', formAction: 'javascript:alert(1)' },
+      },
+    })).toEqual({ 'x-component-props': { 'x-component-props': { type: 'submit' } } });
+
+    warn.mockRestore();
+  });
+
+  it('rejects non-primitive URLs and unsafe URL-bearing attributes', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    for (const name of ['href', 'data', 'poster', 'background', 'srcset', 'ping', 'manifest', 'codebase', 'cite', 'longdesc', 'usemap', 'xlink:href']) {
+      expect(sanitizeDOMProps({ [name]: ['javascript:alert(1)'] })).toEqual({});
+    }
+    expect(sanitizeDOMProps({ srcset: 'https://example.com/a.png 1x, javascript:alert(1) 2x' })).toEqual({});
+    expect(sanitizeDOMProps({ style: 'color: red' })).toEqual({});
+    expect(sanitizeDOMProps({ style: { cssText: 'color: red' } })).toEqual({});
+
+    warn.mockRestore();
+  });
 });

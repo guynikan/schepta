@@ -5,6 +5,7 @@
  */
 
 import { defineComponent, h, type PropType } from 'vue';
+import { sanitizeDOMProps } from '@schepta/core';
 
 export const DefaultFormField = defineComponent({
   name: 'DefaultFormField',
@@ -15,7 +16,7 @@ export const DefaultFormField = defineComponent({
   },
   setup(props, { slots }) {
     return () => {
-      const xProps = props['x-component-props'] || {};
+      const xProps = sanitizeDOMProps(props['x-component-props'] || {});
       const { style, ...restXProps } = xProps;
       return h(
         'div',

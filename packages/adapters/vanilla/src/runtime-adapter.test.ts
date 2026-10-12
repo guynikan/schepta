@@ -32,4 +32,16 @@ describe('VanillaRuntimeAdapter.setProps', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('href'));
     warn.mockRestore();
   });
+
+  it('does not coerce array URL values into executable URLs', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const adapter = new VanillaRuntimeAdapter();
+    const element = document.createElement('a');
+
+    adapter.setProps(element, { href: ['javascript:alert(1)'] });
+
+    expect(element.getAttribute('href')).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('href'));
+    warn.mockRestore();
+  });
 });
