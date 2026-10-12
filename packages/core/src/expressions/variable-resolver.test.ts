@@ -2,7 +2,7 @@
  * Variable Resolver Tests
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   createDefaultResolver,
   createCustomResolver,
@@ -211,6 +211,29 @@ describe('Variable Resolver', () => {
       expect(emptyResolver('$externalContext.user.name')).toBeUndefined();
       expect(emptyResolver('$formValues.firstName')).toBeUndefined();
     });
+
+    it('preserves inherited values from external context', () => {
+      class User {
+        get fullName() { return 'Ada Lovelace'; }
+      }
+      const resolver = createDefaultResolver({ externalContext: { user: new User() }, formValues: {} });
+
+      expect(resolver('$externalContext.user.fullName')).toBe('Ada Lovelace');
+    });
+
+    it('accepts sub-properties of declared but empty fields', () => {
+      const report = vi.fn();
+      const resolver = createDefaultResolver({
+        externalContext: {},
+        formValues: { country: undefined, tags: '' },
+        declaredFormPaths: new Set(['country', 'tags']),
+        diagnostics: { report },
+      });
+
+      expect(resolver('$formValues.country.value')).toBeUndefined();
+      expect(resolver('$formValues.tags.length')).toBe(0);
+      expect(report).not.toHaveBeenCalled();
+    });
   });
 
   describe('createCustomResolver', () => {
@@ -250,6 +273,15 @@ describe('Variable Resolver', () => {
       });
 
       expect(resolver('$test.value')).toBe('test-value');
+    });
+
+    it('keeps the creation context for custom handlers when processing overrides values', () => {
+      const resolver = createCustomResolver(
+        { externalContext: {}, formValues: {}, i18n: { title: 'T' } },
+        { '$i18n': (path, ctx) => ctx.i18n[path] },
+      );
+
+      expect(resolver('$i18n.title', { externalContext: {}, formValues: {} })).toBe('T');
     });
   });
 });

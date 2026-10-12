@@ -9,7 +9,7 @@ import {
   processValue,
   needsProcessing,
 } from './template-processor';
-import { createDefaultResolver, type ResolverContext } from './variable-resolver';
+import { createCustomResolver, createDefaultResolver, type ResolverContext } from './variable-resolver';
 import {
   createExpressionDiagnostics,
   ScheptaExpressionError,
@@ -512,6 +512,9 @@ describe('Template Processor', () => {
       expect(strictDiagnostics[0]).toMatchObject({
         code: 'EXPRESSION_PATH_NOT_FOUND', expression: '$formValues.emial', path: 'x-ui.required',
       });
+
+      expect(() => processValue(value, createDefaultResolver(strictContext), strictContext, 'x-ui.required')).toThrow(ScheptaExpressionError);
+      expect(() => processValue(value, createDefaultResolver(strictContext), strictContext, 'x-ui.required')).toThrow(ScheptaExpressionError);
     });
 
     it('leaves invalid conditions at their safe undefined defaults and reports each location', () => {
@@ -533,6 +536,37 @@ describe('Template Processor', () => {
       expect(diagnostics.map(error => error.path)).toEqual([
         'x-ui.visible', 'x-ui.disabled', 'x-ui.required',
       ]);
+    });
+
+    it('does not diagnose missing references hidden by a fallback or string literal', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+
+      expect(processValue("{{ $externalContext.locale || 'en' }}", diagnosticResolver, diagnosticContextValue)).toBe('en');
+      expect(processValue("{{ '$USD' }}", diagnosticResolver, diagnosticContextValue)).toBe('$USD');
+      expect(diagnostics).toEqual([]);
+    });
+
+    it('classifies invalid non-comparison syntax as an evaluation error', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+
+      expect(processValue('{{ $formValues.email + }}', createDefaultResolver(diagnosticContextValue), diagnosticContextValue)).toBeUndefined();
+      expect(diagnostics).toEqual([expect.objectContaining({
+        code: 'EXPRESSION_EVALUATION_ERROR', expression: '$formValues.email +',
+      })]);
+    });
+
+    it('preserves custom resolver context while processValue supplies runtime values', () => {
+      const customResolver = createCustomResolver(
+        { externalContext: {}, formValues: {}, i18n: { title: 'T' } },
+        { '$i18n': (path, resolverContext) => resolverContext.i18n[path] },
+      );
+
+      expect(processValue('{{ $i18n.title }}', customResolver, { externalContext: {}, formValues: {} })).toBe('T');
     });
   });
 });

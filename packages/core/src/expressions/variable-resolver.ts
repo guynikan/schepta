@@ -52,7 +52,7 @@ function resolveNestedPath(path: string, obj: any): { found: boolean; value: any
     if (current === null || current === undefined) {
       return { found: false, value: undefined };
     }
-    if (!Object.prototype.hasOwnProperty.call(current, part)) {
+    if (!(part in Object(current))) {
       return { found: false, value: undefined };
     }
     current = current[part];
@@ -116,7 +116,9 @@ export function createDefaultResolver(context: ResolverContext): VariableResolve
     if (trimmed.startsWith('$formValues.')) {
       const path = trimmed.substring('$formValues.'.length);
       const resolved = resolveNestedPath(path, activeContext.formValues);
-      if (!resolved.found && !activeContext.declaredFormPaths?.has(path)) {
+      const isDeclaredPath = [...(activeContext.declaredFormPaths ?? [])]
+        .some(declaredPath => path === declaredPath || path.startsWith(`${declaredPath}.`));
+      if (!resolved.found && !isDeclaredPath) {
         reportMissingPath(trimmed, `$formValues.${path}`, activeContext);
       }
       return resolved.value;
@@ -174,7 +176,7 @@ export function createCustomResolver(
         const path = trimmed.substring(prefix.length);
         // Remove leading dot if present
         const cleanPath = path.startsWith('.') ? path.substring(1) : path;
-        return handler(cleanPath, activeContext);
+        return handler(cleanPath, context);
       }
     }
 

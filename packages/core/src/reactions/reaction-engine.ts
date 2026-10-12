@@ -60,12 +60,7 @@ export function executeDeclarativeReactions(
       try {
         const value = Jexl.evalSync(cleanExpression, jexlContext);
         if (value === undefined) {
-          diagnostics.report({
-            code: 'EXPRESSION_EVALUATION_ERROR',
-            expression: cleanExpression,
-            path: `${context.fieldKey}.x-reactions.${prop}`,
-          });
-          continue;
+          throw new Error('Reaction expression resolved to undefined');
         }
         dynamicProps[prop] = value;
         context.setFieldProps(context.fieldKey, dynamicProps);

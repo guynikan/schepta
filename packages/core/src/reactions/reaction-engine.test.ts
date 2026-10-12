@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { createExpressionDiagnostics, type ExpressionDiagnosticDetails } from '../expressions/diagnostics';
+import { createExpressionDiagnostics, ScheptaExpressionError, type ExpressionDiagnosticDetails } from '../expressions/diagnostics';
 import { executeDeclarativeReactions } from './reaction-engine';
 
 afterEach(() => vi.restoreAllMocks());
@@ -27,5 +27,16 @@ describe('executeDeclarativeReactions', () => {
     expect(diagnostics).toEqual([expect.objectContaining({
       code: 'EXPRESSION_EVALUATION_ERROR', expression: '$form.missing', path: 'email.x-reactions.disabled',
     })]);
+  });
+
+  it('throws for undefined reaction results in strict mode', () => {
+    expect(() => executeDeclarativeReactions({ 'x-reactions': { disabled: '$form.missing' } }, {
+      fieldKey: 'email',
+      schema: {},
+      fullSchema: {},
+      formAdapter: { getValues: () => ({}) } as any,
+      setFieldProps: vi.fn(),
+      expressions: { onError: 'throw' },
+    })).toThrow(ScheptaExpressionError);
   });
 });

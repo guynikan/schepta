@@ -1,4 +1,5 @@
 import type { DebugContextValue } from '../runtime/types';
+import { traverseFormSchema } from '../validation/schema-traversal';
 
 export type ExpressionErrorCode =
   | 'EXPRESSION_EVALUATION_ERROR'
@@ -44,18 +45,10 @@ export interface ExpressionDiagnostics {
   report(details: ExpressionDiagnosticDetails): void;
 }
 
-/** Return every form-data path declared by a JSON-schema `properties` tree. */
+/** Return form-data paths using the same field-name rules as form adapters. */
 export function collectDeclaredFormPaths(schema: any): ReadonlySet<string> {
   const paths = new Set<string>();
-  const visit = (node: any, prefix = '') => {
-    if (!node || typeof node !== 'object' || !node.properties || typeof node.properties !== 'object') return;
-    for (const [key, child] of Object.entries(node.properties)) {
-      const path = prefix ? `${prefix}.${key}` : key;
-      paths.add(path);
-      visit(child, path);
-    }
-  };
-  visit(schema);
+  traverseFormSchema(schema, field => paths.add(field.path));
   return paths;
 }
 
@@ -76,16 +69,16 @@ export function createExpressionDiagnostics(
   return {
     report(details) {
       const key = `${details.code}\u0000${details.expression}\u0000${details.path}\u0000${details.missingPath ?? ''}`;
-      if (reported.has(key)) return;
-      reported.add(key);
-
       const error = new ScheptaExpressionError(details);
-      config?.onExpressionError?.(error);
-      if (debug?.isEnabled) {
-        debug.log('expression', error.message, { error, ...details });
-      }
-      if (!isProduction()) {
-        console.warn(error.message, details.cause);
+      if (!reported.has(key)) {
+        reported.add(key);
+        config?.onExpressionError?.(error);
+        if (debug?.isEnabled) {
+          debug.log('expression', error.message, { error, ...details });
+        }
+        if (!isProduction()) {
+          console.warn(error.message, details.cause);
+        }
       }
       if (config?.onError === 'throw') {
         throw error;

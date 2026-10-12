@@ -18,8 +18,9 @@ import { Jexl } from '../utils/jexl-config';
  * @returns true if expression contains operators
  */
 function isComplexExpression(expr: string): boolean {
-  // Contains comparison or logical operators
-  return /===|!==|==|!=|>=|<=|>|<|&&|\|\|/.test(expr);
+  // Expressions with JEXL operators or literals must be evaluated rather than
+  // treated as resolver variable names.
+  return /===|!==|==|!=|>=|<=|>|<|&&|\|\||[+*/%]|^\s*(['"]).*\1\s*$/.test(expr);
 }
 
 /**
@@ -52,16 +53,18 @@ function evaluateExpression(expression: string, context: ResolverContext): any {
   // Convert JS operators to JEXL operators
   const jexlExpression = convertToJexlOperators(expression);
 
-  // JEXL treats unresolved identifiers as undefined. Resolve every supported
-  // reference first so typos remain observable instead of becoming falsey.
-  const referenceResolver = createDefaultResolver(context);
-  const references = expression.match(/\$[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)*/g) || [];
-  for (const reference of new Set(references)) {
-    referenceResolver(reference, context);
-  }
-  
   try {
-    return Jexl.evalSync(jexlExpression, jexlContext);
+    const result = Jexl.evalSync(jexlExpression, jexlContext);
+    // Only diagnose unresolved references if the expression itself could not
+    // produce a value. This keeps intentional fallbacks quiet.
+    if (result === undefined) {
+      const referenceResolver = createDefaultResolver(context);
+      const references = expression.match(/\$[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)*/g) || [];
+      for (const reference of new Set(references)) {
+        referenceResolver(reference, context);
+      }
+    }
+    return result;
   } catch (error) {
     context.diagnostics?.report({
       code: 'EXPRESSION_EVALUATION_ERROR',
