@@ -80,8 +80,10 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
     props.externalContext,
     props.middlewares,
     props.debug,
-    providerConfig?.expressions,
-    props.expressions,
+    providerConfig?.expressions?.onError,
+    providerConfig?.expressions?.onExpressionError,
+    props.expressions?.onError,
+    props.expressions?.onExpressionError,
   ]);
 }
 

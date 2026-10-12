@@ -5,7 +5,7 @@ import { executeDeclarativeReactions } from './reaction-engine';
 afterEach(() => vi.restoreAllMocks());
 
 describe('executeDeclarativeReactions', () => {
-  it('diagnoses reactions that resolve to undefined instead of applying them', () => {
+  it('diagnoses missing reactions and preserves the undefined prop update', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const diagnostics: ExpressionDiagnosticDetails[] = [];
     const setFieldProps = vi.fn();
@@ -23,13 +23,13 @@ describe('executeDeclarativeReactions', () => {
       }),
     });
 
-    expect(setFieldProps).not.toHaveBeenCalled();
+    expect(setFieldProps).toHaveBeenCalledWith('email', { disabled: undefined });
     expect(diagnostics).toEqual([expect.objectContaining({
-      code: 'EXPRESSION_EVALUATION_ERROR', expression: '$form.missing', path: 'email.x-reactions.disabled',
+      code: 'EXPRESSION_PATH_NOT_FOUND', expression: '$form.missing', path: 'email.x-reactions.disabled',
     })]);
   });
 
-  it('throws for undefined reaction results in strict mode', () => {
+  it('throws for missing reaction paths in strict mode', () => {
     expect(() => executeDeclarativeReactions({ 'x-reactions': { disabled: '$form.missing' } }, {
       fieldKey: 'email',
       schema: {},

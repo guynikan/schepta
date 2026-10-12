@@ -119,7 +119,10 @@ export function createComponentOrchestrator(
       const resolverContext = {
         externalContext: setup.externalContext,
         formValues: setup.state,
-        declaredFormPaths: collectDeclaredFormPaths(schema),
+        declaredFormPaths: collectDeclaredFormPaths(schema, (node, key) => {
+          const resolved = resolveSpec(node, key, setup.components, setup.customComponents, setup.renderers);
+          return resolved?.componentSpec.type === 'field';
+        }),
         diagnostics,
       };
       const resolver = createDefaultResolver(resolverContext);

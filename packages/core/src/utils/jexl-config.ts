@@ -12,5 +12,6 @@ import jexl from 'jexl';
 export const Jexl = {
   eval: jexl.eval.bind(jexl),
   evalSync: jexl.evalSync.bind(jexl),
+  compile: jexl.compile.bind(jexl),
 };
 

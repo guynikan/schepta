@@ -21,6 +21,8 @@ export interface ExpressionDiagnosticDetails {
   path: string;
   missingPath?: string;
   cause?: unknown;
+  /** Internal: optional external-context paths are warnings even in strict mode. */
+  strict?: boolean;
 }
 
 /** Error raised for invalid schema expressions when strict mode is enabled. */
@@ -46,9 +48,27 @@ export interface ExpressionDiagnostics {
 }
 
 /** Return form-data paths using the same field-name rules as form adapters. */
-export function collectDeclaredFormPaths(schema: any): ReadonlySet<string> {
+export function collectDeclaredFormPaths(
+  schema: any,
+  isFieldComponent?: (node: any, key: string) => boolean,
+): ReadonlySet<string> {
   const paths = new Set<string>();
-  traverseFormSchema(schema, field => paths.add(field.path));
+  if (!isFieldComponent) {
+    traverseFormSchema(schema, field => paths.add(field.path));
+    return paths;
+  }
+  const visit = (node: any, key: string, parentName: string | undefined, isDirectRootProperty: boolean): void => {
+    if (!node || typeof node !== 'object') return;
+    const isField = isFieldComponent(node, key);
+    const currentName = isField || isDirectRootProperty
+      ? (parentName ? `${parentName}.${key}` : key)
+      : parentName;
+    if (isField && currentName) paths.add(currentName);
+    for (const [childKey, child] of Object.entries(node.properties ?? {})) {
+      visit(child, childKey, currentName, !parentName && key === 'FormContainer');
+    }
+  };
+  visit(schema, 'FormContainer', undefined, false);
   return paths;
 }
 
@@ -80,7 +100,7 @@ export function createExpressionDiagnostics(
           console.warn(error.message, details.cause);
         }
       }
-      if (config?.onError === 'throw') {
+      if (config?.onError === 'throw' && details.strict !== false) {
         throw error;
       }
     },

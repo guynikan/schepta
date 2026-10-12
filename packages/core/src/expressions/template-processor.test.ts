@@ -485,6 +485,20 @@ describe('Template Processor', () => {
       ]);
     });
 
+    it('checks references inside comparisons and keeps strict error details', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const context = diagnosticContext(diagnostics, true);
+      const resolver = createDefaultResolver(context);
+
+      expect(() => processValue("{{ $formValues.emial === 'a' }}", resolver, context, 'x-ui.visible')).toThrow(
+        expect.objectContaining({ code: 'EXPRESSION_PATH_NOT_FOUND', missingPath: '$formValues.emial' }),
+      );
+      expect(diagnostics).toEqual([expect.objectContaining({
+        code: 'EXPRESSION_PATH_NOT_FOUND', path: 'x-ui.visible', missingPath: '$formValues.emial',
+      })]);
+    });
+
     it('keeps declared but empty fields quiet and preserves undefined behavior', () => {
       vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       const diagnostics: ExpressionDiagnosticDetails[] = [];

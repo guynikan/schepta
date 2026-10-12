@@ -64,6 +64,10 @@ Strict mode throws `ScheptaExpressionError`, whose `code`, `expression`,
 Use `onExpressionError` in the same configuration object to receive each
 deduplicated diagnostic programmatically.
 
+External context has no schema declaration. A missing nested path below an
+existing external-context root emits a warning only, so asynchronous data may
+arrive later; strict mode throws only when that root key itself is absent.
+
 ## License
 
 MIT

@@ -7,8 +7,8 @@
  */
 
 import { detectTemplateExpressions, hasTemplateExpressions } from './template-detector';
-import { createDefaultResolver, type VariableResolver, type ResolverContext } from './variable-resolver';
-import { Jexl } from '../utils/jexl-config';
+import { type VariableResolver, type ResolverContext } from './variable-resolver';
+import { analyzeExpression, getReferenceProblem } from './expression-analysis';
 
 /**
  * Check if an expression contains operators (is a complex expression)
@@ -17,10 +17,9 @@ import { Jexl } from '../utils/jexl-config';
  * @param expr Expression to check
  * @returns true if expression contains operators
  */
-function isComplexExpression(expr: string): boolean {
-  // Expressions with JEXL operators or literals must be evaluated rather than
-  // treated as resolver variable names.
-  return /===|!==|==|!=|>=|<=|>|<|&&|\|\||[+*/%]|^\s*(['"]).*\1\s*$/.test(expr);
+function isSimplePathExpression(expr: string): boolean {
+  // Keep legacy support for external/form keys containing operator characters.
+  return /^\$[A-Za-z_]\w*(?:\.[^\s.]+)*$/.test(expr);
 }
 
 /**
@@ -30,11 +29,6 @@ function isComplexExpression(expr: string): boolean {
  * @param expression Expression with JS operators
  * @returns Expression with JEXL operators
  */
-function convertToJexlOperators(expression: string): string {
-  return expression
-    .replace(/===/g, '==')
-    .replace(/!==/g, '!=');
-}
 
 /**
  * Evaluate a complex expression using JEXL
@@ -43,35 +37,32 @@ function convertToJexlOperators(expression: string): string {
  * @param context Resolver context with formValues and externalContext
  * @returns Evaluated result (boolean, number, string, etc.)
  */
-function evaluateExpression(expression: string, context: ResolverContext): any {
+function evaluateExpression(expression: string, context: ResolverContext, resolver?: VariableResolver): any {
   // Build JEXL context with form values and external context
   const jexlContext = {
     $formValues: context.formValues,
     $externalContext: context.externalContext,
   };
   
-  // Convert JS operators to JEXL operators
-  const jexlExpression = convertToJexlOperators(expression);
-
-  try {
-    const result = Jexl.evalSync(jexlExpression, jexlContext);
-    // Only diagnose unresolved references if the expression itself could not
-    // produce a value. This keeps intentional fallbacks quiet.
-    if (result === undefined) {
-      const referenceResolver = createDefaultResolver(context);
-      const references = expression.match(/\$[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)*/g) || [];
-      for (const reference of new Set(references)) {
-        referenceResolver(reference, context);
-      }
-    }
-    return result;
-  } catch (error) {
+  const analysis = analyzeExpression(expression);
+  if (analysis.error) {
     context.diagnostics?.report({
       code: 'EXPRESSION_EVALUATION_ERROR',
       expression,
       path: context.expressionPath || '<unknown>',
-      cause: error,
+      cause: analysis.error,
     });
+    return undefined;
+  }
+  for (const reference of analysis.references) {
+    const problem = getReferenceProblem(reference, context);
+    if (problem) context.diagnostics?.report({ ...problem, expression, path: context.expressionPath || '<unknown>' });
+  }
+  if (resolver && isSimplePathExpression(expression)) return resolver(expression, context);
+  try {
+    return analysis.compiled.evalSync(jexlContext);
+  } catch (error) {
+    context.diagnostics?.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression, path: context.expressionPath || '<unknown>', cause: error });
     return undefined;
   }
 }
@@ -116,13 +107,7 @@ export function processTemplateString(
   if (singleTemplateMatch) {
     const expr = singleTemplateMatch[1].trim();
     
-    // Complex expressions (with operators) need JEXL evaluation
-    if (isComplexExpression(expr)) {
-      return evaluateExpression(expr, context);
-    }
-    
-    // Simple variable resolution - return value directly (preserves type)
-    return resolver(expr, context);
+    return evaluateExpression(expr, context, resolver);
   }
 
   // Multiple templates or text around them: concatenate as string
@@ -132,12 +117,7 @@ export function processTemplateString(
     const template = `{{ ${expression} }}`;
     let resolved: any;
     
-    // Use JEXL for complex expressions
-    if (isComplexExpression(expression)) {
-      resolved = evaluateExpression(expression, context);
-    } else {
-      resolved = resolver(expression, context);
-    }
+    resolved = evaluateExpression(expression, context, resolver);
     
     // Convert to string for concatenation
     const replacement = resolved !== undefined && resolved !== null 

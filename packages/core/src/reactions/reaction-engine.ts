@@ -8,6 +8,7 @@ import type { RuntimeReactionContext, DefaultReaction } from './types';
 import { getAllReactions } from './types';
 import { Jexl } from '../utils/jexl-config';
 import { createExpressionDiagnostics } from '../expressions/diagnostics';
+import { analyzeExpression, getReferenceProblem } from '../expressions/expression-analysis';
 
 /**
  * Clean JEXL expression - removes template syntax if needed
@@ -56,12 +57,22 @@ export function executeDeclarativeReactions(
   for (const [prop, rawExpression] of Object.entries(reactions)) {
     if (typeof rawExpression === 'string') {
       const cleanExpression = cleanJexlExpression(rawExpression);
-      
+      const path = `${context.fieldKey}.x-reactions.${prop}`;
+      const analysis = analyzeExpression(cleanExpression);
+      if (analysis.error) {
+        diagnostics.report({ code: 'EXPRESSION_EVALUATION_ERROR', expression: cleanExpression, path, cause: analysis.error });
+        continue;
+      }
+      for (const reference of analysis.references) {
+        // Declarative reactions historically expose form values as $form.
+        const normalized = reference.root === '$form'
+          ? { ...reference, root: '$formValues', expression: `$formValues${reference.path.length ? `.${reference.path.join('.')}` : ''}` }
+          : reference;
+        const problem = getReferenceProblem(normalized, { formValues, externalContext: {} });
+        if (problem) diagnostics.report({ ...problem, expression: cleanExpression, path });
+      }
       try {
-        const value = Jexl.evalSync(cleanExpression, jexlContext);
-        if (value === undefined) {
-          throw new Error('Reaction expression resolved to undefined');
-        }
+        const value = analysis.compiled.evalSync(jexlContext);
         dynamicProps[prop] = value;
         context.setFieldProps(context.fieldKey, dynamicProps);
 
@@ -77,7 +88,7 @@ export function executeDeclarativeReactions(
         diagnostics.report({
           code: 'EXPRESSION_EVALUATION_ERROR',
           expression: cleanExpression,
-          path: `${context.fieldKey}.x-reactions.${prop}`,
+          path,
           cause: err,
         });
       }
