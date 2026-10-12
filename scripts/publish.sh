@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Script de publicação dos pacotes @schepta/* no npm
-# Usa pnpm publish que automaticamente resolve workspace:* para versões
-# Uso: ./publish.sh [--dry-run]
+# Publish @schepta/* packages to npm.
+# Usage: ./publish.sh [--dry-run] [--skip-tests]
 
 set -e
 
 DRY_RUN=false
+SKIP_TESTS=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -15,8 +15,12 @@ while [[ $# -gt 0 ]]; do
       DRY_RUN=true
       shift
       ;;
+    --skip-tests)
+      SKIP_TESTS=true
+      shift
+      ;;
     *)
-      echo "Uso: $0 [--dry-run]"
+      echo "Usage: $0 [--dry-run] [--skip-tests]"
       exit 1
       ;;
   esac
@@ -28,6 +32,18 @@ cd "$ROOT_DIR"
 echo "📦 Publicando pacotes @schepta/* no npm"
 if [ "$DRY_RUN" = true ]; then
   echo "🔍 Modo dry-run (não publicará de fato)"
+fi
+echo ""
+
+if [ "$SKIP_TESTS" = true ]; then
+  echo "⚠️  WARNING: --skip-tests bypasses the required unit and E2E publish gate."
+  echo "⚠️  Use only to recover from an already-investigated CI infrastructure failure."
+else
+  echo "🧪 Running required unit tests before publishing..."
+  pnpm test
+  echo "🧪 Running required E2E tests before publishing..."
+  CI=1 pnpm test:e2e
+  echo "✅ Unit and E2E publish gates passed."
 fi
 echo ""
 
