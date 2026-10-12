@@ -5,7 +5,7 @@
  */
 
 import React from "react";
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 /**
  * Props passed to the FormSectionTitle component.
@@ -54,7 +54,7 @@ export const DefaultFormSectionTitle: React.FC<FormSectionTitleProps> = ({
       }}
       {...safeProps}
     >
-      {content ?? children}
+      {content != null ? toSafeText(content) : children}
     </h2>
   );
 };

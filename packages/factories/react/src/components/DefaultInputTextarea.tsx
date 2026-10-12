@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 /**
  * Props passed to the InputTextarea component.
@@ -57,11 +57,12 @@ export const DefaultInputTextarea = React.forwardRef<
   HTMLTextAreaElement,
   InputTextareaProps
 >(({ label, name, value, onChange, placeholder, rows = 4, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
+  const labelText = toSafeText(label);
   return (
     <div style={wrapperStyle}>
-      {label && (
+      {labelText && (
         <label htmlFor={name} style={labelStyle}>
-          {label}
+          {labelText}
         </label>
       )}
       <textarea

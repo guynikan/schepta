@@ -8,6 +8,10 @@ import { sanitizeDOMProps, type RuntimeAdapter, type ComponentSpec, type Rendere
 
 import type { DOMElement } from './types';
 
+// Allowlisted props with no writable DOM property of the same name (`list` is
+// read-only, the others are spelled differently), so they are set as attributes.
+const ATTRIBUTE_ONLY_PROPS = new Set(['list', 'spellcheck', 'autocapitalize', 'enterkeyhint']);
+
 /**
  * Vanilla JS runtime adapter implementation
  */
@@ -125,6 +129,8 @@ export class VanillaRuntimeAdapter implements RuntimeAdapter {
             el.setAttribute(key, String(value));
           } else if (key.startsWith('aria-')) {
             el.setAttribute(key, String(value));
+          } else if (ATTRIBUTE_ONLY_PROPS.has(key.toLowerCase())) {
+            el.setAttribute(key.toLowerCase(), String(value));
           } else {
             try {
               (el as any)[key] = value;

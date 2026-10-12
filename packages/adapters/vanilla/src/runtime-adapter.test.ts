@@ -134,7 +134,9 @@ describe('VanillaRuntimeAdapter.setProps', () => {
     ]) {
       const element = document.createElement('div');
       adapter.setProps(element, { style: { backgroundImage, color: 'red' } });
-      expect(element.getAttribute('style')).toBeNull();
+      // Only the offending declaration is dropped.
+      expect(element.style.backgroundImage).toBe('');
+      expect(element.style.color).toBe('red');
     }
 
     const form = document.createElement('form');
@@ -149,3 +151,62 @@ describe('VanillaRuntimeAdapter.setProps', () => {
     warn.mockRestore();
   });
 });
+
+describe('VanillaRuntimeAdapter.setProps extra native props (O5)', () => {
+  it('applies the extra allowlisted props to the element', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const adapter = new VanillaRuntimeAdapter();
+
+    const input = document.createElement('input');
+    adapter.setProps(input, { list: 'cities', spellCheck: false, enterKeyHint: 'search', autoCapitalize: 'words', draggable: true });
+    expect(input.getAttribute('list')).toBe('cities');
+    expect(input.getAttribute('spellcheck')).toBe('false');
+    expect(input.getAttribute('enterkeyhint')).toBe('search');
+    expect(input.getAttribute('autocapitalize')).toBe('words');
+    expect(input.draggable).toBe(true);
+
+    const textarea = document.createElement('textarea');
+    adapter.setProps(textarea, { wrap: 'hard' });
+    expect(textarea.getAttribute('wrap')).toBe('hard');
+
+    const details = document.createElement('details');
+    adapter.setProps(details, { open: true });
+    expect(details.open).toBe(true);
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('restricts target and forces a safe rel on _blank', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const adapter = new VanillaRuntimeAdapter();
+
+    const blank = document.createElement('a');
+    adapter.setProps(blank, { href: '/docs', target: '_blank', rel: 'nofollow' });
+    expect(blank.getAttribute('target')).toBe('_blank');
+    expect(blank.getAttribute('rel')).toBe('nofollow noopener noreferrer');
+
+    const named = document.createElement('a');
+    adapter.setProps(named, { href: '/docs', target: 'victim-frame' });
+    expect(named.getAttribute('target')).toBeNull();
+    expect(named.getAttribute('href')).toBe('/docs');
+
+    warn.mockRestore();
+  });
+
+  it('allows an absolute form action only on the document origin', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const adapter = new VanillaRuntimeAdapter();
+
+    const sameOrigin = document.createElement('form');
+    adapter.setProps(sameOrigin, { action: `${location.origin}/submit` });
+    expect(sameOrigin.getAttribute('action')).toBe(`${location.origin}/submit`);
+
+    const crossOrigin = document.createElement('form');
+    adapter.setProps(crossOrigin, { action: 'https://attacker.example/steal' });
+    expect(crossOrigin.getAttribute('action')).toBeNull();
+
+    warn.mockRestore();
+  });
+});
+

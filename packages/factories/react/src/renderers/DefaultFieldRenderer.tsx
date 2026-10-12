@@ -80,9 +80,14 @@ export const DefaultFieldRenderer: React.FC<FieldRendererProps> = React.memo(
       adapter.setValue(name, newValue);
     }, [adapter, name]);
 
+    // React consumes `key` and `ref` itself, and a string `ref` coming from a
+    // schema would crash the render. `children` only ever comes from the
+    // orchestrator, never from the schema prop bag.
+    const { key, ref, children: _schemaChildren, ...safeComponentProps } = componentProps;
+
     return (
       <Component
-        {...componentProps}
+        {...safeComponentProps}
         name={name}
         value={value !== undefined && value !== null ? value : (componentProps.value || '')}
         onChange={handleChange}

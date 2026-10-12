@@ -2,6 +2,8 @@
  * Vanilla InputSelect Component
  */
 
+import { toSafeText } from '@schepta/core';
+
 export interface InputSelectOption {
   value: string;
   label: string;
@@ -23,9 +25,10 @@ export function createInputSelect(props: InputSelectProps): HTMLElement {
   const wrapper = document.createElement('div');
   wrapper.style.marginBottom = '16px';
   
-  if (props.label) {
+  const labelText = toSafeText(props.label);
+  if (labelText) {
     const label = document.createElement('label');
-    label.textContent = props.label;
+    label.textContent = labelText;
     label.htmlFor = props.name;
     label.style.display = 'block';
     label.style.marginBottom = '4px';
@@ -50,14 +53,14 @@ export function createInputSelect(props: InputSelectProps): HTMLElement {
   // Add placeholder option
   const placeholderOption = document.createElement('option');
   placeholderOption.value = '';
-  placeholderOption.textContent = props.placeholder || 'Select...';
+  placeholderOption.textContent = toSafeText(props.placeholder) || 'Select...';
   select.appendChild(placeholderOption);
   
   // Add options
   (props.options || []).forEach(opt => {
     const option = document.createElement('option');
     option.value = opt.value;
-    option.textContent = opt.label;
+    option.textContent = toSafeText(opt.label);
     if (opt.value === props.value) {
       option.selected = true;
     }

@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 export interface InputSelectOption {
   value: string;
@@ -76,11 +76,12 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
     },
     ref
   ) => {
+    const labelText = toSafeText(label);
     return (
       <div style={wrapperStyle}>
-        {label && (
+        {labelText && (
           <label htmlFor={name} style={labelStyle}>
-            {label}
+            {labelText}
           </label>
         )}
         <select
@@ -92,10 +93,10 @@ export const DefaultInputSelect = React.forwardRef<HTMLSelectElement, InputSelec
           style={inputStyle}
           {...sanitizeDOMProps({ ...xComponentProps, ...rest }, 'select')}
         >
-          <option value="">{placeholder}</option>
+          <option value="">{toSafeText(placeholder)}</option>
           {options.map((opt: InputSelectOption) => (
             <option key={opt.value} value={opt.value}>
-              {opt.label}
+              {toSafeText(opt.label)}
             </option>
           ))}
         </select>

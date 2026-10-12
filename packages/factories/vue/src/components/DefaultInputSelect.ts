@@ -5,7 +5,7 @@
  */
 
 import { defineComponent, h, mergeProps, type PropType } from 'vue';
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 export interface InputSelectOption {
   value: string;
@@ -45,9 +45,10 @@ export const DefaultInputSelect = defineComponent({
   setup(props, { emit, attrs }) {
     return () => {
       const value = props.value ?? '';
+      const label = toSafeText(props.label);
       return h('div', mergeProps({ style: wrapperStyle }, sanitizeDOMProps(attrs, 'div')), [
-        props.label &&
-          h('label', { for: props.name, style: labelStyle }, props.label),
+        label &&
+          h('label', { for: props.name, style: labelStyle }, label),
         h(
           'select',
           {
@@ -65,9 +66,9 @@ export const DefaultInputSelect = defineComponent({
             },
           },
           [
-            h('option', { value: '' }, props.placeholder),
+            h('option', { value: '' }, toSafeText(props.placeholder)),
             ...(props.options || []).map((opt) =>
-              h('option', { key: opt.value, value: opt.value }, opt.label)
+              h('option', { key: opt.value, value: opt.value }, toSafeText(opt.label))
             ),
           ]
         ),

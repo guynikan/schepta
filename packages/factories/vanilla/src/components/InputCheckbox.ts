@@ -2,6 +2,8 @@
  * Vanilla InputCheckbox Component
  */
 
+import { toSafeText } from '@schepta/core';
+
 export interface InputCheckboxProps {
   name: string;
   value?: boolean | string;
@@ -36,9 +38,9 @@ export function createInputCheckbox(props: InputCheckboxProps): HTMLElement {
   
   labelContainer.appendChild(checkbox);
   
-  if (props.label) {
-    const labelText = document.createTextNode(props.label);
-    labelContainer.appendChild(labelText);
+  const labelText = toSafeText(props.label);
+  if (labelText) {
+    labelContainer.appendChild(document.createTextNode(labelText));
   }
   
   wrapper.appendChild(labelContainer);

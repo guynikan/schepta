@@ -5,7 +5,7 @@
  */
 
 import { defineComponent, h, mergeProps, type PropType } from 'vue';
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 export interface InputAutocompleteOption {
   value: string;
@@ -60,9 +60,10 @@ export const DefaultInputAutocomplete = defineComponent({
       const listId = `${props.name}-datalist`;
       const normalizedOptions = normalizeOptions(props.options || []);
       const value = props.value ?? '';
+      const label = toSafeText(props.label);
       return h('div', mergeProps({ style: wrapperStyle }, sanitizeDOMProps(attrs, 'div')), [
-        props.label &&
-          h('label', { for: props.name, style: labelStyle }, props.label),
+        label &&
+          h('label', { for: props.name, style: labelStyle }, label),
         h('input', {
           id: props.name,
           name: props.name,
@@ -83,7 +84,7 @@ export const DefaultInputAutocomplete = defineComponent({
           'datalist',
           { id: listId },
           normalizedOptions.map((opt) =>
-            h('option', { key: opt.value, value: opt.value }, opt.label)
+            h('option', { key: opt.value, value: opt.value }, toSafeText(opt.label))
           )
         ),
       ]);

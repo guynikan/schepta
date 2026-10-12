@@ -5,7 +5,7 @@
  */
 
 import { defineComponent, h, mergeProps, type PropType } from 'vue';
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 const inputStyle = {
   width: '100%',
@@ -42,9 +42,10 @@ export const DefaultInputNumber = defineComponent({
   setup(props, { emit, attrs }) {
     return () => {
       const value = props.value ?? '';
+      const label = toSafeText(props.label);
       return h('div', mergeProps({ style: wrapperStyle }, sanitizeDOMProps(attrs, 'div')), [
-        props.label &&
-          h('label', { for: props.name, style: labelStyle }, props.label),
+        label &&
+          h('label', { for: props.name, style: labelStyle }, label),
         h('input', {
           type: 'number',
           id: props.name,

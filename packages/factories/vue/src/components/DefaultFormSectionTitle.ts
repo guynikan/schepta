@@ -5,13 +5,15 @@
  */
 
 import { defineComponent, h, mergeProps } from 'vue';
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 export const DefaultFormSectionTitle = defineComponent({
   name: 'DefaultFormSectionTitle',
   inheritAttrs: false,
   props: {
     // Vue camelizes prop keys, so the schema's `x-content` arrives as `xContent`.
+    // The type is not enforced in production builds, so the value is still
+    // converted to text before it is rendered.
     xContent: String,
   },
   setup(props, { slots, attrs }) {
@@ -29,7 +31,7 @@ export const DefaultFormSectionTitle = defineComponent({
           },
           sanitizeDOMProps(attrs, 'h2')
         ),
-        props.xContent ?? slots.default?.()
+        props.xContent != null ? toSafeText(props.xContent) : slots.default?.()
       );
   },
 });

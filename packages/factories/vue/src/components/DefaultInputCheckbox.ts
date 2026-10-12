@@ -5,7 +5,7 @@
  */
 
 import { defineComponent, h, mergeProps, type PropType } from 'vue';
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 const wrapperStyle = { marginBottom: '16px' };
 
@@ -49,7 +49,7 @@ export const DefaultInputCheckbox = defineComponent({
                 emit('update:modelValue', val);
               },
             }),
-            props.label,
+            toSafeText(props.label),
           ]
         ),
       ]);

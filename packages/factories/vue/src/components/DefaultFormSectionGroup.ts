@@ -12,16 +12,21 @@ export const DefaultFormSectionGroup = defineComponent({
   inheritAttrs: false,
   props: {
     style: Object as PropType<Record<string, string>>,
-    'x-component-props': Object as PropType<Record<string, any>>,
+    // The renderer merges `x-component-props` into the props, so `columns`
+    // arrives as a prop of its own.
+    columns: [String, Number] as PropType<string | number>,
+    // Vue camelizes prop keys, so `x-component-props` arrives as `xComponentProps`.
+    xComponentProps: Object as PropType<Record<string, any>>,
   },
   setup(props, { slots, attrs }) {
     return () => {
-      const rawXProps = props['x-component-props'] || {};
+      const rawXProps = props.xComponentProps || {};
       const xProps = sanitizeDOMProps(rawXProps, 'div');
+      const rawColumns = props.columns ?? rawXProps.columns;
       // `columns` ends up in a style declaration, so it goes through the style rules.
-      const columns = rawXProps.columns === undefined
+      const columns = rawColumns === undefined
         ? undefined
-        : sanitizeDOMProps({ style: { gridTemplateColumns: rawXProps.columns } }, 'div').style?.gridTemplateColumns;
+        : sanitizeDOMProps({ style: { gridTemplateColumns: rawColumns } }, 'div').style?.gridTemplateColumns;
       const baseStyle = {
         display: 'grid',
         gridTemplateColumns: columns || 'repeat(auto-fit, minmax(200px, 1fr))',

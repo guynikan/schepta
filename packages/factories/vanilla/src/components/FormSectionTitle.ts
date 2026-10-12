@@ -2,6 +2,8 @@
  * Vanilla FormSectionTitle Component
  */
 
+import { toSafeText } from '@schepta/core';
+
 export interface FormSectionTitleProps {
   'x-content'?: string;
   title?: string;
@@ -10,7 +12,7 @@ export interface FormSectionTitleProps {
 
 export function createFormSectionTitle(props: FormSectionTitleProps): HTMLElement {
   const heading = document.createElement('h3');
-  heading.textContent = props['x-content'] ?? props.title ?? '';
+  heading.textContent = toSafeText(props['x-content'] ?? props.title);
   heading.style.fontSize = '1.25rem';
   heading.style.fontWeight = '600';
   heading.style.marginTop = '0';

@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { sanitizeDOMProps } from '@schepta/core';
+import { sanitizeDOMProps, toSafeText } from '@schepta/core';
 
 /**
  * Props passed to the InputNumber component.
@@ -56,11 +56,12 @@ const wrapperStyle: React.CSSProperties = { marginBottom: '16px' };
  */
 export const DefaultInputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
   ({ label, name, value, onChange, placeholder, min, max, step, externalContext, "x-component-props": xComponentProps, "x-ui": xUi, ...rest }, ref) => {
+    const labelText = toSafeText(label);
     return (
       <div style={wrapperStyle}>
-        {label && (
+        {labelText && (
           <label htmlFor={name} style={labelStyle}>
-            {label}
+            {labelText}
           </label>
         )}
         <input
