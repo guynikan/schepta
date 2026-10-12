@@ -50,6 +50,10 @@ export function mergeProviderConfigs(
     ...global.debug,
     ...local.debug,
   };
+  const mergedExpressions = {
+    ...global.expressions,
+    ...local.expressions,
+  };
 
   // Schema: use local if provided, otherwise global
   const mergedSchema = local.schema || global.schema;
@@ -60,6 +64,7 @@ export function mergeProviderConfigs(
     middlewares: mergedMiddlewares,
     externalContext: mergedExternalContext,
     debug: mergedDebug,
+    expressions: mergedExpressions,
     schema: mergedSchema,
   };
 }

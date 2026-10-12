@@ -11,6 +11,7 @@ import type {
   ComponentSpec,
   MiddlewareFn,
   FormAdapter,
+  ExpressionConfig,
 } from '@schepta/core';
 import { createVueRuntimeAdapter } from '@schepta/adapter-vue';
 import { createVueFormAdapter } from '@schepta/adapter-vue';
@@ -27,6 +28,7 @@ import {
   buildInitialValues,
   createSchemaValidator,
   formatValidationErrors,
+  createExpressionDiagnostics,
 } from '@schepta/core';
 import formSchemaDefinition from '@schepta/factories/schemas/form-schema.json';
 import { FormRenderer } from './form-renderer';
@@ -59,6 +61,7 @@ export interface FormFactoryProps {
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   debug?: boolean;
+  expressions?: ExpressionConfig;
 }
 
 function createDebugContext(enabled: boolean) {
@@ -85,6 +88,7 @@ export const FormFactory = defineComponent({
     initialValues: { type: Object, default: undefined },
     onSubmit: { type: Function as PropType<(values: Record<string, any>) => void | Promise<void>>, default: undefined },
     debug: { type: Boolean, default: false },
+    expressions: { type: Object as PropType<ExpressionConfig>, default: undefined },
   },
   setup(props, { expose }) {
     const providerConfig = useScheptaContext();
@@ -117,6 +121,7 @@ export const FormFactory = defineComponent({
         props.debug !== undefined
           ? props.debug
           : (providerConfig?.debug?.enabled || false),
+      expressions: { ...providerConfig?.expressions, ...props.expressions },
     }));
 
     const validation = computed(() => {
@@ -187,12 +192,15 @@ export const FormFactory = defineComponent({
     const renderer = computed(() => {
       const config = mergedConfig.value;
       const debugContext = createDebugContext(config.debug);
+      const expressionDiagnostics = createExpressionDiagnostics(config.expressions, debugContext);
 
       const getFactorySetup = (): FactorySetupResult => {
         const templateMiddleware = createTemplateExpressionMiddleware({
           externalContext: { ...config.externalContext, onSubmit: props.onSubmit },
           formValues: formValues.value,
           debug: debugContext,
+          expressions: config.expressions,
+          expressionDiagnostics,
         });
 
         const updatedMiddlewares = [templateMiddleware, ...config.baseMiddlewares];
@@ -207,6 +215,8 @@ export const FormFactory = defineComponent({
           middlewares: updatedMiddlewares,
           onSubmit: props.onSubmit,
           debug: debugContext,
+          expressions: config.expressions,
+          expressionDiagnostics,
           formAdapter: formAdapter.value,
         };
       };

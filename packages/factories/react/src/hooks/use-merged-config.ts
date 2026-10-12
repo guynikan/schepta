@@ -6,7 +6,7 @@
  */
 
 import { useMemo } from 'react';
-import { defaultRenderers, getFactoryDefaultComponents, getFactoryDefaultRenderers, type ComponentSpec, type MiddlewareFn } from '@schepta/core';
+import { defaultRenderers, getFactoryDefaultComponents, getFactoryDefaultRenderers, type ComponentSpec, type MiddlewareFn, type ExpressionConfig } from '@schepta/core';
 import { useScheptaContext } from '@schepta/adapter-react';
 
 export interface MergedConfigInput {
@@ -16,6 +16,7 @@ export interface MergedConfigInput {
   externalContext?: Record<string, any>;
   middlewares?: MiddlewareFn[];
   debug?: boolean;
+  expressions?: ExpressionConfig;
 }
 
 export interface MergedConfig {
@@ -25,6 +26,7 @@ export interface MergedConfig {
   externalContext: Record<string, any>;
   baseMiddlewares: MiddlewareFn[];
   debug: boolean;
+  expressions?: ExpressionConfig;
 }
 
 /**
@@ -64,6 +66,7 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
     debug: props.debug !== undefined
       ? props.debug
       : (providerConfig?.debug?.enabled || false),
+    expressions: { ...providerConfig?.expressions, ...props.expressions },
   }), [
     providerConfig?.components,
     providerConfig?.customComponents,
@@ -77,6 +80,8 @@ export function useMergedScheptaConfig(props: MergedConfigInput): MergedConfig {
     props.externalContext,
     props.middlewares,
     props.debug,
+    providerConfig?.expressions,
+    props.expressions,
   ]);
 }
 

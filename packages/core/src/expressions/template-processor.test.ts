@@ -2,7 +2,7 @@
  * Template Processor Tests
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   processTemplateString,
   processTemplateExpression,
@@ -10,6 +10,15 @@ import {
   needsProcessing,
 } from './template-processor';
 import { createDefaultResolver, type ResolverContext } from './variable-resolver';
+import {
+  createExpressionDiagnostics,
+  ScheptaExpressionError,
+  type ExpressionDiagnosticDetails,
+} from './diagnostics';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe('Template Processor', () => {
   const context: ResolverContext = {
@@ -415,6 +424,115 @@ describe('Template Processor', () => {
         testContext,
       );
       expect(result).toBe(false);
+    });
+  });
+
+  describe('expression diagnostics', () => {
+    function diagnosticContext(
+      diagnostics: ExpressionDiagnosticDetails[],
+      strict = false,
+    ): ResolverContext {
+      return {
+        externalContext: {},
+        formValues: {},
+        declaredFormPaths: new Set(['email']),
+        diagnostics: createExpressionDiagnostics({
+          onError: strict ? 'throw' : 'warn',
+          onExpressionError: error => diagnostics.push({
+            code: error.code,
+            expression: error.expression,
+            path: error.path,
+            missingPath: error.missingPath,
+          }),
+        }),
+      };
+    }
+
+    it('reports syntax errors once with their expression and schema usage path', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+      const value = { 'x-ui': { visible: '{{ 1 === }}' } };
+
+      expect(processValue(value, diagnosticResolver, diagnosticContextValue)).toEqual({
+        'x-ui': { visible: undefined },
+      });
+      expect(diagnostics).toEqual([expect.objectContaining({
+        code: 'EXPRESSION_EVALUATION_ERROR',
+        expression: '1 ===',
+        path: 'x-ui.visible',
+      })]);
+    });
+
+    it('reports unknown roots and missing paths without changing default resolution', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+
+      expect(processValue({ unknown: '{{ $typo.value }}', missing: '{{ $formValues.emial }}' }, diagnosticResolver, diagnosticContextValue)).toEqual({
+        unknown: undefined,
+        missing: undefined,
+      });
+      expect(diagnostics).toEqual([
+        expect.objectContaining({
+          code: 'UNKNOWN_EXPRESSION_VARIABLE', expression: '$typo.value', path: 'unknown',
+        }),
+        expect.objectContaining({
+          code: 'EXPRESSION_PATH_NOT_FOUND', expression: '$formValues.emial', path: 'missing', missingPath: '$formValues.emial',
+        }),
+      ]);
+    });
+
+    it('keeps declared but empty fields quiet and preserves undefined behavior', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+
+      expect(processValue('{{ $formValues.email }}', diagnosticResolver, diagnosticContextValue, 'x-ui.label')).toBeUndefined();
+      expect(diagnostics).toEqual([]);
+    });
+
+    it('deduplicates repeated diagnostics and throws typed errors only in strict mode', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+      const value = '{{ $formValues.emial }}';
+
+      processValue(value, diagnosticResolver, diagnosticContextValue, 'x-ui.disabled');
+      processValue(value, diagnosticResolver, diagnosticContextValue, 'x-ui.disabled');
+      expect(diagnostics).toHaveLength(1);
+
+      const strictDiagnostics: ExpressionDiagnosticDetails[] = [];
+      const strictContext = diagnosticContext(strictDiagnostics, true);
+      expect(() => processValue(value, createDefaultResolver(strictContext), strictContext, 'x-ui.required')).toThrow(ScheptaExpressionError);
+      expect(strictDiagnostics[0]).toMatchObject({
+        code: 'EXPRESSION_PATH_NOT_FOUND', expression: '$formValues.emial', path: 'x-ui.required',
+      });
+    });
+
+    it('leaves invalid conditions at their safe undefined defaults and reports each location', () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const diagnostics: ExpressionDiagnosticDetails[] = [];
+      const diagnosticContextValue = diagnosticContext(diagnostics);
+      const diagnosticResolver = createDefaultResolver(diagnosticContextValue);
+      const value = {
+        'x-ui': {
+          visible: '{{ $formValues.emial }}',
+          disabled: '{{ $formValues.emial }}',
+          required: '{{ $formValues.emial }}',
+        },
+      };
+
+      expect(processValue(value, diagnosticResolver, diagnosticContextValue)).toEqual({
+        'x-ui': { visible: undefined, disabled: undefined, required: undefined },
+      });
+      expect(diagnostics.map(error => error.path)).toEqual([
+        'x-ui.visible', 'x-ui.disabled', 'x-ui.required',
+      ]);
     });
   });
 });

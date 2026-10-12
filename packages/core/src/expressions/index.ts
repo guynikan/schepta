@@ -6,6 +6,7 @@
  */
 
 export * from './template-detector';
+export * from './diagnostics';
 export * from './variable-resolver';
 export * from './template-processor';
 

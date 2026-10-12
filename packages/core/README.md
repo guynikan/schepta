@@ -38,6 +38,32 @@ const orchestrator = new componentOrchestrator(registry);
 
 For complete documentation, visit [https://schepta.dev](https://schepta.dev)
 
+## Expression diagnostics
+
+Template expressions are checked when schemas are rendered. Syntax/evaluation
+errors, unknown expression roots, and paths that are not declared in the form
+schema or external context emit one diagnostic per expression and schema path.
+Declared form fields that have not been filled in yet remain quiet and resolve
+to `undefined`, preserving the existing interpolation behavior.
+
+Invalid conditional expressions use safe defaults: `visible` remains visible,
+while `disabled` and `required` remain unset. The default is non-breaking:
+diagnostics are sent to the configured debug context and to `console.warn`
+outside production. To make these schema errors fail fast, configure a provider
+or factory with strict expression handling:
+
+```ts
+const expressions = { onError: 'throw' as const };
+
+// Provider: <ScheptaProvider expressions={expressions} />
+// Factory:  <FormFactory expressions={expressions} schema={schema} />
+```
+
+Strict mode throws `ScheptaExpressionError`, whose `code`, `expression`,
+`path`, and optional `missingPath` make errors suitable for reporting tools.
+Use `onExpressionError` in the same configuration object to receive each
+deduplicated diagnostic programmatically.
+
 ## License
 
 MIT

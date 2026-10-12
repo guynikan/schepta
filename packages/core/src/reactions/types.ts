@@ -6,6 +6,7 @@
 
 import type { FormAdapter } from '../forms/types';
 import type { DebugContextValue } from '../runtime/types';
+import type { ExpressionConfig, ExpressionDiagnostics } from '../expressions/diagnostics';
 
 /**
  * Runtime reaction context
@@ -23,6 +24,8 @@ export interface RuntimeReactionContext {
   setFieldProps: (fieldKey: string, props: Record<string, any>) => void;
   /** Debug utilities */
   debug?: DebugContextValue;
+  expressions?: ExpressionConfig;
+  expressionDiagnostics?: ExpressionDiagnostics;
 }
 
 /**

@@ -4,7 +4,7 @@
  * Vanilla JS implementation of schepta Provider
  */
 
-import type { ComponentSpec, ComponentType, DebugConfig } from '@schepta/core';
+import type { ComponentSpec, ComponentType, DebugConfig, ExpressionConfig } from '@schepta/core';
 import type { FormSchema } from '@schepta/core';
 import type { MiddlewareFn } from '@schepta/core';
 import type { RendererFn } from '@schepta/core';
@@ -19,6 +19,7 @@ export interface ScheptaProviderProps {
   renderers?: Partial<Record<ComponentType, RendererFn>>;
   middlewares?: MiddlewareFn[];
   debug?: DebugConfig;
+  expressions?: ExpressionConfig;
   schema?: FormSchema;
   externalContext?: Record<string, any>;
 }
@@ -32,6 +33,7 @@ export interface ScheptaContextType {
   renderers: Record<ComponentType, RendererFn>;
   middlewares: MiddlewareFn[];
   debug: DebugConfig;
+  expressions?: ExpressionConfig;
   schema?: FormSchema;
   externalContext: Record<string, any>;
 }
@@ -68,6 +70,7 @@ export function createScheptaProvider(
         renderers: mergedRenderers,
         middlewares: [...parentContext.middlewares, ...(props.middlewares || [])],
         debug: { ...parentContext.debug, ...props.debug },
+        expressions: { ...parentContext.expressions, ...props.expressions },
         schema: props.schema || parentContext.schema,
         externalContext: { ...parentContext.externalContext, ...(props.externalContext || {}) },
       };
@@ -82,6 +85,7 @@ export function createScheptaProvider(
       renderers: props.renderers,
       middlewares: props.middlewares || [],
       debug: mergedDebug,
+      expressions: props.expressions,
       schema: props.schema,
       externalContext: props.externalContext || {},
     };

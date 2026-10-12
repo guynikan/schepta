@@ -4,16 +4,17 @@
  * Executes reactions (declarative via JEXL and imperative) based on form state changes.
  */
 
-import jexl from 'jexl';
 import type { RuntimeReactionContext, DefaultReaction } from './types';
 import { getAllReactions } from './types';
+import { Jexl } from '../utils/jexl-config';
+import { createExpressionDiagnostics } from '../expressions/diagnostics';
 
 /**
  * Clean JEXL expression - removes template syntax if needed
  */
 function cleanJexlExpression(expression: string): string {
-  // Remove any template syntax that might interfere
-  return expression.trim().replace(/^\$\{|\}$/g, '');
+  // Accept raw JEXL plus both interpolation syntaxes used by schemas.
+  return expression.trim().replace(/^\$\{|\}$|^\{\{\s*|\s*\}\}$/g, '');
 }
 
 /**
@@ -50,33 +51,40 @@ export function executeDeclarativeReactions(
   const formValues = context.formAdapter.getValues();
   const jexlContext = { $form: formValues };
   const dynamicProps: Record<string, any> = {};
+  const diagnostics = context.expressionDiagnostics || createExpressionDiagnostics(context.expressions, context.debug);
 
   for (const [prop, rawExpression] of Object.entries(reactions)) {
     if (typeof rawExpression === 'string') {
       const cleanExpression = cleanJexlExpression(rawExpression);
       
       try {
-        jexl.eval(cleanExpression, jexlContext).then((value) => {
-          dynamicProps[prop] = value;
-          context.setFieldProps(context.fieldKey, dynamicProps);
-          
-          if (context.debug?.isEnabled) {
-            context.debug.log('reaction', 'Declarative reaction executed', {
-              type: 'declarative',
-              expression: cleanExpression,
-              context: {
-                prop,
-                formValues,
-                schema,
-              },
-              result: value,
-            });
-          }
-        }).catch((err) => {
-          console.warn(`Error evaluating reaction '${cleanExpression}' for '${prop}'`, err);
-        });
+        const value = Jexl.evalSync(cleanExpression, jexlContext);
+        if (value === undefined) {
+          diagnostics.report({
+            code: 'EXPRESSION_EVALUATION_ERROR',
+            expression: cleanExpression,
+            path: `${context.fieldKey}.x-reactions.${prop}`,
+          });
+          continue;
+        }
+        dynamicProps[prop] = value;
+        context.setFieldProps(context.fieldKey, dynamicProps);
+
+        if (context.debug?.isEnabled) {
+          context.debug.log('reaction', 'Declarative reaction executed', {
+            type: 'declarative',
+            expression: cleanExpression,
+            context: { prop, formValues, schema },
+            result: value,
+          });
+        }
       } catch (err) {
-        console.warn(`Error evaluating reaction '${cleanExpression}' for '${prop}'`, err);
+        diagnostics.report({
+          code: 'EXPRESSION_EVALUATION_ERROR',
+          expression: cleanExpression,
+          path: `${context.fieldKey}.x-reactions.${prop}`,
+          cause: err,
+        });
       }
     }
   }

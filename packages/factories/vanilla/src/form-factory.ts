@@ -2,7 +2,7 @@
  * Vanilla JS Form Factory
  */
 
-import type { FormSchema, ComponentSpec, FactorySetupResult, FormAdapter, MiddlewareFn } from '@schepta/core';
+import type { FormSchema, ComponentSpec, FactorySetupResult, FormAdapter, MiddlewareFn, ExpressionConfig } from '@schepta/core';
 import { createVanillaRuntimeAdapter, VanillaFormAdapter } from '@schepta/adapter-vanilla';
 import { createVanillaFormAdapter } from '@schepta/adapter-vanilla';
 import { getScheptaContext } from '@schepta/adapter-vanilla';
@@ -13,6 +13,7 @@ import {
   formatValidationErrors,
   getFactoryDefaultComponents,
   hasFormValueTemplates,
+  createExpressionDiagnostics,
 } from '@schepta/core';
 import { buildInitialValues } from '@schepta/core';
 import formSchemaDefinition from "@schepta/factories/schemas/form-schema.json";
@@ -31,6 +32,7 @@ export interface FormFactoryOptions {
   initialValues?: Record<string, any>;
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   debug?: boolean;
+  expressions?: ExpressionConfig;
   container: HTMLElement;
 }
 
@@ -143,25 +145,28 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
   const mergedDebug = options.debug !== undefined
     ? options.debug
     : (providerConfig?.debug?.enabled || false);
+  const expressions = { ...providerConfig?.expressions, ...options.expressions };
 
   // Create runtime adapter
   const runtime = createVanillaRuntimeAdapter();
+  const debugContext = mergedDebug ? {
+    isEnabled: true,
+    log: (category: string, message: string, data?: any) => {
+      console.log(`[${category}]`, message, data);
+    },
+    buffer: { add: () => {}, clear: () => {}, getAll: () => [] },
+  } : undefined;
+  const expressionDiagnostics = createExpressionDiagnostics(expressions, debugContext);
 
   const getFactorySetup = (): FactorySetupResult => {
     const formValues = formAdapter.getValues();
-
-    const debugContext = mergedDebug ? {
-      isEnabled: true,
-      log: (category: string, message: string, data?: any) => {
-        console.log(`[${category}]`, message, data);
-      },
-      buffer: { add: () => {}, clear: () => {}, getAll: () => [] },
-    } : undefined;
 
     const templateMiddleware = createTemplateExpressionMiddleware({
       formValues,
       externalContext: mergedExternalContext,
       debug: debugContext,
+      expressions,
+      expressionDiagnostics,
       formAdapter,
     });
 
@@ -180,6 +185,8 @@ export function createFormFactory(options: FormFactoryOptions): FormFactoryResul
       middlewares,
       onSubmit: options.onSubmit ? () => formAdapter.handleSubmit(options.onSubmit!)() : undefined,
       debug: debugContext,
+      expressions,
+      expressionDiagnostics,
       formAdapter,
     };
   };

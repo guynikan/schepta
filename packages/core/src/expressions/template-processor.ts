@@ -6,9 +6,9 @@
  * Uses JEXL for complex expressions with operators (===, !==, &&, ||, etc.)
  */
 
-import jexl from 'jexl';
 import { detectTemplateExpressions, hasTemplateExpressions } from './template-detector';
-import type { VariableResolver, ResolverContext } from './variable-resolver';
+import { createDefaultResolver, type VariableResolver, type ResolverContext } from './variable-resolver';
+import { Jexl } from '../utils/jexl-config';
 
 /**
  * Check if an expression contains operators (is a complex expression)
@@ -51,11 +51,24 @@ function evaluateExpression(expression: string, context: ResolverContext): any {
   
   // Convert JS operators to JEXL operators
   const jexlExpression = convertToJexlOperators(expression);
+
+  // JEXL treats unresolved identifiers as undefined. Resolve every supported
+  // reference first so typos remain observable instead of becoming falsey.
+  const referenceResolver = createDefaultResolver(context);
+  const references = expression.match(/\$[A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)*/g) || [];
+  for (const reference of new Set(references)) {
+    referenceResolver(reference, context);
+  }
   
   try {
-    return jexl.evalSync(jexlExpression, jexlContext);
+    return Jexl.evalSync(jexlExpression, jexlContext);
   } catch (error) {
-    console.warn(`Error evaluating expression "${expression}":`, error);
+    context.diagnostics?.report({
+      code: 'EXPRESSION_EVALUATION_ERROR',
+      expression,
+      path: context.expressionPath || '<unknown>',
+      cause: error,
+    });
     return undefined;
   }
 }
@@ -106,7 +119,7 @@ export function processTemplateString(
     }
     
     // Simple variable resolution - return value directly (preserves type)
-    return resolver(expr);
+    return resolver(expr, context);
   }
 
   // Multiple templates or text around them: concatenate as string
@@ -120,7 +133,7 @@ export function processTemplateString(
     if (isComplexExpression(expression)) {
       resolved = evaluateExpression(expression, context);
     } else {
-      resolved = resolver(expression);
+      resolved = resolver(expression, context);
     }
     
     // Convert to string for concatenation
@@ -149,8 +162,9 @@ export function processTemplateString(
 export function processTemplateExpression(
   expression: string,
   resolver: VariableResolver,
+  context?: ResolverContext,
 ): any {
-  return resolver(expression);
+  return resolver(expression, context);
 }
 
 /**
@@ -182,14 +196,15 @@ export function processTemplateExpression(
 export function processValue(
   value: any,
   resolver: VariableResolver,
-  context: ResolverContext
+  context: ResolverContext,
+  path = ''
 ): any {
   if (value === null || value === undefined) {
     return value;
   }
 
   if (typeof value === 'string') {
-    return processTemplateString(value, resolver, context);
+    return processTemplateString(value, resolver, { ...context, expressionPath: path || context.expressionPath });
   }
 
   // Short-circuit: if value contains no {{ }} templates, return as-is
@@ -198,14 +213,14 @@ export function processValue(
   }
 
   if (Array.isArray(value)) {
-    return value.map(item => processValue(item, resolver, context));
+    return value.map((item, index) => processValue(item, resolver, context, `${path}[${index}]`));
   }
 
   if (typeof value === 'object') {
     const processed: Record<string, any> = {};
     
     for (const [key, val] of Object.entries(value)) {
-      processed[key] = processValue(val, resolver, context);
+      processed[key] = processValue(val, resolver, context, path ? `${path}.${key}` : key);
     }
     
     return processed;

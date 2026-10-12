@@ -5,7 +5,7 @@
  */
 
 import React, { useMemo, useContext, createContext } from 'react';
-import type { ComponentSpec, ComponentType, DebugConfig } from '@schepta/core';
+import type { ComponentSpec, ComponentType, DebugConfig, ExpressionConfig } from '@schepta/core';
 import type { FormSchema } from '@schepta/core';
 import type { MiddlewareFn } from '@schepta/core';
 import type { RendererFn } from '@schepta/core';
@@ -21,6 +21,7 @@ export interface ScheptaProviderProps {
   renderers?: Partial<Record<ComponentType, RendererFn>>;
   middlewares?: MiddlewareFn[];
   debug?: DebugConfig;
+  expressions?: ExpressionConfig;
   schema?: FormSchema;
   externalContext?: Record<string, any>;
 }
@@ -34,6 +35,7 @@ export interface ScheptaContextType {
   renderers: Record<ComponentType, RendererFn>;
   middlewares: MiddlewareFn[];
   debug: DebugConfig;
+  expressions?: ExpressionConfig;
   schema?: FormSchema;
   externalContext: Record<string, any>;
 }
@@ -66,6 +68,7 @@ export function ScheptaProvider({
   renderers = {},
   middlewares = [],
   debug = defaultDebugConfig,
+  expressions,
   schema,
   externalContext = {},
 }: ScheptaProviderProps) {
@@ -82,6 +85,7 @@ export function ScheptaProvider({
         renderers: { ...parentContext.renderers, ...renderers },
         middlewares: [...parentContext.middlewares, ...middlewares],
         debug: { ...parentContext.debug, ...debug },
+        expressions: { ...parentContext.expressions, ...expressions },
         schema: schema || parentContext.schema,
         externalContext: { ...parentContext.externalContext, ...externalContext },
       };
@@ -95,10 +99,11 @@ export function ScheptaProvider({
       renderers,
       middlewares,
       debug: mergedDebug,
+      expressions,
       schema,
       externalContext,
     };
-  }, [parentContext, components, customComponents, renderers, middlewares, debug, schema, externalContext]);
+  }, [parentContext, components, customComponents, renderers, middlewares, debug, expressions, schema, externalContext]);
 
   return (
     <ScheptaContext.Provider value={contextValue as ScheptaContextType}>

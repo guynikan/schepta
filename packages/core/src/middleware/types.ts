@@ -6,6 +6,7 @@
 
 import type { FormAdapter } from '../forms/types';
 import type { DebugContextValue } from '../runtime/types';
+import type { ExpressionConfig, ExpressionDiagnostics } from '../expressions/diagnostics';
 
 /**
  * Middleware context - provides access to form state and external context
@@ -19,6 +20,9 @@ export interface MiddlewareContext {
   debug?: DebugContextValue;
   /** Form adapter for form operations */
   formAdapter?: FormAdapter;
+  expressions?: ExpressionConfig;
+  expressionDiagnostics?: ExpressionDiagnostics;
+  declaredFormPaths?: ReadonlySet<string>;
 }
 
 /**

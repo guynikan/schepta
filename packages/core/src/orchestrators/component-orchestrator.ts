@@ -12,6 +12,7 @@ import { applyMiddlewares } from '../middleware/types';
 import { processValue } from '../expressions/template-processor';
 import { hasTemplateExpressions } from '../expressions/template-detector';
 import { createDefaultResolver } from '../expressions/variable-resolver';
+import { collectDeclaredFormPaths, createExpressionDiagnostics, type ExpressionConfig, type ExpressionDiagnostics } from '../expressions/diagnostics';
 import { createRendererOrchestrator } from './renderer-orchestrator';
 
 /**
@@ -40,6 +41,8 @@ export interface FactorySetupResult {
   onSubmit?: (values: Record<string, any>) => void | Promise<void>;
   debug?: DebugContextValue;
   formAdapter?: FormAdapter;
+  expressions?: ExpressionConfig;
+  expressionDiagnostics?: ExpressionDiagnostics;
 }
 
 /**
@@ -107,14 +110,17 @@ export function createComponentOrchestrator(
     parentProps: Record<string, any> = {},
     namePath: string[] = [],
     isDirectRootProperty: boolean = false,
-    _cachedSetup?: FactorySetupResult & { resolver: ReturnType<typeof createDefaultResolver>; resolverContext: { externalContext: Record<string, any>; formValues: Record<string, any> }; middlewareContext: MiddlewareContext }
+    _cachedSetup?: FactorySetupResult & { resolver: ReturnType<typeof createDefaultResolver>; resolverContext: { externalContext: Record<string, any>; formValues: Record<string, any>; declaredFormPaths: ReadonlySet<string>; diagnostics: ExpressionDiagnostics }; middlewareContext: MiddlewareContext }
   ): any {
     // Resolve setup + resolver once per top-level call, reuse in recursion
     const cached = _cachedSetup ?? (() => {
       const setup = getFactorySetup();
+      const diagnostics = setup.expressionDiagnostics || createExpressionDiagnostics(setup.expressions, setup.debug);
       const resolverContext = {
         externalContext: setup.externalContext,
         formValues: setup.state,
+        declaredFormPaths: collectDeclaredFormPaths(schema),
+        diagnostics,
       };
       const resolver = createDefaultResolver(resolverContext);
       const middlewareContext: MiddlewareContext = {
@@ -122,6 +128,9 @@ export function createComponentOrchestrator(
         externalContext: setup.externalContext,
         debug: setup.debug,
         formAdapter: setup.formAdapter,
+        expressions: setup.expressions,
+        expressionDiagnostics: diagnostics,
+        declaredFormPaths: resolverContext.declaredFormPaths,
       };
       return { ...setup, resolver, resolverContext, middlewareContext };
     })();
